@@ -1,8 +1,8 @@
 # RFC-0007: Durable Evidence Incremental Change Feed (P0.3 Boundary)
 
-**Version:** 0.2
+**Version:** 0.3
 
-**Status:** Draft for Experimental Validation
+**Status:** Draft for Architectural Review (Pre-ADR)
 
 ## Objective
 
@@ -14,9 +14,10 @@ or reopening V015.
 
 This RFC is pre-ADR, pre-SPEC, and pre-TASK. It proposes concepts and a
 two-slice validation plan. It does not authorize production implementation, a
-materialized projection table, an API, a UI, or any provider work. Its claims
-about query performance and concurrency remain hypotheses until EXP-0006
-validates them against real PostgreSQL.
+materialized projection table, an API, a UI, or any provider work.
+Experimental evidence is now sufficient for architectural review of Slice A.
+Human review of this RFC remains the next gate before any ADR may be created;
+no production boundary is authorized here.
 
 ## Context
 
@@ -58,8 +59,8 @@ which SPEC-0044 deliberately kept limited to `find`/`apply`.
 ## Problem Statement
 
 Given the existing, unmodified `marketplace_economic_evidence_update` and
-`marketplace_economic_evidence_subject` tables created by V015, experimentally
-validate a proposed boundary containing:
+`marketplace_economic_evidence_subject` tables created by V015, EXP-0006
+experimentally validated a proposed boundary containing:
 
 1. an incremental change feed that returns bounded evidence-change
    invalidations after a checkpoint, ordered by `change_sequence`, for one
@@ -85,6 +86,9 @@ validate a proposed boundary containing:
 - No generalized event bus, outbox, or pub/sub mechanism. The proposed feed is
   pull-based.
 - No V016 or other production migration is authorized by this RFC or EXP-0006.
+- No scheduling-fairness mechanism, lease, claim, worker ownership,
+  `SKIP LOCKED`, retry-after, failure counter, round-robin cursor, last-served
+  organization, or scheduler policy.
 
 ## Slice A Semantics: Invalidation / Change Feed
 
@@ -152,9 +156,9 @@ Both collection-returning operations require a positive, bounded `limit`.
 `changesSince` is deterministically ordered by ascending `change_sequence`
 within the requested organization. Repeated calls using the last returned
 sequence as the next checkpoint form deterministic forward pagination.
-`organizationsWithPendingChanges` must also define and experimentally prove a
-stable deterministic order before this candidate becomes an accepted
-contract.
+`organizationsWithPendingChanges` is a bounded discovery operation with stable
+deterministic ordering. That ordering identifies work; it does not guarantee
+fair scheduling across polling cycles.
 
 ### `MarketplaceEconomicEvidenceChange`
 
@@ -242,29 +246,169 @@ No checkpoint row means `NONE` for that organization/projection pair. Rows for
 two different `projection_name` values are independent even when they consume
 the same organization and evidence journal.
 
-This schema remains a proposal. EXP-0006 must create it only as ephemeral SQL
+This schema remains a proposal. EXP-0006 created it only as ephemeral SQL
 inside its Testcontainers test setup. This RFC does not authorize V016.
+
+## Experimental Validation Results — EXP-0006
+
+EXP-0006 ran against PostgreSQL 18.4 through real Testcontainers with Flyway
+V001–V015 applied, existing integrity constraints enabled, and the production
+P0.2 writer used where composition with concurrent writes was required.
+
+### Change feed semantics
+
+The experiment validated only the following observed behaviors:
+
+- `changesSince` returns changes above an exclusive checkpoint;
+- each change contains a complete `MarketplaceEconomicEvidenceSubject`;
+- pagination is bounded and deterministic;
+- a repeated read does not advance a checkpoint implicitly;
+- ordering is ascending by `change_sequence` within one organization;
+- two projection names progress independently;
+- the feed composes with the real P0.2 writer;
+- no global ordering between organizations is claimed.
+
+### Checkpoint CAS
+
+The experiment observed:
+
+- missing row + expected `NONE` + next greater than `NONE` -> `Advanced`;
+- missing row + expected other than `NONE` -> `Stale`;
+- `next <= expected` -> `Regression` without a write;
+- durable checkpoint different from expected -> `Stale`;
+- concurrent first writers -> exactly one `Advanced` and one `Stale`;
+- concurrent writers against an existing checkpoint -> exactly one `Advanced`
+  and one `Stale`.
+
+These observations are limited to the exercised fixtures and concurrency
+scenarios.
+
+### Pending-discovery comparison
+
+Three semantically equivalent query forms were exercised at cumulative scales
+of 1,780 journal rows across 40 organizations, 68,940 rows across 120
+organizations, and 316,080 rows across 240 organizations. Queries A, B, and C
+returned the same ordered organization identifiers for no checkpoint, partial
+checkpoint, checkpoint at maximum, mixed pending/non-pending states, two
+projection names, and a limit smaller than the pending set.
+
+Observed execution results from the final focused run were:
+
+| Journal rows | Organizations | Query A ms | Query B ms | Query C ms | Query A buffer hits | Query B buffer hits | Query C buffer hits |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1,780 | 40 | 0.536 | 0.363 | 0.269 | 28 | 115 | 125 |
+| 68,940 | 120 | 12.035 | 0.866 | 1.170 | 922 | 456 | 486 |
+| 316,080 | 240 | 23.191 | 1.409 | 1.639 | 4,233 | 909 | 969 |
+
+These are individual observed executions, not benchmark distributions or
+formal complexity proofs.
 
 ## Candidate Pending-Organization Discovery
 
-`organizationsWithPendingChanges` is proposed as a `LEFT JOIN` plus aggregation
-over evidence changes and checkpoints for the requested projection name.
-Organizations with journal changes but no checkpoint row must be treated as if
-their checkpoint were `NONE`.
+### Query B — candidate canonical pending-discovery query
 
-The existing V015 uniqueness/index shape on
-`(organization_id, change_sequence)` may be relevant to that query, but this
-RFC does not claim that the index alone prevents a scan. The candidate query,
-its stable ordering, examined-row count, and execution plan must be validated
-experimentally with sufficient data volume.
+The candidate for eventual ADR/SPEC review is:
 
-## Experimental Validation Plan — EXP-0006 / Slice A
+```sql
+SELECT o.organization_id
+FROM integration_organization o
+LEFT JOIN projection_checkpoint c
+  ON c.organization_id = o.organization_id
+ AND c.projection_name = ?
+WHERE EXISTS (
+    SELECT 1
+    FROM marketplace_economic_evidence_update u
+    WHERE u.organization_id = o.organization_id
+      AND u.change_sequence >
+          COALESCE(c.last_change_sequence, 0)
+)
+ORDER BY o.organization_id ASC
+LIMIT ?
+```
 
-EXP-0006 remains pre-ADR and must run against real PostgreSQL through
-Testcontainers. It must not mock persistence, add a production migration, or
-alter any P0.2 production file.
+**CANDIDATE CANONICAL PENDING-DISCOVERY QUERY**
 
-The experiment must validate:
+A, B, and C were semantically equivalent in the tested fixtures. Both B and C
+used the existing V015 index on `(organization_id, change_sequence)`. As the
+journal grew, their observed resource usage tracked the growth in organization
+count much more closely than the growth in journal history. B used fewer
+buffer hits than C in every measured fixture. Its execution time was lower at
+68,940 and 316,080 rows; C had the lower execution time at 1,780 rows. The
+`EXISTS` form lets PostgreSQL satisfy the presence of pending work without
+explicitly obtaining every organization's latest change.
+
+This is a query candidate for architectural review, not a production
+implementation authorization.
+
+### Query A — rejected candidate
+
+The original shape:
+
+```text
+journal
+-> GROUP BY organization_id
+-> MAX(change_sequence)
+```
+
+is **REJECTED EXPERIMENTALLY** as the production pending-discovery candidate.
+In the tested fixtures PostgreSQL aggregated the historical journal, and
+observed resource usage scaled approximately with journal volume across the
+tested fixtures. This statement records the observed plans and measurements;
+it is not a formal Big-O proof.
+
+### Query C — valid alternative, not selected
+
+Query C returned equivalent results and used the existing V015 index with a
+backward index-only lookup. It consistently used more buffer hits than B in
+the measured fixtures. Its execution time was higher at 68,940 and 316,080
+rows, while at 1,780 rows it had the lower observed execution time. Its form
+explicitly determines the latest `change_sequence` for each organization
+before comparing it with the checkpoint.
+
+**VALID ALTERNATIVE — NOT SELECTED**
+
+### Note — index-only scans and the visibility map
+
+Observed plans included heap fetches. The fixture was analyzed but was not
+prepared to represent the visibility-map state of a mature database.
+Autovacuum or `VACUUM` can change heap fetches for index-only scans. Heap
+fetches observed in EXP-0006 are therefore not a permanent logical property of
+Query B or Query C and are not the basis for identifying Query B as the
+candidate.
+
+### Known Limitation — Discovery Fairness
+
+`ORDER BY organization_id ASC LIMIT ?` is deterministic, but EXP-0006
+empirically demonstrated starvation when the first organizations remained
+pending and their checkpoints did not advance:
+
+- this operation does not guarantee fairness between polling cycles;
+- deterministic ordering is not fair scheduling;
+- an organization outside the first batch may remain unselected while earlier
+  organizations remain pending.
+
+The experiment repeated the same limited poll without advancing checkpoints
+and observed the same first batch every time.
+
+This RFC does not resolve scheduling fairness. Lease, claim, worker ownership,
+`SKIP LOCKED`, retry-after, failure counters, round-robin cursor, last-served
+organization, and scheduler policy remain outside the current Slice A scope.
+It does not select any of those mechanisms.
+
+```text
+Pending discovery identifies work.
+Scheduling policy determines fair/progressive work allocation.
+```
+
+Discovery and scheduling do not necessarily belong to the same port.
+
+## Experimental Validation Basis — EXP-0006 / Slice A
+
+EXP-0006 remains pre-ADR evidence. It ran against real PostgreSQL through
+Testcontainers without mocking persistence, adding a production migration, or
+altering any P0.2 production file.
+
+The experiment plan required validation of:
 
 1. `changesSince` returns all bounded changes above `NONE` for an organization;
 2. partial checkpoints return only later changes;
@@ -302,20 +446,45 @@ The experiment must validate:
     an expected index strategy into a fact before execution.
 
 The experimental `projection_checkpoint` table, trigger, and candidate queries
-must exist only inside the experiment's Testcontainers setup. Results are
-recorded as `EXP-0006` under `docs/evidence/` only after execution.
+exist only inside the experiment's Testcontainers setup. Results are recorded
+under `docs/evidence/EXP-0006-durable-evidence-incremental-change-feed.md` and
+`docs/evidence/EXP-0006-pending-discovery-follow-up.md`.
 
 ## Experimental Decision Matrix
 
-| Experiment outcome | Candidate follow-up |
-|---|---|
-| All fixtures pass, per-organization ordering remains stable under concurrent P0.2 writes, checkpoint CAS behaves as specified, and the measured pending-discovery plan is acceptable | An ADR may then propose a production boundary and a separately reviewed production schema change. |
-| Ordering is unstable under concurrent P0.2 writes | Revisit read and transaction semantics without weakening P0.2 guarantees. |
-| Pending discovery examines or scans an unacceptable amount of data | Revisit the discovery shape or indexing before proposing a production contract. |
-| Checkpoint CAS permits multiple successful writers, regression, or silent loss | Reject the proposed checkpoint contract and redesign it before an ADR. |
+| Classification | Capability or finding | Evidence state |
+|---|---|---|
+| VALIDATED experimentally | Change-feed semantics | Exclusive checkpoint reads, bounded deterministic pagination, repeated reads, and no implicit checkpoint advancement passed. |
+| VALIDATED experimentally | Checkpoint semantics | Missing, stale, regression, explicit advancement, and durable reads passed. |
+| VALIDATED experimentally | CAS concurrency | First-row and existing-row concurrent writers each produced exactly one `Advanced` and one `Stale`. |
+| VALIDATED experimentally | Per-organization ordering | Increasing `change_sequence` ordering remained stable in the tested concurrent scenario. |
+| VALIDATED experimentally | Independent projections | Two projection names progressed independently. |
+| VALIDATED experimentally | Real P0.2 composition | Concurrent writes used the existing P0.2 repository. |
+| VALIDATED experimentally | Query B semantic correctness | Query B matched the exact ordered results from A and C across all tested checkpoint states and limits. |
+| VALIDATED experimentally | Query B measured scaling behavior | Across 1,780, 68,940, and 316,080 journal rows, Query B used the existing V015 index and its measured resource use followed organization count more closely than journal history growth. |
+| REJECTED experimentally | Full-journal `GROUP BY`/`MAX` as production pending-discovery candidate | Observed work and buffer usage tracked journal-volume growth across the tested fixtures. |
+| KNOWN LIMITATION | Starvation under fixed organization ordering with bounded limit | The same first batch was returned while earlier organizations remained pending and checkpoints did not advance. |
+| UNRESOLVED / future design | Scheduling fairness | No fairness mechanism has been selected. |
+| UNRESOLVED / future design | Ownership and leases | Lease, claim, worker ownership, retry, and failure handling remain outside Slice A. |
+| UNRESOLVED / future design | Materialization/checkpoint atomicity | Deferred to Slice B. |
+| UNRESOLVED / future design | Exact timeline and Slice B | Exact historical reconstruction and materialization contract remain unresolved. |
+| UNRESOLVED / future design | First production consumer | No production consumer has been selected. |
 
-No row in this matrix authorizes an ADR, SPEC, TASK, migration, or production
+Experimental evidence is now sufficient for architectural review of Slice A.
+The next gate is human review of RFC-0007 v0.3 before creation of an ADR. No
+row in this matrix authorizes an ADR, SPEC, TASK, migration, or production
 implementation automatically.
+
+## Preserved Architectural Boundaries
+
+Slice A remains prohibited from:
+
+- widening `MarketplaceIndependentEconomicEvidenceRepository`;
+- placing checkpoints or `change_sequence` in the P0.2 economic port;
+- altering V015;
+- using the outbox as an internal projection cursor;
+- creating a materialized Sales Intelligence projection;
+- creating API, UI, marketplace-provider, or ERP-provider behavior.
 
 ## Relationship to P0.3 Slice B
 
@@ -347,3 +516,7 @@ Slice A does not resolve those questions.
   failure, or lease metadata?
 - What measured pending-discovery cost is acceptable before a different
   discovery structure becomes necessary?
+- What scheduling policy can provide fair or progressive allocation without
+  merging discovery and worker ownership prematurely?
+- Should fairness, ownership, and leasing remain in a separate scheduling
+  boundary rather than in `MarketplaceEconomicEvidenceChangeFeed`?
