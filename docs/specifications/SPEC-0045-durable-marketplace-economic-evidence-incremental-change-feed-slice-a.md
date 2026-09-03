@@ -1063,10 +1063,8 @@ The conversation is not normative authority.
 
 ## Acceptance
 
-This specification remains `Proposed`. Human corrective review has approved
-and frozen the `1..1000` limit for both bounded operations. Full acceptance is
-still required before any implementation TASK, migration, adapter, test,
-evidence record, or journal entry is authorized.
+This specification is `Accepted`. Human review approved and froze the
+`1..1000` limit for both bounded operations before TASK-0145 was authorized.
 
 Acceptance authorizes only a separately numbered P0.3 Slice A TASK constrained
 to the seven-file scope above. It does not authorize Slice B, API, UI,
