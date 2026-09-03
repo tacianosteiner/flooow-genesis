@@ -413,3 +413,76 @@ Risks and debt discovered
 Roadmap impact
 Next objective
 ```
+
+## 2026-09-03 - TASK-0145 durable evidence incremental change feed
+
+### Objective
+
+Deliver P0.3 Slice A as a separate, inward-facing durable economic-evidence
+incremental change-feed boundary, with organization/projection checkpoints,
+bounded Query B pending discovery, and compare-and-set advancement.
+
+### Repository state before
+
+- P0.2/TASK-0144 already supplied the durable V015 evidence journal and
+  organization-scoped change sequence;
+- ADR-0046 and SPEC-0045 accepted a separate four-operation Change Feed port;
+- the P0.2 repository remained restricted to exactly find and apply;
+- independent V015 test and SPEC acceptance hygiene commits were recorded
+  separately from TASK ownership.
+
+### Decision
+
+Implement the separate MarketplaceEconomicEvidenceChangeFeed boundary and
+V016 checkpoint table without widening the P0.2 repository, changing V015,
+adding a journal index, or introducing scheduling/fairness state.
+
+### Changes delivered
+
+- four-operation application Change Feed contract and focused contract tests;
+- V016 organization/projection checkpoint table with composite journal
+  destination integrity and database-authoritative timestamp;
+- PostgreSQL adapter for incremental changes, Query B discovery, checkpoint
+  reads, and compare-and-set advancement;
+- real PostgreSQL/Testcontainers integration, concurrency, migration,
+  privacy, planner, and regression tests;
+- detailed TASK-0145 execution evidence and 76-case traceability.
+
+### Tests and validation
+
+- Gate A focused application contract: 16/16 passed;
+- Gate B focused PostgreSQL: 22/22 passed;
+- Gate C marketplace-operations: 254/254 passed;
+- Gate D persistence-postgres: 86/86 passed across 9 XML suites, including
+  P0.2 15/15 and TASK-0145 22/22;
+- Gate E full applicable build: BUILD SUCCESSFUL in 54s, 85 actionable tasks,
+  29 executed and 56 up-to-date, with no test bypass;
+- Gate F: 76/76 requirements passed; seven TASK-owned paths exactly;
+- PostgreSQL 18.4, Testcontainers 2.0.5, and Flyway 13.2.0 applied V001-V016.
+
+### Risks and debt discovered
+
+Deterministic organization ordering with a bounded limit can starve later
+organizations while earlier checkpoints do not advance. Fair scheduling,
+leases, claims, workers, and Slice B materialization remain deliberately
+unresolved and out of scope.
+
+### Scope protection
+
+TASK ownership is exactly seven paths: five implementation/test/migration
+creations plus this TASK evidence and this journal entry. V015 remains
+byte-unchanged, no new journal index exists, and no outbox, provider,
+connector, API, UI, Ledger, Reconciliation, Kernel, scheduler, or build file
+changed.
+
+### Status
+
+- status: ready for implementation commit human review;
+- implementation commit: pending;
+- push: not performed.
+
+### Next objective
+
+Obtain human review and explicit authorization for the TASK-0145
+implementation commit. Do not begin P0.3 Slice B or another roadmap increment
+before TASK-0145 commit, push, PR, CI, and merge governance is resolved.
