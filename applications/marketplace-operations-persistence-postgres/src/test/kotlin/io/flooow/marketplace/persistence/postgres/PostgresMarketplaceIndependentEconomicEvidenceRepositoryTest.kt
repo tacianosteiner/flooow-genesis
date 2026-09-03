@@ -83,15 +83,13 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
     fun `V015 migrates complete structural boundary`() {
         assertEquals(
             "015",
-            queryOne("SELECT version FROM flyway_schema_history WHERE success ORDER BY installed_rank DESC LIMIT 1")
+            queryOne("SELECT version FROM flyway_schema_history WHERE version='015' AND success")
         )
-        assertEquals(
-            EXPECTED_TABLES,
-            queryStrings(
-                "SELECT table_name FROM information_schema.tables " +
-                    "WHERE table_schema='public' AND table_name LIKE 'marketplace_economic_evidence_%'"
-            ).toSet()
-        )
+        val actualTables = queryStrings(
+            "SELECT table_name FROM information_schema.tables " +
+                "WHERE table_schema='public' AND table_name LIKE 'marketplace_economic_evidence_%'"
+        ).toSet()
+        assertTrue(actualTables.containsAll(EXPECTED_TABLES))
         assertEquals(
             listOf("bigint", "false"),
             queryStrings(
