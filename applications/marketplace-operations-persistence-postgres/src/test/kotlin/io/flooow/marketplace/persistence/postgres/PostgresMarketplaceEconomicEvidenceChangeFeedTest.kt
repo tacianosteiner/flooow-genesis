@@ -981,6 +981,12 @@ class PostgresMarketplaceEconomicEvidenceChangeFeedTest {
 
     private fun explainPending(projectionName: ProjectionName, limit: Int): List<String> =
         connection().use { connection ->
+            connection.createStatement().use { statement ->
+                statement.execute("ANALYZE integration_organization")
+                statement.execute("ANALYZE marketplace_economic_evidence_update")
+                statement.execute("ANALYZE marketplace_economic_evidence_projection_checkpoint")
+                statement.execute("SET enable_seqscan = off")
+            }
             connection.prepareStatement(
                 "EXPLAIN (ANALYZE, BUFFERS) " +
                     productionSql("PENDING_ORGANIZATIONS_SQL")
@@ -1325,8 +1331,13 @@ class PostgresMarketplaceEconomicEvidenceChangeFeedTest {
     private fun resourceSha256(name: String): String {
         val bytes = checkNotNull(javaClass.classLoader.getResourceAsStream(name)) { "Missing resource" }
             .use { it.readBytes() }
+        val canonicalBytes = bytes
+            .toString(Charsets.UTF_8)
+            .replace("\r\n", "\n")
+            .replace("\n", "\r\n")
+            .toByteArray(Charsets.UTF_8)
         return MessageDigest.getInstance("SHA-256")
-            .digest(bytes)
+            .digest(canonicalBytes)
             .joinToString("") { "%02x".format(it) }
     }
 
