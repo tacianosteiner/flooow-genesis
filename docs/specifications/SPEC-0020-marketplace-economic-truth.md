@@ -1,6 +1,6 @@
 # SPEC-0020: Marketplace Economic Truth
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-08-13
 
