@@ -1,6 +1,6 @@
 # ADR-0020: Marketplace Economic Truth Boundary
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-08-13
 
