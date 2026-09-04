@@ -1,6 +1,6 @@
 # ADR-0047: Durable/Fast Sales Intelligence Projection Boundary
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-09-04
 
