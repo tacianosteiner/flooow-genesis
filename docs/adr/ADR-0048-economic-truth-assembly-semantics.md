@@ -1,6 +1,6 @@
 # ADR-0048: Canonical Economic Truth Assembly Semantics
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-09-05
 
