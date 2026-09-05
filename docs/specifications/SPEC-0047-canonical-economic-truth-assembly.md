@@ -1,6 +1,6 @@
 # SPEC-0047: Canonical Economic Truth Assembly
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-09-05
 
