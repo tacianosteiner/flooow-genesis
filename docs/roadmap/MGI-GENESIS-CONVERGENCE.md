@@ -27,6 +27,53 @@ observe
 This roadmap is derived from repository reality. It supersedes no accepted
 domain roadmap and creates no second sequence of marketplace epics.
 
+## Scope boundary - Economic Truth before Opportunity Intelligence
+
+This section is strategic and non-normative. It records convergence intent and
+does not authorize production behavior, implementation, migration, provider work,
+projection work, or resumption of any paused TASK.
+
+The convergence sequence is intentionally asymmetric:
+
+```text
+Flooow establishes and governs operational and economic truth
+  -> opportunity intelligence consumes that canonical truth
+  -> opportunity intelligence forms hypotheses, scenarios, and proposals
+  -> Flooow governs authority and execution
+  -> Flooow records actual outcomes and reconciliation
+  -> opportunity intelligence compares prediction with reality and learns
+```
+
+MGI, Value of Information, Hypothesis Ledger, Bayesian belief, and
+Opportunity-to-Outcome are explicitly outside P0.3 Sales Intelligence projection.
+
+P0.3 must first complete the operational Economic Truth path:
+
+```text
+durable independent economic evidence
+  -> incremental change feed
+  -> current evidence refetch
+  -> canonical Economic Truth Assembly
+  -> MarketplaceEconomicTruthCalculator
+  -> durable Sales Intelligence projection
+```
+
+Opportunity intelligence may later consume the resulting governed truth, but it
+must never redefine or contaminate canonical truth with prediction, belief,
+hypothesis, scenario output, recommendation, or model inference.
+
+The responsibility boundary is:
+
+- Flooow records and governs institutional reality, identity, evidence, canonical
+  Economic Truth, policy, authority, execution, reconciliation, and actual outcome;
+- MGI / Economic Intelligence explores opportunities, forms and challenges
+  hypotheses, identifies information gaps, proposes experiments, evaluates Value
+  of Information, simulates scenarios, proposes capital decisions, compares
+  prediction with actual outcome, and develops opportunity learning.
+
+These intelligence concepts remain downstream consumers until separately governed
+contracts authorize their implementation.
+
 ## Verified baseline
 
 ### MGI v0.7.6
