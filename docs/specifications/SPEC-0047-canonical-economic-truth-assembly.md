@@ -277,12 +277,19 @@ The Version 1 rule is:
 active is empty
   -> MISSING
 
-active is non-empty and every coverageClaim is COMPLETE
-  -> COMPLETE
-
-active is non-empty and at least one coverageClaim is PARTIAL
+active is non-empty
   -> PARTIAL
 ```
+
+Version 1 does not derive order-level COMPLETE from observation-level
+coverage claims alone.
+
+Observation-level COMPLETE remains evidence metadata, but the current accepted
+contracts do not yet provide an independent canonical completeness authority
+sufficient to conclude order-level COMPLETE.
+
+A later assembly-policy version may derive COMPLETE only after a separately
+accepted contract defines that authority explicitly.
 
 Input list order has no effect.
 
@@ -291,24 +298,24 @@ permitted.
 
 ## COMPLETE semantics
 
-Version 1 may emit COMPLETE only when:
+Version 1 never derives order-level COMPLETE.
 
-1. at least one active component of the type exists; and
-2. every active observation of that type carries coverageClaim COMPLETE.
+An observation-level COMPLETE claim states only that one accepted observation
+claims complete coverage within its own evidence semantics.
 
-This is intentionally conservative.
+It is not sufficient canonical authority to conclude that the complete set of
+facts for the EconomicComponentType is known at order level.
 
-A COMPLETE observation does not erase or dominate a simultaneous PARTIAL
-observation.
-
-Therefore:
+Therefore Version 1 reduces every non-empty active component set to PARTIAL,
+regardless of whether its observation-level claims are COMPLETE, PARTIAL, or a
+mixture of both.
 
 ```text
 { COMPLETE }
-  -> COMPLETE
+  -> PARTIAL
 
 { COMPLETE, COMPLETE }
-  -> COMPLETE
+  -> PARTIAL
 
 { PARTIAL }
   -> PARTIAL
@@ -316,6 +323,9 @@ Therefore:
 { COMPLETE, PARTIAL }
   -> PARTIAL
 ```
+
+Order-level COMPLETE requires a separately accepted canonical completeness
+authority and therefore belongs to a future versioned assembly policy.
 
 ## MISSING semantics
 
@@ -509,11 +519,13 @@ It does not mean:
 economic truth is complete
 ```
 
-A Ready order may legitimately contain:
+Under Version 1, a Ready order may legitimately contain:
 
-- COMPLETE coverage;
 - PARTIAL coverage;
 - MISSING coverage.
+
+Order-level COMPLETE is reserved for a future assembly-policy version with
+separately accepted canonical completeness authority.
 
 The caller may then pass that MarketplaceOrder to
 MarketplaceEconomicTruthCalculator.
@@ -735,9 +747,9 @@ A future implementation task must prove at least:
 14. revenue/component/external-identity timestamps never substitute for order time;
 15. active EconomicComponent instances are preserved exactly;
 16. zero active components of one type derives MISSING;
-17. all-COMPLETE active claims derive COMPLETE;
-18. any PARTIAL active claim derives PARTIAL;
-19. mixed COMPLETE/PARTIAL is PARTIAL independent of insertion order;
+17. all-COMPLETE active claims still derive PARTIAL under Version 1;
+18. PARTIAL active claims derive PARTIAL;
+19. mixed COMPLETE/PARTIAL derives PARTIAL independent of insertion order;
 20. Version 1 never derives NOT_APPLICABLE from absence;
 21. NO_EVIDENCE does not alter coverage;
 22. AMBIGUOUS does not alter coverage;
