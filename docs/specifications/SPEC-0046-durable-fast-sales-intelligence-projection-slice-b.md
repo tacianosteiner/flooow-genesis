@@ -1,6 +1,6 @@
 # SPEC-0046: Durable/Fast Sales Intelligence Projection — Slice B
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-09-04
 
