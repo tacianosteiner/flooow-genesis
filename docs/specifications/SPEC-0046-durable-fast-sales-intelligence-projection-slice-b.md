@@ -38,6 +38,8 @@ This specification depends on and must preserve:
 - `docs/evidence/EXP-0007-sales-intelligence-projection-atomicity.md`;
 - ADR-0046 and SPEC-0045 for the independent change-feed/checkpoint boundary;
 - P0.2 durable independent economic evidence and its existing repository;
+- ADR-0048 for the canonical Economic Truth Assembly semantic boundary;
+- SPEC-0047 for the accepted canonical Economic Truth Assembly production contract;
 - ADR-0041 for the fast operational-intelligence read-path boundary.
 
 Where this specification is silent, those accepted decisions remain
@@ -60,7 +62,13 @@ The conceptual dependency direction is:
 ```text
 durable independent economic evidence
   -> MarketplaceEconomicEvidenceChangeFeed
-  -> Sales Intelligence projection processor
+  -> current evidence refetch
+  -> MarketplaceEconomicTruthAssembler
+      -> NotReady
+           -> Sales Intelligence projection processor
+      -> Ready(MarketplaceOrder)
+           -> MarketplaceEconomicTruthCalculator
+           -> Sales Intelligence projection processor
   -> durable Sales Intelligence projection
   -> future read API/UI
 ```
@@ -138,8 +146,39 @@ economic event time and must not be used for economic ordering.
 
 The projection payload is derived state only.
 
-The processor may use the current committed canonical economic evidence/read
-boundary to produce the materialized payload, but must not:
+When materialization requires economic meaning, the processor must derive that
+meaning through the accepted canonical chain:
+
+```text
+current committed MarketplaceIndependentEconomicEvidence
+  -> MarketplaceEconomicTruthAssembler
+      -> NotReady
+           -> materialized unresolved canonical state
+           -> no calculator invocation
+      -> Ready(MarketplaceOrder)
+           -> MarketplaceEconomicTruthCalculator
+           -> materialized canonical calculation state
+```
+
+MarketplaceEconomicTruthAssemblyResult.NotReady is a valid canonical current-state
+outcome, not a projection-processing or infrastructure failure.
+
+When assembly returns NotReady, the processor must durably materialize an unresolved
+projection state using only the accepted bounded assembly policy version and
+NotReady reasons. It must not invoke MarketplaceEconomicTruthCalculator, manufacture
+a MarketplaceOrder, or retain older economic values as if they were still current.
+
+A successfully materialized NotReady state satisfies projection work for that
+change_sequence and therefore does not, by itself, block checkpoint advancement.
+
+Materializing a newer NotReady state must replace the prior semantic payload for
+that subject atomically. Economic values from an older Ready state must not remain
+addressable as current alongside the newer unresolved state.
+
+The projection processor must not interpret activeFacts directly to reconstruct
+MarketplaceOrder semantics, coverage, occurrence time, or calculator results.
+
+It must not:
 
 - infer missing economic meaning from provider payloads;
 - reuse prior projection values as economic authority;
@@ -147,7 +186,13 @@ boundary to produce the materialized payload, but must not:
 - convert absence/unknown evidence into zero without an accepted upstream
   semantic;
 - manufacture confidence, allocation, completeness, margin, revenue, cost, or
-  profitability semantics not already accepted upstream.
+  profitability semantics not already accepted upstream;
+- bypass MarketplaceEconomicTruthAssembler when canonical order semantics are
+  required;
+- duplicate the assembler's occurrence, coverage, applicability, correction, or
+  active-fact semantics inside the projection boundary;
+- duplicate or replace MarketplaceEconomicTruthCalculator as the authority for
+  economic calculation and Complete versus Incomplete results.
 
 The projection must preserve organization and currency semantics from the
 canonical subject/evidence boundary where those values participate in the
@@ -271,8 +316,12 @@ currentCheckpoint(organization, "sales-intelligence")
 -> changesSince(organization, checkpoint, limit)
 -> for each returned change in ascending change_sequence:
      optional durable projection-sequence precheck
-     -> when needed, refetch current committed economic state
-     -> materializeIfNewer
+     -> when needed, refetch current committed MarketplaceIndependentEconomicEvidence
+     -> MarketplaceEconomicTruthAssembler.assemble
+     -> if NotReady: materializeIfNewer the canonical unresolved assembly state
+        without invoking MarketplaceEconomicTruthCalculator
+     -> if Ready: MarketplaceEconomicTruthCalculator.calculate
+        -> materializeIfNewer the canonical calculation state
 -> after all intended changes through destination are durably handled
      advanceCheckpoint(expected, destination)
 ```
@@ -288,8 +337,11 @@ The processor must not write canonical economic evidence.
 
 A Slice A change is an invalidation/cursor record, not an economic snapshot.
 
-When a change requires materialization, the processor resolves the current
-committed state through the accepted economic repository/read boundary.
+When a change requires materialization, the processor refetches the current
+committed MarketplaceIndependentEconomicEvidence through the accepted
+economic repository/read boundary and passes that evidence through
+MarketplaceEconomicTruthAssembler. The calculator is invoked only for Ready
+assembly results; NotReady is materialized without economic calculation.
 
 The current state may be newer than the `evidenceVersion` that caused the
 consumed invalidation.
