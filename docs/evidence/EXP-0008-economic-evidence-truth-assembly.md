@@ -1,8 +1,8 @@
 # EXP-0008 — Economic Evidence → Economic Truth Assembly
 
-Status: in progress
+Status: concluded
 
-Decision: pending experimental evidence
+Decision: Reject
 
 Scope: experimental only; no production implementation, migration, provider behavior, projection schema, API/UI behavior, or new economic semantic is authorized by this document.
 
