@@ -882,3 +882,34 @@ Key decisions:
 
 Next after TASK-0152: separately govern internal marketplace-order identity
 allocation/association and promotion into independent economic evidence.
+## 2026-09-06 - TASK-0152 implementation - live Mercado Livre order source ingestion
+
+Implemented the first production-capable, production-inactive Mercado Livre
+seller-order source ingestion after TASK-0151.
+
+The durable path is:
+
+```text
+current SecretVault OAuth envelope
+  -> scoped seller/access-token read
+  -> one bounded /orders/search GET
+  -> closed UTC-hour source records
+  -> normalized V021 order/item/payment observations
+  -> existing atomic connector progress commit
+```
+
+Key safety properties:
+
+- provider data remains source observation below Economic Truth;
+- no Genesis `MarketplaceOrderId` is invented;
+- no source amount becomes canonical revenue, fee, shipping, settlement, or tax;
+- current-hour catch-up performs no HTTP and remains retryable/nonterminal;
+- every successful page advances durable progress with `exhausted=false`;
+- no buyer/seller PII, raw JSON, access token, refresh token, or client secret is
+  persisted in source observation tables;
+- provider 401 does not refresh inline;
+- no Connector Runtime production change is included.
+
+Next: separately govern marketplace-order identity allocation/association and
+promotion from Mercado Livre source observations into independent economic
+evidence.

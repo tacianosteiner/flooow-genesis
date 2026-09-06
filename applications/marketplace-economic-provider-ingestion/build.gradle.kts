@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation(project(":applications:connector-runtime"))
     implementation(project(":applications:integration-control-plane"))
+    implementation(project(":applications:marketplace-provider-authentication"))
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     testImplementation(kotlin("test"))
@@ -15,7 +16,8 @@ val forbiddenFlooowDependencies = configurations
     .filter {
         it.group == "io.flooow" && it.name !in setOf(
             "connector-runtime",
-            "integration-control-plane"
+            "integration-control-plane",
+            "marketplace-provider-authentication"
         )
     }
 
