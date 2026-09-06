@@ -972,3 +972,51 @@ Safety properties:
 
 Next: separately research and govern marketplace financial-component promotion,
 then explicit product/order-cost association.
+## 2026-09-06 â€” TASK-0154 Mercado Livre order revenue promotion authorized
+
+TASK-0153 closes the live order identity/OrderOccurrence bridge. The next MVP
+critical-path slice is deliberately smaller than full marketplace economics.
+
+Accepted ADR-0055 and SPEC-0054 authorize only:
+
+```text
+V021 order total_amount
++ V022 canonical identity
++ source date_closed
+-> independent REVENUE / ADDITION evidence
+```
+
+The source fact remains:
+
+```text
+MARKETPLACE
+br.com.mercadolivre
+externalOrderId
+```
+
+The revenue observation is CONFIRMED but coverage is explicitly PARTIAL.
+
+No sale fee, payment amount, shipping, tax, settlement, refund, product cost or
+automatic correction is authorized.
+
+This preserves the architecture:
+
+```text
+provider informs
+evidence records
+domain judges
+intelligence derives
+```
+
+while shortening the MVP path to:
+
+```text
+TASK-0154 revenue promotion
+-> TASK-0155 live pipeline orchestration
+-> TASK-0156 Sales Intelligence API
+-> TASK-0157 MVP UI
+```
+
+Full billing/fee composition, Mercado Pago settlement/reconciliation, fiscal
+intelligence and product-cost association remain parallel separately governed
+authorities.
