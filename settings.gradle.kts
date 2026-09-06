@@ -14,6 +14,7 @@ include(":applications:connector-runtime")
 include(":applications:credential-rotation-execution")
 include(":applications:marketplace-provider-authentication")
 include(":applications:marketplace-economic-provider-ingestion")
+include(":applications:marketplace-order-source-promotion")
 include(":applications:inventory-source-ingestion")
 include(":applications:inventory-identity-mapping")
 include(":applications:inventory-canonical-observation")
@@ -54,6 +55,9 @@ project(":applications:marketplace-provider-authentication").projectDir =
 
 project(":applications:marketplace-economic-provider-ingestion").projectDir =
     file("applications/marketplace-economic-provider-ingestion")
+
+project(":applications:marketplace-order-source-promotion").projectDir =
+    file("applications/marketplace-order-source-promotion")
 
 project(":applications:inventory-source-ingestion").projectDir =
     file("applications/inventory-source-ingestion")

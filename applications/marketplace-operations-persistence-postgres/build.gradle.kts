@@ -9,6 +9,7 @@ dependencies {
     implementation(project(":applications:connector-runtime"))
     implementation(project(":applications:credential-rotation-execution"))
     implementation(project(":applications:marketplace-economic-provider-ingestion"))
+    implementation(project(":applications:marketplace-order-source-promotion"))
     implementation(project(":applications:inventory-source-ingestion"))
     implementation(project(":applications:inventory-identity-mapping"))
     implementation(project(":applications:inventory-canonical-observation"))

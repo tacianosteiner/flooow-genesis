@@ -52,3 +52,43 @@ TASK-0153 does not establish:
 
 Implementation evidence is appended here only after code exists and local gates
 pass.
+## Implementation evidence
+
+Implementation branch:
+
+```text
+feat/task-0153-marketplace-order-identity-occurrence-promotion
+```
+
+Implemented bridge:
+
+```text
+V021 durable Mercado Livre order source
+  -> bounded pending work-set
+  -> exact organization + marketplace + externalOrderId identity
+  -> one durable opaque MarketplaceOrderId
+  -> immutable subject currency
+  -> source-backed OrderOccurrence
+  -> existing independent economic evidence repository
+  -> terminal source promotion ledger
+```
+
+Implementation preserves the frozen boundary:
+
+- connection identity remains provenance only;
+- internal order UUID is never derived from provider text;
+- concurrent first allocation converges through durable external-identity
+  uniqueness;
+- source currency mismatch is terminal IDENTITY_CONFLICT;
+- source `date_created` becomes OrderOccurrence `occurredAt`;
+- durable source `observedAt` is preserved;
+- equal marketplace source occurrence is Duplicate;
+- changed occurrence is EVIDENCE_CONFLICT;
+- no automatic correction is issued;
+- no TASK-0152 monetary value enters the promotion candidate or an
+  EconomicComponent;
+- infrastructure/integrity failure creates no terminal business marker.
+
+Local SPEC-0053 gates are run before commit and push.
+
+Repository CI, review, and merge remain required.

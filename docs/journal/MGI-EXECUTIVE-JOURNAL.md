@@ -942,3 +942,33 @@ Key decisions:
 
 Next after TASK-0153: separately govern financial-component promotion and then
 explicit product/order-cost association.
+## 2026-09-06 - TASK-0153 implementation - marketplace order identity and occurrence promotion
+
+Implemented the first governed promotion from durable marketplace source data
+into canonical Genesis order identity and independent economic evidence.
+
+The durable path is:
+
+```text
+V021 Mercado Livre order source
+  -> V022 exact external-order identity registry
+  -> one organization-scoped MarketplaceOrderId
+  -> immutable subject currency
+  -> marketplace OrderOccurrence from source date_created
+  -> existing independent economic evidence
+  -> durable terminal source promotion outcome
+```
+
+Safety properties:
+
+- `connectionId` is provenance, not business identity;
+- random internal UUID allocation is protected by external identity uniqueness;
+- retries converge without distributed exactly-once claims;
+- evidence duplicate and source-fact conflict semantics are reused unchanged;
+- no silent correction occurs;
+- no revenue, fee, payment, shipping, tax, or product-cost component is promoted;
+- no provider, OAuth, Connector Runtime, Economic Truth assembler, or Sales
+  Intelligence production code changes.
+
+Next: separately research and govern marketplace financial-component promotion,
+then explicit product/order-cost association.
