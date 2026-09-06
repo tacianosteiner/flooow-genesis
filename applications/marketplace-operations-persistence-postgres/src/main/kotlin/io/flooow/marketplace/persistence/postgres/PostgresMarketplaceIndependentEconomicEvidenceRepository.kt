@@ -28,6 +28,7 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEv
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceVersion
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicExternalIdentityKind
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicExternalIdentityObservation
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicOrderOccurrenceObservation
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidence
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceMerger
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidencePersistResult
@@ -83,9 +84,6 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         expectedVersion: MarketplaceEconomicEvidenceVersion,
         update: MarketplaceIndependentEconomicEvidenceUpdate
     ): MarketplaceIndependentEconomicEvidencePersistResult {
-        if (containsUnsupportedPersistenceFact(update)) {
-            return MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure
-        }
 
         repeat(MAX_TRANSACTION_ATTEMPTS) { attempt ->
             try {
@@ -97,16 +95,6 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
             }
         }
         return MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure
-    }
-
-    private fun containsUnsupportedPersistenceFact(
-        update: MarketplaceIndependentEconomicEvidenceUpdate
-    ): Boolean = when (update) {
-        is MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact ->
-            update.fact is MarketplaceIndependentEconomicFact.OrderOccurrence
-        is MarketplaceIndependentEconomicEvidenceUpdate.Correct ->
-            update.correction.replacement is MarketplaceIndependentEconomicFact.OrderOccurrence
-        is MarketplaceIndependentEconomicEvidenceUpdate.RecordAttempt -> false
     }
 
     private fun applyTransaction(
@@ -268,10 +256,48 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         return when (factKind) {
             "COMPONENT" -> storedComponentFact(connection, subject, version, factId)
             "EXTERNAL_IDENTITY" -> storedExternalIdentityFact(connection, subject, version, factId)
+            "ORDER_OCCURRENCE" -> storedOrderOccurrenceFact(connection, subject, version, factId)
             else -> error("Unsupported stored economic evidence fact kind")
         }
     }
 
+    private fun storedOrderOccurrenceFact(
+        connection: Connection,
+        subject: MarketplaceEconomicEvidenceSubject,
+        version: Long,
+        factId: UUID
+    ): MarketplaceIndependentEconomicFact.OrderOccurrence = connection.prepareStatement(
+        "SELECT fact.observed_at,occurrence.* " +
+            "FROM marketplace_economic_evidence_fact fact " +
+            "JOIN marketplace_economic_evidence_order_occurrence_fact occurrence " +
+            "ON occurrence.organization_id=fact.organization_id " +
+            "AND occurrence.marketplace_order_id=fact.marketplace_order_id " +
+            "AND occurrence.fact_id=fact.fact_id " +
+            "AND occurrence.evidence_version=fact.evidence_version " +
+            "AND occurrence.fact_kind=fact.fact_kind " +
+            "AND occurrence.family=fact.family " +
+            "WHERE fact.organization_id=? AND fact.marketplace_order_id=? " +
+            "AND fact.fact_id=? AND fact.evidence_version=? " +
+            "AND fact.fact_kind='ORDER_OCCURRENCE' " +
+            "AND fact.family='MARKETPLACE_ORDER'"
+    ).use { statement ->
+        statement.setObject(1, subject.organizationId.value)
+        statement.setObject(2, subject.orderId.value)
+        statement.setObject(3, factId)
+        statement.setLong(4, version)
+        statement.executeQuery().use { result ->
+            check(result.next())
+            MarketplaceIndependentEconomicFact.OrderOccurrence(
+                MarketplaceEconomicOrderOccurrenceObservation(
+                    id = observationId(factId),
+                    subject = subject,
+                    source = storedSource(result),
+                    occurredAt = result.getTimestamp("occurred_at").toInstant(),
+                    observedAt = result.getTimestamp("observed_at").toInstant()
+                )
+            )
+        }
+    }
     private fun storedComponentFact(
         connection: Connection,
         subject: MarketplaceEconomicEvidenceSubject,
@@ -512,8 +538,7 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         val kind = when (fact) {
             is MarketplaceIndependentEconomicFact.Component -> "COMPONENT"
             is MarketplaceIndependentEconomicFact.ExternalIdentity -> "EXTERNAL_IDENTITY"
-            is MarketplaceIndependentEconomicFact.OrderOccurrence ->
-                error("Order occurrence persistence is not supported")
+            is MarketplaceIndependentEconomicFact.OrderOccurrence -> "ORDER_OCCURRENCE"
         }
         connection.prepareStatement(
             "INSERT INTO marketplace_economic_evidence_fact " +
@@ -534,7 +559,32 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
             is MarketplaceIndependentEconomicFact.ExternalIdentity ->
                 insertExternalIdentityFact(connection, version, fact)
             is MarketplaceIndependentEconomicFact.OrderOccurrence ->
-                error("Order occurrence persistence is not supported")
+                insertOrderOccurrenceFact(connection, version, fact)
+        }
+    }
+
+    private fun insertOrderOccurrenceFact(
+        connection: Connection,
+        version: MarketplaceEconomicEvidenceVersion,
+        fact: MarketplaceIndependentEconomicFact.OrderOccurrence
+    ) {
+        val observation = fact.observation
+        connection.prepareStatement(
+            "INSERT INTO marketplace_economic_evidence_order_occurrence_fact " +
+                "(organization_id,marketplace_order_id,fact_id,evidence_version," +
+                "fact_kind,family,occurred_at,source_kind,source_system_key," +
+                "source_external_reference,source_external_reference_absence_reason) " +
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?)"
+        ).use { statement ->
+            statement.setObject(1, observation.subject.organizationId.value)
+            statement.setObject(2, observation.subject.orderId.value)
+            statement.setObject(3, observation.id.valueForPersistence())
+            statement.setLong(4, version.valueForPersistence())
+            statement.setString(5, "ORDER_OCCURRENCE")
+            statement.setString(6, "MARKETPLACE_ORDER")
+            statement.setTimestamp(7, Timestamp.from(observation.occurredAt))
+            bindSource(statement, 8, observation.source)
+            check(statement.executeUpdate() == 1)
         }
     }
 
