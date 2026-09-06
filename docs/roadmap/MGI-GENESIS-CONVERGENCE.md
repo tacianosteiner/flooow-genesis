@@ -218,6 +218,61 @@ semantic parity and operational performance are demonstrated.
 Gate: no local credential, runtime database, or silent data migration is
 required.
 
+### P1 - Fiscal reference and product classification evidence
+
+This is a separately governed research lane. It does not interrupt the current
+provider/Economic Truth critical path and does not authorize a tax engine,
+automatic product classification, fiscal execution, or production migration.
+
+Preferred source-authority direction:
+
+```text
+Receita Federal / Sistema Classif / Portal Unico Siscomex
+  -> bounded official-current NCM acquisition
+  -> schema/volume validation
+  -> immutable snapshot identity
+  -> normalized NCM reference entries
+  -> snapshot comparison
+  -> current governed reference view
+  -> separately governed product-classification evidence
+  -> contradiction / adjudication
+```
+
+Third-party repositories and BrasilAPI may be engineering/operational references,
+but they are not the institutional source authority.
+
+Critical semantic boundary:
+
+```text
+official NCM reference != classification of a specific product
+```
+
+Candidate sequence:
+
+```text
+P1.FISCAL-REF-1  Official NCM Reference Catalog
+  -> direct Classif/Siscomex ingestion
+  -> validity, acts, hierarchy, immutable snapshots, version diff
+
+P1.FISCAL-REF-2  Product Fiscal Classification Evidence
+  -> supplier / ERP / fiscal document / import / marketplace / specialist sources
+  -> provenance and temporal validity
+  -> no title/category heuristic becomes truth
+
+P1.FISCAL-REF-3  Classification Contradiction & Adjudication
+  -> divergent NCM observations
+  -> expired/changed official references
+  -> affected-product discovery
+  -> governed resolution; never silent reclassification
+
+P1/P2.FISCAL-REF-4  TIPI / CEST / fiscal applicability
+  -> separately sourced/versioned reference families
+  -> jurisdiction/regime/operation context
+  -> NCM alone never determines tax treatment
+```
+
+Before implementation: confirm the official source contract and historical
+strategy, define temporal/reference identity, and accept a dedicated ADR/spec.
 ### P2 - Growth and decision intelligence
 
 Only after P0/P1 truth and projection gates:
