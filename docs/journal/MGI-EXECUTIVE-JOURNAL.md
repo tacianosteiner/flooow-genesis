@@ -668,3 +668,22 @@ Authorization refinement before implementation:
 - no migration or new table is authorized;
 - provider module remains HTTP/record translation only;
 - implementation scope is twelve paths.
+
+## 2026-09-06 - TASK-0149 pre-implementation association correction
+
+Executable contract review found that Omie product CMC is provider-level product
+cost and does not itself carry a canonical marketplace order subject.
+
+TASK-0149 was corrected before production code:
+
+- Omie remains the first live read-only provider slice;
+- Slice A durably records normalized product-cost source observations;
+- V019 is authorized solely for those normalized provider observations;
+- Connector Runtime and Control Plane remain unchanged;
+- no fuzzy identity or order association is introduced;
+- no order-level PRODUCT_COST evidence is created by TASK-0149;
+- a later explicit association/promotion contract will bridge provider product
+  cost to marketplace order economic evidence.
+
+This preserves fail-closed economic truth while keeping provider activation
+moving.

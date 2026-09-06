@@ -245,3 +245,78 @@ This ADR does not authorize:
 - evidence-schema changes;
 - Sales Intelligence semantic changes;
 - Kernel changes.
+## Amendment - provider product cost is not order evidence
+
+Accepted: 2026-09-06
+
+Pre-implementation contract validation found an authority gap that must remain
+fail-closed.
+
+`PullConnector.readPage` receives provider credential, opaque connector progress,
+budget, and cancellation. It does not receive a marketplace economic subject.
+That boundary is intentional and remains unchanged.
+
+Omie product CMC is provider-level product-cost data. It does not itself identify:
+
+- a Genesis `MarketplaceOrderId`;
+- a complete `MarketplaceEconomicEvidenceSubject`;
+- a marketplace order/item association;
+- canonical order currency authority.
+
+Therefore Slice A must not manufacture order-level `PRODUCT_COST` evidence from a
+product page.
+
+The first live Omie slice is corrected to:
+
+```text
+Omie product page
+  -> typed provider product-cost record
+  -> durable provider-level product-cost source observation
+  -> durable connector progress
+```
+
+A later separately governed association stage may consume provider-level cost
+observations plus explicit identity/order evidence and then produce order-level
+`PRODUCT_COST` observations through the existing independent economic evidence
+contract.
+
+The association stage must remain fail-closed when product/order identity,
+allocation semantics, or currency authority is unresolved.
+
+This amendment preserves:
+
+- live read-only Omie activation;
+- exact decimal acquisition;
+- provider-neutral Connector Runtime;
+- durable progress and replay;
+- no fuzzy identity;
+- no invented economic truth.
+
+It removes only the invalid assumption that an Omie product response can directly
+name a canonical marketplace order subject.
+
+### Durable provider observation boundary
+
+Slice A may persist normalized provider-level product-cost observations in one
+additive PostgreSQL table.
+
+The row is source evidence, not canonical economic truth.
+
+It may contain only bounded normalized fields such as:
+
+- organization/connection/capability commit identity;
+- record ordinal;
+- stable Omie product reference;
+- explicit SKU/EAN when present;
+- exact source unit-CMC decimal when present;
+- explicit source currency when present;
+- explicit provider/source timestamp/version when present.
+
+Raw provider JSON is not retained.
+
+Missing currency remains missing.
+
+No organization default currency is silently substituted.
+
+No migration other than the single additive Slice A source-observation table is
+authorized.
