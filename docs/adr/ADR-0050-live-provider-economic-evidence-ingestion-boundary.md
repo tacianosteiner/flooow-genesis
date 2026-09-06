@@ -320,3 +320,42 @@ No organization default currency is silently substituted.
 
 No migration other than the single additive Slice A source-observation table is
 authorized.
+## Amendment - Omie CMC acquisition endpoint
+
+Accepted: 2026-09-06
+
+Current official Omie documentation confirms that CMC is an inventory-position
+measure, not a documented field of the Products `ListarProdutos` response.
+
+Slice A therefore acquires CMC from:
+
+```text
+POST https://app.omie.com.br/api/v1/estoque/consulta/
+call = ListarPosEstoque
+```
+
+The response exposes product/location source observations including:
+
+```text
+nCodProd
+cCodInt
+cCodigo
+cDescricao
+nPrecoUnitario
+nSaldo
+nCMC
+nPendente
+codigo_local_estoque
+reservado
+fisico
+```
+
+Slice A preserves `nCMC` as explicit provider-level product-cost source evidence.
+
+It does not perform the historical MGI weighted-CMC aggregation inside the
+provider adapter. Each product/location observation remains source evidence.
+
+Products `ListarProdutos` may be used by later separately governed identity or
+catalog enrichment, but it is not the CMC authority for TASK-0149.
+
+No provider write method is authorized.

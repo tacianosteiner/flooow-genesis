@@ -64,11 +64,34 @@ Rules:
 
 Use HTTPS only.
 
-Default Omie product endpoint for this slice:
+Default Omie endpoint for Slice A:
 
 ```text
-https://app.omie.com.br/api/v1/geral/produtos/
+https://app.omie.com.br/api/v1/estoque/consulta/
 ```
+
+Method:
+
+```text
+ListarPosEstoque
+```
+
+The request uses the documented numbered-page contract:
+
+```text
+nPagina
+nRegPorPagina
+dDataPosicao
+cExibeTodos
+codigo_local_estoque
+```
+
+Slice A uses `cExibeTodos = "S"` so provider-level product-cost observations are
+not silently restricted to products with movement.
+
+`dDataPosicao` is explicit adapter input/configuration derived from the
+invocation-time clock and formatted as the Omie-required calendar date. It is not
+stored in opaque progress.
 
 Endpoint override is allowed only through explicit constructor/configuration
 injection for deterministic tests and controlled environments; it is not
@@ -81,12 +104,42 @@ No internal automatic retry loop.
 Connector Runtime deadlines, record budget, response-byte budget, and
 cancellation remain authoritative.
 
+The adapter consumes only documented read-only response fields needed by Slice A:
+
+```text
+nPagina
+nTotPaginas
+nRegistros
+nTotRegistros
+dDataPosicao
+produtos[].nCodProd
+produtos[].cCodInt
+produtos[].cCodigo
+produtos[].cDescricao
+produtos[].nSaldo
+produtos[].nCMC
+produtos[].codigo_local_estoque
+produtos[].reservado
+produtos[].fisico
+```
+
+Raw response bodies are not persisted.
+
 ## Pagination
 
 Progress is opaque to Connector Runtime.
 
-The Omie adapter encodes only the minimum deterministic continuation state
-required for the next numbered page.
+The Omie adapter encodes only the next `nPagina`.
+
+The first invocation requests page 1.
+
+After each response:
+
+- `nPagina` must equal the requested page;
+- `nTotPaginas` must be positive;
+- `nPagina` must not exceed `nTotPaginas`;
+- if `nPagina < nTotPaginas`, next progress is `nPagina + 1`;
+- if `nPagina == nTotPaginas`, the page is exhausted and next progress is null.
 
 The adapter validates progress before network use.
 
@@ -96,7 +149,9 @@ Progress must not contain:
 - source payload;
 - economic amounts;
 - organization identity;
-- internal order identity.
+- internal order identity;
+- inventory location values;
+- provider date strings.
 
 A page cannot exceed ConnectorBudget.maxRecords.
 
@@ -104,28 +159,35 @@ A response cannot exceed ConnectorBudget.maxResponseBytes.
 
 ## Connector record
 
-Define a closed Slice A record representing explicit provider-level product-cost
-source evidence.
+Define a closed Slice A record representing one explicit Omie inventory-position
+product-cost source observation.
 
 Minimum fields:
 
 ```text
-Omie product reference
-Omie page/source reference
-unit CMC when explicitly present
-currency only when explicitly supplied/authorized by the source contract
-provider observed/source time when explicitly available
+Omie product reference (nCodProd)
+Omie integration reference when present (cCodInt)
+Omie displayed product/SKU code when present (cCodigo)
+Omie location reference (codigo_local_estoque)
+unit CMC from nCMC
+stock balance from nSaldo when present
+physical stock from fisico when present
+reserved stock from reservado when present
+provider position date from dDataPosicao
 connector observedAt
-optional explicit SKU/EAN
 ```
 
 The record contains no `MarketplaceEconomicEvidenceSubject`.
 
+`nCMC` is preserved exactly as provider decimal source evidence.
+
+A provider `nCMC = 0` is preserved as an observed zero; it is not automatically
+interpreted as a known zero canonical product cost.
+
+Currency remains absent in Slice A because `ListarPosEstoque` does not establish
+currency authority.
+
 A connector record is not canonical economic truth.
-
-A record with no valid cost is not converted into zero cost.
-
-Missing currency remains missing.
 
 ## Association rule
 

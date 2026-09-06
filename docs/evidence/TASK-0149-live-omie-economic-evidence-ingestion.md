@@ -154,3 +154,21 @@ The later promotion/association stage is separately governed.
 
 This is a fail-closed correction, not a scope expansion into intelligence or
 identity matching.
+## Pre-implementation provider-contract correction - CMC endpoint
+
+Current official Omie documentation was revalidated before production code.
+
+CMC is sourced from the read-only inventory-position API:
+
+```text
+POST https://app.omie.com.br/api/v1/estoque/consulta/
+call = ListarPosEstoque
+```
+
+The source field is `produtos[].nCMC`.
+
+TASK-0149 does not source CMC from `ListarProdutos`.
+
+Historical MGI evidence is consistent with product/location CMC observations and
+is retained only as provider archaeology. Genesis does not port MGI's weighted
+CMC decision logic into the provider adapter.

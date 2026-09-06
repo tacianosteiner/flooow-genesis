@@ -687,3 +687,22 @@ TASK-0149 was corrected before production code:
 
 This preserves fail-closed economic truth while keeping provider activation
 moving.
+## 2026-09-06 - TASK-0149 Omie CMC endpoint correction
+
+Official Omie documentation and historical MGI behavior were reconciled before
+implementation.
+
+Decision:
+
+- CMC authority for Slice A is `estoque/consulta` / `ListarPosEstoque`;
+- source field is `produtos[].nCMC`;
+- pagination uses `nPagina` / `nRegPorPagina` / `nTotPaginas`;
+- product/location observations remain provider-level evidence;
+- zero CMC is retained as observed provider zero, not canonical zero product cost;
+- currency remains unresolved in Slice A;
+- historical MGI weighted-CMC normalization is not copied into the provider
+  adapter;
+- no write-capable Omie method is authorized.
+
+This correction changes provider wire behavior only; Genesis truth, identity,
+runtime, authority, and later association boundaries remain unchanged.
