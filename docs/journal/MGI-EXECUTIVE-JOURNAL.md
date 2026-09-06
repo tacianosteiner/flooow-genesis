@@ -737,3 +737,36 @@ Key boundaries preserved:
 
 The next provider prerequisite after TASK-0149 remains the provider-neutral
 credential-rotation execution bridge before live Mercado Livre OAuth ingestion.
+## 2026-09-06 - TASK-0150 authorized: provider-neutral credential rotation execution bridge
+
+TASK-0149 established the first real provider evidence path with static Omie
+credentials.
+
+Repository and provider research exposed the next correctness boundary:
+
+- Control Plane already owns versioned credential replacement;
+- Connector Runtime correctly excludes OAuth refresh;
+- Mercado Livre refresh tokens are one-time and replaced after successful refresh;
+- local post-refresh CAS cannot prevent two workers from attempting the same
+  one-time remote credential.
+
+Accepted ADR-0051 and SPEC-0050.
+
+Decision:
+
+```text
+credential readiness
+-> durable organization/connection/binding-version fence
+-> one REMOTE_STARTED right
+-> provider-specific refresh
+-> existing Control Plane rotation
+-> Connector Runtime only after credential readiness
+```
+
+V020 is authorized for coordination state only and stores no secret/reference.
+
+CLAIMED may be reclaimed before remote start. Abandoned REMOTE_STARTED becomes
+IN_DOUBT and is never blindly replayed for the same binding version.
+
+TASK-0150 contains deterministic fake rotators only. Mercado Livre HTTP/OAuth
+remains the next separately governed provider task.
