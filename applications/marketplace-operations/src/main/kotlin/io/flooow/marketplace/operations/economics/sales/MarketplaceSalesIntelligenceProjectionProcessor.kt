@@ -3,6 +3,8 @@ package io.flooow.marketplace.operations.economics.sales
 import io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthAssembler
 import io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthAssemblyResult
 import io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthCalculator
+import io.flooow.marketplace.operations.economics.MarketplaceOrder
+import io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthCalculationResult
 import io.flooow.marketplace.operations.economics.evidence.ChangeSequenceCheckpoint
 import io.flooow.marketplace.operations.economics.evidence.CheckpointAdvanceResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceChange
@@ -40,7 +42,10 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
     private val evidenceRepository: MarketplaceIndependentEconomicEvidenceRepository,
     private val changeFeed: MarketplaceEconomicEvidenceChangeFeed,
     private val projection: MarketplaceSalesIntelligenceProjection,
-    private val clock: Clock = Clock.systemUTC()
+    private val clock: Clock = Clock.systemUTC(),
+    private val calculator: (MarketplaceOrder) -> MarketplaceEconomicTruthCalculationResult = {
+        order -> MarketplaceEconomicTruthCalculator.calculate(order)
+    }
 ) {
     fun processBatch(
         organizationId: OrganizationId,
@@ -148,7 +153,7 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
                 )
 
             is MarketplaceEconomicTruthAssemblyResult.Ready -> {
-                val calculation = MarketplaceEconomicTruthCalculator.calculate(assembly.order)
+                val calculation = calculator(assembly.order)
                 MarketplaceSalesIntelligenceState.Calculated(
                     assemblyPolicyVersion = assembly.assemblyPolicyVersion,
                     calculationPolicyVersion = calculationPolicyVersionOf(calculation),

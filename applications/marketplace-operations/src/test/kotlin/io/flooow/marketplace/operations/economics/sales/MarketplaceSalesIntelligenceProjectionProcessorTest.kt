@@ -6,8 +6,10 @@ import io.flooow.marketplace.operations.economics.EconomicSource
 import io.flooow.marketplace.operations.economics.EconomicSourceKind
 import io.flooow.marketplace.operations.economics.EconomicSourceSystemKey
 import io.flooow.marketplace.operations.economics.MarketplaceCurrency
+import io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthCalculationResult
 import io.flooow.marketplace.operations.economics.MarketplaceExternalOrderId
 import io.flooow.marketplace.operations.economics.MarketplaceKey
+import io.flooow.marketplace.operations.economics.MarketplaceOrder
 import io.flooow.marketplace.operations.economics.MarketplaceOrderId
 import io.flooow.marketplace.operations.economics.evidence.ChangeSequenceCheckpoint
 import io.flooow.marketplace.operations.economics.evidence.CheckpointAdvanceResult
@@ -21,6 +23,7 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEv
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicOrderOccurrenceObservation
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidence
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceMerger
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidencePersistResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceReadResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceRepository
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceResult
@@ -36,20 +39,21 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNull
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class MarketplaceSalesIntelligenceProjectionProcessorTest {
     private val organization = OrganizationId(uuid(1))
+    private val otherOrganization = OrganizationId(uuid(2))
     private val now = Instant.parse("2026-09-06T12:00:00.123456Z")
     private val clock = Clock.fixed(now, ZoneOffset.UTC)
 
     @Test
     fun `empty batch leaves checkpoint untouched`() {
-        val subject = subject(10)
-        val feed = FakeFeed(emptyList())
+        val feed = FakeFeed()
         val projection = FakeProjection()
-        val processor = processor(feed, projection, mapOf(subject to versioned(empty(subject), 0)))
+        val repository = MutableRepository()
+        val processor = processor(feed, projection, repository)
 
         assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.NoChanges>(
             processor.processBatch(organization, 100)
@@ -59,174 +63,276 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
     }
 
     @Test
-    fun `not ready materializes unresolved state and advances through final change`() {
-        val subject = subject(11)
-        val change = change(subject, 1, 1)
-        val feed = FakeFeed(listOf(change))
+    fun `changes are materialized in deterministic ascending sequence`() {
+        val first = subject(10)
+        val second = subject(11)
+        val feed = FakeFeed(
+            mutableListOf(
+                change(first, 1, 2),
+                change(second, 1, 5)
+            )
+        )
         val projection = FakeProjection()
-        val processor = processor(feed, projection, mapOf(subject to versioned(empty(subject), 1)))
-
-        val result = assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
-            processor.processBatch(organization, 100)
-        )
-        assertEquals(ChangeSequenceCheckpoint(1), result.checkpoint)
-        val record = projection.records.getValue(subject.orderId)
-        assertIs<MarketplaceSalesIntelligenceState.Unresolved>(record.state)
-        assertEquals(MarketplaceEconomicEvidenceVersion(1), record.sourceEvidenceVersion)
-    }
-
-    @Test
-    fun `ready evidence flows through calculator and stores calculated state`() {
-        val subject = subject(12)
-        val change = change(subject, 1, 1)
-        val projection = FakeProjection()
-        val processor = processor(
-            FakeFeed(listOf(change)),
-            projection,
-            mapOf(subject to versioned(withOccurrence(subject), 1))
-        )
-
-        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
-            processor.processBatch(organization, 100)
-        )
-        val state = projection.records.getValue(subject.orderId).state
-        assertIs<MarketplaceSalesIntelligenceState.Calculated>(state)
-    }
-
-    @Test
-    fun `current refetch may be newer than invalidation evidence version`() {
-        val subject = subject(13)
-        val feed = FakeFeed(listOf(change(subject, 1, 1)))
-        val projection = FakeProjection()
-        val processor = processor(
-            feed,
-            projection,
-            mapOf(subject to versioned(withOccurrence(subject), 7))
-        )
-
-        processor.processBatch(organization, 100)
-
-        assertEquals(
-            MarketplaceEconomicEvidenceVersion(7),
-            projection.records.getValue(subject.orderId).sourceEvidenceVersion
-        )
-        assertEquals(
-            ChangeSequenceCheckpoint(1),
-            projection.records.getValue(subject.orderId).lastAppliedChangeSequence
-        )
-    }
-
-    @Test
-    fun `projection failure blocks checkpoint advancement`() {
-        val subject = subject(14)
-        val feed = FakeFeed(listOf(change(subject, 1, 1)))
-        val projection = FakeProjection(failWrites = true)
-        val processor = processor(
-            feed,
-            projection,
-            mapOf(subject to versioned(empty(subject), 1))
-        )
-
-        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(
-            processor.processBatch(organization, 100)
-        )
-        assertEquals(ChangeSequenceCheckpoint.NONE, feed.checkpoint)
-    }
-
-    @Test
-    fun `replay after checkpoint failure is safe because projection write is monotonic`() {
-        val subject = subject(15)
-        val feed = FakeFeed(listOf(change(subject, 1, 1)), failFirstAdvance = true)
-        val projection = FakeProjection()
-        val processor = processor(
-            feed,
-            projection,
-            mapOf(subject to versioned(empty(subject), 1))
-        )
-
-        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(
-            processor.processBatch(organization, 100)
-        )
-        assertEquals(ChangeSequenceCheckpoint(1), projection.records.getValue(subject.orderId).lastAppliedChangeSequence)
-
-        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
-            processor.processBatch(organization, 100)
-        )
-        assertEquals(ChangeSequenceCheckpoint(1), feed.checkpoint)
-        assertEquals(1, projection.appliedMutations)
-    }
-
-    @Test
-    fun `multiple changes acknowledge exactly the final returned sequence`() {
-        val first = subject(16)
-        val second = subject(17)
-        val changes = listOf(
-            change(first, 1, 2),
-            change(second, 1, 5)
-        )
-        val feed = FakeFeed(changes)
-        val projection = FakeProjection()
-        val processor = processor(
-            feed,
-            projection,
-            mapOf(
+        val repository = MutableRepository(
+            mutableMapOf(
                 first to versioned(empty(first), 1),
                 second to versioned(empty(second), 1)
             )
         )
 
         val result = assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
-            processor.processBatch(organization, 100)
+            processor(feed, projection, repository).processBatch(organization, 100)
         )
+
+        assertEquals(listOf(2L, 5L), projection.writeSequences)
         assertEquals(ChangeSequenceCheckpoint(5), result.checkpoint)
-        assertEquals(ChangeSequenceCheckpoint(5), feed.lastAdvanceDestination)
     }
 
     @Test
-    fun `already current projection skips canonical refetch`() {
-        val subject = subject(18)
+    fun `not ready materializes unresolved without invoking calculator`() {
+        val subject = subject(12)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 1)))
         val projection = FakeProjection()
-        projection.records[subject.orderId] = MarketplaceSalesIntelligenceProjectionRecord(
-            organization,
-            subject.orderId,
-            MarketplaceEconomicEvidenceVersion(1),
-            MarketplaceSalesIntelligenceState.Unresolved(
-                io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthAssembler.POLICY_VERSION,
-                setOf(
-                    io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthAssemblyNotReadyReason.ORDER_OCCURRED_AT_UNRESOLVED
-                )
-            ),
-            ChangeSequenceCheckpoint(3),
-            now
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(empty(subject), 1))
         )
-        val feed = FakeFeed(listOf(change(subject, 1, 3)))
-        val repository = CountingRepository(emptyMap())
+        var calculatorCalls = 0
+
         val processor = MarketplaceSalesIntelligenceProjectionProcessor(
-            repository,
-            feed,
-            projection,
-            clock
+            evidenceRepository = repository,
+            changeFeed = feed,
+            projection = projection,
+            clock = clock,
+            calculator = {
+                calculatorCalls += 1
+                error("calculator must not be called for NotReady")
+            }
         )
 
         assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
             processor.processBatch(organization, 100)
         )
+        assertEquals(0, calculatorCalls)
+        assertIs<MarketplaceSalesIntelligenceState.Unresolved>(
+            projection.records.getValue(subject.orderId).state
+        )
+    }
+
+    @Test
+    fun `ready evidence invokes calculator and materializes calculated state`() {
+        val subject = subject(13)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 1)))
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(withOccurrence(subject), 1))
+        )
+        var calculatorCalls = 0
+
+        val processor = MarketplaceSalesIntelligenceProjectionProcessor(
+            evidenceRepository = repository,
+            changeFeed = feed,
+            projection = projection,
+            clock = clock,
+            calculator = { order: MarketplaceOrder ->
+                calculatorCalls += 1
+                io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthCalculator
+                    .calculate(order)
+            }
+        )
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor.processBatch(organization, 100)
+        )
+        assertEquals(1, calculatorCalls)
+        assertIs<MarketplaceSalesIntelligenceState.Calculated>(
+            projection.records.getValue(subject.orderId).state
+        )
+    }
+
+    @Test
+    fun `newer not ready replaces calculated state with no stale calculated payload retained`() {
+        val subject = subject(14)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 1)))
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(withOccurrence(subject), 1))
+        )
+        val processor = processor(feed, projection, repository)
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor.processBatch(organization, 100)
+        )
+        assertIs<MarketplaceSalesIntelligenceState.Calculated>(
+            projection.records.getValue(subject.orderId).state
+        )
+
+        repository.put(subject, versioned(empty(subject), 2))
+        feed.append(change(subject, 2, 2))
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor.processBatch(organization, 100)
+        )
+
+        val current = projection.records.getValue(subject.orderId)
+        assertEquals(MarketplaceEconomicEvidenceVersion(2), current.sourceEvidenceVersion)
+        assertEquals(ChangeSequenceCheckpoint(2), current.lastAppliedChangeSequence)
+        assertIs<MarketplaceSalesIntelligenceState.Unresolved>(current.state)
+    }
+
+    @Test
+    fun `already current projection skips canonical refetch`() {
+        val subject = subject(15)
+        val projection = FakeProjection()
+        projection.records[subject.orderId] = unresolvedRecord(subject, 3, 1)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 3)))
+        val repository = MutableRepository()
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor(feed, projection, repository).processBatch(organization, 100)
+        )
         assertEquals(0, repository.findCalls)
+        assertEquals(0, projection.appliedMutations)
+    }
+
+    @Test
+    fun `projection failure blocks checkpoint advancement`() {
+        val subject = subject(16)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 1)))
+        val projection = FakeProjection(failWrites = true)
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(empty(subject), 1))
+        )
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(
+            processor(feed, projection, repository).processBatch(organization, 100)
+        )
+        assertEquals(ChangeSequenceCheckpoint.NONE, feed.checkpoint)
+    }
+
+    @Test
+    fun `checkpoint failure after projection durability replays safely`() {
+        val subject = subject(17)
+        val feed = FakeFeed(
+            mutableListOf(change(subject, 1, 1)),
+            failNextAdvance = true
+        )
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(empty(subject), 1))
+        )
+        val processor = processor(feed, projection, repository)
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(
+            processor.processBatch(organization, 100)
+        )
+        assertEquals(1, projection.appliedMutations)
+        assertEquals(ChangeSequenceCheckpoint.NONE, feed.checkpoint)
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor.processBatch(organization, 100)
+        )
+        assertEquals(1, projection.appliedMutations)
+        assertEquals(ChangeSequenceCheckpoint(1), feed.checkpoint)
+    }
+
+    @Test
+    fun `repeated same change is deterministic projection no op`() {
+        val subject = subject(18)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 1)))
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(empty(subject), 1))
+        )
+        val processor = processor(feed, projection, repository)
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor.processBatch(organization, 100)
+        )
+        assertEquals(1, projection.appliedMutations)
+
+        feed.checkpoint = ChangeSequenceCheckpoint.NONE
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor.processBatch(organization, 100)
+        )
+        assertEquals(1, projection.appliedMutations)
+    }
+
+    @Test
+    fun `current evidence may be newer than invalidation evidence version`() {
+        val subject = subject(19)
+        val feed = FakeFeed(mutableListOf(change(subject, 1, 1)))
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(subject to versioned(withOccurrence(subject), 7))
+        )
+
+        processor(feed, projection, repository).processBatch(organization, 100)
+
+        val current = projection.records.getValue(subject.orderId)
+        assertEquals(MarketplaceEconomicEvidenceVersion(7), current.sourceEvidenceVersion)
+        assertEquals(ChangeSequenceCheckpoint(1), current.lastAppliedChangeSequence)
+    }
+
+    @Test
+    fun `processor rejects cross organization change and does not acknowledge batch`() {
+        val foreign = subject(20, otherOrganization)
+        val feed = FakeFeed(mutableListOf(change(foreign, 1, 1)))
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(foreign to versioned(empty(foreign), 1))
+        )
+
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(
+            processor(feed, projection, repository).processBatch(organization, 100)
+        )
+        assertEquals(ChangeSequenceCheckpoint.NONE, feed.checkpoint)
+        assertTrue(projection.records.isEmpty())
+        assertEquals(0, repository.findCalls)
+    }
+
+    @Test
+    fun `batch checkpoint destination is exactly final returned sequence`() {
+        val first = subject(21)
+        val second = subject(22)
+        val feed = FakeFeed(
+            mutableListOf(
+                change(first, 1, 2),
+                change(second, 1, 5)
+            )
+        )
+        val projection = FakeProjection()
+        val repository = MutableRepository(
+            mutableMapOf(
+                first to versioned(empty(first), 1),
+                second to versioned(empty(second), 1)
+            )
+        )
+
+        val result = assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(
+            processor(feed, projection, repository).processBatch(organization, 100)
+        )
+
+        assertEquals(ChangeSequenceCheckpoint(5), result.checkpoint)
+        assertEquals(ChangeSequenceCheckpoint(5), feed.lastAdvanceDestination)
     }
 
     private fun processor(
         feed: FakeFeed,
         projection: FakeProjection,
-        evidence: Map<MarketplaceEconomicEvidenceSubject, VersionedMarketplaceIndependentEconomicEvidence>
+        repository: MutableRepository
     ) = MarketplaceSalesIntelligenceProjectionProcessor(
-        CountingRepository(evidence),
-        feed,
-        projection,
-        clock
+        evidenceRepository = repository,
+        changeFeed = feed,
+        projection = projection,
+        clock = clock
     )
 
-    private fun subject(seed: Long) = MarketplaceEconomicEvidenceSubject(
-        organizationId = organization,
+    private fun subject(
+        seed: Long,
+        organizationId: OrganizationId = organization
+    ) = MarketplaceEconomicEvidenceSubject(
+        organizationId = organizationId,
         orderId = MarketplaceOrderId(uuid(seed)),
         marketplace = MarketplaceKey("mercado-livre"),
         externalOrderId = MarketplaceExternalOrderId("order-$seed"),
@@ -238,10 +344,10 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
         evidenceVersion: Long,
         sequence: Long
     ) = MarketplaceEconomicEvidenceChange(
-        subject,
-        MarketplaceEconomicEvidenceVersion(evidenceVersion),
-        ChangeSequenceCheckpoint(sequence),
-        MarketplaceEconomicEvidenceChangeKind.FACT
+        subject = subject,
+        evidenceVersion = MarketplaceEconomicEvidenceVersion(evidenceVersion),
+        changeSequence = ChangeSequenceCheckpoint(sequence),
+        changeKind = MarketplaceEconomicEvidenceChangeKind.FACT
     )
 
     private fun empty(subject: MarketplaceEconomicEvidenceSubject) =
@@ -252,12 +358,14 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
     ): MarketplaceIndependentEconomicEvidence {
         val occurrence = MarketplaceIndependentEconomicFact.OrderOccurrence(
             MarketplaceEconomicOrderOccurrenceObservation(
-                id = MarketplaceEconomicEvidenceObservationId.parse(uuid(900).toString()),
+                id = MarketplaceEconomicEvidenceObservationId.parse(
+                    uuid(subject.orderId.value.leastSignificantBits + 10_000).toString()
+                ),
                 subject = subject,
                 source = EconomicSource(
-                    EconomicSourceKind.MANUAL,
-                    EconomicSourceSystemKey("operator"),
-                    EconomicExternalReferenceState.Absent(
+                    kind = EconomicSourceKind.MANUAL,
+                    systemKey = EconomicSourceSystemKey("operator"),
+                    externalReference = EconomicExternalReferenceState.Absent(
                         EconomicExternalReferenceAbsenceReason.INTERNAL_ORIGIN
                     )
                 ),
@@ -276,16 +384,46 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
         evidence: MarketplaceIndependentEconomicEvidence,
         version: Long
     ) = VersionedMarketplaceIndependentEconomicEvidence(
-        evidence,
-        MarketplaceEconomicEvidenceVersion(version)
+        evidence = evidence,
+        version = MarketplaceEconomicEvidenceVersion(version)
+    )
+
+    private fun unresolvedRecord(
+        subject: MarketplaceEconomicEvidenceSubject,
+        sequence: Long,
+        evidenceVersion: Long
+    ) = MarketplaceSalesIntelligenceProjectionRecord(
+        organizationId = subject.organizationId,
+        marketplaceOrderId = subject.orderId,
+        sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(evidenceVersion),
+        state = MarketplaceSalesIntelligenceState.Unresolved(
+            io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthAssembler.POLICY_VERSION,
+            setOf(
+                io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthAssemblyNotReadyReason
+                    .ORDER_OCCURRED_AT_UNRESOLVED
+            )
+        ),
+        lastAppliedChangeSequence = ChangeSequenceCheckpoint(sequence),
+        projectedAt = now
     )
 
     private fun uuid(value: Long): UUID = UUID(0L, value)
 
-    private class CountingRepository(
-        private val evidence: Map<MarketplaceEconomicEvidenceSubject, VersionedMarketplaceIndependentEconomicEvidence>
+    private class MutableRepository(
+        private val evidence: MutableMap<
+            MarketplaceEconomicEvidenceSubject,
+            VersionedMarketplaceIndependentEconomicEvidence
+        > = mutableMapOf()
     ) : MarketplaceIndependentEconomicEvidenceRepository {
         var findCalls: Int = 0
+            private set
+
+        fun put(
+            subject: MarketplaceEconomicEvidenceSubject,
+            value: VersionedMarketplaceIndependentEconomicEvidence
+        ) {
+            evidence[subject] = value
+        }
 
         override fun find(
             subject: MarketplaceEconomicEvidenceSubject
@@ -302,24 +440,32 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
         override fun apply(
             expectedVersion: MarketplaceEconomicEvidenceVersion,
             update: MarketplaceIndependentEconomicEvidenceUpdate
-        ) = error("not used")
+        ): MarketplaceIndependentEconomicEvidencePersistResult =
+            error("not used")
     }
 
     private class FakeProjection(
         private val failWrites: Boolean = false
     ) : MarketplaceSalesIntelligenceProjection {
-        val records = linkedMapOf<MarketplaceOrderId, MarketplaceSalesIntelligenceProjectionRecord>()
+        val records =
+            linkedMapOf<MarketplaceOrderId, MarketplaceSalesIntelligenceProjectionRecord>()
+        val writeSequences = mutableListOf<Long>()
         var appliedMutations: Int = 0
+            private set
 
         override fun currentBySubject(
             organizationId: OrganizationId,
             marketplaceOrderId: MarketplaceOrderId
-        ) = MarketplaceSalesIntelligenceProjectionReadResult.Success(records[marketplaceOrderId])
+        ) = MarketplaceSalesIntelligenceProjectionReadResult.Success(
+            records[marketplaceOrderId]?.takeIf { it.organizationId == organizationId }
+        )
 
         override fun materializeIfNewer(
             record: MarketplaceSalesIntelligenceProjectionRecord
         ): MarketplaceSalesIntelligenceProjectionWriteResult {
-            if (failWrites) return MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure
+            if (failWrites) {
+                return MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure
+            }
             val current = records[record.marketplaceOrderId]
             if (current != null &&
                 current.lastAppliedChangeSequence >= record.lastAppliedChangeSequence
@@ -327,6 +473,7 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
                 return MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent
             }
             records[record.marketplaceOrderId] = record
+            writeSequences += record.lastAppliedChangeSequence.valueForPersistence()
             appliedMutations += 1
             return MarketplaceSalesIntelligenceProjectionWriteResult.Applied
         }
@@ -346,11 +493,16 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
     }
 
     private class FakeFeed(
-        private val changes: List<MarketplaceEconomicEvidenceChange>,
-        private var failFirstAdvance: Boolean = false
+        private val changes: MutableList<MarketplaceEconomicEvidenceChange> = mutableListOf(),
+        private var failNextAdvance: Boolean = false
     ) : MarketplaceEconomicEvidenceChangeFeed {
         var checkpoint: ChangeSequenceCheckpoint = ChangeSequenceCheckpoint.NONE
         var lastAdvanceDestination: ChangeSequenceCheckpoint? = null
+            private set
+
+        fun append(change: MarketplaceEconomicEvidenceChange) {
+            changes += change
+        }
 
         override fun changesSince(
             organizationId: OrganizationId,
@@ -364,8 +516,11 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
             projectionName: ProjectionName,
             limit: Int
         ) = MarketplaceEconomicEvidenceChangeFeedResult.Success(
-            if (changes.any { it.changeSequence > checkpoint }) listOf(changes.first().subject.organizationId)
-            else emptyList()
+            changes
+                .filter { it.changeSequence > checkpoint }
+                .map { it.subject.organizationId }
+                .distinct()
+                .take(limit)
         )
 
         override fun currentCheckpoint(
@@ -380,8 +535,8 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
             next: ChangeSequenceCheckpoint
         ): MarketplaceEconomicEvidenceChangeFeedResult<CheckpointAdvanceResult> {
             lastAdvanceDestination = next
-            if (failFirstAdvance) {
-                failFirstAdvance = false
+            if (failNextAdvance) {
+                failNextAdvance = false
                 return MarketplaceEconomicEvidenceChangeFeedResult.IntegrityFailure
             }
             if (checkpoint != expected) {
