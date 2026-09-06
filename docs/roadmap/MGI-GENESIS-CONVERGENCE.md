@@ -300,3 +300,20 @@ behavior.
 - number and value of decisions blocked due to insufficient evidence;
 - later: incremental contribution, loss avoided, money recovered, and decision
   accuracy.
+## Strategic product-experience horizon - Decision Rooms
+
+A separate non-normative product-experience note records the 2026-09-06
+"Decision Rooms" exploration:
+
+`docs/roadmap/FLOOOW-DECISION-ROOMS-EXPERIENCE-HORIZON.md`
+
+The concept treats future CEO, commercial, growth, finance, operations, supply,
+catalog, customer, fulfillment, governance, launch, and opportunity surfaces as
+role-specific lenses over shared institutional primitives.
+
+This is a strategic horizon only. It does not authorize frontend work, new domain
+truth, new scores, autonomous action, or deviation from the current provider,
+Economic Truth, reconciliation, and decision-readiness sequence.
+
+The note must be revisited before operational UI/design-system work and before
+Growth/Opportunity intelligence is authorized.
