@@ -636,3 +636,25 @@ TASK-0146 is complete.
 The next roadmap boundary is provider activation against the existing
 provider-neutral Connector Runtime and canonical economic-evidence ingestion.
 Connector Execution Coordination remains a later, separate contract.
+## 2026-09-06 - TASK-0149 authorized: live Omie economic evidence ingestion
+
+Accepted ADR-0050 and SPEC-0049.
+
+The project moves from durable provider-neutral economic foundations to the first
+live read-only provider evidence slice.
+
+Decision:
+
+- activate Omie PRODUCT_COST evidence first because static App Key/App Secret
+  credentials already fit the existing Connector Runtime and Integration Control
+  Plane without changing either contract;
+- preserve `connector-runtime` as provider-neutral and infrastructure-free;
+- create one vertical provider-ingestion module that translates provider records
+  into the existing independent marketplace economic evidence contract;
+- reuse historical MGI only for empirically validated provider mechanics and
+  test knowledge, never as Genesis architecture authority;
+- keep Mercado Livre live activation next, after a separate provider-neutral
+  credential-rotation execution bridge exposes the Control Plane's existing
+  versioned rotation safely to connector execution.
+
+No production code is changed by this authorization PR.
