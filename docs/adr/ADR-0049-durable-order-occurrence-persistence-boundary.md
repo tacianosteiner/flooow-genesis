@@ -1,6 +1,6 @@
 # ADR-0049: Durable OrderOccurrence Persistence Boundary
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-09-05
 
