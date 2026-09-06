@@ -792,3 +792,25 @@ blind replay.
 
 Next: separately govern Mercado Livre credential envelope + real refresh adapter,
 then live read-only Mercado Livre economic evidence.
+## 2026-09-06 - TASK-0151 authorization - Mercado Livre OAuth refresh
+
+Authorized the provider-specific envelope and real one-attempt refresh adapter
+required for Mercado Livre activation after TASK-0150.
+
+```text
+current Control Plane credential
+  -> TASK-0150 binding-version fence
+  -> Mercado Livre expiry assessment
+  -> REMOTE_STARTED
+  -> one POST /oauth/token
+  -> validated replacement envelope
+  -> existing Control Plane rotateCredential
+```
+
+Provider key is `br.com.mercadolivre`; refresh is single-use; provider
+`expires_in` is authoritative; malformed/uncertain success and timeout/I/O/5xx
+after request start are INDETERMINATE; invalid_grant is terminal
+authentication-required. Connector Runtime remains unchanged.
+
+Next: separately governed live read-only Mercado Livre economic evidence
+ingestion.
