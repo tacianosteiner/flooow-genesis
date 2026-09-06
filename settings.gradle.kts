@@ -11,6 +11,7 @@ include(":applications:marketplace-operations-api")
 include(":applications:marketplace-operations-persistence-postgres")
 include(":applications:integration-control-plane")
 include(":applications:connector-runtime")
+include(":applications:credential-rotation-execution")
 include(":applications:marketplace-economic-provider-ingestion")
 include(":applications:inventory-source-ingestion")
 include(":applications:inventory-identity-mapping")
@@ -43,6 +44,9 @@ project(":applications:integration-control-plane").projectDir =
 
 project(":applications:connector-runtime").projectDir =
     file("applications/connector-runtime")
+
+project(":applications:credential-rotation-execution").projectDir =
+    file("applications/credential-rotation-execution")
 
 project(":applications:marketplace-economic-provider-ingestion").projectDir =
     file("applications/marketplace-economic-provider-ingestion")

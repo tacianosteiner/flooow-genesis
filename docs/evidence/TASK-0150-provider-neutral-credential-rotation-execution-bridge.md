@@ -96,3 +96,31 @@ Complete only after local gates, repository CI, clean review, and merge.
 
 Next: Mercado Livre OAuth credential envelope + real refresh adapter, then live
 read-only Mercado Livre economic ingestion.
+## Implementation evidence
+
+Implementation branch:
+
+```text
+feat/task-0150-credential-rotation-execution
+```
+
+Implemented flow:
+
+```text
+active credential metadata
+-> provider/kind rotator resolution before secret use
+-> scoped local assessment
+-> durable binding-version claim
+-> durable REMOTE_STARTED fence
+-> one bounded fake refresh result
+-> existing Integration Control Plane rotateCredential
+-> durable COMPLETED / RETRYABLE / IN_DOUBT
+```
+
+The implementation keeps Connector Runtime unchanged, makes no real provider HTTP
+request, creates no second vault/binding, stores no secret/reference in V020,
+allows lease recovery only before remote start, prevents stale versions from
+crossing REMOTE_STARTED, and converts abandoned remote-started work to IN_DOUBT.
+
+Local gates run before commit/push. Repository CI and merge remain completion
+gates.

@@ -7,6 +7,7 @@ dependencies {
     implementation(project(":applications:marketplace-operations"))
     implementation(project(":applications:integration-control-plane"))
     implementation(project(":applications:connector-runtime"))
+    implementation(project(":applications:credential-rotation-execution"))
     implementation(project(":applications:marketplace-economic-provider-ingestion"))
     implementation(project(":applications:inventory-source-ingestion"))
     implementation(project(":applications:inventory-identity-mapping"))
