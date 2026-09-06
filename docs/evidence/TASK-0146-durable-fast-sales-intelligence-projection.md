@@ -1,6 +1,6 @@
 # TASK-0146: Durable/Fast Sales Intelligence Projection â€” Slice B
 
-Status: Authorized for implementation
+Status: Implementation verified locally; PR/CI/merge pending
 
 Date: 2026-09-06
 
@@ -636,6 +636,40 @@ no TASK-0148 semantic/persistence file changed
 
 `git diff --check` must be clean.
 
+## Implementation evidence - 2026-09-06
+
+TASK-0146 production implementation was verified locally against the accepted
+SPEC-0046 boundary.
+
+Implemented:
+
+- dedicated organization-scoped Sales Intelligence projection port;
+- canonical Unresolved and Calculated current-state materialization;
+- processor ordering through change feed -> current evidence refetch -> assembler
+  -> calculator only for Ready -> monotonic projection write -> checkpoint CAS;
+- additive V018 PostgreSQL projection schema;
+- guarded monotonic upsert using `last_applied_change_sequence`;
+- bounded organization-scoped detail and keyset list reads;
+- deterministic replay after projection commit/checkpoint failure;
+- fail-closed malformed projection reads;
+- representative-volume PostgreSQL index-plan characterization.
+
+Local verification completed successfully:
+
+- `:applications:marketplace-operations:compileKotlin`;
+- `:applications:marketplace-operations:compileTestKotlin`;
+- `:applications:marketplace-operations:test`;
+- `:applications:marketplace-operations-persistence-postgres:compileKotlin`;
+- `:applications:marketplace-operations-persistence-postgres:compileTestKotlin`;
+- `:applications:marketplace-operations-persistence-postgres:test`;
+- `git diff --check`;
+- exactly eight authorized changed paths;
+- V001..V017 unchanged;
+- no provider, connector-runtime, API/UI, research, TASK-0147 semantic, or
+  TASK-0148 semantic/persistence path changed.
+
+The completion gate remains open until the implementation PR is CI-green,
+review-clean, and merged.
 ## Explicitly out of scope
 
 TASK-0146 does not authorize:
