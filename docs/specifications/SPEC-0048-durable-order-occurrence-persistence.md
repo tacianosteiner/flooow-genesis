@@ -1,6 +1,6 @@
 # SPEC-0048: Durable OrderOccurrence Persistence
 
-Status: Proposed
+Status: Accepted
 
 Date: 2026-09-06
 
