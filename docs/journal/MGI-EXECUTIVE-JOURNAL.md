@@ -588,3 +588,32 @@ Implementation is locally verified but TASK-0148 is not yet complete. The
 remaining completion gates are final exactly-five-path verification, repository
 CI, clean PR review, and merge. TASK-0146 remains paused until those gates are
 closed.
+## 2026-09-06 - TASK-0146 durable Sales Intelligence implementation
+
+### Objective
+
+Materialize current canonical marketplace economic truth into a durable,
+organization-scoped, fast local Sales Intelligence projection.
+
+### Implemented
+
+- separate derivative projection port and processor;
+- V018 durable current-state projection;
+- monotonic guarded writes;
+- canonical Ready/NotReady materialization;
+- checkpoint-after-projection ordering;
+- crash/replay safety;
+- bounded keyset list/detail reads;
+- organization isolation;
+- representative-volume PostgreSQL index characterization.
+
+### Local verification
+
+Both marketplace application and PostgreSQL persistence module compile/test
+gates passed, with exactly eight authorized paths and no upstream semantic,
+provider, connector-runtime, API/UI, or historical migration changes.
+
+### Governance state
+
+Implementation is locally verified. Repository CI, clean PR review, and merge
+remain required before TASK-0146 is complete.
