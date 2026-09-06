@@ -846,3 +846,35 @@ Safety properties:
   Connector Runtime production change is included.
 
 Next: separately govern live read-only Mercado Livre economic evidence ingestion.
+## 2026-09-06 - TASK-0152 authorization - live Mercado Livre order source ingestion
+
+Authorized the first real read-only Mercado Livre economic-data acquisition after
+the OAuth refresh bridge.
+
+The slice is deliberately provider-level:
+
+```text
+Mercado Livre seller order search
+  -> typed order/item/payment source records
+  -> durable normalized source observations
+  -> existing connector progress
+```
+
+It does not create a canonical economic subject because Connector Runtime does
+not carry Genesis' internal `MarketplaceOrderId`.
+
+Key decisions:
+
+- reuse TASK-0151 credential codec through one scoped read helper;
+- one remote GET per readPage;
+- source capability is `marketplace-economic.order-source`;
+- offset/date-window exhaustion is retrieval state, not completeness;
+- retain non-PII economic/identity source fields only;
+- no raw JSON;
+- no inline OAuth refresh;
+- no direct independent economic evidence write;
+- one additive V021 may normalize order/item/payment source observations;
+- progress and source rows commit atomically.
+
+Next after TASK-0152: separately govern internal marketplace-order identity
+allocation/association and promotion into independent economic evidence.
