@@ -1,6 +1,6 @@
 # TASK-0147: Canonical Economic Truth Assembly
 
-Status: Implementation not started
+Status: Implementation complete; PR/CI pending
 
 Date: 2026-09-05
 
@@ -644,3 +644,104 @@ Completion of TASK-0147 does not by itself authorize TASK-0146.
 
 The next gate after TASK-0147 is a separately authorized durable
 OrderOccurrence persistence slice.
+
+## Execution evidence
+
+Implementation completed locally on 2026-09-05 against the TASK-0147 closed scope.
+
+### Implemented
+
+- introduced explicit MarketplaceEconomicOrderOccurrenceObservation inside the existing independent evidence boundary;
+- extended MarketplaceIndependentEconomicFact with OrderOccurrence;
+- preserved correction, supersession, canonical ordering, uniqueness, equality, provenance, precision, and redaction semantics;
+- implemented MarketplaceEconomicTruthAssembler with policy marketplace-economic-truth-assembly/1;
+- implemented fail-closed occurredAt resolution and Version 1 MISSING/PARTIAL coverage policy;
+- preserved exact active EconomicComponent values;
+- kept MarketplaceEconomicTruthCalculator unchanged and downstream;
+- kept the PostgreSQL adapter compile-safe while explicitly rejecting unsupported durable OrderOccurrence persistence;
+- added real PostgreSQL/Testcontainers compatibility evidence for unsupported observation and correction replacement.
+
+### PostgreSQL compatibility result
+
+Unsupported OrderOccurrence durable persistence returns the existing sanitized IntegrityFailure surface before durable mutation.
+
+The tests prove:
+
+- unsupported OrderOccurrence observation does not create a subject, journal row, identifier row, fact row, version advance, or committed change_sequence;
+- unsupported OrderOccurrence correction replacement leaves the existing subject version unchanged;
+- no journal, identifier, fact, or correction row is partially committed;
+- no new change_sequence is committed;
+- a subsequent supported durable fact remains persistable after the rejection.
+
+This is compatibility-only fail-closed behavior. TASK-0147 does not implement durable OrderOccurrence encoding or replay.
+
+### Local verification
+
+Focused marketplace-operations gate:
+
+```text
+.\gradlew.bat :applications:marketplace-operations:test
+BUILD SUCCESSFUL
+```
+
+Focused unsupported OrderOccurrence PostgreSQL/Testcontainers gate:
+
+```text
+.\gradlew.bat :applications:marketplace-operations-persistence-postgres:test --tests "*unsupported order occurrence*"
+BUILD SUCCESSFUL
+```
+
+Complete marketplace-operations-persistence-postgres gate:
+
+```text
+.\gradlew.bat :applications:marketplace-operations-persistence-postgres:test
+BUILD SUCCESSFUL
+```
+
+Complete repository gate:
+
+```text
+.\gradlew.bat clean build --rerun-tasks --no-daemon --console=plain
+BUILD SUCCESSFUL in 4m 24s
+94 actionable tasks: 94 executed
+```
+
+Diff hygiene:
+
+```text
+git diff --check
+exit code: 0
+```
+
+### Closed-scope proof before documentation update
+
+Mechanical working-tree enumeration contained exactly these six implementation/test paths:
+
+```text
+applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/economics/evidence/MarketplaceIndependentEconomicEvidence.kt
+applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/economics/MarketplaceEconomicTruthAssembler.kt
+applications/marketplace-operations/src/test/kotlin/io/flooow/marketplace/operations/economics/evidence/MarketplaceIndependentEconomicEvidenceTest.kt
+applications/marketplace-operations/src/test/kotlin/io/flooow/marketplace/operations/economics/MarketplaceEconomicTruthAssemblerTest.kt
+applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresMarketplaceIndependentEconomicEvidenceRepository.kt
+applications/marketplace-operations-persistence-postgres/src/test/kotlin/io/flooow/marketplace/persistence/postgres/PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest.kt
+```
+
+No migration path was present.
+
+TASK-0146 was absent from the working tree and remains paused.
+
+After this evidence record and the single executive-journal entry are added, the complete TASK-0147 diff is expected to contain exactly the eight authorized paths.
+
+### Mandatory remaining gap
+
+Durable OrderOccurrence persistence remains intentionally unimplemented and requires a separately governed persistence task before OrderOccurrence can participate in real durable production evidence.
+
+That future gate must decide and test the migration, durable discriminator, timestamp/source representation, insert, replay, correction replacement, restart behavior, duplicate/conflict behavior, rollback, and Testcontainers evidence.
+
+No existing durable row has been reinterpreted or backfilled as OrderOccurrence.
+
+### CI status
+
+Local implementation and repository gates are green.
+
+GitHub PR CI is pending because TASK-0147 has not yet been committed or pushed.

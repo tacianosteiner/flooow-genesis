@@ -211,9 +211,11 @@ class MarketplaceIndependentEconomicEvidenceTest {
         assertFailsWith<IllegalArgumentException> { componentFact(2, observed = imprecise) }
         assertFailsWith<IllegalArgumentException> { identityFact(3, occurred = imprecise) }
         assertFailsWith<IllegalArgumentException> { identityFact(4, observed = imprecise) }
-        assertFailsWith<IllegalArgumentException> { attempt(5, attempted = imprecise) }
+        assertFailsWith<IllegalArgumentException> { orderOccurrenceFact(5, occurred = imprecise) }
+        assertFailsWith<IllegalArgumentException> { orderOccurrenceFact(6, observed = imprecise) }
+        assertFailsWith<IllegalArgumentException> { attempt(7, attempted = imprecise) }
 
-        val replacement = componentFact(6, observed = observedAt)
+        val replacement = componentFact(8, observed = observedAt)
         assertFailsWith<IllegalArgumentException> {
             correction(7, replacement, observationId(8), observed = imprecise)
         }
@@ -229,11 +231,138 @@ class MarketplaceIndependentEconomicEvidenceTest {
             assertFailsWith<IllegalArgumentException> {
                 identityFact(20 + index, source = internalSource(kind), occurred = occurredAt, observed = earlier)
             }
+            assertFailsWith<IllegalArgumentException> {
+                orderOccurrenceFact(30 + index, source = internalSource(kind), occurred = occurredAt, observed = earlier)
+            }
         }
         listOf(EconomicSourceKind.MARKETPLACE, EconomicSourceKind.ERP).forEachIndexed { index, kind ->
-            componentFact(30 + index, source = externalSource(kind, "fact-clock-$index"), observed = earlier)
-            identityFact(40 + index, source = externalSource(kind, "identity-clock-$index"), observed = earlier)
+            componentFact(40 + index, source = externalSource(kind, "fact-clock-$index"), observed = earlier)
+            identityFact(50 + index, source = externalSource(kind, "identity-clock-$index"), observed = earlier)
+            orderOccurrenceFact(60 + index, source = externalSource(kind, "occurrence-clock-$index"), observed = earlier)
         }
+    }
+
+    @Test
+    fun `order occurrence has fixed marketplace order family and redacted rendering`() {
+        val fact = orderOccurrenceFact(70)
+
+        assertEquals(MarketplaceEconomicEvidenceFamily.MARKETPLACE_ORDER, fact.family)
+        assertEquals(subject, fact.subject)
+        assertEquals(occurredAt, fact.observation.occurredAt)
+        assertEquals("[REDACTED]", fact.observation.toString())
+        assertEquals("[REDACTED]", fact.toString())
+    }
+
+    @Test
+    fun `order occurrence external source fact duplicates equal meaning and conflicts on changed time`() {
+        listOf(EconomicSourceKind.MARKETPLACE, EconomicSourceKind.ERP).forEachIndexed { index, kind ->
+            val source = externalSource(kind, "order-occurrence-$index")
+            val original = orderOccurrenceFact(80 + index * 10, source = source)
+            val current = applied(empty(), observe(original))
+
+            val duplicateFact = orderOccurrenceFact(
+                81 + index * 10,
+                source = source,
+                observed = observedAt.plusSeconds(10)
+            )
+            val duplicate = assertIs<MarketplaceIndependentEconomicEvidenceResult.Duplicate>(
+                MarketplaceIndependentEconomicEvidenceMerger.apply(current, observe(duplicateFact))
+            )
+            assertSame(current, duplicate.evidence)
+
+            val changedTime = orderOccurrenceFact(
+                82 + index * 10,
+                source = source,
+                occurred = occurredAt.plusSeconds(1),
+                observed = observedAt.plusSeconds(10)
+            )
+            assertEquals(
+                MarketplaceIndependentEconomicEvidenceResult.SourceFactConflict,
+                MarketplaceIndependentEconomicEvidenceMerger.apply(current, observe(changedTime))
+            )
+        }
+    }
+
+    @Test
+    fun `manual and calculated order occurrences use observation identifier without invented provider identity`() {
+        listOf(EconomicSourceKind.MANUAL, EconomicSourceKind.CALCULATED).forEachIndexed { index, kind ->
+            val first = orderOccurrenceFact(100 + index * 10, source = internalSource(kind))
+            val second = orderOccurrenceFact(
+                101 + index * 10,
+                source = internalSource(kind),
+                occurred = occurredAt.plusSeconds(1),
+                observed = observedAt.plusSeconds(1)
+            )
+            val current = applied(empty(), observe(first))
+
+            assertIs<MarketplaceIndependentEconomicEvidenceResult.Applied>(
+                MarketplaceIndependentEconomicEvidenceMerger.apply(current, observe(second))
+            )
+        }
+    }
+
+    @Test
+    fun `order occurrence participates in global observation identifier uniqueness`() {
+        val occurrence = orderOccurrenceFact(120)
+        val current = applied(empty(), observe(occurrence))
+
+        assertEquals(
+            MarketplaceIndependentEconomicEvidenceResult.IdentifierConflict,
+            MarketplaceIndependentEconomicEvidenceMerger.apply(
+                current,
+                observe(componentFact(120, componentId = 120))
+            )
+        )
+    }
+
+    @Test
+    fun `order occurrence correction preserves history and activates explicit replacement`() {
+        val source = externalSource(EconomicSourceKind.MARKETPLACE, "corrected-order-occurrence")
+        val original = orderOccurrenceFact(130, source = source)
+        val before = applied(empty(), observe(original))
+        val replacement = orderOccurrenceFact(
+            131,
+            source = source,
+            occurred = occurredAt.plusSeconds(5),
+            observed = observedAt.plusSeconds(1)
+        )
+
+        assertEquals(
+            MarketplaceIndependentEconomicEvidenceResult.SourceFactConflict,
+            MarketplaceIndependentEconomicEvidenceMerger.apply(before, observe(replacement))
+        )
+
+        val correction = correction(
+            132,
+            replacement,
+            original.id,
+            observedAt.plusSeconds(2)
+        )
+        val after = applied(before, correct(correction))
+
+        assertEquals(listOf(original, replacement), after.historicalFacts)
+        assertEquals(listOf(replacement), after.activeFacts)
+        assertEquals(listOf(correction), after.corrections)
+        assertFalse(original in after.activeFacts)
+    }
+
+    @Test
+    fun `order occurrence canonical ordering and aggregate equality are insertion order independent`() {
+        val first = orderOccurrenceFact(
+            140,
+            source = externalSource(EconomicSourceKind.MARKETPLACE, "occurrence-a")
+        )
+        val second = orderOccurrenceFact(
+            141,
+            source = externalSource(EconomicSourceKind.MARKETPLACE, "occurrence-b")
+        )
+
+        val left = applied(applied(empty(), observe(second)), observe(first))
+        val right = applied(applied(empty(), observe(first)), observe(second))
+
+        assertEquals(left, right)
+        assertEquals(listOf(first.id, second.id), left.facts.map { it.id })
+        assertEquals(left.hashCode(), right.hashCode())
     }
 
     @Test
@@ -658,6 +787,8 @@ class MarketplaceIndependentEconomicEvidenceTest {
             subject,
             MarketplaceEconomicEvidenceFamily.MARKETPLACE_SHIPPING,
             fact.observation,
+            orderOccurrenceFact(150).observation,
+            orderOccurrenceFact(150),
             MarketplaceEconomicExternalIdentityKind.FISCAL_INVOICE,
             identityFact(5).observation,
             identityFact(5),
@@ -803,6 +934,22 @@ class MarketplaceIndependentEconomicEvidenceTest {
             )
         )
     }
+
+    private fun orderOccurrenceFact(
+        id: Int,
+        subject: MarketplaceEconomicEvidenceSubject = this.subject,
+        source: EconomicSource = externalSource(EconomicSourceKind.MARKETPLACE, "order-occurrence-$id"),
+        occurred: Instant = occurredAt,
+        observed: Instant = observedAt
+    ) = MarketplaceIndependentEconomicFact.OrderOccurrence(
+        MarketplaceEconomicOrderOccurrenceObservation(
+            observationId(id),
+            subject,
+            source,
+            occurred,
+            observed
+        )
+    )
 
     private fun identityFact(
         id: Int,

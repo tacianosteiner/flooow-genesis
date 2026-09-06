@@ -23,6 +23,7 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEv
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceCorrectionReason
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceFamily
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceObservationId
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicOrderOccurrenceObservation
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceSubject
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceVersion
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceMerger
@@ -428,6 +429,63 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
         assertEquals(2L, correctionApplied.versionedEvidence.version.valueForPersistence())
         assertEquals(4, totalJournalRows())
         assertEquals(4, distinctChangeSequences())
+    }
+
+    @Test
+    fun `unsupported order occurrence observation writes nothing`() {
+        val subject = domainSubject()
+        createOrganization(subject.organizationId.value)
+
+        val sequenceBefore = maximumChangeSequenceOrZero(subject.organizationId.value)
+
+        val result = repository.apply(
+            MarketplaceEconomicEvidenceVersion.ZERO,
+            orderOccurrenceUpdate(subject)
+        )
+
+        assertIs<MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure>(result)
+        assertEquals(0, subjectRows(subject))
+        assertEquals(0, journalRows(subject))
+        assertEquals(0, evidenceIdentifierRows(subject))
+        assertEquals(0, evidenceFactRows(subject))
+        assertEquals(sequenceBefore, maximumChangeSequenceOrZero(subject.organizationId.value))
+
+        val supported = assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Applied>(
+            repository.apply(MarketplaceEconomicEvidenceVersion.ZERO, factUpdate(subject))
+        )
+        assertEquals(1L, supported.versionedEvidence.version.valueForPersistence())
+        assertEquals(1, journalRows(subject))
+    }
+
+    @Test
+    fun `unsupported order occurrence correction replacement writes nothing`() {
+        val subject = domainSubject()
+        createOrganization(subject.organizationId.value)
+
+        val original = factUpdate(subject)
+        assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Applied>(
+            repository.apply(MarketplaceEconomicEvidenceVersion.ZERO, original)
+        )
+
+        val versionBefore = subjectVersion(subject.organizationId.value, subject.orderId.value)
+        val journalBefore = journalRows(subject)
+        val identifierBefore = evidenceIdentifierRows(subject)
+        val factBefore = evidenceFactRows(subject)
+        val correctionBefore = evidenceCorrectionRows(subject)
+        val sequenceBefore = maximumChangeSequenceOrZero(subject.organizationId.value)
+
+        val result = repository.apply(
+            MarketplaceEconomicEvidenceVersion(1),
+            orderOccurrenceCorrectionUpdate(subject, original.fact)
+        )
+
+        assertIs<MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure>(result)
+        assertEquals(versionBefore, subjectVersion(subject.organizationId.value, subject.orderId.value))
+        assertEquals(journalBefore, journalRows(subject))
+        assertEquals(identifierBefore, evidenceIdentifierRows(subject))
+        assertEquals(factBefore, evidenceFactRows(subject))
+        assertEquals(correctionBefore, evidenceCorrectionRows(subject))
+        assertEquals(sequenceBefore, maximumChangeSequenceOrZero(subject.organizationId.value))
     }
 
     @Test
@@ -998,6 +1056,53 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
             )
         )
 
+    private fun orderOccurrenceUpdate(
+        subject: MarketplaceEconomicEvidenceSubject
+    ): MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact =
+        MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(
+            orderOccurrenceFact(subject)
+        )
+
+    private fun orderOccurrenceCorrectionUpdate(
+        subject: MarketplaceEconomicEvidenceSubject,
+        original: MarketplaceIndependentEconomicFact
+    ): MarketplaceIndependentEconomicEvidenceUpdate.Correct {
+        val replacement = orderOccurrenceFact(
+            subject,
+            observedAt = baseTime.plusSeconds(4)
+        )
+        return MarketplaceIndependentEconomicEvidenceUpdate.Correct(
+            MarketplaceEconomicEvidenceCorrection(
+                observationId(uuid()),
+                subject,
+                replacement,
+                original.id,
+                MarketplaceEconomicEvidenceCorrectionReason.SOURCE_CORRECTION,
+                baseTime.plusSeconds(5)
+            )
+        )
+    }
+
+    private fun orderOccurrenceFact(
+        subject: MarketplaceEconomicEvidenceSubject,
+        observedAt: Instant = baseTime.plusSeconds(2)
+    ): MarketplaceIndependentEconomicFact.OrderOccurrence =
+        MarketplaceIndependentEconomicFact.OrderOccurrence(
+            MarketplaceEconomicOrderOccurrenceObservation(
+                observationId(uuid()),
+                subject,
+                EconomicSource(
+                    EconomicSourceKind.MARKETPLACE,
+                    EconomicSourceSystemKey("meli-br"),
+                    EconomicExternalReferenceState.Present(
+                        EconomicExternalReference("order-occurrence-${identifiers.getAndIncrement()}")
+                    )
+                ),
+                baseTime.plusSeconds(1),
+                observedAt
+            )
+        )
+
     private fun attemptUpdate(
         subject: MarketplaceEconomicEvidenceSubject
     ): MarketplaceIndependentEconomicEvidenceUpdate.RecordAttempt =
@@ -1069,6 +1174,29 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
             "marketplace_economic_evidence_subject",
             Subject(subject.organizationId.value, subject.orderId.value)
         )
+
+    private fun evidenceIdentifierRows(subject: MarketplaceEconomicEvidenceSubject): Int =
+        count(
+            "marketplace_economic_evidence_identifier",
+            Subject(subject.organizationId.value, subject.orderId.value)
+        )
+
+    private fun evidenceFactRows(subject: MarketplaceEconomicEvidenceSubject): Int =
+        count(
+            "marketplace_economic_evidence_fact",
+            Subject(subject.organizationId.value, subject.orderId.value)
+        )
+
+    private fun evidenceCorrectionRows(subject: MarketplaceEconomicEvidenceSubject): Int =
+        count(
+            "marketplace_economic_evidence_correction",
+            Subject(subject.organizationId.value, subject.orderId.value)
+        )
+
+    private fun maximumChangeSequenceOrZero(organizationId: UUID): Long = queryLong(
+        "SELECT COALESCE(max(change_sequence),0) FROM marketplace_economic_evidence_update " +
+            "WHERE organization_id='$organizationId'::uuid"
+    )
 
     private fun maximumChangeSequence(organizationId: UUID): Long = queryLong(
         "SELECT max(change_sequence) FROM marketplace_economic_evidence_update " +
