@@ -84,3 +84,45 @@ The product must prefer visible incompleteness over invented profitability.
 
 Implementation evidence is appended here only after implementation exists and
 all local gates pass.
+## Implementation evidence
+
+Implementation branch:
+
+```text
+feat/task-0154-mercado-livre-order-revenue-promotion
+```
+
+Implemented bridge:
+
+```text
+V021 durable Mercado Livre order source
+  + V022 canonical order identity
+  + non-null source date_closed
+  -> REVENUE / ADDITION
+  -> CONFIRMED evidence quality
+  -> PARTIAL coverage
+  -> existing independent economic evidence repository
+  -> V023 terminal source promotion ledger
+```
+
+The implementation preserves the governed boundary:
+
+- canonical order identity is read/reused and never reallocated;
+- source/identity currency mismatch is terminal `IDENTITY_CONFLICT`;
+- `total_amount` is preserved through exact decimal semantics;
+- source `date_closed` is the revenue occurrence time;
+- durable source `observedAt` is preserved;
+- source identity is `MARKETPLACE / br.com.mercadolivre / externalOrderId`;
+- equal source revenue is `DUPLICATE`;
+- changed canonical source meaning is `EVIDENCE_CONFLICT`;
+- no automatic correction is issued;
+- no `paid_amount`, `sale_fee`, shipping, tax, settlement or product cost is
+  promoted;
+- rows without `date_closed` remain non-terminal and can become eligible later;
+- crash after evidence apply but before terminal marking converges through
+  existing Duplicate semantics;
+- V023 is additive and source-promotion state is append-only.
+
+All local SPEC-0054 gates are run before commit and push.
+
+Repository CI and merge are required before TASK-0154 is closed.

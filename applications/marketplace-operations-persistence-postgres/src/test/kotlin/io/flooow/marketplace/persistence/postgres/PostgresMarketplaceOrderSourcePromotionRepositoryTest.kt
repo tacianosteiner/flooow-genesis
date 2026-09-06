@@ -583,3 +583,299 @@ class PostgresMarketplaceOrderSourcePromotionRepositoryTest {
         configuration.password
     )
 }
+class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
+    @kotlin.test.Test
+    fun `revenue pending eligibility terminal replay conflict and append only persistence`() {
+        val postgres = org.testcontainers.postgresql.PostgreSQLContainer("postgres:18.4")
+        postgres.start()
+
+        try {
+            val configuration = PostgresConfiguration(
+                postgres.jdbcUrl,
+                postgres.username,
+                postgres.password
+            )
+
+            org.flywaydb.core.Flyway.configure()
+                .dataSource(postgres.jdbcUrl, postgres.username, postgres.password)
+                .locations("classpath:db/migration")
+                .load()
+                .migrate()
+
+            seedRevenueFixtures(configuration)
+
+            val repository = PostgresMarketplaceOrderSourcePromotionRepository(configuration)
+            val organization =
+                io.flooow.organization.OrganizationId(java.util.UUID(0, 701))
+            val connection =
+                io.flooow.integration.control.IntegrationConnectionId(java.util.UUID(0, 702))
+
+            val pending =
+                kotlin.test.assertIs<
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePendingResult.Available
+                >(repository.pendingRevenue(organization, connection, 10))
+
+            kotlin.test.assertEquals(2, pending.candidates.size)
+            kotlin.test.assertEquals(
+                listOf(1L, 2L),
+                pending.candidates.map { it.sourceKey.inputProgressVersion }
+            )
+
+            val normal = pending.candidates[0]
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.MarketplaceCurrency("BRL"),
+                normal.sourceCurrency
+            )
+            kotlin.test.assertEquals(normal.sourceCurrency, normal.identityCurrency)
+            kotlin.test.assertEquals(java.math.BigDecimal("123.450000"), normal.totalAmount)
+            kotlin.test.assertEquals(
+                java.time.Instant.parse("2026-09-06T20:30:00.123456Z"),
+                normal.dateClosed
+            )
+
+            val mismatch = pending.candidates[1]
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.MarketplaceCurrency("USD"),
+                mismatch.sourceCurrency
+            )
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.MarketplaceCurrency("BRL"),
+                mismatch.identityCurrency
+            )
+            kotlin.test.assertEquals(normal.orderId, mismatch.orderId)
+
+            val promotedAt = java.time.Instant.parse("2026-09-06T22:30:00.000001Z")
+
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.promotion
+                    .MarketplaceOrderRevenuePromotionWriteResult.APPLIED,
+                repository.markRevenueTerminal(
+                    normal,
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+                    promotedAt
+                )
+            )
+
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.promotion
+                    .MarketplaceOrderRevenuePromotionWriteResult.ALREADY_APPLIED,
+                repository.markRevenueTerminal(
+                    normal,
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+                    promotedAt.plusSeconds(1)
+                )
+            )
+
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.promotion
+                    .MarketplaceOrderRevenuePromotionWriteResult.CONFLICT,
+                repository.markRevenueTerminal(
+                    normal,
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePromotionOutcome.DUPLICATE,
+                    promotedAt.plusSeconds(2)
+                )
+            )
+
+            kotlin.test.assertEquals(
+                io.flooow.marketplace.operations.economics.promotion
+                    .MarketplaceOrderRevenuePromotionWriteResult.APPLIED,
+                repository.markRevenueTerminal(
+                    mismatch,
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT,
+                    promotedAt.plusSeconds(3)
+                )
+            )
+
+            val afterTerminal =
+                kotlin.test.assertIs<
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePendingResult.Available
+                >(repository.pendingRevenue(organization, connection, 10))
+            kotlin.test.assertTrue(afterTerminal.candidates.isEmpty())
+
+            kotlin.test.assertFailsWith<java.sql.SQLException> {
+                java.sql.DriverManager.getConnection(
+                    configuration.url,
+                    configuration.user,
+                    configuration.password
+                ).use { sql ->
+                    sql.createStatement().use {
+                        it.executeUpdate(
+                            "UPDATE marketplace_order_revenue_source_promotion " +
+                                "SET outcome='DUPLICATE'"
+                        )
+                    }
+                }
+            }
+
+            java.sql.DriverManager.getConnection(
+                configuration.url,
+                configuration.user,
+                configuration.password
+            ).use { sql ->
+                sql.prepareStatement(
+                    "SELECT COUNT(*) FROM integration_mercado_livre_order_source_observation " +
+                        "WHERE external_order_ref='200000000155' AND date_closed IS NULL"
+                ).use { statement ->
+                    statement.executeQuery().use { result ->
+                        kotlin.test.assertTrue(result.next())
+                        kotlin.test.assertEquals(1, result.getInt(1))
+                    }
+                }
+
+                sql.prepareStatement(
+                    "SELECT column_name FROM information_schema.columns " +
+                        "WHERE table_name='marketplace_order_revenue_source_promotion'"
+                ).use { statement ->
+                    statement.executeQuery().use { result ->
+                        val columns = mutableListOf<String>()
+                        while (result.next()) columns += result.getString(1)
+                        kotlin.test.assertTrue(
+                            columns.none {
+                                it.contains("json", ignoreCase = true) ||
+                                    it.contains("token", ignoreCase = true) ||
+                                    it.contains("secret", ignoreCase = true) ||
+                                    it.contains("pii", ignoreCase = true)
+                            }
+                        )
+                    }
+                }
+            }
+        } finally {
+            postgres.stop()
+        }
+    }
+
+    private fun seedRevenueFixtures(configuration: PostgresConfiguration) {
+        val organization = java.util.UUID(0, 701)
+        val connection = java.util.UUID(0, 702)
+        val orderA = java.util.UUID(0, 703)
+        val orderB = java.util.UUID(0, 704)
+
+        java.sql.DriverManager.getConnection(
+            configuration.url,
+            configuration.user,
+            configuration.password
+        ).use { sql ->
+            sql.autoCommit = false
+            try {
+                fun execute(statement: String) {
+                    sql.createStatement().use { it.executeUpdate(statement) }
+                }
+
+                execute(
+                    "INSERT INTO integration_organization " +
+                        "(organization_id,status,created_at,updated_at) VALUES " +
+                        "('$organization','ACTIVE'," +
+                        "'2026-09-06 18:00:00+00','2026-09-06 18:00:00+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_connection " +
+                        "(organization_id,connection_id,provider_key,credential_kind,status," +
+                        "binding_version,created_at,updated_at) VALUES " +
+                        "('$organization','$connection','br.com.mercadolivre'," +
+                        "'OAUTH2_AUTHORIZATION_CODE','ACTIVE',1," +
+                        "'2026-09-06 18:00:00+00','2026-09-06 18:00:00+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_connector_progress " +
+                        "(organization_id,connection_id,capability,progress_version," +
+                        "progress_envelope,exhausted,last_observed_at,updated_at) VALUES " +
+                        "('$organization','$connection','marketplace-economic.order-source',2," +
+                        "decode('01','hex'),false," +
+                        "'2026-09-06 22:00:00+00','2026-09-06 22:00:00+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_connector_page_commit " +
+                        "(organization_id,connection_id,capability,input_progress_version," +
+                        "page_commit_key,record_count,exhausted,observed_at,committed_at) VALUES " +
+                        "('$organization','$connection','marketplace-economic.order-source',1," +
+                        "decode(repeat('11',32),'hex'),2,false," +
+                        "'2026-09-06 21:00:00+00','2026-09-06 21:00:01+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_connector_page_commit " +
+                        "(organization_id,connection_id,capability,input_progress_version," +
+                        "page_commit_key,record_count,exhausted,observed_at,committed_at) VALUES " +
+                        "('$organization','$connection','marketplace-economic.order-source',2," +
+                        "decode(repeat('22',32),'hex'),1,false," +
+                        "'2026-09-06 22:00:00+00','2026-09-06 22:00:01+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_mercado_livre_order_source_observation " +
+                        "(organization_id,connection_id,capability,input_progress_version," +
+                        "record_ordinal,external_order_ref,provider_status,date_created," +
+                        "date_last_updated,date_closed,currency,total_amount,paid_amount," +
+                        "pack_ref,shipping_ref,observed_at) VALUES " +
+                        "('$organization','$connection','marketplace-economic.order-source',1,0," +
+                        "'200000000154','paid','2026-09-06 20:00:00.000000+00'," +
+                        "'2026-09-06 20:31:00.000000+00'," +
+                        "'2026-09-06 20:30:00.123456+00','BRL',123.450000,123.450000," +
+                        "NULL,NULL,'2026-09-06 21:00:00.123456+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_mercado_livre_order_source_observation " +
+                        "(organization_id,connection_id,capability,input_progress_version," +
+                        "record_ordinal,external_order_ref,provider_status,date_created," +
+                        "date_last_updated,date_closed,currency,total_amount,paid_amount," +
+                        "pack_ref,shipping_ref,observed_at) VALUES " +
+                        "('$organization','$connection','marketplace-economic.order-source',1,1," +
+                        "'200000000155','confirmed','2026-09-06 20:05:00.000000+00'," +
+                        "'2026-09-06 20:10:00.000000+00',NULL,'BRL',88.000000,NULL," +
+                        "NULL,NULL,'2026-09-06 21:00:00.223456+00')"
+                )
+
+                execute(
+                    "INSERT INTO integration_mercado_livre_order_source_observation " +
+                        "(organization_id,connection_id,capability,input_progress_version," +
+                        "record_ordinal,external_order_ref,provider_status,date_created," +
+                        "date_last_updated,date_closed,currency,total_amount,paid_amount," +
+                        "pack_ref,shipping_ref,observed_at) VALUES " +
+                        "('$organization','$connection','marketplace-economic.order-source',2,0," +
+                        "'200000000154','paid','2026-09-06 20:00:00.000000+00'," +
+                        "'2026-09-06 21:31:00.000000+00'," +
+                        "'2026-09-06 20:30:00.123456+00','USD',123.450000,123.450000," +
+                        "NULL,NULL,'2026-09-06 22:00:00.123456+00')"
+                )
+
+                execute(
+                    "INSERT INTO marketplace_order_identity_registry " +
+                        "(organization_id,marketplace_key,external_order_id," +
+                        "marketplace_order_id,currency,allocated_at," +
+                        "first_source_connection_id,first_source_capability," +
+                        "first_source_input_progress_version,first_source_record_ordinal) VALUES " +
+                        "('$organization','mercado-livre','200000000154','$orderA','BRL'," +
+                        "'2026-09-06 21:00:02+00','$connection'," +
+                        "'marketplace-economic.order-source',1,0)"
+                )
+
+                execute(
+                    "INSERT INTO marketplace_order_identity_registry " +
+                        "(organization_id,marketplace_key,external_order_id," +
+                        "marketplace_order_id,currency,allocated_at," +
+                        "first_source_connection_id,first_source_capability," +
+                        "first_source_input_progress_version,first_source_record_ordinal) VALUES " +
+                        "('$organization','mercado-livre','200000000155','$orderB','BRL'," +
+                        "'2026-09-06 21:00:03+00','$connection'," +
+                        "'marketplace-economic.order-source',1,1)"
+                )
+
+                sql.commit()
+            } catch (error: Exception) {
+                sql.rollback()
+                throw error
+            }
+        }
+    }
+}

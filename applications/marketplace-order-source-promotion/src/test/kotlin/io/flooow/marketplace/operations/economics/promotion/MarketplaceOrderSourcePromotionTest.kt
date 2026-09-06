@@ -377,3 +377,239 @@ private class ScriptedEvidenceRepository(
             version
         )
 }
+class MarketplaceOrderRevenuePromotionTest {
+    private val now = java.time.Instant.parse("2026-09-06T22:00:00.123456Z")
+    private val dateClosed = java.time.Instant.parse("2026-09-06T20:30:00.654321Z")
+    private val clock = java.time.Clock.fixed(now, java.time.ZoneOffset.UTC)
+    private val organization = io.flooow.organization.OrganizationId(java.util.UUID(0, 501))
+    private val connection =
+        io.flooow.integration.control.IntegrationConnectionId(java.util.UUID(0, 502))
+    private val orderId =
+        io.flooow.marketplace.operations.economics.MarketplaceOrderId(java.util.UUID(0, 503))
+
+    @kotlin.test.Test
+    fun `revenue promotion preserves exact source semantics and remains partial`() {
+        val candidate = candidate()
+        val source = ScriptedRevenuePromotionRepository(listOf(candidate))
+        val evidence = ScriptedEvidenceRepository(mutableListOf(ApplyStep.Applied))
+
+        val result = kotlin.test.assertIs<MarketplaceOrderRevenuePromotionBatchResult.Completed>(
+            service(source, evidence).promotePendingRevenue(organization, connection, 10)
+        )
+
+        kotlin.test.assertEquals(1, result.promoted)
+        kotlin.test.assertEquals(
+            MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+            source.terminalOutcome
+        )
+
+        val update =
+            kotlin.test.assertIs<
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact
+            >(evidence.lastUpdate)
+
+        val fact =
+            kotlin.test.assertIs<
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicFact.Component
+            >(update.fact)
+
+        val observation = fact.observation
+        val component = observation.component
+
+        kotlin.test.assertEquals(
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceFamily.MARKETPLACE_ORDER,
+            observation.family
+        )
+        kotlin.test.assertEquals(
+            io.flooow.marketplace.operations.economics.EconomicComponentCoverage.PARTIAL,
+            observation.coverageClaim
+        )
+        kotlin.test.assertEquals(
+            io.flooow.marketplace.operations.economics.EconomicComponentType.REVENUE,
+            component.type
+        )
+        kotlin.test.assertEquals(
+            io.flooow.marketplace.operations.economics.EconomicDirection.ADDITION,
+            component.direction
+        )
+        kotlin.test.assertEquals(
+            io.flooow.marketplace.operations.economics.EconomicEvidenceQuality.CONFIRMED,
+            component.quality
+        )
+        kotlin.test.assertEquals(java.math.BigDecimal("123.45"), component.magnitude.amount)
+        kotlin.test.assertEquals(candidate.identityCurrency, component.magnitude.currency)
+        kotlin.test.assertEquals(candidate.dateClosed, component.occurredAt)
+        kotlin.test.assertEquals(candidate.observedAt, observation.observedAt)
+        kotlin.test.assertEquals(orderId, observation.subject.orderId)
+        kotlin.test.assertEquals(candidate.externalOrderId, observation.subject.externalOrderId)
+        kotlin.test.assertEquals(
+            io.flooow.marketplace.operations.economics.EconomicSourceKind.MARKETPLACE,
+            component.source.kind
+        )
+        kotlin.test.assertEquals(
+            MarketplaceOrderSourcePromotionContract.SOURCE_SYSTEM_KEY,
+            component.source.systemKey
+        )
+        val external =
+            kotlin.test.assertIs<
+                io.flooow.marketplace.operations.economics.EconomicExternalReferenceState.Present
+            >(component.source.externalReference)
+        kotlin.test.assertEquals(candidate.externalOrderId.value, external.reference.value)
+    }
+
+    @kotlin.test.Test
+    fun `source currency mismatch is terminal identity conflict without evidence write`() {
+        val candidate = candidate(sourceCurrency = "USD", identityCurrency = "BRL")
+        val source = ScriptedRevenuePromotionRepository(listOf(candidate))
+        val evidence = ScriptedEvidenceRepository(mutableListOf())
+
+        val result = kotlin.test.assertIs<MarketplaceOrderRevenuePromotionBatchResult.Completed>(
+            service(source, evidence).promotePendingRevenue(organization, connection, 10)
+        )
+
+        kotlin.test.assertEquals(1, result.identityConflicts)
+        kotlin.test.assertEquals(0, evidence.findCalls.get())
+        kotlin.test.assertEquals(0, evidence.applyCalls.get())
+        kotlin.test.assertEquals(
+            MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT,
+            source.terminalOutcome
+        )
+    }
+
+    @kotlin.test.Test
+    fun `duplicate and source conflict preserve existing economic evidence authority`() {
+        val duplicateSource = ScriptedRevenuePromotionRepository(listOf(candidate()))
+        val duplicateEvidence = ScriptedEvidenceRepository(mutableListOf(ApplyStep.Duplicate))
+
+        val duplicate =
+            kotlin.test.assertIs<MarketplaceOrderRevenuePromotionBatchResult.Completed>(
+                service(duplicateSource, duplicateEvidence)
+                    .promotePendingRevenue(organization, connection, 10)
+            )
+        kotlin.test.assertEquals(1, duplicate.duplicates)
+        kotlin.test.assertEquals(
+            MarketplaceOrderRevenuePromotionOutcome.DUPLICATE,
+            duplicateSource.terminalOutcome
+        )
+
+        val conflictSource = ScriptedRevenuePromotionRepository(listOf(candidate()))
+        val conflictEvidence =
+            ScriptedEvidenceRepository(mutableListOf(ApplyStep.SourceConflict))
+
+        val conflict =
+            kotlin.test.assertIs<MarketplaceOrderRevenuePromotionBatchResult.Completed>(
+                service(conflictSource, conflictEvidence)
+                    .promotePendingRevenue(organization, connection, 10)
+            )
+        kotlin.test.assertEquals(1, conflict.evidenceConflicts)
+        kotlin.test.assertEquals(
+            MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT,
+            conflictSource.terminalOutcome
+        )
+        kotlin.test.assertTrue(
+            conflictEvidence.lastUpdate is
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact
+        )
+    }
+
+    @kotlin.test.Test
+    fun `revenue stale version retry is bounded to three attempts`() {
+        val source = ScriptedRevenuePromotionRepository(listOf(candidate()))
+        val evidence = ScriptedEvidenceRepository(
+            mutableListOf(ApplyStep.Stale, ApplyStep.Stale, ApplyStep.Applied)
+        )
+
+        val result = kotlin.test.assertIs<MarketplaceOrderRevenuePromotionBatchResult.Completed>(
+            service(source, evidence).promotePendingRevenue(organization, connection, 10)
+        )
+
+        kotlin.test.assertEquals(1, result.promoted)
+        kotlin.test.assertEquals(3, evidence.findCalls.get())
+        kotlin.test.assertEquals(3, evidence.applyCalls.get())
+    }
+
+    private fun service(
+        source: MarketplaceOrderRevenuePromotionRepository,
+        evidence:
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceIndependentEconomicEvidenceRepository
+    ) = MarketplaceOrderRevenuePromotionService(
+        sourceRepository = source,
+        evidenceRepository = evidence,
+        clock = clock,
+        componentIds = MarketplaceOrderPromotionIdentifierFactory {
+            io.flooow.marketplace.operations.economics.EconomicComponentId(
+                java.util.UUID(0, 601)
+            )
+        },
+        observationIds = MarketplaceOrderPromotionIdentifierFactory {
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceObservationId.parse(
+                    java.util.UUID(0, 602).toString()
+                )
+        }
+    )
+
+    private fun candidate(
+        sourceCurrency: String = "BRL",
+        identityCurrency: String = "BRL"
+    ) = MarketplaceOrderRevenuePromotionCandidate(
+        sourceKey = MarketplaceOrderSourceKey(
+            organizationId = organization,
+            connectionId = connection,
+            capability = MarketplaceOrderSourcePromotionContract.CAPABILITY,
+            inputProgressVersion = 7,
+            recordOrdinal = 0
+        ),
+        externalOrderId =
+            io.flooow.marketplace.operations.economics
+                .MarketplaceExternalOrderId("200000000154"),
+        sourceCurrency =
+            io.flooow.marketplace.operations.economics.MarketplaceCurrency(sourceCurrency),
+        identityCurrency =
+            io.flooow.marketplace.operations.economics.MarketplaceCurrency(identityCurrency),
+        orderId = orderId,
+        totalAmount = java.math.BigDecimal("123.450000"),
+        dateClosed = dateClosed,
+        observedAt = now
+    )
+}
+
+private class ScriptedRevenuePromotionRepository(
+    private val candidates: List<MarketplaceOrderRevenuePromotionCandidate>,
+    private val terminalWrite: MarketplaceOrderRevenuePromotionWriteResult =
+        MarketplaceOrderRevenuePromotionWriteResult.APPLIED
+) : MarketplaceOrderRevenuePromotionRepository {
+    var terminalOutcome: MarketplaceOrderRevenuePromotionOutcome? = null
+        private set
+
+    override fun pendingRevenue(
+        organizationId: io.flooow.organization.OrganizationId,
+        connectionId: io.flooow.integration.control.IntegrationConnectionId,
+        limit: Int
+    ): MarketplaceOrderRevenuePendingResult =
+        MarketplaceOrderRevenuePendingResult.Available(
+            candidates.filter {
+                it.sourceKey.organizationId == organizationId &&
+                    it.sourceKey.connectionId == connectionId
+            }.take(limit)
+        )
+
+    override fun markRevenueTerminal(
+        candidate: MarketplaceOrderRevenuePromotionCandidate,
+        outcome: MarketplaceOrderRevenuePromotionOutcome,
+        promotedAt: java.time.Instant
+    ): MarketplaceOrderRevenuePromotionWriteResult {
+        if (
+            terminalWrite == MarketplaceOrderRevenuePromotionWriteResult.APPLIED ||
+            terminalWrite == MarketplaceOrderRevenuePromotionWriteResult.ALREADY_APPLIED
+        ) {
+            terminalOutcome = outcome
+        }
+        return terminalWrite
+    }
+}
