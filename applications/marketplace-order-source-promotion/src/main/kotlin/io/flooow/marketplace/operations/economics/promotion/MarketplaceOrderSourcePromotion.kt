@@ -408,3 +408,372 @@ class MarketplaceOrderSourcePromotionService(
 private fun requireMicrosecond(value: Instant, label: String) {
     require(value.nano % 1_000 == 0) { "$label must use at most microsecond precision" }
 }
+data class MarketplaceOrderRevenuePromotionCandidate(
+    val sourceKey: MarketplaceOrderSourceKey,
+    val externalOrderId: io.flooow.marketplace.operations.economics.MarketplaceExternalOrderId,
+    val sourceCurrency: io.flooow.marketplace.operations.economics.MarketplaceCurrency,
+    val identityCurrency: io.flooow.marketplace.operations.economics.MarketplaceCurrency,
+    val orderId: io.flooow.marketplace.operations.economics.MarketplaceOrderId,
+    val totalAmount: java.math.BigDecimal,
+    val dateClosed: java.time.Instant,
+    val observedAt: java.time.Instant
+) {
+    init {
+        require(totalAmount.signum() >= 0) {
+            "Marketplace order revenue amount must be nonnegative"
+        }
+        require(totalAmount.scale() <= 6) {
+            "Marketplace order revenue amount scale must not exceed six"
+        }
+        require(totalAmount.abs() < java.math.BigDecimal("1000000000000000000")) {
+            "Marketplace order revenue amount exceeds the supported bound"
+        }
+        requireMicrosecond(dateClosed, "Marketplace order source close time")
+        requireMicrosecond(observedAt, "Marketplace order source observation time")
+    }
+
+    override fun toString(): String = "[REDACTED]"
+}
+
+sealed interface MarketplaceOrderRevenuePendingResult {
+    data class Available(
+        val candidates: List<MarketplaceOrderRevenuePromotionCandidate>
+    ) : MarketplaceOrderRevenuePendingResult {
+        override fun toString(): String = "[REDACTED]"
+    }
+
+    data object Unavailable : MarketplaceOrderRevenuePendingResult {
+        override fun toString(): String = "[REDACTED]"
+    }
+}
+
+enum class MarketplaceOrderRevenuePromotionOutcome {
+    PROMOTED,
+    DUPLICATE,
+    IDENTITY_CONFLICT,
+    EVIDENCE_CONFLICT
+}
+
+enum class MarketplaceOrderRevenuePromotionWriteResult {
+    APPLIED,
+    ALREADY_APPLIED,
+    CONFLICT,
+    UNAVAILABLE
+}
+
+interface MarketplaceOrderRevenuePromotionRepository {
+    fun pendingRevenue(
+        organizationId: io.flooow.organization.OrganizationId,
+        connectionId: io.flooow.integration.control.IntegrationConnectionId,
+        limit: Int
+    ): MarketplaceOrderRevenuePendingResult
+
+    fun markRevenueTerminal(
+        candidate: MarketplaceOrderRevenuePromotionCandidate,
+        outcome: MarketplaceOrderRevenuePromotionOutcome,
+        promotedAt: java.time.Instant
+    ): MarketplaceOrderRevenuePromotionWriteResult
+}
+
+enum class MarketplaceOrderRevenuePromotionBlockReason {
+    SOURCE_UNAVAILABLE,
+    EVIDENCE_UNAVAILABLE,
+    INTEGRITY_FAILURE,
+    TERMINAL_WRITE_UNAVAILABLE,
+    TERMINAL_CONFLICT
+}
+
+sealed interface MarketplaceOrderRevenuePromotionBatchResult {
+    data class Completed(
+        val examined: Int,
+        val promoted: Int,
+        val duplicates: Int,
+        val identityConflicts: Int,
+        val evidenceConflicts: Int
+    ) : MarketplaceOrderRevenuePromotionBatchResult
+
+    data class Blocked(
+        val completedBeforeBlock: Int,
+        val reason: MarketplaceOrderRevenuePromotionBlockReason
+    ) : MarketplaceOrderRevenuePromotionBatchResult
+}
+
+class MarketplaceOrderRevenuePromotionService(
+    private val sourceRepository: MarketplaceOrderRevenuePromotionRepository,
+    private val evidenceRepository:
+        io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceRepository,
+    private val clock: java.time.Clock = java.time.Clock.systemUTC(),
+    private val componentIds:
+        MarketplaceOrderPromotionIdentifierFactory<
+            io.flooow.marketplace.operations.economics.EconomicComponentId
+        > = MarketplaceOrderPromotionIdentifierFactory {
+            io.flooow.marketplace.operations.economics.EconomicComponentId(
+                java.util.UUID.randomUUID()
+            )
+        },
+    private val observationIds:
+        MarketplaceOrderPromotionIdentifierFactory<
+            io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceObservationId
+        > = MarketplaceOrderPromotionIdentifierFactory {
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceObservationId.parse(
+                    java.util.UUID.randomUUID().toString()
+                )
+        }
+) {
+    fun promotePendingRevenue(
+        organizationId: io.flooow.organization.OrganizationId,
+        connectionId: io.flooow.integration.control.IntegrationConnectionId,
+        limit: Int
+    ): MarketplaceOrderRevenuePromotionBatchResult {
+        require(limit in 1..1_000) { "Marketplace order revenue promotion limit is invalid" }
+
+        val pending = when (
+            val result = sourceRepository.pendingRevenue(organizationId, connectionId, limit)
+        ) {
+            is MarketplaceOrderRevenuePendingResult.Available -> result.candidates
+            MarketplaceOrderRevenuePendingResult.Unavailable ->
+                return MarketplaceOrderRevenuePromotionBatchResult.Blocked(
+                    0,
+                    MarketplaceOrderRevenuePromotionBlockReason.SOURCE_UNAVAILABLE
+                )
+        }
+
+        var completed = 0
+        var promoted = 0
+        var duplicates = 0
+        var identityConflicts = 0
+        var evidenceConflicts = 0
+
+        for (candidate in pending) {
+            if (
+                candidate.sourceKey.organizationId != organizationId ||
+                candidate.sourceKey.connectionId != connectionId
+            ) {
+                return MarketplaceOrderRevenuePromotionBatchResult.Blocked(
+                    completed,
+                    MarketplaceOrderRevenuePromotionBlockReason.INTEGRITY_FAILURE
+                )
+            }
+
+            if (candidate.sourceCurrency != candidate.identityCurrency) {
+                terminalBlock(
+                    candidate,
+                    MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT
+                )?.let {
+                    return MarketplaceOrderRevenuePromotionBatchResult.Blocked(completed, it)
+                }
+                completed += 1
+                identityConflicts += 1
+                continue
+            }
+
+            when (val evidence = promoteRevenue(candidate)) {
+                is RevenueEvidencePromotion.Terminal -> {
+                    terminalBlock(candidate, evidence.outcome)?.let {
+                        return MarketplaceOrderRevenuePromotionBatchResult.Blocked(completed, it)
+                    }
+                    completed += 1
+                    when (evidence.outcome) {
+                        MarketplaceOrderRevenuePromotionOutcome.PROMOTED -> promoted += 1
+                        MarketplaceOrderRevenuePromotionOutcome.DUPLICATE -> duplicates += 1
+                        MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT ->
+                            evidenceConflicts += 1
+                        MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT ->
+                            error("Identity conflict is handled before revenue evidence promotion")
+                    }
+                }
+
+                is RevenueEvidencePromotion.Blocked ->
+                    return MarketplaceOrderRevenuePromotionBatchResult.Blocked(
+                        completed,
+                        evidence.reason
+                    )
+            }
+        }
+
+        return MarketplaceOrderRevenuePromotionBatchResult.Completed(
+            examined = completed,
+            promoted = promoted,
+            duplicates = duplicates,
+            identityConflicts = identityConflicts,
+            evidenceConflicts = evidenceConflicts
+        )
+    }
+
+    private fun promoteRevenue(
+        candidate: MarketplaceOrderRevenuePromotionCandidate
+    ): RevenueEvidencePromotion {
+        val subject =
+            io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceSubject(
+                organizationId = candidate.sourceKey.organizationId,
+                orderId = candidate.orderId,
+                marketplace = MarketplaceOrderSourcePromotionContract.MARKETPLACE,
+                externalOrderId = candidate.externalOrderId,
+                currency = candidate.identityCurrency
+            )
+
+        val source = io.flooow.marketplace.operations.economics.EconomicSource(
+            kind = io.flooow.marketplace.operations.economics.EconomicSourceKind.MARKETPLACE,
+            systemKey = MarketplaceOrderSourcePromotionContract.SOURCE_SYSTEM_KEY,
+            externalReference =
+                io.flooow.marketplace.operations.economics.EconomicExternalReferenceState.Present(
+                    io.flooow.marketplace.operations.economics.EconomicExternalReference(
+                        candidate.externalOrderId.value
+                    )
+                )
+        )
+
+        val component = io.flooow.marketplace.operations.economics.EconomicComponent(
+            organizationId = candidate.sourceKey.organizationId,
+            id = componentIds.create(),
+            orderId = candidate.orderId,
+            type = io.flooow.marketplace.operations.economics.EconomicComponentType.REVENUE,
+            direction = io.flooow.marketplace.operations.economics.EconomicDirection.ADDITION,
+            magnitude = io.flooow.marketplace.operations.economics.MarketplaceMoney.parse(
+                candidate.sourceCurrency,
+                canonicalRevenueAmount(candidate.totalAmount)
+            ),
+            source = source,
+            occurredAt = candidate.dateClosed,
+            quality =
+                io.flooow.marketplace.operations.economics.EconomicEvidenceQuality.CONFIRMED
+        )
+
+        val fact =
+            io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicFact
+                .Component(
+                    io.flooow.marketplace.operations.economics.evidence
+                        .MarketplaceEconomicComponentObservation(
+                            id = observationIds.create(),
+                            subject = subject,
+                            family =
+                                io.flooow.marketplace.operations.economics.evidence
+                                    .MarketplaceEconomicEvidenceFamily.MARKETPLACE_ORDER,
+                            component = component,
+                            coverageClaim =
+                                io.flooow.marketplace.operations.economics
+                                    .EconomicComponentCoverage.PARTIAL,
+                            observedAt = candidate.observedAt
+                        )
+                )
+
+        repeat(MAX_REVENUE_EVIDENCE_ATTEMPTS) {
+            val expectedVersion = when (val current = evidenceRepository.find(subject)) {
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidenceReadResult.NotFound ->
+                    io.flooow.marketplace.operations.economics.evidence
+                        .MarketplaceEconomicEvidenceVersion.ZERO
+
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidenceReadResult.IntegrityFailure ->
+                    return RevenueEvidencePromotion.Blocked(
+                        MarketplaceOrderRevenuePromotionBlockReason.INTEGRITY_FAILURE
+                    )
+
+                is io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidenceReadResult.Found ->
+                    current.versionedEvidence.version
+            }
+
+            when (
+                evidenceRepository.apply(
+                    expectedVersion,
+                    io.flooow.marketplace.operations.economics.evidence
+                        .MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(fact)
+                )
+            ) {
+                is io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.Applied ->
+                    return RevenueEvidencePromotion.Terminal(
+                        MarketplaceOrderRevenuePromotionOutcome.PROMOTED
+                    )
+
+                is io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.Duplicate ->
+                    return RevenueEvidencePromotion.Terminal(
+                        MarketplaceOrderRevenuePromotionOutcome.DUPLICATE
+                    )
+
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.SourceFactConflict ->
+                    return RevenueEvidencePromotion.Terminal(
+                        MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT
+                    )
+
+                is io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.StaleVersion -> Unit
+
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.OrganizationUnavailable ->
+                    return RevenueEvidencePromotion.Blocked(
+                        MarketplaceOrderRevenuePromotionBlockReason.EVIDENCE_UNAVAILABLE
+                    )
+
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.SubjectMismatch,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.IdentifierConflict,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.SupersededFactNotFound,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.SupersededTargetNotFact,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult.FactAlreadySuperseded,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult
+                    .ReplacementIdentifierConflict,
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceIndependentEconomicEvidencePersistResult
+                    .ReplacementSourceFactConflict ->
+                    return RevenueEvidencePromotion.Blocked(
+                        MarketplaceOrderRevenuePromotionBlockReason.INTEGRITY_FAILURE
+                    )
+            }
+        }
+
+        return RevenueEvidencePromotion.Blocked(
+            MarketplaceOrderRevenuePromotionBlockReason.EVIDENCE_UNAVAILABLE
+        )
+    }
+
+    private fun terminalBlock(
+        candidate: MarketplaceOrderRevenuePromotionCandidate,
+        outcome: MarketplaceOrderRevenuePromotionOutcome
+    ): MarketplaceOrderRevenuePromotionBlockReason? =
+        when (
+            sourceRepository.markRevenueTerminal(
+                candidate,
+                outcome,
+                clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MICROS)
+            )
+        ) {
+            MarketplaceOrderRevenuePromotionWriteResult.APPLIED,
+            MarketplaceOrderRevenuePromotionWriteResult.ALREADY_APPLIED -> null
+
+            MarketplaceOrderRevenuePromotionWriteResult.CONFLICT ->
+                MarketplaceOrderRevenuePromotionBlockReason.TERMINAL_CONFLICT
+
+            MarketplaceOrderRevenuePromotionWriteResult.UNAVAILABLE ->
+                MarketplaceOrderRevenuePromotionBlockReason.TERMINAL_WRITE_UNAVAILABLE
+        }
+
+    private sealed interface RevenueEvidencePromotion {
+        data class Terminal(
+            val outcome: MarketplaceOrderRevenuePromotionOutcome
+        ) : RevenueEvidencePromotion
+
+        data class Blocked(
+            val reason: MarketplaceOrderRevenuePromotionBlockReason
+        ) : RevenueEvidencePromotion
+    }
+
+    companion object {
+        private const val MAX_REVENUE_EVIDENCE_ATTEMPTS = 3
+    }
+}
+
+private fun canonicalRevenueAmount(value: java.math.BigDecimal): String =
+    if (value.signum() == 0) "0" else value.stripTrailingZeros().toPlainString()

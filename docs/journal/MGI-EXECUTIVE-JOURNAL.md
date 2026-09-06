@@ -1020,3 +1020,34 @@ TASK-0154 revenue promotion
 Full billing/fee composition, Mercado Pago settlement/reconciliation, fiscal
 intelligence and product-cost association remain parallel separately governed
 authorities.
+## 2026-09-06 â€” TASK-0154 Mercado Livre order revenue promotion implemented
+
+The first governed live financial component now stops at the smallest safe
+Orders-API authority:
+
+```text
+closed Mercado Livre order
++ canonical MarketplaceOrderId
++ total_amount
+-> REVENUE / ADDITION
+```
+
+The observation is provider-confirmed but coverage remains explicitly
+`PARTIAL`.
+
+No marketplace commission/fee split, shipping, payment settlement, tax,
+refund, product cost or automatic correction is inferred.
+
+V023 records terminal revenue-source promotion outcomes while the existing
+independent economic evidence repository remains the sole economic evidence
+write authority.
+
+This closes the revenue bridge required by the MVP critical path.
+
+Next:
+
+```text
+TASK-0155 live pipeline orchestration
+-> TASK-0156 Sales Intelligence API
+-> TASK-0157 MVP UI
+```
