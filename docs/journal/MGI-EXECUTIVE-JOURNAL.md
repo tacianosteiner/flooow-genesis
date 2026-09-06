@@ -814,3 +814,35 @@ authentication-required. Connector Runtime remains unchanged.
 
 Next: separately governed live read-only Mercado Livre economic evidence
 ingestion.
+## 2026-09-06 - TASK-0151 implementation - Mercado Livre OAuth refresh adapter
+
+Implemented the provider-specific OAuth credential envelope and one-attempt
+refresh adapter required for Mercado Livre live activation.
+
+The resulting credential path is:
+
+```text
+SecretVault-held Mercado Livre envelope
+  -> TASK-0150 credential-version fence
+  -> local expiry assessment
+  -> REMOTE_STARTED
+  -> one POST /oauth/token refresh
+  -> validated replacement envelope
+  -> existing Control Plane rotateCredential
+```
+
+Safety properties:
+
+- canonical provider key is `br.com.mercadolivre`;
+- no hard-coded 3-hour or 6-hour token lifetime is used;
+- replacement expiry derives from provider `expires_in`;
+- a successful HTTP status with incomplete, malformed, or wrong-user replacement
+  is `INDETERMINATE`;
+- remote uncertainty after request start never authorizes blind reuse of the
+  single-use refresh token;
+- credential/token material remains SecretVault data and is redacted from public
+  renderings;
+- no OAuth callback, provider economic read, scheduler, provider write, or
+  Connector Runtime production change is included.
+
+Next: separately govern live read-only Mercado Livre economic evidence ingestion.
