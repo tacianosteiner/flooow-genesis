@@ -110,6 +110,14 @@ data class CredentialBinding(
     val revokedAt: Instant?
 )
 
+data class ActiveCredentialContext(
+    val providerKey: ProviderKey,
+    val credentialKind: CredentialKind,
+    val bindingVersion: Int
+) {
+    init { require(bindingVersion > 0) { "Invalid active credential binding version" } }
+}
+
 data class IntegrationAuditEntry(
     val id: IntegrationAuditEntryId,
     val organizationId: IntegrationOrganizationId,
@@ -325,25 +333,41 @@ class IntegrationControlPlaneService(
         }
     }
 
+    fun activeCredentialContext(
+        organizationId: IntegrationOrganizationId,
+        connectionId: IntegrationConnectionId
+    ): ActiveCredentialContext? {
+        if (repository.findOrganization(organizationId)?.status !=
+            IntegrationOrganizationStatus.ACTIVE) return null
+        val connection = repository.findConnection(organizationId, connectionId) ?: return null
+        if (connection.status != IntegrationConnectionStatus.ACTIVE) return null
+        val binding = repository.currentBinding(organizationId, connectionId) ?: return null
+        if (connection.bindingVersion != binding.version) return null
+        return ActiveCredentialContext(connection.providerKey, connection.credentialKind, binding.version)
+    }
+
+    fun <T> withActiveCredentialContext(
+        organizationId: IntegrationOrganizationId,
+        connectionId: IntegrationConnectionId,
+        operation: (ActiveCredentialContext, ByteArray) -> T
+    ): T {
+        val context = requireNotNull(activeCredentialContext(organizationId, connectionId)) {
+            "Connection has no active credential context"
+        }
+        val binding = requireNotNull(repository.currentBinding(organizationId, connectionId)) {
+            "Connection has no active credential"
+        }
+        require(binding.version == context.bindingVersion) { "Active credential version changed" }
+        return vault.withSecret(organizationId, connectionId, binding.secretReference) { bytes ->
+            operation(context, bytes)
+        }
+    }
+
     fun <T> withActiveCredential(
         organizationId: IntegrationOrganizationId,
         connectionId: IntegrationConnectionId,
         operation: (ByteArray) -> T
-    ): T {
-        require(repository.findOrganization(organizationId)?.status ==
-            IntegrationOrganizationStatus.ACTIVE) { "Organization is not active" }
-        require(repository.findConnection(organizationId, connectionId)?.status ==
-            IntegrationConnectionStatus.ACTIVE) { "Connection is not active" }
-        val binding = requireNotNull(repository.currentBinding(organizationId, connectionId)) {
-            "Connection has no active credential"
-        }
-        return vault.withSecret(
-            organizationId,
-            connectionId,
-            binding.secretReference,
-            operation
-        )
-    }
+    ): T = withActiveCredentialContext(organizationId, connectionId) { _, bytes -> operation(bytes) }
 
     fun activeConnectionProvider(
         organizationId: IntegrationOrganizationId,

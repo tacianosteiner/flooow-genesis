@@ -770,3 +770,25 @@ IN_DOUBT and is never blindly replayed for the same binding version.
 
 TASK-0150 contains deterministic fake rotators only. Mercado Livre HTTP/OAuth
 remains the next separately governed provider task.
+## 2026-09-06 - TASK-0150 implementation - credential rotation execution fence
+
+Implemented the provider-neutral credential-rotation execution layer required
+before Mercado Livre live OAuth activation.
+
+```text
+Control Plane credential context
+-> local readiness assessment
+-> V020 binding-version fence
+-> REMOTE_STARTED
+-> one provider refresh result
+-> existing versioned Control Plane replacement
+-> COMPLETED / RETRYABLE / IN_DOUBT
+```
+
+Connector Runtime remains unchanged. No real provider rotator or OAuth request is
+introduced. V020 contains coordination metadata only. CLAIMED work is reclaimable
+before remote start; abandoned REMOTE_STARTED work becomes IN_DOUBT rather than
+blind replay.
+
+Next: separately govern Mercado Livre credential envelope + real refresh adapter,
+then live read-only Mercado Livre economic evidence.
