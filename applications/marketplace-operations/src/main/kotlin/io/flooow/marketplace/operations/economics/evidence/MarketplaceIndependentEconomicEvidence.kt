@@ -98,6 +98,22 @@ data class MarketplaceEconomicComponentObservation(
     override fun toString(): String = "[REDACTED]"
 }
 
+data class MarketplaceEconomicOrderOccurrenceObservation(
+    val id: MarketplaceEconomicEvidenceObservationId,
+    val subject: MarketplaceEconomicEvidenceSubject,
+    val source: EconomicSource,
+    val occurredAt: Instant,
+    val observedAt: Instant
+) {
+    init {
+        requireMicrosecondPrecision(occurredAt, "Economic order occurrence time")
+        requireMicrosecondPrecision(observedAt, "Economic order occurrence observation time")
+        requireSourceTimeOrder(source, occurredAt, observedAt)
+    }
+
+    override fun toString(): String = "[REDACTED]"
+}
+
 enum class MarketplaceEconomicExternalIdentityKind {
     MARKETPLACE_PAYMENT,
     ERP_ORDER,
@@ -177,6 +193,18 @@ sealed interface MarketplaceIndependentEconomicFact {
         override val id: MarketplaceEconomicEvidenceObservationId get() = observation.id
         override val subject: MarketplaceEconomicEvidenceSubject get() = observation.subject
         override val family: MarketplaceEconomicEvidenceFamily get() = observation.family
+        override val observedAt: Instant get() = observation.observedAt
+
+        override fun toString(): String = "[REDACTED]"
+    }
+
+    data class OrderOccurrence(
+        val observation: MarketplaceEconomicOrderOccurrenceObservation
+    ) : MarketplaceIndependentEconomicFact {
+        override val id: MarketplaceEconomicEvidenceObservationId get() = observation.id
+        override val subject: MarketplaceEconomicEvidenceSubject get() = observation.subject
+        override val family: MarketplaceEconomicEvidenceFamily
+            get() = MarketplaceEconomicEvidenceFamily.MARKETPLACE_ORDER
         override val observedAt: Instant get() = observation.observedAt
 
         override fun toString(): String = "[REDACTED]"
@@ -295,7 +323,7 @@ class MarketplaceIndependentEconomicEvidence internal constructor(
     }
 
     private fun validateActiveSourceFacts() {
-        val keys = activeFacts.mapNotNull(::financialSourceFactKey)
+        val keys = activeFacts.mapNotNull(::canonicalSourceFactKey)
         require(keys.toSet().size == keys.size) {
             "Active economic source facts must be unique"
         }
@@ -410,19 +438,17 @@ object MarketplaceIndependentEconomicEvidenceMerger {
         fact: MarketplaceIndependentEconomicFact
     ): MarketplaceIndependentEconomicEvidenceResult {
         classifyPrimaryIdentifier(current, fact.id, fact)?.let { return it }
-        if (fact is MarketplaceIndependentEconomicFact.Component) {
-            val key = financialSourceFactKey(fact)
-            if (key != null) {
-                current.activeFacts.filterIsInstance<MarketplaceIndependentEconomicFact.Component>()
-                    .firstOrNull { financialSourceFactKey(it) == key }
-                    ?.let { existing ->
-                        return if (sameEconomicMeaning(existing, fact)) {
-                            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current)
-                        } else {
-                            MarketplaceIndependentEconomicEvidenceResult.SourceFactConflict
-                        }
+        val sourceFactKey = canonicalSourceFactKey(fact)
+        if (sourceFactKey != null) {
+            current.activeFacts
+                .firstOrNull { canonicalSourceFactKey(it) == sourceFactKey }
+                ?.let { existing ->
+                    return if (sameCanonicalMeaning(existing, fact)) {
+                        MarketplaceIndependentEconomicEvidenceResult.Duplicate(current)
+                    } else {
+                        MarketplaceIndependentEconomicEvidenceResult.SourceFactConflict
                     }
-            }
+                }
         }
         return MarketplaceIndependentEconomicEvidenceResult.Applied(
             MarketplaceIndependentEconomicEvidence(
@@ -475,10 +501,12 @@ object MarketplaceIndependentEconomicEvidenceMerger {
         if (hasPrimaryIdentifier(current, correction.replacement.id)) {
             return MarketplaceIndependentEconomicEvidenceResult.ReplacementIdentifierConflict
         }
-        val replacementKey = financialSourceFactKey(correction.replacement)
+        val replacementKey = canonicalSourceFactKey(correction.replacement)
         if (
             replacementKey != null &&
-            current.activeFacts.any { it.id != superseded.id && financialSourceFactKey(it) == replacementKey }
+            current.activeFacts.any {
+                it.id != superseded.id && canonicalSourceFactKey(it) == replacementKey
+            }
         ) {
             return MarketplaceIndependentEconomicEvidenceResult.ReplacementSourceFactConflict
         }
@@ -532,18 +560,33 @@ private fun hasPrimaryIdentifier(
     current.attempts.any { it.id == id } ||
     current.corrections.any { it.id == id }
 
+private sealed interface CanonicalSourceFactKey
+
 private data class FinancialSourceFactKey(
     val sourceKind: EconomicSourceKind,
     val sourceSystemKey: EconomicSourceSystemKey,
     val externalReference: EconomicExternalReference,
     val componentType: EconomicComponentType
-)
+) : CanonicalSourceFactKey
+
+private data class OrderOccurrenceSourceFactKey(
+    val sourceKind: EconomicSourceKind,
+    val sourceSystemKey: EconomicSourceSystemKey,
+    val externalReference: EconomicExternalReference
+) : CanonicalSourceFactKey
+
+private fun canonicalSourceFactKey(
+    fact: MarketplaceIndependentEconomicFact
+): CanonicalSourceFactKey? = when (fact) {
+    is MarketplaceIndependentEconomicFact.Component -> financialSourceFactKey(fact)
+    is MarketplaceIndependentEconomicFact.ExternalIdentity -> null
+    is MarketplaceIndependentEconomicFact.OrderOccurrence -> orderOccurrenceSourceFactKey(fact)
+}
 
 private fun financialSourceFactKey(
-    fact: MarketplaceIndependentEconomicFact
+    fact: MarketplaceIndependentEconomicFact.Component
 ): FinancialSourceFactKey? {
-    val componentFact = fact as? MarketplaceIndependentEconomicFact.Component ?: return null
-    val component = componentFact.observation.component
+    val component = fact.observation.component
     val reference = component.source.externalReference as? EconomicExternalReferenceState.Present ?: return null
     return FinancialSourceFactKey(
         component.source.kind,
@@ -551,6 +594,36 @@ private fun financialSourceFactKey(
         reference.reference,
         component.type
     )
+}
+
+private fun orderOccurrenceSourceFactKey(
+    fact: MarketplaceIndependentEconomicFact.OrderOccurrence
+): OrderOccurrenceSourceFactKey? {
+    val source = fact.observation.source
+    if (source.kind != EconomicSourceKind.MARKETPLACE && source.kind != EconomicSourceKind.ERP) {
+        return null
+    }
+    val reference = source.externalReference as? EconomicExternalReferenceState.Present ?: return null
+    return OrderOccurrenceSourceFactKey(
+        source.kind,
+        source.systemKey,
+        reference.reference
+    )
+}
+
+private fun sameCanonicalMeaning(
+    left: MarketplaceIndependentEconomicFact,
+    right: MarketplaceIndependentEconomicFact
+): Boolean = when {
+    left is MarketplaceIndependentEconomicFact.Component &&
+        right is MarketplaceIndependentEconomicFact.Component ->
+        sameEconomicMeaning(left, right)
+
+    left is MarketplaceIndependentEconomicFact.OrderOccurrence &&
+        right is MarketplaceIndependentEconomicFact.OrderOccurrence ->
+        sameOrderOccurrenceMeaning(left, right)
+
+    else -> false
 }
 
 private fun sameEconomicMeaning(
@@ -568,6 +641,13 @@ private fun sameEconomicMeaning(
         leftComponent.occurredAt == rightComponent.occurredAt &&
         leftComponent.quality == rightComponent.quality
 }
+
+private fun sameOrderOccurrenceMeaning(
+    left: MarketplaceIndependentEconomicFact.OrderOccurrence,
+    right: MarketplaceIndependentEconomicFact.OrderOccurrence
+): Boolean =
+    left.observation.occurredAt == right.observation.occurredAt &&
+        left.observation.source == right.observation.source
 
 private fun activeFacts(
     facts: List<MarketplaceIndependentEconomicFact>,

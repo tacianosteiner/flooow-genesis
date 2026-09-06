@@ -486,3 +486,64 @@ changed.
 Obtain human review and explicit authorization for the TASK-0145
 implementation commit. Do not begin P0.3 Slice B or another roadmap increment
 before TASK-0145 commit, push, PR, CI, and merge governance is resolved.
+
+## 2026-09-05 - TASK-0147 canonical economic truth assembly implementation
+
+### Objective
+
+Implement the smallest provider-neutral canonical Economic Truth Assembly slice that converts current independent economic evidence into either Ready(MarketplaceOrder) or NotReady without inventing order occurrence time, monetary values, coverage, applicability, provider meaning, or persistence semantics.
+
+### Repository state before
+
+- EXP-0008 had concluded Reject and established that current evidence could not canonically assemble MarketplaceOrder without explicit order occurrence evidence and stricter coverage semantics;
+- ADR-0048 and SPEC-0047 were Accepted;
+- SPEC-0046 was reconciled and Accepted as downstream projection contract only;
+- TASK-0146 remained paused;
+- no durable OrderOccurrence representation or migration existed.
+
+### Decision
+
+Introduce explicit OrderOccurrence evidence inside the existing independent evidence aggregate, assemble only from current activeFacts under marketplace-economic-truth-assembly/1, preserve MarketplaceEconomicTruthCalculator as the downstream truth authority, and keep PostgreSQL fail-closed until durable OrderOccurrence persistence is separately governed.
+
+### Changes delivered
+
+- explicit MarketplaceEconomicOrderOccurrenceObservation with microsecond precision, provenance, source-clock rules, fixed MARKETPLACE_ORDER family, redaction, duplicate/conflict identity, correction, history, and active-fact semantics;
+- MarketplaceIndependentEconomicFact.OrderOccurrence integrated into the canonical evidence aggregate;
+- MarketplaceEconomicTruthAssembler with Ready/NotReady and exactly the accepted three NotReady reasons;
+- order occurredAt resolution from active OrderOccurrence facts only;
+- Version 1 coverage mapping of active component presence to PARTIAL and absence to MISSING, with no automatic COMPLETE or NOT_APPLICABLE;
+- exact EconomicComponent preservation and no monetary calculation inside assembly;
+- PostgreSQL adapter compatibility guard that rejects unsupported durable OrderOccurrence observation and correction replacement through IntegrityFailure before durable mutation;
+- real PostgreSQL/Testcontainers compatibility tests proving zero partial persistence and continued usability after rejection;
+- TASK-0147 execution evidence.
+
+### Tests and validation
+
+- focused marketplace-operations suite: BUILD SUCCESSFUL;
+- focused unsupported OrderOccurrence PostgreSQL/Testcontainers tests: BUILD SUCCESSFUL;
+- complete marketplace-operations-persistence-postgres suite: BUILD SUCCESSFUL;
+- complete repository gate: BUILD SUCCESSFUL in 4m 24s, 94 actionable tasks, 94 executed;
+- git diff --check: clean;
+- mechanical scope enumeration before documentation: exactly six implementation/test paths;
+- no migration path changed;
+- TASK-0146 remained absent from the working tree.
+
+### Risks and debt discovered
+
+Canonical assembly can now resolve order occurrence and construct MarketplaceOrder from current evidence, but real durable OrderOccurrence persistence remains intentionally absent. Until a separately governed persistence slice adds durable encoding and replay, production evidence loaded only through PostgreSQL cannot yet carry OrderOccurrence across restart.
+
+### Scope protection
+
+TASK-0147 owns exactly eight paths: four marketplace-operations implementation/test paths, two PostgreSQL compatibility implementation/test paths, the TASK evidence document, and this single executive-journal entry. No migration, provider adapter, projection implementation, API, UI, scheduler, build file, new component type, new evidence family, or TASK-0146 path changed.
+
+### Status
+
+- status: implementation complete; ready for implementation commit human review;
+- local implementation and repository gates: green;
+- implementation commit: pending;
+- push: not performed;
+- GitHub PR/CI: pending.
+
+### Next objective
+
+Obtain human review and explicit authorization for the TASK-0147 implementation commit. After commit, push, PR, CI, and merge governance are resolved, open a separately governed persistence slice for durable OrderOccurrence encoding before resuming TASK-0146 or Slice B implementation.

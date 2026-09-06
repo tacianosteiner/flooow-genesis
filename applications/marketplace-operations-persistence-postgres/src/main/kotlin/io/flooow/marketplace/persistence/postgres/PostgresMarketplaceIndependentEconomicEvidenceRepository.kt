@@ -83,6 +83,10 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         expectedVersion: MarketplaceEconomicEvidenceVersion,
         update: MarketplaceIndependentEconomicEvidenceUpdate
     ): MarketplaceIndependentEconomicEvidencePersistResult {
+        if (containsUnsupportedPersistenceFact(update)) {
+            return MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure
+        }
+
         repeat(MAX_TRANSACTION_ATTEMPTS) { attempt ->
             try {
                 return applyTransaction(expectedVersion, update)
@@ -93,6 +97,16 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
             }
         }
         return MarketplaceIndependentEconomicEvidencePersistResult.IntegrityFailure
+    }
+
+    private fun containsUnsupportedPersistenceFact(
+        update: MarketplaceIndependentEconomicEvidenceUpdate
+    ): Boolean = when (update) {
+        is MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact ->
+            update.fact is MarketplaceIndependentEconomicFact.OrderOccurrence
+        is MarketplaceIndependentEconomicEvidenceUpdate.Correct ->
+            update.correction.replacement is MarketplaceIndependentEconomicFact.OrderOccurrence
+        is MarketplaceIndependentEconomicEvidenceUpdate.RecordAttempt -> false
     }
 
     private fun applyTransaction(
@@ -498,6 +512,8 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         val kind = when (fact) {
             is MarketplaceIndependentEconomicFact.Component -> "COMPONENT"
             is MarketplaceIndependentEconomicFact.ExternalIdentity -> "EXTERNAL_IDENTITY"
+            is MarketplaceIndependentEconomicFact.OrderOccurrence ->
+                error("Order occurrence persistence is not supported")
         }
         connection.prepareStatement(
             "INSERT INTO marketplace_economic_evidence_fact " +
@@ -517,6 +533,8 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
             is MarketplaceIndependentEconomicFact.Component -> insertComponentFact(connection, version, fact)
             is MarketplaceIndependentEconomicFact.ExternalIdentity ->
                 insertExternalIdentityFact(connection, version, fact)
+            is MarketplaceIndependentEconomicFact.OrderOccurrence ->
+                error("Order occurrence persistence is not supported")
         }
     }
 
