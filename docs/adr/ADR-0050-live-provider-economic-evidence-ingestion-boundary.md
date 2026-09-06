@@ -110,7 +110,7 @@ explicitly available to the invocation/record.
 No matching by title, fuzzy name, price similarity, or heuristic identity is
 authorized.
 
-## Module boundary
+## Module and persistence boundary
 
 Create one marketplace-economic provider-ingestion module outside the Connector
 Runtime:
@@ -119,7 +119,7 @@ Runtime:
 applications:marketplace-economic-provider-ingestion
 ```
 
-The module may depend on:
+The provider module may depend on:
 
 ```text
 applications:connector-runtime
@@ -128,7 +128,26 @@ platform:foundation:organization-context
 kotlinx-serialization-json
 ```
 
-It must not require:
+It owns provider HTTP, credential-envelope decoding, pagination decoding, and
+typed provider records.
+
+Durable connector progress remains infrastructure. The provider module must not
+pretend that an in-memory or fake progress implementation is production
+completion.
+
+The existing PostgreSQL application may depend on the new provider-ingestion
+module and may add:
+
+- one generic Postgres connector-progress store over the already existing
+  `integration_connector_progress` and `integration_connector_page_commit`
+  tables;
+- one Omie economic-evidence `ConnectorPageCommitter` that composes the generic
+  progress store with the existing durable independent economic evidence
+  repository.
+
+No new table or migration is authorized.
+
+The provider module must not require:
 
 - marketplace-operations-persistence-postgres;
 - marketplace-operations-api;

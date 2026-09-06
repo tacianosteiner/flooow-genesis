@@ -658,3 +658,13 @@ Decision:
   versioned rotation safely to connector execution.
 
 No production code is changed by this authorization PR.
+Authorization refinement before implementation:
+
+- durable Connector Runtime progress is explicitly kept in the PostgreSQL
+  infrastructure boundary rather than simulated inside the provider module;
+- SPEC-0049 now authorizes a reusable Postgres connector-progress store and the
+  Omie economic-evidence page committer over existing connector progress/page
+  tables;
+- no migration or new table is authorized;
+- provider module remains HTTP/record translation only;
+- implementation scope is twelve paths.

@@ -102,12 +102,11 @@ Do not port as Genesis authority:
 
 ## Exact scope
 
-Implementation is restricted to the ten paths frozen by SPEC-0049.
+Implementation is restricted to the twelve paths frozen by SPEC-0049.
 
-No PostgreSQL migration is authorized.
+No PostgreSQL migration or schema change is authorized.
 
-No Connector Runtime or Integration Control Plane production change is
-authorized.
+The existing persistence application may add the generic connector-progress store and the Omie economic-evidence committer frozen by SPEC-0049. No Connector Runtime or Integration Control Plane production change is authorized.
 
 ## Gates
 
@@ -117,6 +116,9 @@ At minimum:
 ./gradlew :applications:marketplace-economic-provider-ingestion:compileKotlin --no-daemon --console=plain
 ./gradlew :applications:marketplace-economic-provider-ingestion:compileTestKotlin --no-daemon --console=plain
 ./gradlew :applications:marketplace-economic-provider-ingestion:test --no-daemon --console=plain
+./gradlew :applications:marketplace-operations-persistence-postgres:compileKotlin --no-daemon --console=plain
+./gradlew :applications:marketplace-operations-persistence-postgres:compileTestKotlin --no-daemon --console=plain
+./gradlew :applications:marketplace-operations-persistence-postgres:test --no-daemon --console=plain
 ./gradlew :applications:connector-runtime:test --no-daemon --console=plain
 ./gradlew :applications:marketplace-operations:test --no-daemon --console=plain
 ./gradlew build --no-daemon --console=plain

@@ -133,11 +133,25 @@ identity are forbidden.
 Historical MGI identity-resolution knowledge may be used later as candidate
 evidence, never as implicit canonical association in this slice.
 
-## Committer
+## Committer and durable progress
 
-Create one ConnectorPageCommitter for this capability.
+Create one PostgreSQL-backed `ConnectorPageCommitter` for this capability.
 
-It must:
+The provider module owns no durable progress.
+
+The persistence layer may introduce one reusable Postgres connector-progress
+store backed only by the already-existing:
+
+```text
+integration_connector_progress
+integration_connector_page_commit
+```
+
+schema.
+
+No new table or migration is authorized.
+
+The Omie economic-evidence committer must:
 
 1. validate organization, capability, and record type;
 2. load/use the existing durable connector progress contract;
@@ -148,10 +162,15 @@ It must:
 6. fail closed on identifier/source-fact conflicts;
 7. advance connector progress only after every required evidence update for the
    page is durably handled;
-8. never create a second checkpoint.
+8. preserve at-least-once replay if evidence durability succeeds but progress
+   advancement fails;
+9. never create a second economic checkpoint or evidence journal.
 
 The existing evidence repository and its change-sequence allocation remain the
 only durable economic evidence write authority.
+
+The generic Postgres progress store is infrastructure reuse only. It must not
+interpret provider records or economic meaning.
 
 ## Economic mapping
 
@@ -243,7 +262,7 @@ No load-test framework or partitioning is authorized.
 
 ## Exact authorized implementation paths
 
-TASK-0149 may modify/create exactly these ten paths:
+TASK-0149 may modify/create exactly these twelve paths:
 
 1. MODIFY
    `settings.gradle.kts`
@@ -255,33 +274,38 @@ TASK-0149 may modify/create exactly these ten paths:
    `applications/marketplace-economic-provider-ingestion/src/main/kotlin/io/flooow/marketplace/operations/economics/provider/ProviderEconomicEvidenceRecords.kt`
 
 4. CREATE
-   `applications/marketplace-economic-provider-ingestion/src/main/kotlin/io/flooow/marketplace/operations/economics/provider/MarketplaceEconomicEvidencePageCommitter.kt`
-
-5. CREATE
    `applications/marketplace-economic-provider-ingestion/src/main/kotlin/io/flooow/marketplace/operations/economics/provider/omie/OmieEconomicEvidenceConnector.kt`
 
-6. CREATE
+5. CREATE
    `applications/marketplace-economic-provider-ingestion/src/test/kotlin/io/flooow/marketplace/operations/economics/provider/ProviderEconomicEvidenceRecordsTest.kt`
 
-7. CREATE
-   `applications/marketplace-economic-provider-ingestion/src/test/kotlin/io/flooow/marketplace/operations/economics/provider/MarketplaceEconomicEvidencePageCommitterTest.kt`
-
-8. CREATE
+6. CREATE
    `applications/marketplace-economic-provider-ingestion/src/test/kotlin/io/flooow/marketplace/operations/economics/provider/omie/OmieEconomicEvidenceConnectorTest.kt`
 
-9. MODIFY only as TASK-0149 implementation evidence
-   `docs/evidence/TASK-0149-live-omie-economic-evidence-ingestion.md`
+7. MODIFY
+   `applications/marketplace-operations-persistence-postgres/build.gradle.kts`
 
-10. APPEND exactly one TASK-0149 implementation entry
+8. CREATE
+   `applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresConnectorProgressStore.kt`
+
+9. CREATE
+   `applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresMarketplaceEconomicEvidencePageCommitter.kt`
+
+10. CREATE
+    `applications/marketplace-operations-persistence-postgres/src/test/kotlin/io/flooow/marketplace/persistence/postgres/PostgresMarketplaceEconomicEvidencePageCommitterTest.kt`
+
+11. MODIFY only as TASK-0149 implementation evidence
+    `docs/evidence/TASK-0149-live-omie-economic-evidence-ingestion.md`
+
+12. APPEND exactly one TASK-0149 implementation entry
     `docs/journal/MGI-EXECUTIVE-JOURNAL.md`
 
-No eleventh implementation path is authorized.
-
+No thirteenth implementation path is authorized.
 ## Frozen outside Slice A
 
 - `applications:connector-runtime` production code;
 - `applications:integration-control-plane` production code;
-- PostgreSQL migrations/repositories;
+- PostgreSQL migrations or schema changes outside the three explicitly authorized persistence paths;
 - Marketplace Economic Evidence domain semantics;
 - Economic Truth assembler/calculator;
 - Sales Intelligence projection;
