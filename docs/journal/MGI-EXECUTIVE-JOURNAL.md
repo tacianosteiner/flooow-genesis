@@ -547,3 +547,44 @@ TASK-0147 owns exactly eight paths: four marketplace-operations implementation/t
 ### Next objective
 
 Obtain human review and explicit authorization for the TASK-0147 implementation commit. After commit, push, PR, CI, and merge governance are resolved, open a separately governed persistence slice for durable OrderOccurrence encoding before resuming TASK-0146 or Slice B implementation.
+
+## 2026-09-06 - TASK-0148 durable OrderOccurrence implementation
+
+### Objective
+
+Close the final known persistence gap below canonical Economic Truth Assembly by
+making `MarketplaceIndependentEconomicFact.OrderOccurrence` durable across
+PostgreSQL restart without introducing a second evidence authority or changing
+accepted evidence semantics.
+
+### Implemented
+
+- additive V017 migration for the dedicated OrderOccurrence subtype;
+- parent durable fact discriminator widened to `ORDER_OCCURRENCE`;
+- repository write and reload support for the exact canonical observation;
+- existing transaction boundary reused for FACT and CORRECTION writes;
+- correction replacement remains append-only with historical fact retention;
+- restart-equivalent duplicate and source-fact conflict behavior;
+- malformed durable subtype fails closed;
+- existing durable evidence journal and change sequence remain authoritative;
+- no provider mapping, backfill, new feed, new checkpoint, new repository
+  abstraction, assembler change, calculator change, or TASK-0146 work.
+
+### Local verification
+
+- production Kotlin compilation: passed;
+- test Kotlin compilation: passed;
+- full `marketplace-operations-persistence-postgres` test gate: passed;
+- focused
+  `PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest`: passed;
+- V017/Testcontainers acceptance covers source-shape round trip, microsecond
+  timestamps, restart, duplicate/conflict, correction, append-only protection,
+  and fail-closed malformed history;
+- `git diff --check`: no whitespace errors; only Windows LF-to-CRLF warnings.
+
+### Governance state
+
+Implementation is locally verified but TASK-0148 is not yet complete. The
+remaining completion gates are final exactly-five-path verification, repository
+CI, clean PR review, and merge. TASK-0146 remains paused until those gates are
+closed.

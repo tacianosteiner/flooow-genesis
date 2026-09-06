@@ -1,6 +1,6 @@
 # TASK-0148: Durable OrderOccurrence Persistence
 
-Status: Authorized for implementation
+Status: Implementation verified locally; PR/CI/merge pending
 
 Date: 2026-09-06
 
@@ -445,6 +445,71 @@ Implementation evidence must include:
 - proof that no provider path changed;
 - proof that TASK-0146 remained untouched.
 
+## Implementation evidence - 2026-09-06
+
+Local implementation verification completed on branch
+`feat/task-0148-durable-order-occurrence-persistence`.
+
+Implemented within the authorized persistence boundary:
+
+- additive migration
+  `V017__add_order_occurrence_to_independent_marketplace_economic_evidence.sql`;
+- parent FACT discriminator support for `ORDER_OCCURRENCE`;
+- dedicated durable subtype
+  `marketplace_economic_evidence_order_occurrence_fact`;
+- exact reconstruction of `occurredAt`, parent `observedAt`, and canonical source
+  provenance on repository reload;
+- atomic OrderOccurrence FACT writes through the existing subject version,
+  update journal, identifier, parent fact, and subtype transaction;
+- atomic correction replacement through the existing CORRECTION transaction;
+- restart-equivalent duplicate and source-fact conflict behavior;
+- append-only protection for the new subtype;
+- fail-closed read behavior when the durable subtype is missing or malformed;
+- unchanged existing change-journal/change-sequence authority.
+
+Focused acceptance coverage added to
+`PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest.kt` includes:
+
+- V017 schema and discriminator validation;
+- `timestamptz(6)` occurrence precision;
+- exact occurred-at versus observed-at round trip;
+- MARKETPLACE, ERP, MANUAL, and CALCULATED source shapes;
+- repository restart reconstruction;
+- duplicate after restart;
+- source-fact conflict after restart;
+- correction after restart with historical fact retention and one active
+  replacement;
+- malformed subtype fail-closed behavior;
+- append-only trigger coverage through the structural table set.
+
+Local gates passed:
+
+```text
+.\gradlew.bat :applications:marketplace-operations-persistence-postgres:compileKotlin
+BUILD SUCCESSFUL
+
+.\gradlew.bat :applications:marketplace-operations-persistence-postgres:compileTestKotlin
+BUILD SUCCESSFUL
+
+.\gradlew.bat :applications:marketplace-operations-persistence-postgres:test
+BUILD SUCCESSFUL
+
+.\gradlew.bat :applications:marketplace-operations-persistence-postgres:test `
+  --tests "io.flooow.marketplace.persistence.postgres.PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest"
+BUILD SUCCESSFUL
+```
+
+`git diff --check` reported no whitespace errors. The Windows working tree
+reported only LF-to-CRLF normalization warnings for the modified Kotlin files.
+
+At this checkpoint exactly the five TASK-0148-authorized paths are intended to
+be changed. V015 and V016 remain immutable; no provider path, TASK-0146,
+assembler semantic, calculator semantic, new feed, new repository abstraction,
+or backfill path is authorized or required.
+
+The TASK-0148 completion gate remains open until repository CI is green, the
+implementation PR is clean, exactly-five-path verification is confirmed in the
+final diff, and the PR is merged.
 ## Explicitly out of scope
 
 TASK-0148 does not authorize:
