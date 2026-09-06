@@ -56,8 +56,9 @@ mode = read-only pull
 ```
 
 The connector must turn explicit Omie product-cost provider data into typed
-records and the page committer must translate eligible records into the existing
-durable independent marketplace economic evidence contract.
+provider-level records and the page committer must durably preserve normalized
+source observations with durable progress. TASK-0149 does not promote those
+records into order-level marketplace economic evidence.
 
 ## Non-negotiable invariants
 
@@ -102,11 +103,11 @@ Do not port as Genesis authority:
 
 ## Exact scope
 
-Implementation is restricted to the twelve paths frozen by SPEC-0049.
+Implementation is restricted to the thirteen paths frozen by SPEC-0049.
 
-No PostgreSQL migration or schema change is authorized.
+Exactly one additive migration is authorized: V019 for normalized Omie product-cost source observations. No other schema change is authorized.
 
-The existing persistence application may add the generic connector-progress store and the Omie economic-evidence committer frozen by SPEC-0049. No Connector Runtime or Integration Control Plane production change is authorized.
+The existing persistence application may add the generic connector-progress store, V019 source-observation table, and Omie product-cost committer frozen by SPEC-0049. No Connector Runtime or Integration Control Plane production change is authorized.
 
 ## Gates
 
@@ -139,3 +140,17 @@ TASK-0149 is complete only when:
 After TASK-0149, the next provider step is the provider-neutral credential
 rotation execution bridge required for durable Mercado Livre OAuth refresh-token
 rotation. Mercado Livre live economic ingestion follows that bridge.
+## Pre-implementation correction - 2026-09-06
+
+Contract validation after authorization proved that Omie product CMC cannot
+directly become order-level `PRODUCT_COST` evidence because the provider page has
+no canonical marketplace economic subject and Connector Runtime intentionally
+does not inject one.
+
+TASK-0149 therefore remains a live Omie activation task but stops at durable
+provider-level product-cost source observation.
+
+The later promotion/association stage is separately governed.
+
+This is a fail-closed correction, not a scope expansion into intelligence or
+identity matching.

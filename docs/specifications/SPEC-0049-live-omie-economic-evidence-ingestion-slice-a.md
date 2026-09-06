@@ -11,9 +11,12 @@ Implementation task: TASK-0149
 ## Objective
 
 Implement the smallest production-capable, read-only Omie connector slice that
-can translate explicit Omie product-cost data into the existing independent
-marketplace economic evidence contract without changing economic truth,
-persistence, Connector Runtime semantics, or organization/credential authority.
+can acquire explicit Omie product-cost data and durably preserve it as
+provider-level source observation without inventing marketplace order identity,
+currency authority, or canonical economic truth.
+
+Connector Runtime, organization/credential authority, and the existing
+marketplace economic evidence contract remain unchanged.
 
 ## Capability
 
@@ -101,37 +104,45 @@ A response cannot exceed ConnectorBudget.maxResponseBytes.
 
 ## Connector record
 
-Define a closed Slice A record representing explicit provider evidence input.
+Define a closed Slice A record representing explicit provider-level product-cost
+source evidence.
 
 Minimum fields:
 
 ```text
-marketplace economic evidence subject
 Omie product reference
 Omie page/source reference
 unit CMC when explicitly present
-currency when explicitly supported
+currency only when explicitly supplied/authorized by the source contract
 provider observed/source time when explicitly available
 connector observedAt
+optional explicit SKU/EAN
 ```
+
+The record contains no `MarketplaceEconomicEvidenceSubject`.
 
 A connector record is not canonical economic truth.
 
 A record with no valid cost is not converted into zero cost.
 
+Missing currency remains missing.
+
 ## Association rule
 
-Slice A does not invent Omie-to-marketplace identity.
-
-A record may create PRODUCT_COST evidence only when its
-`MarketplaceEconomicEvidenceSubject` is already explicit in the input/record
-boundary.
+Slice A performs no Omie-product-to-marketplace-order association.
 
 Title similarity, SKU guessing, product-name matching, price matching, and fuzzy
 identity are forbidden.
 
+An exact SKU/EAN/source identity may be retained as source evidence, but it does
+not become canonical identity by retention alone.
+
 Historical MGI identity-resolution knowledge may be used later as candidate
 evidence, never as implicit canonical association in this slice.
+
+Promotion from provider-level cost to order-level `PRODUCT_COST` is a later
+separately governed stage requiring explicit subject, identity, allocation
+semantics where applicable, and currency authority.
 
 ## Committer and durable progress
 
@@ -140,7 +151,7 @@ Create one PostgreSQL-backed `ConnectorPageCommitter` for this capability.
 The provider module owns no durable progress.
 
 The persistence layer may introduce one reusable Postgres connector-progress
-store backed only by the already-existing:
+store backed by the existing:
 
 ```text
 integration_connector_progress
@@ -149,63 +160,53 @@ integration_connector_page_commit
 
 schema.
 
-No new table or migration is authorized.
+Slice A also introduces one additive normalized provider-observation table for
+Omie product-cost records. It is not an economic-truth or marketplace-evidence
+table.
 
-The Omie economic-evidence committer must:
+The Omie product-cost committer must:
 
 1. validate organization, capability, and record type;
 2. load/use the existing durable connector progress contract;
-3. convert each eligible record to an existing independent economic evidence
-   update;
-4. call the existing evidence repository with optimistic version semantics;
-5. accept existing deterministic duplicate/no-op behavior;
-6. fail closed on identifier/source-fact conflicts;
-7. advance connector progress only after every required evidence update for the
-   page is durably handled;
-8. preserve at-least-once replay if evidence durability succeeds but progress
-   advancement fails;
-9. never create a second economic checkpoint or evidence journal.
-
-The existing evidence repository and its change-sequence allocation remain the
-only durable economic evidence write authority.
+3. durably write normalized provider-level product-cost records for the page;
+4. retain no raw provider response;
+5. preserve explicit missing currency rather than invent one;
+6. reject conflicting replay for the same page/source identity;
+7. advance connector progress only after all normalized records for the page are
+   durable;
+8. preserve idempotent page replay;
+9. never call or mutate the marketplace independent economic evidence repository;
+10. never create order-level `PRODUCT_COST` evidence.
 
 The generic Postgres progress store is infrastructure reuse only. It must not
 interpret provider records or economic meaning.
 
 ## Economic mapping
 
-For an explicit Omie unit CMC accepted as order product-cost evidence:
-
-```text
-family = PRODUCT_COST
-source.kind = ERP
-source.systemKey = "omie"
-```
-
-The component type must be one already accepted for PRODUCT_COST by the current
-economic evidence contract.
-
-Money uses exact decimal parsing and the existing MarketplaceMoney rules.
+For an explicit Omie unit CMC, Slice A preserves the exact source decimal as a
+provider-level product-cost observation.
 
 Binary floating-point canonicalization is forbidden.
 
-Coverage may be COMPLETE or PARTIAL only when justified by the explicit record.
+The observation does not claim `EconomicComponentType.PRODUCT_COST`, coverage,
+order currency, order quantity allocation, or canonical economic meaning.
 
-Missing/ambiguous values generate no invented component.
+Missing/ambiguous values generate no invented amount or currency.
 
 ## Deterministic identifiers
 
-Observation identifiers used for provider facts must be deterministic from
-stable source identity plus subject/fact identity, or otherwise satisfy replay
-idempotency through the existing repository rules.
+Provider-level source observation identity must be deterministic from stable
+source/page identity and record ordinal/source reference, or otherwise satisfy
+replay idempotency through the durable committer contract.
 
-Repeated delivery of the same provider fact must converge without duplicate
-economic meaning.
+Repeated delivery of the same provider page must converge without duplicate
+source meaning.
 
-A changed provider meaning under an already-used source identity must fail
-closed unless an explicit correction workflow is authorized.
+A changed provider meaning under an already-committed page/source identity must
+fail closed.
 
-Slice A does not invent automatic source correction.
+Slice A does not invent automatic source correction and does not emit
+marketplace economic evidence identifiers.
 
 ## Provider failure translation
 
@@ -239,16 +240,18 @@ Module tests must prove at minimum:
 - explicit unit_cmc parses exactly;
 - absent unit_cmc does not synthesize zero;
 - malformed monetary value fails closed;
+- missing currency remains missing;
 - no fuzzy identity association;
-- correct ERP/omie provenance;
-- deterministic replay of the same record;
-- duplicate provider delivery does not duplicate economic meaning;
-- conflict blocks progress advancement;
-- evidence persistence failure blocks progress advancement;
-- all evidence durability precedes page progress commit;
+- no marketplace economic subject is invented;
+- deterministic replay of the same provider page;
+- duplicate provider delivery does not duplicate source meaning;
+- conflicting replay blocks progress advancement;
+- source-observation persistence failure blocks progress advancement;
+- all source-observation durability precedes page progress commit;
 - organization isolation;
 - connector failure taxonomy mapping;
-- secrets absent from public strings/errors.
+- secrets absent from public strings/errors;
+- raw provider JSON is not persisted.
 
 Existing regression gates must remain green.
 
@@ -262,7 +265,7 @@ No load-test framework or partitioning is authorized.
 
 ## Exact authorized implementation paths
 
-TASK-0149 may modify/create exactly these twelve paths:
+TASK-0149 may modify/create exactly these thirteen paths:
 
 1. MODIFY
    `settings.gradle.kts`
@@ -286,26 +289,31 @@ TASK-0149 may modify/create exactly these twelve paths:
    `applications/marketplace-operations-persistence-postgres/build.gradle.kts`
 
 8. CREATE
-   `applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresConnectorProgressStore.kt`
+   `applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V019__create_omie_product_cost_source_observation.sql`
 
 9. CREATE
-   `applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresMarketplaceEconomicEvidencePageCommitter.kt`
+   `applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresConnectorProgressStore.kt`
 
 10. CREATE
-    `applications/marketplace-operations-persistence-postgres/src/test/kotlin/io/flooow/marketplace/persistence/postgres/PostgresMarketplaceEconomicEvidencePageCommitterTest.kt`
+    `applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresOmieProductCostCommitter.kt`
 
-11. MODIFY only as TASK-0149 implementation evidence
+11. CREATE
+    `applications/marketplace-operations-persistence-postgres/src/test/kotlin/io/flooow/marketplace/persistence/postgres/PostgresOmieProductCostCommitterTest.kt`
+
+12. MODIFY only as TASK-0149 implementation evidence
     `docs/evidence/TASK-0149-live-omie-economic-evidence-ingestion.md`
 
-12. APPEND exactly one TASK-0149 implementation entry
+13. APPEND exactly one TASK-0149 implementation entry
     `docs/journal/MGI-EXECUTIVE-JOURNAL.md`
 
-No thirteenth implementation path is authorized.
+No fourteenth implementation path is authorized.
+
 ## Frozen outside Slice A
 
 - `applications:connector-runtime` production code;
 - `applications:integration-control-plane` production code;
-- PostgreSQL migrations or schema changes outside the three explicitly authorized persistence paths;
+- PostgreSQL migrations or schema changes other than V019 and the explicitly
+  authorized persistence paths;
 - Marketplace Economic Evidence domain semantics;
 - Economic Truth assembler/calculator;
 - Sales Intelligence projection;
@@ -316,6 +324,7 @@ No thirteenth implementation path is authorized.
 - scheduler/worker;
 - retries/backpressure/circuit breaker;
 - identity adjudication;
+- promotion of provider product cost into order-level PRODUCT_COST evidence;
 - MGI domain model port;
 - Kernel.
 
