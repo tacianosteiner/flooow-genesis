@@ -172,3 +172,49 @@ TASK-0149 does not source CMC from `ListarProdutos`.
 Historical MGI evidence is consistent with product/location CMC observations and
 is retained only as provider archaeology. Genesis does not port MGI's weighted
 CMC decision logic into the provider adapter.
+## Implementation evidence - Slice A
+
+Implementation branch:
+
+```text
+feat/task-0149-live-omie-economic-evidence
+```
+
+Implemented production path:
+
+```text
+Integration Control Plane scoped static credential
+-> Connector Runtime PullConnector invocation
+-> Omie ListarPosEstoque read-only request
+-> bounded numbered page
+-> normalized product/location product-cost source record
+-> PostgreSQL provider source observation
+-> durable connector page/progress commit
+```
+
+The implementation preserves the corrected contract:
+
+- provider key is `omie`;
+- capability is `marketplace-economic.product-cost`;
+- provider endpoint is `estoque/consulta`;
+- method is `ListarPosEstoque`;
+- `nCMC` is exact provider-level source evidence;
+- `nCMC = 0` remains observed zero and is not promoted to canonical zero cost;
+- missing `nCMC` remains missing;
+- currency is not invented;
+- product/location source observations remain provider evidence;
+- no weighted-CMC decision logic is ported from MGI;
+- no order-level `PRODUCT_COST` evidence is created;
+- raw provider JSON is not persisted;
+- Connector Runtime and Integration Control Plane production code are unchanged;
+- progress is sealed by the existing ConnectorProgressProtector contract;
+- page records persist before progress advances;
+- deterministic duplicate page replay validates existing normalized rows;
+- conflicting replay fails closed;
+- provider source persistence failure rolls back page/progress;
+- organization/connection isolation is preserved.
+
+Local implementation gates are executed by the TASK-0149 implementation bundle
+before commit/push.
+
+Repository CI and implementation PR merge remain completion-gate requirements.
