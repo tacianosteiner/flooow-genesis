@@ -82,6 +82,38 @@ class MercadoLivreOAuthCredentialEnvelopeTest {
     }
 
     @Test
+    fun `scoped read access exposes only seller id and current access token`() {
+        val bytes = MercadoLivreOAuthCredentialEnvelopeCodec.encode(sample())
+        try {
+            val result = MercadoLivreOAuthCredentialEnvelopeCodec.withReadAccess(bytes) {
+                    authorizedUserId,
+                    accessToken ->
+                assertEquals(8035443L, authorizedUserId)
+                assertEquals("synthetic-access-token", accessToken)
+                "scoped-result"
+            }
+            assertEquals("scoped-result", result)
+        } finally {
+            bytes.fill(0)
+        }
+    }
+
+    @Test
+    fun `scoped read access rejects malformed envelope without callback`() {
+        val malformed = """{"schemaVersion":1}""".toByteArray()
+        var called = false
+        try {
+            val result = MercadoLivreOAuthCredentialEnvelopeCodec.withReadAccess(malformed) { _, _ ->
+                called = true
+                Unit
+            }
+            assertNull(result)
+            assertFalse(called)
+        } finally {
+            malformed.fill(0)
+        }
+    }
+    @Test
     fun `rendering never exposes credential markers`() {
         val rendered = sample().toString()
         listOf(

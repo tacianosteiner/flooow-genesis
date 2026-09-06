@@ -97,6 +97,13 @@ object MercadoLivreOAuthCredentialEnvelopeCodec {
         return bytes
     }
 
+    fun <T> withReadAccess(
+        bytes: ByteArray,
+        operation: (authorizedUserId: Long, accessToken: String) -> T
+    ): T? {
+        val envelope = decode(bytes) ?: return null
+        return operation(envelope.authorizedUserId, envelope.accessToken)
+    }
     fun decode(bytes: ByteArray): MercadoLivreOAuthCredentialEnvelope? {
         if (bytes.isEmpty() || bytes.size > ReplacementCredential.MAX_BYTES) return null
 
