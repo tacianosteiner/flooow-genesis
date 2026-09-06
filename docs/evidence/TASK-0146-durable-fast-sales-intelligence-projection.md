@@ -1,6 +1,6 @@
 # TASK-0146: Durable/Fast Sales Intelligence Projection â€” Slice B
 
-Status: Implementation verified locally; PR/CI/merge pending
+Status: Complete - merged by PR #164
 
 Date: 2026-09-06
 
@@ -755,3 +755,24 @@ TASK-0146 is complete only when:
 Only after this gate is closed may the roadmap move from durable Sales
 Intelligence projection to provider activation and the separate Connector
 Execution Coordination contract.
+## Completion evidence - 2026-09-06
+
+TASK-0146 is complete.
+
+Final repository evidence:
+
+- implementation PR #164 merged into `main`;
+- merge commit `2917ec20a4e4d47baf6ea64b3f642748ef9057fd`;
+- final implementation head `f5d41096a94e33af0a48e5eb24c69a2aeebc9b52`;
+- repository CI run #345 completed successfully;
+- final PR changed exactly the eight authorized implementation paths;
+- V018 was the sole migration introduced by this task;
+- review threads were empty at merge;
+- local and repository application/PostgreSQL acceptance gates passed.
+
+This closes the durable Sales Intelligence projection dependency.
+
+The roadmap may now move to provider activation. Connector Execution Coordination,
+including retry scheduling, fairness, concurrency permits, backpressure, and
+circuit behavior, remains a separate downstream contract and is not implicitly
+authorized by this completion.

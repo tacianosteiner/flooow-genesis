@@ -617,3 +617,22 @@ provider, connector-runtime, API/UI, or historical migration changes.
 
 Implementation is locally verified. Repository CI, clean PR review, and merge
 remain required before TASK-0146 is complete.
+## 2026-09-06 - TASK-0146 completion gate closed
+
+PR #164 merged the durable Sales Intelligence projection into `main` at
+`2917ec20a4e4d47baf6ea64b3f642748ef9057fd`.
+
+Final verification:
+
+- repository CI run #345 succeeded;
+- final implementation head was `f5d41096a94e33af0a48e5eb24c69a2aeebc9b52`;
+- the implementation remained limited to the eight authorized paths;
+- V018 is the only migration introduced by TASK-0146;
+- canonical evidence, assembler, calculator, provider, connector-runtime,
+  API/UI, and research semantics were not expanded.
+
+TASK-0146 is complete.
+
+The next roadmap boundary is provider activation against the existing
+provider-neutral Connector Runtime and canonical economic-evidence ingestion.
+Connector Execution Coordination remains a later, separate contract.
