@@ -248,28 +248,51 @@ This capability names source acquisition only. It does not assert canonical
 
 V1 progress is opaque to Connector Runtime and provider-specific.
 
-It must carry only bounded non-secret retrieval state equivalent to:
+Current Mercado Livre documentation states that order date filters use only hour
+granularity and discard minutes, seconds, and milliseconds. The source cursor
+must therefore never claim sub-hour retrieval precision.
+
+The Connector Runtime also treats `exhausted=true` as terminal: once durable
+progress is exhausted, the adapter is never invoked again for that
+connection/capability.
+
+TASK-0152 is a live continuous source capability, so progress must represent
+closed UTC source hours rather than a terminal finite scan.
+
+Equivalent V1 state:
 
 ```text
-windowFrom
-windowTo
+windowFromHour
 offset
+```
+
+with:
+
+```text
+windowToHour = windowFromHour + 1 hour
 ```
 
 Rules:
 
-- first invocation freezes one UTC date-last-updated window;
+- UTC boundaries are exactly aligned to `HH:00:00Z`;
+- first invocation seeds the immediately preceding fully closed UTC hour;
+- historical backfill is not part of Slice A;
 - each invocation performs at most one remote request;
 - provider page limit is bounded by ConnectorBudget and a conservative provider
   maximum;
-- window end is fixed for all pages of that window;
+- all pages in one source hour keep the same hour and advance only `offset`;
+- final page of one closed hour advances progress to the next hour at offset 0;
+- normal TASK-0152 pages never set `ConnectorPage.exhausted=true`;
+- if progress catches up to an hour that is not yet fully closed, the adapter
+  performs no remote call and returns bounded `REMOTE_TEMPORARY`;
+- hour-boundary duplication is acceptable source observation behavior and is not
+  silently promoted into canonical truth;
 - progress never contains access token, seller credential, provider body, internal
   order UUID, or economic decision;
-- exhausting a provider window means source-window exhaustion only;
-- it never means canonical evidence completeness.
+- completing a source hour never means canonical evidence completeness.
 
-Initial horizon is an acquisition policy concern. TASK-0152 must not silently
-claim more history than the provider documents as available.
+The seller order search remains a mutable offset view. No hourly progress state
+is an exactly-once or completeness proof.
 
 ## HTTP/failure boundary
 

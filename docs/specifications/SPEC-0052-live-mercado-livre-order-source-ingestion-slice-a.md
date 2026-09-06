@@ -83,8 +83,8 @@ with:
 
 ```text
 seller={authorizedUserId}
-order.date_last_updated.from={frozen window start}
-order.date_last_updated.to={frozen window end}
+order.date_last_updated.from={closed UTC hour start}
+order.date_last_updated.to={closed UTC hour end}
 offset={progress offset}
 limit={bounded page size}
 ```
@@ -102,21 +102,39 @@ No order write.
 
 No token refresh.
 
-## Progress
+## Progress and continuous live-stream semantics
 
 Opaque progress V1 contains only retrieval state equivalent to:
 
 ```text
-windowFrom
-windowTo
+windowFromHour
 offset
 ```
 
-It is bounded, canonical, and contains no credential or domain identity.
+`windowToHour` is deterministically `windowFromHour + 1 hour`.
 
-A window end does not change while paging that window.
+Current Mercado Livre documentation states that order date filters use hour
+granularity and discard minutes, seconds, and milliseconds. Therefore:
 
-Initial progress freezes a bounded source window using injected Clock.
+- boundaries are UTC and exactly aligned to `HH:00:00Z`;
+- progress contains no minute, second, or fractional-second precision;
+- first invocation seeds the immediately preceding fully closed UTC hour;
+- historical backfill is not part of Slice A;
+- one `readPage` performs at most one remote request;
+- all pages for one source hour preserve the same hour and advance only offset;
+- final page of a closed source hour advances to the next UTC hour at offset 0;
+- finishing a source hour does not set `ConnectorPage.exhausted=true`;
+- TASK-0152 is a continuous live capability and normal pages always return
+  non-null next progress with `exhausted=false`;
+- when progress catches up to an hour that is not yet fully closed, the adapter
+  performs zero provider calls and returns `REMOTE_TEMPORARY` with a bounded retry
+  hint toward the next UTC-hour boundary;
+- progress contains no credential, provider body, internal order UUID, or
+  economic decision.
+
+Connector Runtime treats durable `exhausted=true` as terminal and will not invoke
+the adapter again. TASK-0152 MUST NOT use terminal exhaustion for this live
+capability.
 
 The provider's documented retention horizon is not transformed into a canonical
 data-completeness guarantee.
@@ -230,6 +248,7 @@ At minimum:
 403 -> AUTHORIZATION_DENIED
 429 -> RATE_LIMITED
 408/425/5xx -> REMOTE_TEMPORARY
+caught up to non-closed current hour -> REMOTE_TEMPORARY
 other definitive 4xx -> REMOTE_PERMANENT
 malformed successful response -> REMOTE_DATA_INVALID
 timeout exceeding invocation deadline -> BUDGET_EXCEEDED
@@ -302,9 +321,12 @@ without all source rows.
 8. exactly one GET per `readPage`;
 9. request uses seller from authorizedUserId;
 10. bearer token not rendered by request/response wrapper;
-11. frozen window/offset progress round trip;
-12. page limit respects ConnectorBudget;
-13. required order fields parse;
+11. progress uses exact UTC-hour boundaries and no sub-hour precision;
+12. initial progress seeds the immediately preceding fully closed UTC hour;
+13. finishing a source hour advances to the next hour with `exhausted=false`;
+14. caught-up non-closed hour emits REMOTE_TEMPORARY with zero HTTP calls;
+15. page limit respects ConnectorBudget;
+16. required order fields parse;
 14. optional order fields remain null when absent;
 15. item/payment source values parse exact decimals;
 16. no buyer/seller PII fields exist in source record;

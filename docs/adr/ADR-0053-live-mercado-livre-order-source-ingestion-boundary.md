@@ -110,15 +110,26 @@ Do not retain:
 Retain only bounded economic values, timestamps, source statuses, and stable
 provider identities required for later governed promotion.
 
-## Mutable search caveat
+## Mutable search and live-progress caveat
 
-Current order search uses offset/limit and is a mutable source view.
+Current order search uses offset/limit and is a mutable source view. Current
+provider documentation also states that order date filters discard sub-hour
+precision.
 
-A fixed date-last-updated window plus offset is acceptable for durable source
-acquisition, but page/window exhaustion is not an exactly-once or completeness
-claim.
+TASK-0152 therefore uses only fully closed, UTC hour-aligned
+`date_last_updated` source windows.
 
-Future notification/reconciliation/overlap coordination is separately governed.
+Connector Runtime treats `exhausted=true` as permanently terminal. Because this
+capability is a continuous live source, finishing one source hour advances to the
+next hour with non-terminal progress; it never exhausts the capability.
+
+When the cursor reaches an hour that has not fully closed, the adapter performs no
+provider request and returns bounded `REMOTE_TEMPORARY` until a closed source hour
+is available.
+
+A completed hour plus offset paging is still not an exactly-once or completeness
+claim. Future notification/reconciliation/overlap coordination is separately
+governed.
 
 ## Persistence
 

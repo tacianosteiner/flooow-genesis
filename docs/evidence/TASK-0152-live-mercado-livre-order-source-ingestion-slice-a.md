@@ -20,6 +20,11 @@ TASK-0152 is accepted only when:
 
 - current OAuth envelope is reused, not reparsed independently;
 - exactly one bounded seller-order GET occurs per connector read;
+- progress is UTC-hour aligned because the provider discards sub-hour date-filter
+  precision;
+- finishing one source hour never terminally exhausts the live capability;
+- caught-up non-closed hours perform no HTTP call and return bounded
+  `REMOTE_TEMPORARY`;
 - no inline refresh exists;
 - provider order/item/payment source values are strict and exact;
 - no buyer/seller PII is modeled or persisted;

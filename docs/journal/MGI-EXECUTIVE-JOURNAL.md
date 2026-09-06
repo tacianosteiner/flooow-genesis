@@ -867,6 +867,10 @@ Key decisions:
 
 - reuse TASK-0151 credential codec through one scoped read helper;
 - one remote GET per readPage;
+- provider date filters are hour-granular, so progress uses only fully closed UTC
+  hours;
+- live source-hour completion stays non-terminal because Connector Runtime treats
+  exhausted progress as final;
 - source capability is `marketplace-economic.order-source`;
 - offset/date-window exhaustion is retrieval state, not completeness;
 - retain non-PII economic/identity source fields only;
