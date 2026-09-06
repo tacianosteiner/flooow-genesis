@@ -913,3 +913,32 @@ Key safety properties:
 Next: separately govern marketplace-order identity allocation/association and
 promotion from Mercado Livre source observations into independent economic
 evidence.
+## 2026-09-06 - TASK-0153 authorization - marketplace order identity and occurrence promotion
+
+Authorized the first canonical promotion stage after live Mercado Livre order
+source ingestion.
+
+The governed path is:
+
+```text
+V021 durable order source observation
+  -> exact (organization, marketplace, externalOrderId) identity registry
+  -> one opaque internal MarketplaceOrderId
+  -> immutable economic evidence subject
+  -> marketplace OrderOccurrence from source date_created
+  -> existing independent economic evidence repository
+```
+
+Key decisions:
+
+- connection is provenance, not canonical business identity;
+- internal UUID is random and never derived from provider order id;
+- first source currency is immutable for the registry;
+- equal re-observation is duplicate;
+- changed source occurrence is explicit conflict, not silent correction;
+- terminal source promotion outcomes are durably recorded;
+- no TASK-0152 monetary source value is promoted in this task;
+- no Connector Runtime/provider/OAuth changes are authorized.
+
+Next after TASK-0153: separately govern financial-component promotion and then
+explicit product/order-cost association.
