@@ -706,3 +706,34 @@ Decision:
 
 This correction changes provider wire behavior only; Genesis truth, identity,
 runtime, authority, and later association boundaries remain unchanged.
+## 2026-09-06 - TASK-0149 implementation - live Omie product-cost source observation
+
+Implemented the first production provider slice after canonical economic truth,
+durable evidence, change feed, OrderOccurrence, and durable Sales Intelligence.
+
+The slice is intentionally provider evidence, not economic truth:
+
+```text
+Omie ListarPosEstoque
+-> exact product/location source observation
+-> durable V019 provider observation
+-> durable connector progress
+```
+
+Key boundaries preserved:
+
+- static Omie credentials remain in Integration Control Plane custody;
+- provider HTTP/auth/parsing remain outside Connector Runtime;
+- `nCMC` is preserved exactly and is never silently converted to order COGS;
+- currency remains unresolved;
+- no fuzzy product/order identity is introduced;
+- no MGI weighted-CMC logic is promoted into the adapter;
+- no raw provider payload is retained;
+- page durability precedes progress advancement;
+- duplicate replay converges only when normalized rows agree;
+- conflicting replay fails closed;
+- no Economic Truth, Sales Intelligence, API/UI, OAuth, scheduler, or Kernel
+  production code changed.
+
+The next provider prerequisite after TASK-0149 remains the provider-neutral
+credential-rotation execution bridge before live Mercado Livre OAuth ingestion.
