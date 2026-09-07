@@ -1,4 +1,4 @@
-﻿package io.flooow.research.exp0015
+package io.flooow.research.exp0015
 
 import java.time.Instant
 
@@ -107,6 +107,25 @@ class BeliefRevisionEngine(
             )
         }
 
+        if (candidateEvidence.contradictionState == ContradictionState.UNRESOLVED) {
+            val sameValue = candidateProposition.value == current.proposition.value
+
+            return contested(
+                current = current,
+                candidateProposition = candidateProposition,
+                candidateEvidence = candidateEvidence,
+                nextVersion = nextVersion,
+                recordedAt = recordedAt,
+                reasons =
+                    buildSet {
+                        if (!sameValue) {
+                            add(RevisionReasonCode.CONFLICT_DETECTED)
+                        }
+                        add(RevisionReasonCode.CANDIDATE_CONTRADICTED)
+                    },
+            )
+        }
+
         if (candidateProposition.value == current.proposition.value) {
             val reinforcedEvidence =
                 candidateEvidence.copy(
@@ -133,21 +152,6 @@ class BeliefRevisionEngine(
                                 RevisionReasonCode.AGREEMENT_REINFORCES,
                             ),
                         recordedAt = recordedAt,
-                    ),
-            )
-        }
-
-        if (candidateEvidence.contradictionState == ContradictionState.UNRESOLVED) {
-            return contested(
-                current = current,
-                candidateProposition = candidateProposition,
-                candidateEvidence = candidateEvidence,
-                nextVersion = nextVersion,
-                recordedAt = recordedAt,
-                reasons =
-                    setOf(
-                        RevisionReasonCode.CONFLICT_DETECTED,
-                        RevisionReasonCode.CANDIDATE_CONTRADICTED,
                     ),
             )
         }
