@@ -69,6 +69,87 @@
         }
       }
     },
+    "/v1/sales-intelligence/refresh": {
+      "post": {
+        "operationId": "refreshSalesIntelligence",
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Bounded live refresh completed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SalesIntelligenceRefresh" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "409": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/sales-intelligence/orders": {
+      "get": {
+        "operationId": "listSalesIntelligenceOrders",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Opaque authenticated continuation cursor"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 200, "default": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization-scoped Sales Intelligence page",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SalesIntelligencePage" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/sales-intelligence/orders/{marketplaceOrderId}": {
+      "get": {
+        "operationId": "getSalesIntelligenceOrder",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "marketplaceOrderId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current durable Sales Intelligence projection",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SalesIntelligenceOrder" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/health/live": {
       "get": {
         "operationId": "liveness",
@@ -211,6 +292,135 @@
           },
           "explanation": { "type": "string" },
           "expectedUnitsPreserved": { "type": "integer" }
+        }
+      },
+      "SalesIntelligencePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["orders"],
+        "properties": {
+          "orders": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/SalesIntelligenceOrder" }
+          },
+          "nextCursor": { "type": "string" }
+        }
+      },
+      "SalesIntelligenceOrder": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "marketplaceOrderId",
+          "sourceEvidenceVersion",
+          "projectedAt",
+          "assemblyPolicyVersion",
+          "state"
+        ],
+        "properties": {
+          "marketplaceOrderId": { "type": "string", "format": "uuid" },
+          "sourceEvidenceVersion": { "type": "integer", "minimum": 0 },
+          "projectedAt": { "type": "string", "format": "date-time" },
+          "assemblyPolicyVersion": { "type": "string" },
+          "calculationPolicyVersion": { "type": "string" },
+          "state": {
+            "type": "string",
+            "enum": ["UNRESOLVED", "CALCULATED_COMPLETE", "CALCULATED_INCOMPLETE"]
+          },
+          "unresolvedReasons": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "missingComponentTypes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "partialComponentTypes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "economicResult": { "$ref": "#/components/schemas/SafeEconomicResult" }
+        }
+      },
+      "SafeEconomicResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "orderOccurredAt",
+          "currency",
+          "grossRevenue",
+          "totalMarketplaceFees",
+          "totalShipping",
+          "totalAdvertising",
+          "totalTaxes",
+          "totalProductCost",
+          "totalFinancialCost",
+          "totalOtherAdjustments",
+          "contribution",
+          "truthQuality"
+        ],
+        "properties": {
+          "orderOccurredAt": { "type": "string", "format": "date-time" },
+          "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+          "grossRevenue": { "type": "string" },
+          "totalMarketplaceFees": { "type": "string" },
+          "totalShipping": { "type": "string" },
+          "totalAdvertising": { "type": "string" },
+          "totalTaxes": { "type": "string" },
+          "totalProductCost": { "type": "string" },
+          "totalFinancialCost": { "type": "string" },
+          "totalOtherAdjustments": { "type": "string" },
+          "contribution": { "type": "string" },
+          "contributionMargin": { "type": "string" },
+          "contributionMarginUndefinedReason": { "type": "string" },
+          "truthQuality": { "type": "string", "enum": ["CONFIRMED", "ESTIMATED"] }
+        }
+      },
+      "SalesIntelligenceRefresh": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "source", "occurrence", "revenue", "projection"],
+        "properties": {
+          "status": { "type": "string", "const": "COMPLETED" },
+          "source": { "$ref": "#/components/schemas/RefreshSourceSummary" },
+          "occurrence": { "$ref": "#/components/schemas/RefreshPromotionSummary" },
+          "revenue": { "$ref": "#/components/schemas/RefreshPromotionSummary" },
+          "projection": { "$ref": "#/components/schemas/RefreshProjectionSummary" }
+        }
+      },
+      "RefreshSourceSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "invocations", "committedPages", "alreadyCommittedPages", "records"],
+        "properties": {
+          "status": { "type": "string", "enum": ["EXHAUSTED", "BOUNDED", "RETRYABLE_FAILURE", "FAILED"] },
+          "invocations": { "type": "integer", "minimum": 0 },
+          "committedPages": { "type": "integer", "minimum": 0 },
+          "alreadyCommittedPages": { "type": "integer", "minimum": 0 },
+          "records": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "RefreshPromotionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["batches", "examined", "promoted", "duplicates", "identityConflicts", "evidenceConflicts", "drained"],
+        "properties": {
+          "batches": { "type": "integer", "minimum": 0 },
+          "examined": { "type": "integer", "minimum": 0 },
+          "promoted": { "type": "integer", "minimum": 0 },
+          "duplicates": { "type": "integer", "minimum": 0 },
+          "identityConflicts": { "type": "integer", "minimum": 0 },
+          "evidenceConflicts": { "type": "integer", "minimum": 0 },
+          "drained": { "type": "boolean" }
+        }
+      },
+      "RefreshProjectionSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["batches", "processedChanges", "drained"],
+        "properties": {
+          "batches": { "type": "integer", "minimum": 0 },
+          "processedChanges": { "type": "integer", "minimum": 0 },
+          "drained": { "type": "boolean" }
         }
       },
       "Problem": {

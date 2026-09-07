@@ -1,5 +1,15 @@
 package io.flooow.marketplace.api
 
+import io.flooow.integration.connector.ConnectorRuntime
+import io.flooow.integration.connector.IntegrationControlPlaneConnectorAccess
+import io.flooow.integration.control.IntegrationConnectionId
+import io.flooow.integration.control.IntegrationControlPlaneService
+import io.flooow.integration.security.MvpRuntimeMasterKey
+import io.flooow.integration.security.MvpSecureRuntime
+import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
+import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderRevenuePromotionService
+import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderSourcePromotionService
+import io.flooow.marketplace.operations.economics.sales.MarketplaceSalesIntelligenceProjectionProcessor
 import io.flooow.marketplace.operations.inventory.AssessmentIdentifierFactory
 import io.flooow.marketplace.operations.inventory.InventoryRiskAssessmentJournal
 import io.flooow.marketplace.operations.inventory.InventoryRiskAssessmentRecorder
@@ -8,7 +18,18 @@ import io.flooow.marketplace.operations.inventory.PersistenceIntegrityException
 import io.flooow.marketplace.operations.inventory.PersistenceUnavailableException
 import io.flooow.marketplace.operations.inventory.RecordedInventoryRiskAssessment
 import io.flooow.marketplace.persistence.postgres.PostgresConfiguration
+import io.flooow.marketplace.persistence.postgres.PostgresIntegrationControlPlaneRepository
 import io.flooow.marketplace.persistence.postgres.PostgresInventoryRiskAssessmentJournal
+import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceEconomicEvidenceChangeFeed
+import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceIndependentEconomicEvidenceRepository
+import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceOrderSourcePromotionRepository
+import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceSalesIntelligenceProjection
+import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
+import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
+import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
+import io.flooow.marketplace.operations.live.MarketplaceOrderRevenuePromotionLivePipelineAdapter
+import io.flooow.marketplace.operations.live.MarketplaceOrderSourcePromotionLivePipelineAdapter
+import io.flooow.marketplace.operations.live.MarketplaceSalesIntelligenceLivePipelineAdapter
 import io.flooow.organization.OrganizationId
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -49,6 +70,7 @@ import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeParseException
+import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
@@ -63,22 +85,84 @@ private val json = Json {
 }
 
 fun main() {
+    val environment = System.getenv()
     val host = System.getenv("HOST") ?: "0.0.0.0"
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
-    val serviceToken = ServiceToken.fromEnvironment()
-    val serviceOrganizationId = serviceOrganizationFromEnvironment()
-    val journal = PostgresInventoryRiskAssessmentJournal.connect(
-        PostgresConfiguration.fromEnvironment()
-    )
+    val serviceToken = ServiceToken.fromEnvironment(environment)
+    val serviceOrganizationId = serviceOrganizationFromEnvironment(environment)
+    val connectionId = mercadoLivreConnectionFromEnvironment(environment)
+    val configuration = PostgresConfiguration.fromEnvironment(environment)
+    val journal = PostgresInventoryRiskAssessmentJournal.connect(configuration)
     val recorder = InventoryRiskAssessmentRecorder(journal)
-    embeddedServer(Netty, host = host, port = port) {
-        configureApi(
-            serviceToken,
-            serviceOrganizationId,
-            recorder::record,
-            recorder::findById
+    val (secureRuntime, cursorCodec) = MvpRuntimeMasterKey.fromEnvironment(environment).use {
+        Pair(
+            MvpSecureRuntime(
+                it,
+                Path.of(requireNotNull(environment["FLOOOW_SECRET_VAULT_PATH"]) {
+                    "FLOOOW_SECRET_VAULT_PATH is required"
+                })
+            ),
+            it.useBytes(::SalesIntelligenceCursorCodec)
         )
-    }.start(wait = true)
+    }
+    secureRuntime.use { security ->
+        val controlPlane = IntegrationControlPlaneService(
+            PostgresIntegrationControlPlaneRepository.connect(configuration),
+            security.secretVault
+        )
+        val connectorRuntime = ConnectorRuntime(
+            IntegrationControlPlaneConnectorAccess(controlPlane),
+            listOf(MercadoLivreOrderSourceConnector()),
+            listOf(
+                PostgresMercadoLivreOrderSourceCommitter(
+                    configuration,
+                    security.progressProtector
+                )
+            )
+        )
+        val promotionRepository =
+            PostgresMarketplaceOrderSourcePromotionRepository(configuration)
+        val evidenceRepository =
+            PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
+        val projection = PostgresMarketplaceSalesIntelligenceProjection(configuration)
+        val pipeline = MarketplaceLivePipelineService(
+            ConnectorRuntimeMarketplaceLivePipelineSourceRunner(connectorRuntime),
+            MarketplaceOrderSourcePromotionLivePipelineAdapter(
+                MarketplaceOrderSourcePromotionService(
+                    promotionRepository,
+                    evidenceRepository
+                )
+            ),
+            MarketplaceOrderRevenuePromotionLivePipelineAdapter(
+                MarketplaceOrderRevenuePromotionService(
+                    promotionRepository,
+                    evidenceRepository
+                )
+            ),
+            MarketplaceSalesIntelligenceLivePipelineAdapter(
+                MarketplaceSalesIntelligenceProjectionProcessor(
+                    evidenceRepository,
+                    PostgresMarketplaceEconomicEvidenceChangeFeed(configuration),
+                    projection
+                )
+            )
+        )
+        val salesIntelligenceApi = SalesIntelligenceApi(
+            projection,
+            pipeline,
+            connectionId,
+            cursorCodec
+        )
+        embeddedServer(Netty, host = host, port = port) {
+            configureApi(
+                serviceToken,
+                serviceOrganizationId,
+                recorder::record,
+                recorder::findById,
+                salesIntelligenceApi
+            )
+        }.start(wait = true)
+    }
 }
 
 fun Application.module() {
@@ -96,7 +180,8 @@ fun Application.module() {
         ServiceToken.test(TEST_SERVICE_TOKEN),
         TEST_ORGANIZATION_ID,
         recorder::record,
-        recorder::findById
+        recorder::findById,
+        testSalesIntelligenceApi()
     )
 }
 
@@ -104,7 +189,8 @@ internal fun Application.configureApi(
     serviceToken: ServiceToken,
     serviceOrganizationId: OrganizationId,
     record: (OrganizationId, InventoryRiskInput) -> RecordedInventoryRiskAssessment,
-    findById: (OrganizationId, String) -> RecordedInventoryRiskAssessment? = { _, _ -> null }
+    findById: (OrganizationId, String) -> RecordedInventoryRiskAssessment? = { _, _ -> null },
+    salesIntelligenceApi: SalesIntelligenceApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -202,6 +288,69 @@ internal fun Application.configureApi(
                 code = "PERSISTENCE_INTEGRITY_FAILURE"
             )
         }
+        exception<InvalidSalesIntelligenceCursorException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.BadRequest,
+                "https://flooow.io/problems/invalid-sales-intelligence-cursor",
+                "Invalid Sales Intelligence cursor",
+                "The Sales Intelligence cursor or page limit is invalid",
+                "INVALID_SALES_INTELLIGENCE_CURSOR"
+            )
+        }
+        exception<InvalidSalesIntelligenceOrderIdException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.BadRequest,
+                "https://flooow.io/problems/invalid-sales-intelligence-order-id",
+                "Invalid Sales Intelligence order identifier",
+                "The Sales Intelligence order identifier is invalid",
+                "INVALID_SALES_INTELLIGENCE_ORDER_ID"
+            )
+        }
+        exception<SalesIntelligenceNotFoundException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.NotFound,
+                "https://flooow.io/problems/sales-intelligence-not-found",
+                "Sales Intelligence not found",
+                "The requested Sales Intelligence order was not found",
+                "SALES_INTELLIGENCE_NOT_FOUND"
+            )
+        }
+        exception<SalesIntelligenceReadFailureException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/sales-intelligence-read-failure",
+                "Sales Intelligence read failure",
+                "Sales Intelligence is temporarily unavailable",
+                "SALES_INTELLIGENCE_READ_FAILURE"
+            )
+        }
+        exception<LiveRefreshBlockedException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.Conflict,
+                "https://flooow.io/problems/live-refresh-blocked",
+                "Live refresh blocked",
+                "The live refresh could not safely advance",
+                "LIVE_REFRESH_BLOCKED"
+            )
+        }
+        exception<LiveRefreshUnavailableException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/live-refresh-unavailable",
+                "Live refresh unavailable",
+                "The live refresh is temporarily unavailable",
+                "LIVE_REFRESH_UNAVAILABLE"
+            )
+        }
+        exception<LiveRefreshInternalFailureException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.InternalServerError,
+                "https://flooow.io/problems/live-refresh-internal-failure",
+                "Live refresh internal failure",
+                "The live refresh could not be completed",
+                "LIVE_REFRESH_INTERNAL_FAILURE"
+            )
+        }
         exception<Throwable> { call, _ ->
             call.respondProblem(
                 status = HttpStatusCode.InternalServerError,
@@ -280,11 +429,68 @@ internal fun Application.configureApi(
                     throw AssessmentNotFoundException()
                 call.respondJson(recordedAssessmentJson(recorded))
             }
+            if (salesIntelligenceApi != null) {
+                get(SALES_INTELLIGENCE_ORDERS_PATH) {
+                    val query = call.request.queryParameters
+                    if (query.names().any { it !in setOf("cursor", "limit") } ||
+                        query.getAll("cursor").orEmpty().size > 1 ||
+                        query.getAll("limit").orEmpty().size > 1
+                    ) {
+                        throw InvalidSalesIntelligenceCursorException()
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>())
+                        .organizationId
+                    call.respondJson(
+                        salesIntelligenceApi.list(
+                            organizationId,
+                            query["cursor"],
+                            query["limit"]
+                        )
+                    )
+                }
+                get("$SALES_INTELLIGENCE_ORDERS_PATH/{marketplaceOrderId}") {
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>())
+                        .organizationId
+                    call.respondJson(
+                        salesIntelligenceApi.detail(
+                            organizationId,
+                            call.parameters["marketplaceOrderId"].orEmpty()
+                        )
+                    )
+                }
+                post(SALES_INTELLIGENCE_REFRESH_PATH) {
+                    if (call.request.queryParameters.names().isNotEmpty() ||
+                        call.receiveText().isNotEmpty()
+                    ) {
+                        throw MalformedRequestException("Refresh accepts no request body or query")
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>())
+                        .organizationId
+                    call.respondJson(salesIntelligenceApi.refresh(organizationId))
+                }
+            }
         }
     }
 }
 
-private suspend fun io.ktor.server.application.ApplicationCall.respondJson(
+internal fun mercadoLivreConnectionFromEnvironment(
+    environment: Map<String, String> = System.getenv()
+): IntegrationConnectionId {
+    val value = requireNotNull(environment["FLOOOW_MERCADO_LIVRE_CONNECTION_ID"]) {
+        "FLOOOW_MERCADO_LIVRE_CONNECTION_ID is required"
+    }
+    return try {
+        val parsed = UUID.fromString(value)
+        require(parsed.toString() == value)
+        IntegrationConnectionId(parsed)
+    } catch (_: IllegalArgumentException) {
+        throw IllegalArgumentException(
+            "FLOOOW_MERCADO_LIVRE_CONNECTION_ID must be a canonical UUID"
+        )
+    }
+}
+
+internal suspend fun io.ktor.server.application.ApplicationCall.respondJson(
     body: JsonElement,
     status: HttpStatusCode = HttpStatusCode.OK
 ) {

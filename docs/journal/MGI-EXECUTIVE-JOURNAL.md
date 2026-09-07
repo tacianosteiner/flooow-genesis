@@ -1137,3 +1137,17 @@ Intelligence plus one bounded TASK-0155 refresh through the existing authenticat
 API. HTTP remains adapter-only.
 
 After TASK-0156B the direct MVP critical path is TASK-0157 UI.
+
+## 2026-09-07 â€” TASK-0156B Sales Intelligence API + controlled refresh implemented
+
+The authenticated MVP API now serves organization-scoped durable Sales
+Intelligence list/detail reads and one synchronous, bounded live refresh command.
+Opaque authenticated cursors preserve the existing keyset projection contract.
+Production wiring composes only the governed live pipeline, security, Control
+Plane, connector, promotion, canonical evidence, and projection adapters.
+
+Economic Truth remains canonical and unchanged; Sales Intelligence remains a
+derived read model. Refresh cannot select organization, connection, or credential
+from the request and returns only sanitized stage status/counts.
+
+Next critical path: TASK-0157 MVP UI.
