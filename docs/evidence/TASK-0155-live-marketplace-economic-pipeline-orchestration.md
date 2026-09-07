@@ -76,3 +76,42 @@ refresh
 
 Implementation evidence is appended only after code exists and all local gates
 pass.
+## Implementation evidence
+
+Implementation branch:
+
+```text
+feat/task-0155-live-marketplace-economic-pipeline-orchestration
+```
+
+Implemented callable path:
+
+```text
+ConnectorRuntime
+  -> bounded Mercado Livre source pages
+  -> MarketplaceOrderSourcePromotionService
+  -> MarketplaceOrderRevenuePromotionService
+  -> MarketplaceSalesIntelligenceProjectionProcessor
+```
+
+Implementation preserves the frozen boundaries:
+
+- one new persistence-free application module;
+- caller supplies exact organization/connection identity;
+- provider/capability fixed to Mercado Livre order source;
+- fresh invocation id for each source page;
+- five-minute global deadline ceiling;
+- explicit cancellation;
+- non-cancellation remote source failures still allow durable backlog to advance;
+- provider/capability mismatch fails closed;
+- promotion result accounting is integrity-checked;
+- occurrence block stops revenue/projection;
+- revenue block stops projection;
+- projection conflict/integrity failure blocks;
+- stage caps return `drained=false`;
+- no migration, checkpoint, scheduler, lease, direct provider HTTP or OAuth
+  behavior was added.
+
+All SPEC-0055 local gates are run before commit and push.
+
+Repository CI and merge remain required.

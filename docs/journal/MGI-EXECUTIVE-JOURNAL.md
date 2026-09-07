@@ -1085,3 +1085,31 @@ Next after implementation:
 TASK-0156 Sales Intelligence API + controlled refresh
 -> TASK-0157 MVP UI
 ```
+## 2026-09-06 â€” TASK-0155 live marketplace economic pipeline implemented
+
+The MVP now has one bounded application coordinator over the previously
+independent durable stages:
+
+```text
+Mercado Livre source
+-> V021
+-> V022 identity + OrderOccurrence
+-> V023 REVENUE
+-> Sales Intelligence projection
+```
+
+The coordinator is deliberately stateless. Existing connector progress,
+promotion terminal ledgers and Sales Intelligence checkpoint remain the only
+durable positions.
+
+Remote source failure does not throw away already-durable backlog. Downstream
+integrity failures remain fail-closed.
+
+No scheduler or API is introduced by TASK-0155.
+
+Next critical path:
+
+```text
+TASK-0156 Sales Intelligence API + controlled refresh
+-> TASK-0157 MVP UI
+```
