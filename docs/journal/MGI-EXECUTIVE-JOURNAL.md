@@ -1130,3 +1130,10 @@ progress persistence was introduced.
 
 Next: TASK-0156B Sales Intelligence API + live runtime composition + controlled
 refresh, then TASK-0157 MVP UI.
+## 2026-09-07 â€” TASK-0156B Sales Intelligence API + controlled refresh authorized
+
+TASK-0156A closes secure runtime composition. TASK-0156B exposes durable Sales
+Intelligence plus one bounded TASK-0155 refresh through the existing authenticated
+API. HTTP remains adapter-only.
+
+After TASK-0156B the direct MVP critical path is TASK-0157 UI.
