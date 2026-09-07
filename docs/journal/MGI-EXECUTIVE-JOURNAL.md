@@ -1113,3 +1113,12 @@ Next critical path:
 TASK-0156 Sales Intelligence API + controlled refresh
 -> TASK-0157 MVP UI
 ```
+## 2026-09-07 â€” TASK-0156A MVP secure runtime cryptography authorized
+
+The TASK-0156 API composition review found two real missing adapters:
+`SecretVault` and `ConnectorProgressProtector`. The MVP will not bypass the
+Control Plane or store plaintext to move faster.
+
+ADR-0057 / SPEC-0056 authorize one encrypted, externally keyed MVP runtime
+security module. This is the final security prerequisite before live API
+composition and UI.
