@@ -1122,3 +1122,11 @@ Control Plane or store plaintext to move faster.
 ADR-0057 / SPEC-0056 authorize one encrypted, externally keyed MVP runtime
 security module. This is the final security prerequisite before live API
 composition and UI.
+## 2026-09-07 â€” TASK-0156A MVP secure runtime cryptography implemented
+
+The live MVP now has concrete runtime adapters for the two security ports that
+previously blocked production composition. No plaintext credential or connector
+progress persistence was introduced.
+
+Next: TASK-0156B Sales Intelligence API + live runtime composition + controlled
+refresh, then TASK-0157 MVP UI.
