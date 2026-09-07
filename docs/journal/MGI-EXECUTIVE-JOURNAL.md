@@ -1051,3 +1051,37 @@ TASK-0155 live pipeline orchestration
 -> TASK-0156 Sales Intelligence API
 -> TASK-0157 MVP UI
 ```
+## 2026-09-06 â€” TASK-0155 live marketplace economic pipeline authorized
+
+TASK-0154 completed the first safe financial promotion. The remaining MVP gap is
+now composition rather than economic semantics.
+
+ADR-0056 and SPEC-0055 authorize one new stateless bounded application module:
+
+```text
+ConnectorRuntime
+-> OrderOccurrence promotion
+-> REVENUE promotion
+-> Sales Intelligence projection
+```
+
+The coordinator introduces no new checkpoint, migration, scheduler, distributed
+lock or provider HTTP.
+
+A remote source failure other than cancellation does not prevent already-durable
+source/evidence work from advancing. Downstream integrity/block failures remain
+fail-closed.
+
+The live slice remains exact:
+
+```text
+provider = br.com.mercadolivre
+capability = marketplace-economic.order-source
+```
+
+Next after implementation:
+
+```text
+TASK-0156 Sales Intelligence API + controlled refresh
+-> TASK-0157 MVP UI
+```
