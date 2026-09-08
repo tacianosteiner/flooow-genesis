@@ -8,6 +8,9 @@ import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
+import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
+import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergencePolicies
+import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergenceAnalysisTrigger
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderRevenuePromotionService
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderSourcePromotionService
 import io.flooow.marketplace.operations.economics.sales.MarketplaceSalesIntelligenceProjectionProcessor
@@ -26,6 +29,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceIndependent
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceOrderSourcePromotionRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceSalesIntelligenceProjection
 import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationCaseRepository
+import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
@@ -76,6 +80,13 @@ import java.nio.file.Path
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
+private data class RuntimeCodecs(
+    val secureRuntime: MvpSecureRuntime,
+    val cursorCodec: SalesIntelligenceCursorCodec,
+    val reconciliationCursorCodec: ReconciliationCaseCursorCodec,
+    val systemicDivergenceCursorCodec: SystemicDivergenceCursorCodec
+)
+
 private const val ASSESSMENT_PATH =
     "/v1/marketplace-operations/inventory-risk-assessments"
 private val problemContentType = ContentType.parse("application/problem+json")
@@ -96,8 +107,8 @@ fun main() {
     val configuration = PostgresConfiguration.fromEnvironment(environment)
     val journal = PostgresInventoryRiskAssessmentJournal.connect(configuration)
     val recorder = InventoryRiskAssessmentRecorder(journal)
-    val (secureRuntime, cursorCodec, reconciliationCursorCodec) = MvpRuntimeMasterKey.fromEnvironment(environment).use {
-        Triple(
+    val (secureRuntime, cursorCodec, reconciliationCursorCodec, systemicDivergenceCursorCodec) = MvpRuntimeMasterKey.fromEnvironment(environment).use {
+        RuntimeCodecs(
             MvpSecureRuntime(
                 it,
                 Path.of(requireNotNull(environment["FLOOOW_SECRET_VAULT_PATH"]) {
@@ -105,7 +116,8 @@ fun main() {
                 })
             ),
             it.useBytes(::SalesIntelligenceCursorCodec),
-            it.useBytes(::ReconciliationCaseCursorCodec)
+            it.useBytes(::ReconciliationCaseCursorCodec),
+            it.useBytes(::SystemicDivergenceCursorCodec)
         )
     }
     secureRuntime.use { security ->
@@ -129,11 +141,20 @@ fun main() {
             PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
         val projection = PostgresMarketplaceSalesIntelligenceProjection(configuration)
         val reconciliationCaseRepository = PostgresDurableReconciliationCaseRepository(configuration)
+        val systemicSignalRepository = PostgresSystemicDivergenceSignalRepository(configuration)
+        val systemicDetector = DeterministicSystemicDivergenceDetector(systemicSignalRepository)
         // The orchestrator is composed at the durable boundary. Only an
         // explicit accepted assessment may invoke it; no HTTP/provider path
         // can manufacture an assessment or choose an organization.
-        val reconciliationCaseOrchestrator = GovernedReconciliationCaseOrchestrator(reconciliationCaseRepository)
+        val reconciliationCaseOrchestrator = GovernedReconciliationCaseOrchestrator(
+            reconciliationCaseRepository,
+            SystemicDivergenceAnalysisTrigger { organizationId, evaluatedAt ->
+                val cases = reconciliationCaseRepository.list(organizationId, null, 100).cases
+                systemicDetector.analyze(organizationId, cases, SystemicDivergencePolicies.current, evaluatedAt)
+            }
+        )
         val reconciliationCases = ReconciliationCasesApi(reconciliationCaseRepository, reconciliationCursorCodec)
+        val systemicDivergences = SystemicDivergencesApi(systemicSignalRepository, systemicDivergenceCursorCodec)
         val pipeline = MarketplaceLivePipelineService(
             ConnectorRuntimeMarketplaceLivePipelineSourceRunner(connectorRuntime),
             MarketplaceOrderSourcePromotionLivePipelineAdapter(
@@ -169,7 +190,8 @@ fun main() {
                 recorder::record,
                 recorder::findById,
                 salesIntelligenceApi,
-                reconciliationCases
+                reconciliationCases,
+                systemicDivergences
             )
         }.start(wait = true)
     }
@@ -201,7 +223,8 @@ internal fun Application.configureApi(
     record: (OrganizationId, InventoryRiskInput) -> RecordedInventoryRiskAssessment,
     findById: (OrganizationId, String) -> RecordedInventoryRiskAssessment? = { _, _ -> null },
     salesIntelligenceApi: SalesIntelligenceApi? = null,
-    reconciliationCasesApi: ReconciliationCasesApi? = null
+    reconciliationCasesApi: ReconciliationCasesApi? = null,
+    systemicDivergencesApi: SystemicDivergencesApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -339,6 +362,9 @@ internal fun Application.configureApi(
         exception<InvalidReconciliationCaseIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-reconciliation-case-id", "Invalid reconciliation case identifier", "The reconciliation case identifier is invalid", "INVALID_RECONCILIATION_CASE_ID") }
         exception<ReconciliationCaseNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/reconciliation-case-not-found", "Reconciliation case not found", "The requested reconciliation case was not found", "RECONCILIATION_CASE_NOT_FOUND") }
         exception<ReconciliationCaseReadFailureException> { call, _ -> call.respondProblem(HttpStatusCode.ServiceUnavailable, "https://flooow.io/problems/reconciliation-case-read-failure", "Reconciliation case read failure", "Reconciliation cases are temporarily unavailable", "RECONCILIATION_CASE_READ_FAILURE") }
+        exception<InvalidSystemicDivergenceCursorException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-systemic-divergence-cursor", "Invalid systemic divergence cursor", "The systemic divergence cursor or page limit is invalid", "INVALID_SYSTEMIC_DIVERGENCE_CURSOR") }
+        exception<InvalidSystemicDivergenceSignalIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-systemic-divergence-id", "Invalid systemic divergence identifier", "The systemic divergence identifier is invalid", "INVALID_SYSTEMIC_DIVERGENCE_ID") }
+        exception<SystemicDivergenceSignalNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/systemic-divergence-not-found", "Systemic divergence not found", "The requested systemic divergence was not found", "SYSTEMIC_DIVERGENCE_NOT_FOUND") }
         exception<LiveRefreshBlockedException> { call, _ ->
             call.respondProblem(
                 HttpStatusCode.Conflict,
@@ -492,6 +518,16 @@ internal fun Application.configureApi(
                 get("$RECONCILIATION_CASES_PATH/{caseId}") {
                     val principal = requireNotNull(call.principal<ServicePrincipal>())
                     call.respondJson(reconciliationCasesApi.detail(principal.organizationId, call.parameters["caseId"].orEmpty()))
+                }
+            }
+            if (systemicDivergencesApi != null) {
+                get(SYSTEMIC_DIVERGENCES_PATH) {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.respondJson(systemicDivergencesApi.list(principal.organizationId, call.request.queryParameters["cursor"], call.request.queryParameters["limit"]))
+                }
+                get("$SYSTEMIC_DIVERGENCES_PATH/{signalId}") {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.respondJson(systemicDivergencesApi.detail(principal.organizationId, call.parameters["signalId"].orEmpty()))
                 }
             }
         }

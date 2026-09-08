@@ -32,12 +32,17 @@ sealed interface ReconciliationCaseOrchestrationResult {
     data class Failed(val failure: ReconciliationCaseOrchestrationFailure) : ReconciliationCaseOrchestrationResult
 }
 
+fun interface SystemicDivergenceAnalysisTrigger {
+    fun analyze(organizationId: OrganizationId, evaluatedAt: Instant)
+}
+
 /**
  * The only productive seam from an accepted reconciliation assessment to a
  * durable case. It has no ledger/evidence/provider/recovery authority.
  */
 class GovernedReconciliationCaseOrchestrator(
-    private val repository: DurableReconciliationCaseRepository
+    private val repository: DurableReconciliationCaseRepository,
+    private val systemicAnalysis: SystemicDivergenceAnalysisTrigger? = null
 ) {
     fun process(
         accepted: AcceptedFinancialReconciliationAssessment,
@@ -64,6 +69,7 @@ class GovernedReconciliationCaseOrchestrator(
                         ReconciliationCaseOrchestrationResult.Unchanged(value)
                     } else {
                         val saved = repository.save(value)
+                        systemicAnalysis?.analyze(organizationId, accepted.acceptedAt)
                         if (existing == null) {
                             ReconciliationCaseOrchestrationResult.Created(saved)
                         } else {
