@@ -1184,3 +1184,12 @@ authenticated opaque-cursor reads and the Decision Room read surface were added.
 No live orchestration, recovery authority, provider mutation or Economic Truth
 change was introduced. Repeated observations use the same case identity and
 revision-guarded persistence; missing remains distinct from observed zero.
+
+## 2026-09-08 — TASK-0159 governed live reconciliation case orchestration
+
+TASK-0159 activates a fail-closed application seam from explicitly accepted
+financial reconciliation assessments to the existing durable reconciliation
+case processor/repository. Only `DIVERGENCE` can create or revise a case;
+replays are idempotent and organization-scoped. Economic Truth, ledger and
+evidence remain canonical and immutable. This does not authorize recovery,
+refund, claim, settlement, marketplace/payment mutation or autonomous action.
