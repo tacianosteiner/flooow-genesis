@@ -27,6 +27,14 @@ observe
 This roadmap is derived from repository reality. It supersedes no accepted
 domain roadmap and creates no second sequence of marketplace epics.
 
+## TASK-0162 promotion rule
+
+Before reinventing a solved domain problem, Genesis searches prior MGI
+knowledge, records an ADOPT/ADAPT/REJECT decision, and only then implements the
+smallest compatible seam. The commerce identity bridge adopts exact references,
+adapts candidates to typed organization-scoped evidence, and rejects MGI local
+persistence, endpoint and credential behavior.
+
 ## Scope boundary - Economic Truth before Opportunity Intelligence
 
 This section is strategic and non-normative. It records convergence intent and
