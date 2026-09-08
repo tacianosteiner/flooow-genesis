@@ -150,6 +150,31 @@
         }
       }
     },
+    "/v1/reconciliation/cases": {
+      "get": {
+        "operationId": "listReconciliationCases",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Opaque organization-bound continuation cursor" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 50 } }
+        ],
+        "responses": {
+          "200": { "description": "Organization-scoped reconciliation cases", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReconciliationCasePage" } } } },
+          "400": { "$ref": "#/components/responses/Problem" }, "401": { "$ref": "#/components/responses/Problem" }, "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/reconciliation/cases/{caseId}": {
+      "get": {
+        "operationId": "getReconciliationCase",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [{ "name": "caseId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "Durable reconciliation case", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ReconciliationCase" } } } },
+          "400": { "$ref": "#/components/responses/Problem" }, "401": { "$ref": "#/components/responses/Problem" }, "404": { "$ref": "#/components/responses/Problem" }, "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/health/live": {
       "get": {
         "operationId": "liveness",
@@ -386,6 +411,24 @@
           "revenue": { "$ref": "#/components/schemas/RefreshPromotionSummary" },
           "projection": { "$ref": "#/components/schemas/RefreshProjectionSummary" }
         }
+      },
+      "ReconciliationCasePage": {
+        "type": "object", "additionalProperties": false, "required": ["cases"],
+        "properties": { "cases": { "type": "array", "items": { "$ref": "#/components/schemas/ReconciliationCase" } }, "nextCursor": { "type": "string" } }
+      },
+      "ReconciliationCase": {
+        "type": "object", "additionalProperties": false,
+        "required": ["caseId", "marketplaceOrderId", "financialTraceId", "policyVersion", "currency", "status", "openedAt", "lastObservedAt", "revision", "absoluteDifferenceSummary", "evidenceEntryIds", "stages"],
+        "properties": {
+          "caseId": { "type": "string", "format": "uuid" }, "marketplaceOrderId": { "type": "string", "format": "uuid" }, "financialTraceId": { "type": "string", "format": "uuid" }, "policyVersion": { "type": "string" }, "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }, "status": { "type": "string", "enum": ["OPEN", "ACKNOWLEDGED", "RESOLVED"] }, "openedAt": { "type": "string", "format": "date-time" }, "lastObservedAt": { "type": "string", "format": "date-time" }, "resolvedAt": { "type": "string", "format": "date-time" }, "revision": { "type": "integer", "minimum": 1 }, "absoluteDifferenceSummary": { "$ref": "#/components/schemas/ExactMoney" }, "evidenceEntryIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }, "stages": { "type": "array", "items": { "$ref": "#/components/schemas/ReconciliationStageDifference" } }
+        }
+      },
+      "ReconciliationStageDifference": {
+        "type": "object", "additionalProperties": false, "required": ["stage", "tolerance", "expectedEntryIds", "actualEntryIds"],
+        "properties": { "stage": { "type": "string" }, "expected": { "$ref": "#/components/schemas/ExactMoney" }, "actual": { "$ref": "#/components/schemas/ExactMoney" }, "signedDifference": { "$ref": "#/components/schemas/ExactMoney" }, "absoluteDifference": { "$ref": "#/components/schemas/ExactMoney" }, "tolerance": { "$ref": "#/components/schemas/ExactMoney" }, "expectedEntryIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }, "actualEntryIds": { "type": "array", "items": { "type": "string", "format": "uuid" } } }
+      },
+      "ExactMoney": {
+        "type": "object", "additionalProperties": false, "required": ["currency", "amount"], "properties": { "currency": { "type": "string", "pattern": "^[A-Z]{3}$" }, "amount": { "type": "string" } }
       },
       "RefreshSourceSummary": {
         "type": "object",

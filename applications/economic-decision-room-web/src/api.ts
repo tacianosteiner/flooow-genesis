@@ -40,6 +40,12 @@ export interface RefreshResult {
   projection: { batches: number; processedChanges: number; drained: boolean }
 }
 
+export type ReconciliationCaseStatus = 'OPEN' | 'ACKNOWLEDGED' | 'RESOLVED'
+export interface ExactMoney { currency: string; amount: string }
+export interface ReconciliationStage { stage: string; expected?: ExactMoney; actual?: ExactMoney; signedDifference?: ExactMoney; absoluteDifference?: ExactMoney; tolerance: ExactMoney; expectedEntryIds: string[]; actualEntryIds: string[] }
+export interface ReconciliationCase { caseId: string; marketplaceOrderId: string; financialTraceId: string; policyVersion: string; currency: string; status: ReconciliationCaseStatus; openedAt: string; lastObservedAt: string; resolvedAt?: string; revision: number; absoluteDifferenceSummary: ExactMoney; evidenceEntryIds: string[]; stages: ReconciliationStage[] }
+export interface ReconciliationCasePage { cases: ReconciliationCase[]; nextCursor?: string }
+
 export interface PromotionSummary {
   batches: number
   examined: number
@@ -109,3 +115,5 @@ export async function request<T>(path: string, init: globalThis.RequestInit = {}
 export const listOrders = (cursor?: string, signal?: AbortSignal) => request<SalesPage>(`/v1/sales-intelligence/orders?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, {}, signal)
 export const getOrder = (id: string, signal?: AbortSignal) => request<SalesOrder>(`/v1/sales-intelligence/orders/${encodeURIComponent(id)}`, {}, signal)
 export const refreshOrders = (signal?: AbortSignal) => request<RefreshResult>('/v1/sales-intelligence/refresh', { method: 'POST' }, signal)
+export const listReconciliationCases = (cursor?: string, signal?: AbortSignal) => request<ReconciliationCasePage>(`/v1/reconciliation/cases?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, {}, signal)
+export const getReconciliationCase = (id: string, signal?: AbortSignal) => request<ReconciliationCase>(`/v1/reconciliation/cases/${encodeURIComponent(id)}`, {}, signal)

@@ -24,6 +24,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceEconomicEvi
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceIndependentEconomicEvidenceRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceOrderSourcePromotionRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceSalesIntelligenceProjection
+import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationCaseRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
@@ -94,15 +95,16 @@ fun main() {
     val configuration = PostgresConfiguration.fromEnvironment(environment)
     val journal = PostgresInventoryRiskAssessmentJournal.connect(configuration)
     val recorder = InventoryRiskAssessmentRecorder(journal)
-    val (secureRuntime, cursorCodec) = MvpRuntimeMasterKey.fromEnvironment(environment).use {
-        Pair(
+    val (secureRuntime, cursorCodec, reconciliationCursorCodec) = MvpRuntimeMasterKey.fromEnvironment(environment).use {
+        Triple(
             MvpSecureRuntime(
                 it,
                 Path.of(requireNotNull(environment["FLOOOW_SECRET_VAULT_PATH"]) {
                     "FLOOOW_SECRET_VAULT_PATH is required"
                 })
             ),
-            it.useBytes(::SalesIntelligenceCursorCodec)
+            it.useBytes(::SalesIntelligenceCursorCodec),
+            it.useBytes(::ReconciliationCaseCursorCodec)
         )
     }
     secureRuntime.use { security ->
@@ -125,6 +127,10 @@ fun main() {
         val evidenceRepository =
             PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
         val projection = PostgresMarketplaceSalesIntelligenceProjection(configuration)
+        val reconciliationCases = ReconciliationCasesApi(
+            PostgresDurableReconciliationCaseRepository(configuration),
+            reconciliationCursorCodec
+        )
         val pipeline = MarketplaceLivePipelineService(
             ConnectorRuntimeMarketplaceLivePipelineSourceRunner(connectorRuntime),
             MarketplaceOrderSourcePromotionLivePipelineAdapter(
@@ -159,7 +165,8 @@ fun main() {
                 serviceOrganizationId,
                 recorder::record,
                 recorder::findById,
-                salesIntelligenceApi
+                salesIntelligenceApi,
+                reconciliationCases
             )
         }.start(wait = true)
     }
@@ -190,7 +197,8 @@ internal fun Application.configureApi(
     serviceOrganizationId: OrganizationId,
     record: (OrganizationId, InventoryRiskInput) -> RecordedInventoryRiskAssessment,
     findById: (OrganizationId, String) -> RecordedInventoryRiskAssessment? = { _, _ -> null },
-    salesIntelligenceApi: SalesIntelligenceApi? = null
+    salesIntelligenceApi: SalesIntelligenceApi? = null,
+    reconciliationCasesApi: ReconciliationCasesApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -324,6 +332,10 @@ internal fun Application.configureApi(
                 "SALES_INTELLIGENCE_READ_FAILURE"
             )
         }
+        exception<InvalidReconciliationCaseCursorException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-reconciliation-case-cursor", "Invalid reconciliation case cursor", "The reconciliation case cursor or page limit is invalid", "INVALID_RECONCILIATION_CASE_CURSOR") }
+        exception<InvalidReconciliationCaseIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-reconciliation-case-id", "Invalid reconciliation case identifier", "The reconciliation case identifier is invalid", "INVALID_RECONCILIATION_CASE_ID") }
+        exception<ReconciliationCaseNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/reconciliation-case-not-found", "Reconciliation case not found", "The requested reconciliation case was not found", "RECONCILIATION_CASE_NOT_FOUND") }
+        exception<ReconciliationCaseReadFailureException> { call, _ -> call.respondProblem(HttpStatusCode.ServiceUnavailable, "https://flooow.io/problems/reconciliation-case-read-failure", "Reconciliation case read failure", "Reconciliation cases are temporarily unavailable", "RECONCILIATION_CASE_READ_FAILURE") }
         exception<LiveRefreshBlockedException> { call, _ ->
             call.respondProblem(
                 HttpStatusCode.Conflict,
@@ -467,6 +479,16 @@ internal fun Application.configureApi(
                     val organizationId = requireNotNull(call.principal<ServicePrincipal>())
                         .organizationId
                     call.respondJson(salesIntelligenceApi.refresh(organizationId))
+                }
+            }
+            if (reconciliationCasesApi != null) {
+                get(RECONCILIATION_CASES_PATH) {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.respondJson(reconciliationCasesApi.list(principal.organizationId, call.request.queryParameters["cursor"], call.request.queryParameters["limit"]))
+                }
+                get("$RECONCILIATION_CASES_PATH/{caseId}") {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.respondJson(reconciliationCasesApi.detail(principal.organizationId, call.parameters["caseId"].orEmpty()))
                 }
             }
         }

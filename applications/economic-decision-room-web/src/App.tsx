@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ApiError, demoModeEnabled, getOrder, listOrders, refreshOrders, type EconomicState, type RefreshResult, type SalesOrder } from './api'
+import { ApiError, demoModeEnabled, getOrder, listOrders, listReconciliationCases, refreshOrders, type EconomicState, type RefreshResult, type ReconciliationCase, type SalesOrder } from './api'
 import { demoOrders, demoPage, demoRefresh } from './demo'
 import './styles.css'
 
@@ -26,6 +26,8 @@ function App() {
   const [refreshResult, setRefreshResult] = useState<RefreshResult | undefined>()
   const [lastRefresh, setLastRefresh] = useState<Date | undefined>()
   const [page, setPage] = useState(0)
+  const [cases, setCases] = useState<ReconciliationCase[]>([])
+  const [caseCursor, setCaseCursor] = useState<string | undefined>()
 
   const load = useCallback(async (cursor?: string, background = false) => {
     if (!background) setLoading(true)
@@ -40,6 +42,10 @@ function App() {
   }, [demo])
 
   useEffect(() => { if (!demo) void load() }, [demo, load])
+  useEffect(() => {
+    if (demo) return
+    void listReconciliationCases().then((response) => { setCases(response.cases ?? []); setCaseCursor(response.nextCursor) }).catch(() => setCases([]))
+  }, [demo])
 
   const select = async (order: SalesOrder) => {
     setSelectedId(order.marketplaceOrderId)
@@ -67,7 +73,7 @@ function App() {
       <div className="brand"><div className="brand-mark">F</div><div><strong>flooow</strong><span>trusted decision layer</span></div></div>
       <div className="workspace-label">WORKSPACE</div><div className="workspace"><span className="workspace-dot" /> Operações · Brasil <span className="chevron">⌄</span></div>
       <nav aria-label="Navegação principal">
-        <NavItem active icon="◈" label="Visão Geral" /><NavItem icon="⌁" label="Pedidos" /><NavItem icon="✦" label="Decisões" /><NavItem icon="⊙" label="Evidências" /><NavItem icon="↻" label="Atualização" /><NavItem icon="⚙" label="Configurações" />
+        <NavItem active icon="◈" label="Visão Geral" /><NavItem icon="⌁" label="Pedidos" /><NavItem icon="✦" label="Decisões" /><NavItem icon="⊙" label="Evidências" /><NavItem icon="⇄" label="Reconciliação" /><NavItem icon="↻" label="Atualização" /><NavItem icon="⚙" label="Configurações" />
       </nav>
       <div className="sidebar-bottom"><div className="security-note"><span className="lock">⌁</span><div><b>Ambiente governado</b><small>Dados com escopo organizacional</small></div></div><div className="user"><div className="avatar">TS</div><div><b>Operador Flooow</b><small>sessão autenticada</small></div><span className="more">···</span></div></div>
     </aside>
@@ -77,6 +83,7 @@ function App() {
       {demo && <div className="demo-banner"><span>◈</span><b>Modo demonstração</b><span>Dados determinísticos locais. Nenhuma chamada ao backend é feita nesta sessão.</span></div>}
       {error && <div className="alert" role="alert"><span>!</span><div><b>Não foi possível concluir</b><span>{error}</span></div><button onClick={() => void load()} aria-label="Tentar novamente">Tentar novamente</button></div>}
       {refreshResult && <div className="refresh-result" role="status"><span className="success-icon">✓</span><div><b>Realidade atualizada com governança</b><span>{refreshResult.projection.processedChanges} mudanças processadas · fonte {refreshResult.source.status.toLowerCase()}</span></div><button onClick={() => setRefreshResult(undefined)} aria-label="Fechar resultado">×</button></div>}
+      <section className="reconciliation-panel panel"><div className="panel-heading"><div><div className="card-eyebrow">EVIDENCE → RECONCILIAÇÃO → CASE</div><h2>Reconciliação</h2></div><span className="result-count">{cases.length} casos visíveis</span></div><div className="reconciliation-summary"><span className="state-badge red"><i>○</i>Divergência detectada</span><b>{cases.length}</b><span>memória operacional durável</span><span className="future-capability">Recuperação futura · sem autoridade nesta versão</span></div>{cases.length ? <div className="case-list">{cases.map((item) => <div className="case-row" key={item.caseId}><div><b>{item.caseId}</b><small>Pedido {item.marketplaceOrderId}</small></div><span className={`state-badge ${item.status === 'RESOLVED' ? 'green' : 'red'}`}><i>{item.status === 'RESOLVED' ? '●' : '○'}</i>{item.status === 'RESOLVED' ? 'Resolvido' : 'Divergência detectada'}</span><strong>{item.absoluteDifferenceSummary.currency} {item.absoluteDifferenceSummary.amount}</strong></div>)}</div> : <div className="empty-state compact"><b>Nenhuma divergência persistida</b><small>Dentro da tolerância não cria caso. A evidência permanece inalterada.</small></div>}{caseCursor && <button className="secondary-button" onClick={() => void listReconciliationCases(caseCursor).then((response) => { setCases((current) => [...current, ...response.cases]); setCaseCursor(response.nextCursor) })}>Próxima página</button>}</section>
       <section className="status-grid"><StatusCard label="Não resolvido" value={counts.UNRESOLVED} tone="red" detail="identidade ou evidência pendente" /><StatusCard label="Calculado · Incompleto" value={counts.CALCULATED_INCOMPLETE} tone="amber" detail="componentes econômicos ausentes" /><StatusCard label="Calculado · Completo" value={counts.CALCULATED_COMPLETE} tone="green" detail="pronto para análise econômica" /><div className="coverage-card"><div className="card-eyebrow">COBERTURA DA PROJEÇÃO <span>ⓘ</span></div><div className="coverage-value">{orders.length ? Math.round((counts.CALCULATED_COMPLETE / orders.length) * 100) : 0}<small>%</small></div><div className="coverage-bar"><i style={{ width: `${orders.length ? (counts.CALCULATED_COMPLETE / orders.length) * 100 : 0}%` }} /></div><div className="coverage-foot"><span>completa</span><span>{orders.length} pedidos visíveis</span></div></div></section>
       <div className="content-grid"><section className="orders-panel panel"><div className="panel-heading"><div><div className="card-eyebrow">LEITURA DERIVADA <span className="blue-dot" /></div><h2>Pedidos econômicos</h2></div><span className="result-count">{orders.length} nesta página</span></div>{loading ? <LoadingRows /> : orders.length === 0 ? <EmptyState /> : <><div className="table-wrap"><table><thead><tr><th>Pedido</th><th>Estado econômico</th><th>Receita bruta</th><th>Contribuição</th><th>Projetado em</th><th><span className="sr-only">Abrir</span></th></tr></thead><tbody>{orders.map((order) => <OrderRow key={order.marketplaceOrderId} order={order} selected={selectedId === order.marketplaceOrderId} onSelect={() => void select(order)} />)}</tbody></table></div><div className="pagination"><button disabled={page === 0} onClick={() => { setPage(0); void load() }}>← Anterior</button><span>Página {page + 1}</span><button disabled={!nextCursor} onClick={() => { setPage((current) => current + 1); void load(nextCursor) }}>Próxima →</button></div></>}</section><DetailPanel order={selected} loading={detailLoading} /></div>
       <section className="trust-strip"><div className="trust-title"><span className="trust-icon">◒</span><div><b>Como este número é governado?</b><small>Uma linha clara entre fato, interpretação e decisão.</small></div></div><TrustStep tone="blue" title="Economic Truth" text="autoridade canônica" /><span className="trust-arrow">→</span><TrustStep tone="purple" title="Sales Intelligence" text="leitura derivada" /><span className="trust-arrow">→</span><TrustStep tone="green" title="Decision Surface" text="você decide" /></section>

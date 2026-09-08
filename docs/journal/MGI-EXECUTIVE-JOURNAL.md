@@ -1174,3 +1174,13 @@ deterministic demo mode is explicit and visibly labelled.
 
 Next critical path: production-grade browser authentication exchange and the
 first governed decision/outcome workflow; neither is claimed by TASK-0157.
+
+## 2026-09-08 — TASK-0158 durable economic reconciliation cases
+
+Reconciliation divergence now has a durable, organization-scoped case boundary
+that preserves trace/policy identity, deterministic stage differences, evidence
+entry references, revision and explicit operational status. PostgreSQL V019,
+authenticated opaque-cursor reads and the Decision Room read surface were added.
+No live orchestration, recovery authority, provider mutation or Economic Truth
+change was introduced. Repeated observations use the same case identity and
+revision-guarded persistence; missing remains distinct from observed zero.
