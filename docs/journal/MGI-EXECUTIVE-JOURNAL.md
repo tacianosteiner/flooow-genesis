@@ -1193,3 +1193,10 @@ case processor/repository. Only `DIVERGENCE` can create or revise a case;
 replays are idempotent and organization-scoped. Economic Truth, ledger and
 evidence remain canonical and immutable. This does not authorize recovery,
 refund, claim, settlement, marketplace/payment mutation or autonomous action.
+
+## 2026-09-08 — TASK-0160 systemic divergence detection
+
+TASK-0160 adds deterministic, policy-versioned systemic analysis over durable
+reconciliation cases only. Signals are derived, explainable, organization-safe,
+window-bounded and read-only. No recoverable amount, recovery authority,
+provider call, financial mutation or autonomous action is introduced.

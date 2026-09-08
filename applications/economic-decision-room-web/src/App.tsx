@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ApiError, demoModeEnabled, getOrder, listOrders, listReconciliationCases, refreshOrders, type EconomicState, type RefreshResult, type ReconciliationCase, type SalesOrder } from './api'
+import { ApiError, demoModeEnabled, getOrder, listOrders, listReconciliationCases, listSystemicDivergences, refreshOrders, type EconomicState, type RefreshResult, type ReconciliationCase, type SalesOrder, type SystemicDivergenceSignal } from './api'
 import { demoOrders, demoPage, demoRefresh } from './demo'
 import './styles.css'
 
@@ -28,6 +28,7 @@ function App() {
   const [page, setPage] = useState(0)
   const [cases, setCases] = useState<ReconciliationCase[]>([])
   const [caseCursor, setCaseCursor] = useState<string | undefined>()
+  const [signals, setSignals] = useState<SystemicDivergenceSignal[]>([])
 
   const load = useCallback(async (cursor?: string, background = false) => {
     if (!background) setLoading(true)
@@ -45,6 +46,7 @@ function App() {
   useEffect(() => {
     if (demo) return
     void listReconciliationCases().then((response) => { setCases(response.cases ?? []); setCaseCursor(response.nextCursor) }).catch(() => setCases([]))
+    void listSystemicDivergences().then((response) => setSignals(response.signals ?? [])).catch(() => setSignals([]))
   }, [demo])
 
   const select = async (order: SalesOrder) => {
@@ -68,7 +70,7 @@ function App() {
   const counts = useMemo(() => orders.reduce((acc, order) => { acc[order.state] += 1; return acc }, { UNRESOLVED: 0, CALCULATED_INCOMPLETE: 0, CALCULATED_COMPLETE: 0 } as Record<EconomicState, number>), [orders])
   const backendLabel = demo ? 'Modo demonstração' : error ? 'Backend indisponível' : loading ? 'Conectando ao backend' : 'Backend conectado'
 
-  return <div className="app-shell">
+  return <><SystemicPanel signals={signals} /><div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark">F</div><div><strong>flooow</strong><span>trusted decision layer</span></div></div>
       <div className="workspace-label">WORKSPACE</div><div className="workspace"><span className="workspace-dot" /> Operações · Brasil <span className="chevron">⌄</span></div>
@@ -89,7 +91,11 @@ function App() {
       <section className="trust-strip"><div className="trust-title"><span className="trust-icon">◒</span><div><b>Como este número é governado?</b><small>Uma linha clara entre fato, interpretação e decisão.</small></div></div><TrustStep tone="blue" title="Economic Truth" text="autoridade canônica" /><span className="trust-arrow">→</span><TrustStep tone="purple" title="Sales Intelligence" text="leitura derivada" /><span className="trust-arrow">→</span><TrustStep tone="green" title="Decision Surface" text="você decide" /></section>
       <footer><span>FLOOOW / SALA DE DECISÃO ECONÔMICA</span><span>Projection policy v1 · <b>Sem autoridade de execução</b></span></footer>
     </main>
-  </div>
+  </div></>
+}
+
+function SystemicPanel({ signals }: { signals: SystemicDivergenceSignal[] }) {
+  return <section className="reconciliation-panel panel systemic-panel"><div className="panel-heading"><div><div className="card-eyebrow">SYSTEMIC ANALYSIS</div><h2>Padrão sistêmico detectado</h2></div><span className="result-count">{signals.length} sinais</span></div>{signals.length ? signals.map((signal) => <div className="case-row" key={signal.signalId}><div><b>{signal.stage}</b><small>{signal.occurrenceCount} casos · policy {signal.policyVersion}</small></div><strong>{signal.absoluteDifference.currency} {signal.absoluteDifference.amount}</strong><span className="future-capability">Detecção não representa valor recuperável nem autoriza recuperação</span></div>) : <div className="empty-state compact"><b>Nenhum padrão sistêmico detectado</b><small>Policy, janela e limiar são explícitos e determinísticos.</small></div>}</section>
 }
 
 function NavItem({ icon, label, active = false }: { icon: string; label: string; active?: boolean }) { return <button className={`nav-item ${active ? 'active' : ''}`}><span>{icon}</span>{label}{active && <i />}</button> }

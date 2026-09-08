@@ -45,6 +45,8 @@ export interface ExactMoney { currency: string; amount: string }
 export interface ReconciliationStage { stage: string; expected?: ExactMoney; actual?: ExactMoney; signedDifference?: ExactMoney; absoluteDifference?: ExactMoney; tolerance: ExactMoney; expectedEntryIds: string[]; actualEntryIds: string[] }
 export interface ReconciliationCase { caseId: string; marketplaceOrderId: string; financialTraceId: string; policyVersion: string; currency: string; status: ReconciliationCaseStatus; openedAt: string; lastObservedAt: string; resolvedAt?: string; revision: number; absoluteDifferenceSummary: ExactMoney; evidenceEntryIds: string[]; stages: ReconciliationStage[] }
 export interface ReconciliationCasePage { cases: ReconciliationCase[]; nextCursor?: string }
+export interface SystemicDivergenceSignal { signalId: string; stage: string; currency: string; policyVersion: string; window: string; firstSeenAt: string; lastSeenAt: string; occurrenceCount: number; absoluteDifference: ExactMoney; status: 'ACTIVE'; revision: number; caseIds: string[] }
+export interface SystemicDivergenceSignalPage { signals: SystemicDivergenceSignal[]; nextCursor?: string }
 
 export interface PromotionSummary {
   batches: number
@@ -117,3 +119,4 @@ export const getOrder = (id: string, signal?: AbortSignal) => request<SalesOrder
 export const refreshOrders = (signal?: AbortSignal) => request<RefreshResult>('/v1/sales-intelligence/refresh', { method: 'POST' }, signal)
 export const listReconciliationCases = (cursor?: string, signal?: AbortSignal) => request<ReconciliationCasePage>(`/v1/reconciliation/cases?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, {}, signal)
 export const getReconciliationCase = (id: string, signal?: AbortSignal) => request<ReconciliationCase>(`/v1/reconciliation/cases/${encodeURIComponent(id)}`, {}, signal)
+export const listSystemicDivergences = (cursor?: string, signal?: AbortSignal) => request<SystemicDivergenceSignalPage>(`/v1/reconciliation/systemic-divergences?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, {}, signal)
