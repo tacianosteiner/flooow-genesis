@@ -5,7 +5,7 @@
 - ADR-0060 and SPEC-0060 authorize the incremental case boundary.
 - `DurableReconciliationCaseProcessor` creates cases only for deterministic
   `DIVERGENCE` assessments and derives a stable organization/trace/policy ID.
-- PostgreSQL migration V019 stores cases, stage details and evidence references
+- PostgreSQL migration V024 stores cases, stage details and evidence references
   with organization-scoped uniqueness, indexes and revision-guarded upsert.
 - Authenticated API reads derive organization scope from the service principal;
   request payloads contain no organization or connection identifier.

@@ -1179,7 +1179,7 @@ first governed decision/outcome workflow; neither is claimed by TASK-0157.
 
 Reconciliation divergence now has a durable, organization-scoped case boundary
 that preserves trace/policy identity, deterministic stage differences, evidence
-entry references, revision and explicit operational status. PostgreSQL V019,
+entry references, revision and explicit operational status. PostgreSQL V024,
 authenticated opaque-cursor reads and the Decision Room read surface were added.
 No live orchestration, recovery authority, provider mutation or Economic Truth
 change was introduced. Repeated observations use the same case identity and

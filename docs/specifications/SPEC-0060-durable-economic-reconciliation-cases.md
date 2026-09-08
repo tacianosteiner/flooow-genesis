@@ -8,7 +8,7 @@ Source decision: ADR-0060
 
 1. Add immutable case contracts and a deterministic processor under the
    existing Marketplace reconciliation package.
-2. Persist cases in PostgreSQL with additive migration V019, organization
+2. Persist cases in PostgreSQL with additive migration V024, organization
    isolation, unique `(organization, trace, policy)` identity, revision guard,
    operator indexes and restart-safe reconstruction.
 3. Expose authenticated organization-scoped list/detail reads at
