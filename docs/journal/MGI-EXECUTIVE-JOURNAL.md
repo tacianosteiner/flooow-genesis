@@ -1151,3 +1151,26 @@ derived read model. Refresh cannot select organization, connection, or credentia
 from the request and returns only sanitized stage status/counts.
 
 Next critical path: TASK-0157 MVP UI.
+
+## 2026-09-08 — TASK-0157 Economic Decision Room MVP implemented
+
+The first visible Flooow product surface is now a replaceable Vite/React
+application: the Economic Decision Room. It makes the governed chain visible:
+
+```text
+Economic Truth -> Sales Intelligence -> Decision Surface
+```
+
+The surface consumes only the accepted TASK-0156B list, detail and controlled
+refresh endpoints. It preserves unresolved/incomplete/complete semantics,
+missing-versus-zero, opaque pagination and server-owned organization and
+connection scope. No canonical economic logic, provider credential, authority
+grant or autonomous marketplace mutation was introduced.
+
+The local stack now includes a credential-free static web container. CI adds
+frontend install, lint, strict typecheck, tests and production build gates.
+The runtime bearer is deployment-owned configuration outside the bundle; the
+deterministic demo mode is explicit and visibly labelled.
+
+Next critical path: production-grade browser authentication exchange and the
+first governed decision/outcome workflow; neither is claimed by TASK-0157.

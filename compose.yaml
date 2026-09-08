@@ -67,5 +67,18 @@ services:
       - "${FLOOOW_PORT:-8080}:8080"
     restart: unless-stopped
 
+  economic-decision-room-web:
+    build:
+      context: ./applications/economic-decision-room-web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${FLOOOW_WEB_API_BASE_URL:-http://127.0.0.1:8080}
+        VITE_DEMO_MODE: ${FLOOOW_WEB_DEMO_MODE:-false}
+    ports:
+      - "127.0.0.1:${FLOOOW_WEB_PORT:-4173}:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+
 volumes:
   flooow-postgres-data:
