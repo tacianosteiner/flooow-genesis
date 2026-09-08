@@ -1200,3 +1200,13 @@ TASK-0160 adds deterministic, policy-versioned systemic analysis over durable
 reconciliation cases only. Signals are derived, explainable, organization-safe,
 window-bounded and read-only. No recoverable amount, recovery authority,
 provider call, financial mutation or autonomous action is introduced.
+
+## 2026-09-08 — TASK-0161 governed recovery boundary
+
+TASK-0161 defines the institutional recovery boundary without implementation:
+observed divergence, potential, validated, authorized, executed and actual
+recovered amounts remain distinct and missing is never zero. Evidence/case
+references are mandatory, authority precedes any future external effect, and
+completion requires provider response, financial evidence, actual outcome and
+reconciliation. No provider, claim, refund, dispute, settlement/payment/
+marketplace mutation or autonomous recovery is authorized.
