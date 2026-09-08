@@ -7,6 +7,7 @@ import io.flooow.integration.control.IntegrationControlPlaneService
 import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
+import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderRevenuePromotionService
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderSourcePromotionService
 import io.flooow.marketplace.operations.economics.sales.MarketplaceSalesIntelligenceProjectionProcessor
@@ -127,10 +128,12 @@ fun main() {
         val evidenceRepository =
             PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
         val projection = PostgresMarketplaceSalesIntelligenceProjection(configuration)
-        val reconciliationCases = ReconciliationCasesApi(
-            PostgresDurableReconciliationCaseRepository(configuration),
-            reconciliationCursorCodec
-        )
+        val reconciliationCaseRepository = PostgresDurableReconciliationCaseRepository(configuration)
+        // The orchestrator is composed at the durable boundary. Only an
+        // explicit accepted assessment may invoke it; no HTTP/provider path
+        // can manufacture an assessment or choose an organization.
+        val reconciliationCaseOrchestrator = GovernedReconciliationCaseOrchestrator(reconciliationCaseRepository)
+        val reconciliationCases = ReconciliationCasesApi(reconciliationCaseRepository, reconciliationCursorCodec)
         val pipeline = MarketplaceLivePipelineService(
             ConnectorRuntimeMarketplaceLivePipelineSourceRunner(connectorRuntime),
             MarketplaceOrderSourcePromotionLivePipelineAdapter(
