@@ -1228,6 +1228,12 @@ identity remain blocked. Observed, potential and validated amounts remain
 separate, missing is not zero, and the flow stops before authority or external
 execution.
 
+## 2026-09-09 — TASK-0165 identity health boundary
+
+Added deterministic cross-system health evaluation and read-only visibility. Real
+metrics remain unavailable until secure ML and Omie runtime configuration exists;
+the system does not substitute fixtures or zeros for missing source evidence.
+
 ## 2026-09-09 — TASK-0164 Omie transaction evidence
 
 Promoted the MGI-proven Omie `ListarPedidos` read-only contract into Genesis as

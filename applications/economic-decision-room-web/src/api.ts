@@ -47,6 +47,7 @@ export interface ReconciliationCase { caseId: string; marketplaceOrderId: string
 export interface ReconciliationCasePage { cases: ReconciliationCase[]; nextCursor?: string }
 export interface SystemicDivergenceSignal { signalId: string; stage: string; currency: string; policyVersion: string; window: string; firstSeenAt: string; lastSeenAt: string; occurrenceCount: number; absoluteDifference: ExactMoney; status: 'ACTIVE'; revision: number; caseIds: string[] }
 export interface SystemicDivergenceSignalPage { signals: SystemicDivergenceSignal[]; nextCursor?: string }
+export interface CommerceIdentityHealth { available?: boolean; mlTransactionsInspected?: number; omieTransactionsInspected?: number; exactConfirmed?: number; candidate?: number; ambiguous?: number; conflict?: number; unresolved?: number; coveragePercentage?: string; evaluationWindow?: string; policyVersion?: string; evaluatedAt?: string; topMatchReasons?: Record<string, number>; topGapReasons?: Record<string, number> }
 
 export interface PromotionSummary {
   batches: number
@@ -120,3 +121,4 @@ export const refreshOrders = (signal?: AbortSignal) => request<RefreshResult>('/
 export const listReconciliationCases = (cursor?: string, signal?: AbortSignal) => request<ReconciliationCasePage>(`/v1/reconciliation/cases?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, {}, signal)
 export const getReconciliationCase = (id: string, signal?: AbortSignal) => request<ReconciliationCase>(`/v1/reconciliation/cases/${encodeURIComponent(id)}`, {}, signal)
 export const listSystemicDivergences = (cursor?: string, signal?: AbortSignal) => request<SystemicDivergenceSignalPage>(`/v1/reconciliation/systemic-divergences?limit=50${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`, {}, signal)
+export const getCommerceIdentityHealth = (signal?: AbortSignal) => request<CommerceIdentityHealth>('/v1/commerce-identity/health', {}, signal)

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { ApiError, demoModeEnabled, getOrder, listOrders, listReconciliationCases, listSystemicDivergences, refreshOrders, type EconomicState, type RefreshResult, type ReconciliationCase, type SalesOrder, type SystemicDivergenceSignal } from './api'
+import { ApiError, demoModeEnabled, getCommerceIdentityHealth, getOrder, listOrders, listReconciliationCases, listSystemicDivergences, refreshOrders, type CommerceIdentityHealth, type EconomicState, type RefreshResult, type ReconciliationCase, type SalesOrder, type SystemicDivergenceSignal } from './api'
 import { demoOrders, demoPage, demoRefresh } from './demo'
 import './styles.css'
 
@@ -29,6 +29,7 @@ function App() {
   const [cases, setCases] = useState<ReconciliationCase[]>([])
   const [caseCursor, setCaseCursor] = useState<string | undefined>()
   const [signals, setSignals] = useState<SystemicDivergenceSignal[]>([])
+  const [identityHealth, setIdentityHealth] = useState<CommerceIdentityHealth | undefined>()
 
   const load = useCallback(async (cursor?: string, background = false) => {
     if (!background) setLoading(true)
@@ -47,6 +48,7 @@ function App() {
     if (demo) return
     void listReconciliationCases().then((response) => { setCases(response.cases ?? []); setCaseCursor(response.nextCursor) }).catch(() => setCases([]))
     void listSystemicDivergences().then((response) => setSignals(response.signals ?? [])).catch(() => setSignals([]))
+    void getCommerceIdentityHealth().then(setIdentityHealth).catch(() => setIdentityHealth({ available: false }))
   }, [demo])
 
   const select = async (order: SalesOrder) => {
@@ -70,7 +72,7 @@ function App() {
   const counts = useMemo(() => orders.reduce((acc, order) => { acc[order.state] += 1; return acc }, { UNRESOLVED: 0, CALCULATED_INCOMPLETE: 0, CALCULATED_COMPLETE: 0 } as Record<EconomicState, number>), [orders])
   const backendLabel = demo ? 'Modo demonstração' : error ? 'Backend indisponível' : loading ? 'Conectando ao backend' : 'Backend conectado'
 
-  return <><SystemicPanel signals={signals} /><div className="app-shell">
+  return <><SystemicPanel signals={signals} /><IdentityHealthPanel health={identityHealth} /><div className="app-shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark">F</div><div><strong>flooow</strong><span>trusted decision layer</span></div></div>
       <div className="workspace-label">WORKSPACE</div><div className="workspace"><span className="workspace-dot" /> Operações · Brasil <span className="chevron">⌄</span></div>
@@ -96,6 +98,10 @@ function App() {
 
 function SystemicPanel({ signals }: { signals: SystemicDivergenceSignal[] }) {
   return <section className="reconciliation-panel panel systemic-panel"><div className="panel-heading"><div><div className="card-eyebrow">SYSTEMIC ANALYSIS</div><h2>Padrão sistêmico detectado</h2></div><span className="result-count">{signals.length} sinais</span></div>{signals.length ? signals.map((signal) => <div className="case-row" key={signal.signalId}><div><b>{signal.stage}</b><small>{signal.occurrenceCount} casos · policy {signal.policyVersion}</small></div><strong>{signal.absoluteDifference.currency} {signal.absoluteDifference.amount}</strong><span className="future-capability">Detecção não representa valor recuperável nem autoriza recuperação</span></div>) : <div className="empty-state compact"><b>Nenhum padrão sistêmico detectado</b><small>Policy, janela e limiar são explícitos e determinísticos.</small></div>}</section>
+}
+function IdentityHealthPanel({ health }: { health?: CommerceIdentityHealth }) {
+  if (!health || health.available === false) return <section className="reconciliation-panel panel systemic-panel"><div className="panel-heading"><div><div className="card-eyebrow">COMMERCE IDENTITY HEALTH</div><h2>Avaliação real indisponível</h2></div></div><div className="empty-state compact"><b>Nenhuma avaliação real disponível</b><small>Configure as fontes seguras ML e Omie para avaliar identidade sem alterar Economic Truth.</small></div></section>
+  return <section className="reconciliation-panel panel systemic-panel"><div className="panel-heading"><div><div className="card-eyebrow">COMMERCE IDENTITY HEALTH</div><h2>Saúde da identidade cross-system</h2></div><span className="result-count">policy {health.policyVersion}</span></div><div className="reconciliation-summary"><b>{health.coveragePercentage ?? '—'}%</b><span>cobertura EXACT_CONFIRMED</span><span className="future-capability">Identity confirmation links records across systems. It does not alter Economic Truth or authorize financial action.</span></div><div className="case-list"><div className="case-row"><b>ML {health.mlTransactionsInspected ?? '—'}</b><b>Omie {health.omieTransactionsInspected ?? '—'}</b><span>Exact {health.exactConfirmed ?? '—'}</span><span>Candidate {health.candidate ?? '—'}</span><span>Ambiguous {health.ambiguous ?? '—'}</span><span>Conflict {health.conflict ?? '—'}</span><span>Unresolved {health.unresolved ?? '—'}</span></div></div></section>
 }
 
 function NavItem({ icon, label, active = false }: { icon: string; label: string; active?: boolean }) { return <button className={`nav-item ${active ? 'active' : ''}`}><span>{icon}</span>{label}{active && <i />}</button> }
