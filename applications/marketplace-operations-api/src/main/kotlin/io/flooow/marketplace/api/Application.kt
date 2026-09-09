@@ -137,6 +137,7 @@ fun main() {
         val oauthBootstrap = oauthConfiguration?.let {
             MercadoLivreOAuthBootstrap(controlPlane, serviceOrganizationId, it)
         }
+        val omieBootstrap = OmieStaticCredentialBootstrap(controlPlane, serviceOrganizationId)
         val connectorRuntime = ConnectorRuntime(
             IntegrationControlPlaneConnectorAccess(controlPlane),
             listOf(MercadoLivreOrderSourceConnector(), OmieTransactionEvidenceConnector()),
@@ -208,7 +209,8 @@ fun main() {
                 reconciliationCases,
                 systemicDivergences,
                 CommerceIdentityHealthApi { null },
-                oauthBootstrap
+                oauthBootstrap,
+                omieBootstrap
             )
         }.start(wait = true)
     }
@@ -243,7 +245,8 @@ internal fun Application.configureApi(
     reconciliationCasesApi: ReconciliationCasesApi? = null,
     systemicDivergencesApi: SystemicDivergencesApi? = null,
     commerceIdentityHealthApi: CommerceIdentityHealthApi? = null,
-    mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null
+    mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null,
+    omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -487,6 +490,25 @@ internal fun Application.configureApi(
                     call.respondJson(buildJsonObject {
                         put("authorizationUrl", mercadoLivreOAuthBootstrap.start().authorizationUrl)
                     })
+                }
+            }
+            if (omieStaticCredentialBootstrap != null) {
+                post("/v1/integrations/omie/bootstrap") {
+                    if (!call.request.contentType().withoutParameters()
+                            .match(ContentType.Application.Json)
+                    ) {
+                        throw UnsupportedMediaTypeException()
+                    }
+                    val request = decodeOmieBootstrapRequest(call.receiveText())
+                    val result = omieStaticCredentialBootstrap.bootstrap(
+                        request.appKey,
+                        request.appSecret
+                    )
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(buildJsonObject {
+                        put("status", "READY")
+                        put("connectionId", result.connectionId.value.toString())
+                    }, HttpStatusCode.Created)
                 }
             }
             get("/openapi.json") {
@@ -745,6 +767,31 @@ private fun JsonObject.requiredDate(name: String): LocalDate {
     } catch (_: DateTimeParseException) {
         throw MalformedRequestException("Property '$name' must be an ISO-8601 date")
     }
+}
+
+private data class OmieBootstrapRequest(val appKey: String, val appSecret: String)
+
+private fun decodeOmieBootstrapRequest(body: String): OmieBootstrapRequest {
+    val objectNode = try {
+        json.parseToJsonElement(body).jsonObject
+    } catch (_: Exception) {
+        throw MalformedRequestException("Request body must be a valid JSON object")
+    }
+    val required = setOf("appKey", "appSecret")
+    val unknown = objectNode.keys - required
+    if (unknown.isNotEmpty()) {
+        throw MalformedRequestException("Unknown request property: ${unknown.sorted().first()}")
+    }
+    val missing = required - objectNode.keys
+    if (missing.isNotEmpty()) {
+        throw MalformedRequestException("Missing required property: ${missing.sorted().first()}")
+    }
+    val appKey = objectNode.requiredString("appKey")
+    val appSecret = objectNode.requiredString("appSecret")
+    if (appKey.isBlank() || appSecret.isBlank()) {
+        throw MalformedRequestException("Credential properties must not be blank")
+    }
+    return OmieBootstrapRequest(appKey, appSecret)
 }
 
 private fun recordedAssessmentJson(assessment: RecordedInventoryRiskAssessment): JsonObject {
