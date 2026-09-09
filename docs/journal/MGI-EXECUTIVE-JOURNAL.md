@@ -1210,3 +1210,12 @@ references are mandatory, authority precedes any future external effect, and
 completion requires provider response, financial evidence, actual outcome and
 reconciliation. No provider, claim, refund, dispute, settlement/payment/
 marketplace mutation or autonomous recovery is authorized.
+## 2026-09-08 — TASK-0162 MGI → Genesis Commerce Identity Bridge
+
+Archaeology recovered MGI v0.7.6's exact-reference and evidence-weighted
+identity behavior. Genesis adopts exact external references, adapts candidates
+to typed organization-scoped evidence and rejects MGI's local persistence,
+endpoint architecture, secrets and automatic mapping behavior. Transaction
+identity remains distinct from product identity; ambiguity and conflict remain
+explicit. No provider write, Economic Truth mutation or recovery authority is
+introduced.
