@@ -391,3 +391,9 @@ the next critical path for live ML↔Omie identity health and cross-system evalu
 
 TASK-0165 implementation is ready for secure real-data evaluation; TASK-0166 is
 the next path and may use only explicitly confirmed identity relations.
+
+TASK-0165B closes the initial Mercado Livre onboarding seam with governed,
+server-side Authorization Code plus optional PKCE bootstrap. The existing
+secure vault and refresh lifecycle remain authoritative; real-data evaluation
+still requires operator authorization and configured provider application
+settings.

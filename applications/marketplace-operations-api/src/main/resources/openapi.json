@@ -5,6 +5,34 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/v1/integrations/mercadolivre/oauth/start": {
+      "get": {
+        "operationId": "startMercadoLivreOAuth",
+        "security": [{ "serviceBearer": [] }],
+        "responses": {
+          "200": {
+            "description": "Server-side authorization URL",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OAuthStartResponse" } } }
+          },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/integrations/mercadolivre/oauth/callback": {
+      "get": {
+        "operationId": "completeMercadoLivreOAuth",
+        "parameters": [
+          { "name": "code", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "state", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Connection activated" },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/marketplace-operations/inventory-risk-assessments": {
       "post": {
         "operationId": "assessInventoryRisk",
@@ -258,6 +286,12 @@
       }
     },
     "responses": {
+      "OAuthStartResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["authorizationUrl"],
+        "properties": { "authorizationUrl": { "type": "string", "format": "uri" } }
+      },
       "Problem": {
         "description": "Problem detail",
         "content": {

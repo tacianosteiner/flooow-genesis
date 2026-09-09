@@ -1239,3 +1239,13 @@ the system does not substitute fixtures or zeros for missing source evidence.
 Promoted the MGI-proven Omie `ListarPedidos` read-only contract into Genesis as
 typed, replay-safe source evidence. No provider write, identity auto-confirmation,
 Economic Truth mutation, or recovery authority is introduced.
+
+## 2026-09-09 - TASK-0165B governed Mercado Livre OAuth bootstrap
+
+TASK-0165B promotes the MGI-proven server-side authorization-code shape into
+Genesis. An authenticated start route creates organization-bound,
+redirect-bound, short-lived and single-use state; a static callback exchanges
+the code server-side, validates the Mercado Livre identity, and binds the
+existing credential envelope through the secure vault. The refresh lifecycle
+continues unchanged. No token import, provider business mutation, Economic
+Truth mutation, identity confirmation or recovery authority is introduced.
