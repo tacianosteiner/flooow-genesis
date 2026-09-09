@@ -27,8 +27,8 @@ class OmieStaticCredentialBootstrapTest {
         val repository = MemoryRepository(organization)
         val vault = MemoryVault()
         val service = IntegrationControlPlaneService(repository, vault)
-        val result = OmieStaticCredentialBootstrap(service, organization)
-            .bootstrap("app-key", "app-secret")
+        val result = OmieStaticCredentialBootstrap(service)
+            .bootstrap(organization, "app-key", "app-secret")
 
         assertEquals("omie", repository.connections.single().providerKey.value)
         assertEquals(CredentialKind.STATIC_API_CREDENTIAL, repository.connections.single().credentialKind)
@@ -47,7 +47,7 @@ class OmieStaticCredentialBootstrapTest {
         val service = IntegrationControlPlaneService(repository, MemoryVault())
 
         assertFailsWith<IllegalStateException> {
-            OmieStaticCredentialBootstrap(service, organization).bootstrap("app-key", "app-secret")
+            OmieStaticCredentialBootstrap(service).bootstrap(organization, "app-key", "app-secret")
         }
         assertEquals(IntegrationConnectionStatus.DRAFT, repository.connections.single().status)
     }
@@ -59,7 +59,7 @@ class OmieStaticCredentialBootstrapTest {
         val otherOrganization = OrganizationId.parse("22222222-2222-4222-8222-222222222222")
 
         assertFailsWith<IllegalArgumentException> {
-            OmieStaticCredentialBootstrap(service, otherOrganization).bootstrap("app-key", "app-secret")
+            OmieStaticCredentialBootstrap(service).bootstrap(otherOrganization, "app-key", "app-secret")
         }
         assertTrue(repository.connections.isEmpty())
     }
@@ -111,6 +111,31 @@ class OmieStaticCredentialBootstrapTest {
         assertFalse(body.contains("secretRef"))
     }
 
+    @Test
+    fun `HTTP bootstrap uses the authenticated principal organization`() = testApplication {
+        val principalOrganization = OrganizationId.parse("33333333-3333-4333-8333-333333333333")
+        val repository = MemoryRepository(principalOrganization)
+        application {
+            configureApi(
+                serviceToken = ServiceToken.test(TEST_SERVICE_TOKEN),
+                serviceOrganizationId = principalOrganization,
+                record = { _, _ -> error("not used") },
+                omieStaticCredentialBootstrap = OmieStaticCredentialBootstrap(
+                    IntegrationControlPlaneService(repository, MemoryVault())
+                )
+            )
+        }
+
+        val response = client.post("/v1/integrations/omie/bootstrap") {
+            bearerAuth(TEST_SERVICE_TOKEN)
+            contentType(ContentType.Application.Json)
+            setBody("{\"appKey\":\"app-key\",\"appSecret\":\"app-secret\"}")
+        }
+
+        assertEquals(HttpStatusCode.Created, response.status)
+        assertEquals(principalOrganization, repository.connections.single().organizationId)
+    }
+
     private fun Application.configureForTest() {
         val repository = MemoryRepository(TEST_ORGANIZATION_ID)
         configureApi(
@@ -118,8 +143,7 @@ class OmieStaticCredentialBootstrapTest {
             serviceOrganizationId = TEST_ORGANIZATION_ID,
             record = { _, _ -> error("not used") },
             omieStaticCredentialBootstrap = OmieStaticCredentialBootstrap(
-                IntegrationControlPlaneService(repository, MemoryVault()),
-                TEST_ORGANIZATION_ID
+                IntegrationControlPlaneService(repository, MemoryVault())
             )
         )
     }

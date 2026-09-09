@@ -14,10 +14,13 @@ data class OmieStaticCredentialBootstrapResult(
 )
 
 class OmieStaticCredentialBootstrap(
-    private val controlPlane: IntegrationControlPlaneService,
-    private val organizationId: OrganizationId
+    private val controlPlane: IntegrationControlPlaneService
 ) {
-    fun bootstrap(appKey: String, appSecret: String): OmieStaticCredentialBootstrapResult {
+    fun bootstrap(
+        organizationId: OrganizationId,
+        appKey: String,
+        appSecret: String
+    ): OmieStaticCredentialBootstrapResult {
         require(appKey.isNotBlank() && appSecret.isNotBlank())
         val connection = controlPlane.createConnection(
             organizationId,

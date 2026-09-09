@@ -137,7 +137,7 @@ fun main() {
         val oauthBootstrap = oauthConfiguration?.let {
             MercadoLivreOAuthBootstrap(controlPlane, serviceOrganizationId, it)
         }
-        val omieBootstrap = OmieStaticCredentialBootstrap(controlPlane, serviceOrganizationId)
+        val omieBootstrap = OmieStaticCredentialBootstrap(controlPlane)
         val connectorRuntime = ConnectorRuntime(
             IntegrationControlPlaneConnectorAccess(controlPlane),
             listOf(MercadoLivreOrderSourceConnector(), OmieTransactionEvidenceConnector()),
@@ -500,7 +500,9 @@ internal fun Application.configureApi(
                         throw UnsupportedMediaTypeException()
                     }
                     val request = decodeOmieBootstrapRequest(call.receiveText())
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
                     val result = omieStaticCredentialBootstrap.bootstrap(
+                        principal.organizationId,
                         request.appKey,
                         request.appSecret
                     )
