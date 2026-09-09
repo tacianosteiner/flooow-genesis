@@ -22,7 +22,7 @@ class MercadoLivreOAuthBootstrapTest {
         val bootstrap = MercadoLivreOAuthBootstrap(
             service,
             organization,
-            MercadoLivreOAuthBootstrapConfiguration("client-123", "secret-never-returned", "http://localhost:8080/v1/integrations/mercadolivre/oauth/callback"),
+            MercadoLivreOAuthBootstrapConfiguration("client-123", "secret-never-returned", "http://localhost:8080/v1/integrations/mercadolivre/oauth/callback", pkceEnabled = true),
             clock = clock
         )
 
