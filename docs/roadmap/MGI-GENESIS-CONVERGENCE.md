@@ -27,6 +27,11 @@ observe
 This roadmap is derived from repository reality. It supersedes no accepted
 domain roadmap and creates no second sequence of marketplace epics.
 
+TASK-0163 is the governed recovery-boundary implementation checkpoint: it
+creates derived hypotheses and validation only, and stops before authority or
+execution. TASK-0164 is the next critical path for a read-only Omie
+transaction-evidence adapter.
+
 ## TASK-0162 promotion rule
 
 Before reinventing a solved domain problem, Genesis searches prior MGI

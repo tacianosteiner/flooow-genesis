@@ -1219,3 +1219,11 @@ endpoint architecture, secrets and automatic mapping behavior. Transaction
 identity remains distinct from product identity; ambiguity and conflict remain
 explicit. No provider write, Economic Truth mutation or recovery authority is
 introduced.
+## 2026-09-09 — TASK-0163 recovery hypothesis validation boundary
+
+Recovery hypotheses now have an explicit deterministic domain contract derived
+from systemic signals. Only TASK-0162 exact-confirmed commerce identity can
+pass recoverability validation; candidate, ambiguous, conflict and unresolved
+identity remain blocked. Observed, potential and validated amounts remain
+separate, missing is not zero, and the flow stops before authority or external
+execution.
