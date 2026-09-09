@@ -385,3 +385,6 @@ Economic Truth, reconciliation, and decision-readiness sequence.
 
 The note must be revisited before operational UI/design-system work and before
 Growth/Opportunity intelligence is authorized.
+
+TASK-0164 delivered governed Omie transaction evidence ingestion. TASK-0165 is
+the next critical path for live ML↔Omie identity health and cross-system evaluation.

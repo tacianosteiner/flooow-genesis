@@ -1227,3 +1227,9 @@ pass recoverability validation; candidate, ambiguous, conflict and unresolved
 identity remain blocked. Observed, potential and validated amounts remain
 separate, missing is not zero, and the flow stops before authority or external
 execution.
+
+## 2026-09-09 — TASK-0164 Omie transaction evidence
+
+Promoted the MGI-proven Omie `ListarPedidos` read-only contract into Genesis as
+typed, replay-safe source evidence. No provider write, identity auto-confirmation,
+Economic Truth mutation, or recovery authority is introduced.

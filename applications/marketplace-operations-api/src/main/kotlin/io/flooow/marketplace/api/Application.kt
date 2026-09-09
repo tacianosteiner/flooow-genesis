@@ -7,6 +7,7 @@ import io.flooow.integration.control.IntegrationControlPlaneService
 import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
+import io.flooow.marketplace.operations.economics.provider.omie.OmieTransactionEvidenceConnector
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
 import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergencePolicies
@@ -31,6 +32,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceSalesIntell
 import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationCaseRepository
 import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
+import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceCommitter
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
 import io.flooow.marketplace.operations.live.MarketplaceOrderRevenuePromotionLivePipelineAdapter
@@ -127,12 +129,13 @@ fun main() {
         )
         val connectorRuntime = ConnectorRuntime(
             IntegrationControlPlaneConnectorAccess(controlPlane),
-            listOf(MercadoLivreOrderSourceConnector()),
+            listOf(MercadoLivreOrderSourceConnector(), OmieTransactionEvidenceConnector()),
             listOf(
                 PostgresMercadoLivreOrderSourceCommitter(
                     configuration,
                     security.progressProtector
-                )
+                ),
+                PostgresOmieTransactionEvidenceCommitter(configuration, security.progressProtector)
             )
         )
         val promotionRepository =
