@@ -30,7 +30,7 @@ data class MercadoLivreOAuthBootstrapConfiguration(
     val clientId: String,
     val clientSecret: String,
     val redirectUri: String,
-    val pkceEnabled: Boolean = true
+    val pkceEnabled: Boolean = false
 ) {
     init {
         require(clientId.isNotBlank() && clientSecret.isNotBlank())
@@ -42,7 +42,7 @@ data class MercadoLivreOAuthBootstrapConfiguration(
                 requireNotNull(environment["FLOOOW_MERCADO_LIVRE_CLIENT_ID"]) { "FLOOOW_MERCADO_LIVRE_CLIENT_ID is required" },
                 requireNotNull(environment["FLOOOW_MERCADO_LIVRE_CLIENT_SECRET"]) { "FLOOOW_MERCADO_LIVRE_CLIENT_SECRET is required" },
                 requireNotNull(environment["FLOOOW_MERCADO_LIVRE_REDIRECT_URI"]) { "FLOOOW_MERCADO_LIVRE_REDIRECT_URI is required" },
-                environment["FLOOOW_MERCADO_LIVRE_PKCE_ENABLED"]?.toBooleanStrictOrNull() ?: true
+                environment["FLOOOW_MERCADO_LIVRE_PKCE_ENABLED"]?.toBooleanStrictOrNull() ?: false
             )
     }
 }

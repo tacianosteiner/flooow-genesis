@@ -7,7 +7,8 @@ Configuration is local secure runtime only:
 - `FLOOOW_MERCADO_LIVRE_CLIENT_ID`
 - `FLOOOW_MERCADO_LIVRE_CLIENT_SECRET`
 - `FLOOOW_MERCADO_LIVRE_REDIRECT_URI`
-- optional `FLOOOW_MERCADO_LIVRE_PKCE_ENABLED` (defaults to `true`)
+- optional `FLOOOW_MERCADO_LIVRE_PKCE_ENABLED` (defaults to `false`; enable only
+  when the registered Mercado Livre application supports PKCE)
 
 The redirect URI is static and must exactly match the Mercado Livre DevCenter
 registration. Authorization uses `https://auth.mercadolivre.com.br/authorization`
