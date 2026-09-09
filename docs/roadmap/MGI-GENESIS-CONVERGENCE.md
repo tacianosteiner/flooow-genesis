@@ -388,3 +388,6 @@ Growth/Opportunity intelligence is authorized.
 
 TASK-0164 delivered governed Omie transaction evidence ingestion. TASK-0165 is
 the next critical path for live ML↔Omie identity health and cross-system evaluation.
+
+TASK-0165 implementation is ready for secure real-data evaluation; TASK-0166 is
+the next path and may use only explicitly confirmed identity relations.

@@ -194,7 +194,8 @@ fun main() {
                 recorder::findById,
                 salesIntelligenceApi,
                 reconciliationCases,
-                systemicDivergences
+                systemicDivergences,
+                CommerceIdentityHealthApi { null }
             )
         }.start(wait = true)
     }
@@ -227,7 +228,8 @@ internal fun Application.configureApi(
     findById: (OrganizationId, String) -> RecordedInventoryRiskAssessment? = { _, _ -> null },
     salesIntelligenceApi: SalesIntelligenceApi? = null,
     reconciliationCasesApi: ReconciliationCasesApi? = null,
-    systemicDivergencesApi: SystemicDivergencesApi? = null
+    systemicDivergencesApi: SystemicDivergencesApi? = null,
+    commerceIdentityHealthApi: CommerceIdentityHealthApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -531,6 +533,16 @@ internal fun Application.configureApi(
                 get("$SYSTEMIC_DIVERGENCES_PATH/{signalId}") {
                     val principal = requireNotNull(call.principal<ServicePrincipal>())
                     call.respondJson(systemicDivergencesApi.detail(principal.organizationId, call.parameters["signalId"].orEmpty()))
+                }
+            }
+            if (commerceIdentityHealthApi != null) {
+                get("/v1/commerce-identity/health") {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.respondJson(commerceIdentityHealthApi.health(principal.organizationId))
+                }
+                get("/v1/commerce-identity/relations") {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.respondJson(commerceIdentityHealthApi.relations(principal.organizationId))
                 }
             }
         }
