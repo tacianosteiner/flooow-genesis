@@ -33,6 +33,30 @@
         }
       }
     },
+    "/v1/integrations/omie/bootstrap": {
+      "post": {
+        "operationId": "bootstrapOmieCredential",
+        "security": [{ "serviceBearer": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/OmieBootstrapRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Omie credential bound to an active connection",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OmieBootstrapResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "415": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/marketplace-operations/inventory-risk-assessments": {
       "post": {
         "operationId": "assessInventoryRisk",
@@ -286,12 +310,6 @@
       }
     },
     "responses": {
-      "OAuthStartResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["authorizationUrl"],
-        "properties": { "authorizationUrl": { "type": "string", "format": "uri" } }
-      },
       "Problem": {
         "description": "Problem detail",
         "content": {
@@ -302,6 +320,30 @@
       }
     },
     "schemas": {
+      "OAuthStartResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["authorizationUrl"],
+        "properties": { "authorizationUrl": { "type": "string", "format": "uri" } }
+      },
+      "OmieBootstrapRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["appKey", "appSecret"],
+        "properties": {
+          "appKey": { "type": "string", "minLength": 1 },
+          "appSecret": { "type": "string", "minLength": 1 }
+        }
+      },
+      "OmieBootstrapResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "connectionId"],
+        "properties": {
+          "status": { "type": "string", "const": "READY" },
+          "connectionId": { "type": "string", "format": "uuid" }
+        }
+      },
       "InventoryRiskRequest": {
         "type": "object",
         "additionalProperties": false,

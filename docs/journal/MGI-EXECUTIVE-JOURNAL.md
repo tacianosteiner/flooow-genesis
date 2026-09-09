@@ -1240,6 +1240,14 @@ Promoted the MGI-proven Omie `ListarPedidos` read-only contract into Genesis as
 typed, replay-safe source evidence. No provider write, identity auto-confirmation,
 Economic Truth mutation, or recovery authority is introduced.
 
+## 2026-09-09 - TASK-0165C governed Omie static-credential bootstrap
+
+TASK-0165C adds a single authenticated, organization-scoped Omie credential
+provisioning seam. It reuses the Integration Control Plane and encrypted vault,
+zeroizes the serialized envelope after binding, and returns only the activated
+connection identifier. No Omie read, identity matching, Economic Truth change,
+recovery authority or provider business mutation is introduced.
+
 ## 2026-09-09 - TASK-0165B governed Mercado Livre OAuth bootstrap
 
 TASK-0165B promotes the MGI-proven server-side authorization-code shape into
