@@ -105,7 +105,14 @@ fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
     val serviceToken = ServiceToken.fromEnvironment(environment)
     val serviceOrganizationId = serviceOrganizationFromEnvironment(environment)
-    val connectionId = mercadoLivreConnectionFromEnvironment(environment)
+    val oauthConfiguration = mercadoLivreOAuthBootstrapConfigurationOrNull(environment)
+    val connectionId = environment["FLOOOW_MERCADO_LIVRE_CONNECTION_ID"]?.let {
+        mercadoLivreConnectionFromEnvironment(environment)
+    } ?: if (oauthConfiguration == null) {
+        mercadoLivreConnectionFromEnvironment(environment)
+    } else {
+        null
+    }
     val configuration = PostgresConfiguration.fromEnvironment(environment)
     val journal = PostgresInventoryRiskAssessmentJournal.connect(configuration)
     val recorder = InventoryRiskAssessmentRecorder(journal)
@@ -127,6 +134,9 @@ fun main() {
             PostgresIntegrationControlPlaneRepository.connect(configuration),
             security.secretVault
         )
+        val oauthBootstrap = oauthConfiguration?.let {
+            MercadoLivreOAuthBootstrap(controlPlane, serviceOrganizationId, it)
+        }
         val connectorRuntime = ConnectorRuntime(
             IntegrationControlPlaneConnectorAccess(controlPlane),
             listOf(MercadoLivreOrderSourceConnector(), OmieTransactionEvidenceConnector()),
@@ -180,12 +190,14 @@ fun main() {
                 )
             )
         )
-        val salesIntelligenceApi = SalesIntelligenceApi(
-            projection,
-            pipeline,
-            connectionId,
-            cursorCodec
-        )
+        val salesIntelligenceApi = connectionId?.let {
+            SalesIntelligenceApi(
+                projection,
+                pipeline,
+                it,
+                cursorCodec
+            )
+        }
         embeddedServer(Netty, host = host, port = port) {
             configureApi(
                 serviceToken,
@@ -195,7 +207,8 @@ fun main() {
                 salesIntelligenceApi,
                 reconciliationCases,
                 systemicDivergences,
-                CommerceIdentityHealthApi { null }
+                CommerceIdentityHealthApi { null },
+                oauthBootstrap
             )
         }.start(wait = true)
     }
@@ -229,7 +242,8 @@ internal fun Application.configureApi(
     salesIntelligenceApi: SalesIntelligenceApi? = null,
     reconciliationCasesApi: ReconciliationCasesApi? = null,
     systemicDivergencesApi: SystemicDivergencesApi? = null,
-    commerceIdentityHealthApi: CommerceIdentityHealthApi? = null
+    commerceIdentityHealthApi: CommerceIdentityHealthApi? = null,
+    mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -434,7 +448,47 @@ internal fun Application.configureApi(
         get("/health/ready") {
             call.respondJson(buildJsonObject { put("status", "UP") })
         }
+        if (mercadoLivreOAuthBootstrap != null) {
+            get("/v1/integrations/mercadolivre/oauth/callback") {
+                try {
+                    val result = mercadoLivreOAuthBootstrap.callback(
+                        call.request.queryParameters["code"],
+                        call.request.queryParameters["state"]
+                    )
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(buildJsonObject {
+                        put("status", "READY")
+                        put("connectionId", result.connectionId.value.toString())
+                        put("authorizedUserId", result.authorizedUserId)
+                    })
+                } catch (_: IllegalArgumentException) {
+                    call.respondProblem(
+                        HttpStatusCode.BadRequest,
+                        "https://flooow.io/problems/invalid-mercado-livre-oauth-callback",
+                        "Invalid Mercado Livre OAuth callback",
+                        "The authorization callback could not be validated",
+                        "INVALID_MERCADO_LIVRE_OAUTH_CALLBACK"
+                    )
+                } catch (_: IllegalStateException) {
+                    call.respondProblem(
+                        HttpStatusCode.BadRequest,
+                        "https://flooow.io/problems/invalid-mercado-livre-oauth-callback",
+                        "Invalid Mercado Livre OAuth callback",
+                        "The authorization callback could not be completed",
+                        "INVALID_MERCADO_LIVRE_OAUTH_CALLBACK"
+                    )
+                }
+            }
+        }
         authenticate("service-bearer") {
+            if (mercadoLivreOAuthBootstrap != null) {
+                get("/v1/integrations/mercadolivre/oauth/start") {
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(buildJsonObject {
+                        put("authorizationUrl", mercadoLivreOAuthBootstrap.start().authorizationUrl)
+                    })
+                }
+            }
             get("/openapi.json") {
                 val openApi = requireNotNull(
                     Application::class.java.getResource("/openapi.json")
@@ -564,6 +618,19 @@ internal fun mercadoLivreConnectionFromEnvironment(
             "FLOOOW_MERCADO_LIVRE_CONNECTION_ID must be a canonical UUID"
         )
     }
+}
+
+internal fun mercadoLivreOAuthBootstrapConfigurationOrNull(
+    environment: Map<String, String>
+): MercadoLivreOAuthBootstrapConfiguration? {
+    val configured = listOf(
+        "FLOOOW_MERCADO_LIVRE_CLIENT_ID",
+        "FLOOOW_MERCADO_LIVRE_CLIENT_SECRET",
+        "FLOOOW_MERCADO_LIVRE_REDIRECT_URI"
+    ).map { !environment[it].isNullOrBlank() }
+    if (configured.none { it }) return null
+    require(configured.all { it }) { "Mercado Livre OAuth bootstrap configuration is incomplete" }
+    return MercadoLivreOAuthBootstrapConfiguration.fromEnvironment(environment)
 }
 
 internal suspend fun io.ktor.server.application.ApplicationCall.respondJson(
