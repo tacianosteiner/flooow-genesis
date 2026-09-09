@@ -278,3 +278,51 @@ class MercadoLivreOrderSourceRecord(
 
     override fun toString(): String = "MercadoLivreOrderSourceRecord([REDACTED])"
 }
+
+object OmieTransactionEvidenceCapability {
+    const val VALUE = "marketplace-economic.omie-transaction-evidence"
+    val KEY: ConnectorCapability = ConnectorCapability.of(VALUE)
+}
+
+class OmieOrderReference private constructor(value: String) : ProviderSourceText(value, 64) {
+    companion object { fun of(value: String) = OmieOrderReference(normalize(value)) }
+}
+
+class OmieCustomerOrderReference private constructor(value: String) : ProviderSourceText(value, 128) {
+    companion object { fun of(value: String) = OmieCustomerOrderReference(normalize(value)) }
+}
+
+class OmieOrderStatus private constructor(value: String) : ProviderSourceText(value, 64) {
+    companion object { fun of(value: String) = OmieOrderStatus(normalize(value)) }
+}
+
+class OmieTransactionProductObservation(
+    val productCode: OmieDisplayedProductCode,
+    val quantity: ProviderSourceDecimal
+) {
+    init { require(quantity.valueForPersistence() >= BigDecimal.ZERO) }
+    override fun toString() = "OmieTransactionProductObservation([REDACTED])"
+}
+
+class OmieTransactionEvidenceRecord(
+    val orderReference: OmieOrderReference,
+    val integrationOrderReference: OmieIntegrationReference?,
+    val customerOrderReference: OmieCustomerOrderReference?,
+    val occurredAt: Instant?,
+    val status: OmieOrderStatus?,
+    val currency: MercadoLivreSourceCurrency?,
+    val totalAmount: ProviderSourceDecimal?,
+    products: Collection<OmieTransactionProductObservation>,
+    val observedAt: Instant,
+    val sourceFingerprint: String
+) : ConnectorRecord {
+    val products: List<OmieTransactionProductObservation> = products.toList()
+    init {
+        require(products.size <= 100)
+        require(totalAmount == null || totalAmount.valueForPersistence() >= BigDecimal.ZERO)
+        require(occurredAt == null || occurredAt.nano % 1_000 == 0)
+        require(observedAt.nano % 1_000 == 0)
+        require(sourceFingerprint.isNotBlank() && sourceFingerprint.length <= 128)
+    }
+    override fun toString() = "OmieTransactionEvidenceRecord([REDACTED])"
+}
