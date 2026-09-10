@@ -1303,3 +1303,12 @@ page commit; the historical response did not retain a safe failure category.
 Explicit versioned reacquisition capabilities now provide an auditable second
 generation without deleting or rewriting historical evidence. Replays remain
 idempotent and source failures expose only bounded category/retry metadata.
+
+## TASK-0165H - Explicit Mercado Livre order reference recognition
+
+Four exact intersections between observed Mercado Livre order IDs and Omie
+provider references were promoted into the recompute evidence interpretation
+boundary. Only trim and one leading `#` are accepted; embedded or guessed
+numbers remain unresolved. Historical Omie revisions are aggregated by stable
+provider identity, while genuinely distinct Omie orders preserve conflict
+semantics. The bridge policy and durable evidence remain unchanged.

@@ -5,6 +5,8 @@ import io.flooow.marketplace.operations.identity.CommerceIdentityHealthEvaluator
 import io.flooow.marketplace.operations.identity.CommerceIdentityPolicy
 import io.flooow.marketplace.operations.identity.MercadoLivreIdentityEvidenceReader
 import io.flooow.marketplace.operations.identity.OmieIdentityEvidenceReader
+import io.flooow.marketplace.operations.identity.ExplicitMarketplaceOrderReferenceResolver
+import io.flooow.marketplace.operations.identity.OmieSalesOrderEvidence
 import io.flooow.organization.OrganizationId
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -35,7 +37,18 @@ internal class CommerceIdentityRecomputeApi(
         } catch (_: Exception) {
             throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVIDENCE_READ)
         }
-        val omieEvidence = omieRead.records
+        val observedOrderIds = marketplaceEvidence.map { it.orderId }.toSet()
+        val omieEvidence = deduplicateSemanticEvidence(
+            omieRead.records.map { order ->
+                order.copy(
+                    declaredMarketplaceOrderIds =
+                        ExplicitMarketplaceOrderReferenceResolver.resolve(
+                            observedOrderIds,
+                            listOf(order.integrationCode, order.customerOrderNumber)
+                        )
+                )
+            }
+        )
         val evaluation = try {
             CommerceIdentityHealthEvaluator.evaluate(
                 organizationId, marketplaceEvidence, omieEvidence, policy, evaluatedAt
@@ -58,7 +71,7 @@ internal class CommerceIdentityRecomputeApi(
             put("omieCustomerOrderReferenceRows", omieRead.customerOrderReferenceRows)
             put("omieProductEvidenceRows", omieRead.productEvidenceRows)
             put("omieAmountEvidenceRows", omieRead.amountEvidenceRows)
-            put("omieExplicitMarketplaceOrderReferenceRows", omieRead.explicitMarketplaceOrderReferenceRows)
+            put("omieExplicitMarketplaceOrderReferenceRows", omieEvidence.count { it.declaredMarketplaceOrderIds.isNotEmpty() })
             put("exactConfirmed", evaluation.health.exactConfirmed)
             put("candidate", evaluation.health.candidate)
             put("ambiguous", evaluation.health.ambiguous)
@@ -68,6 +81,31 @@ internal class CommerceIdentityRecomputeApi(
             put("policyVersion", evaluation.health.policyVersion)
             put("evaluatedAt", evaluation.health.evaluatedAt.toString())
         }
+    }
+
+    private fun deduplicateSemanticEvidence(records: List<OmieSalesOrderEvidence>): List<OmieSalesOrderEvidence> =
+        records.groupBy(::semanticKey).toSortedMap().values.map { revisions ->
+            revisions.sortedWith(compareBy<OmieSalesOrderEvidence> { it.integrationCode ?: "" }
+                .thenBy { it.customerOrderNumber ?: "" }
+                .thenBy { it.evidenceReferences.sorted().joinToString("|") })
+                .reduce { left, right ->
+                    left.copy(
+                        evidenceReferences = (left.evidenceReferences + right.evidenceReferences).toSortedSet(),
+                        declaredMarketplaceOrderIds =
+                            (left.declaredMarketplaceOrderIds + right.declaredMarketplaceOrderIds).toSortedSet()
+                    )
+                }
+        }
+
+    private fun semanticKey(order: OmieSalesOrderEvidence): String {
+        val sourceOrder = order.evidenceReferences
+            .mapNotNull { reference ->
+                reference.removePrefix("omie:").substringBeforeLast(":", "").takeIf { it.isNotBlank() }
+            }
+            .sorted()
+            .firstOrNull() ?: "unknown"
+        return listOf(sourceOrder, order.integrationCode ?: "", order.customerOrderNumber ?: "")
+            .joinToString("\u001f")
     }
 
     private companion object { const val MAX_EVIDENCE = 10_000 }
