@@ -63,6 +63,63 @@ import java.util.UUID
 class ApplicationTest {
 
     @Test
+    fun `Mercado Livre credential rotation requires service bearer`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN),
+                TEST_ORGANIZATION_ID,
+                record = { _, _ -> error("not used") },
+                mercadoLivreCredentialRotationApi = testMercadoLivreCredentialRotationApi()
+            )
+        }
+
+        val response = client.post(MERCADO_LIVRE_CREDENTIAL_ROTATION_PATH)
+
+        assertProblem(
+            response.status,
+            response.bodyAsText(),
+            401,
+            "AUTHENTICATION_REQUIRED"
+        )
+    }
+
+    @Test
+    fun `Mercado Livre credential rotation rejects body and query`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN),
+                TEST_ORGANIZATION_ID,
+                record = { _, _ -> error("not used") },
+                mercadoLivreCredentialRotationApi = testMercadoLivreCredentialRotationApi()
+            )
+        }
+
+        val queryResponse = client.post(
+            "$MERCADO_LIVRE_CREDENTIAL_ROTATION_PATH?unexpected=true"
+        ) {
+            bearerAuth(TEST_SERVICE_TOKEN)
+        }
+
+        val bodyResponse = client.post(MERCADO_LIVRE_CREDENTIAL_ROTATION_PATH) {
+            bearerAuth(TEST_SERVICE_TOKEN)
+            setBody("{}")
+        }
+
+        assertProblem(
+            queryResponse.status,
+            queryResponse.bodyAsText(),
+            400,
+            "MALFORMED_REQUEST"
+        )
+        assertProblem(
+            bodyResponse.status,
+            bodyResponse.bodyAsText(),
+            400,
+            "MALFORMED_REQUEST"
+        )
+    }
+
+    @Test
     fun `red moto request returns exact committed contract`() = testApplication {
         application { module() }
 
@@ -1023,4 +1080,126 @@ private class FakeSalesProjection(
         lastOrganization = organizationId
         return detail(marketplaceOrderId)
     }
+}
+
+private fun testMercadoLivreCredentialRotationApi(): MercadoLivreCredentialRotationApi {
+    val organizationId = TEST_ORGANIZATION_ID
+    val connectionId = IntegrationConnectionId(
+        UUID.fromString("33e7a252-292c-44ef-bab8-7a06b662c0fb")
+    )
+    val provider = io.flooow.integration.control.ProviderKey.of("br.com.mercadolivre")
+    val context = io.flooow.integration.control.ActiveCredentialContext(
+        provider,
+        io.flooow.integration.control.CredentialKind.OAUTH2_AUTHORIZATION_CODE,
+        1
+    )
+
+    val access =
+        object : io.flooow.integration.credential.CredentialRotationCredentialAccess {
+            override fun activeContext(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId
+            ) = context
+
+            override fun <T> withActiveCredentialContext(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                operation: (
+                    io.flooow.integration.control.ActiveCredentialContext,
+                    ByteArray
+                ) -> T
+            ): T = operation(context, "synthetic".toByteArray())
+
+            override fun rotate(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                expectedVersion: Int,
+                replacementBytes: ByteArray
+            ) = io.flooow.integration.control.CredentialRotationResult.ROTATED
+        }
+
+    val store =
+        object : io.flooow.integration.credential.CredentialRotationExecutionStore {
+            override fun claim(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                bindingVersion: Int,
+                executionId: io.flooow.integration.credential.CredentialRotationExecutionId,
+                claimedAt: Instant,
+                leaseExpiresAt: Instant
+            ) = io.flooow.integration.credential.CredentialRotationClaimResult(
+                io.flooow.integration.credential.CredentialRotationClaimKind.ACQUIRED
+            )
+
+            override fun markRemoteStarted(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                bindingVersion: Int,
+                executionId: io.flooow.integration.credential.CredentialRotationExecutionId,
+                startedAt: Instant
+            ) = io.flooow.integration.credential.CredentialRotationRemoteStartResult.STARTED
+
+            override fun markRetryable(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                bindingVersion: Int,
+                executionId: io.flooow.integration.credential.CredentialRotationExecutionId,
+                retryNotBefore: Instant,
+                updatedAt: Instant
+            ) = true
+
+            override fun markCompleted(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                bindingVersion: Int,
+                executionId: io.flooow.integration.credential.CredentialRotationExecutionId,
+                terminalAt: Instant
+            ) = true
+
+            override fun markInDoubt(
+                organizationId: OrganizationId,
+                connectionId: IntegrationConnectionId,
+                bindingVersion: Int,
+                executionId: io.flooow.integration.credential.CredentialRotationExecutionId,
+                terminalAt: Instant
+            ) = true
+        }
+
+    val rotator =
+        object : io.flooow.integration.credential.CredentialRotator {
+            override val descriptor =
+                io.flooow.integration.credential.CredentialRotatorDescriptor(
+                    provider,
+                    io.flooow.integration.control.CredentialKind.OAUTH2_AUTHORIZATION_CODE
+                )
+
+            override fun assess(
+                credentialBytes: ByteArray,
+                now: Instant
+            ) = io.flooow.integration.credential.CredentialRotationAssessment.USABLE
+
+            override fun refresh(
+                credentialBytes: ByteArray,
+                context: io.flooow.integration.credential.CredentialRotationRemoteContext,
+                cancellation: io.flooow.integration.credential.CredentialRotationCancellation
+            ): io.flooow.integration.credential.CredentialRefreshResult =
+                error("refresh must not execute")
+        }
+
+    return MercadoLivreCredentialRotationApi(
+        io.flooow.integration.credential.CredentialRotationExecutor(
+            access,
+            store,
+            listOf(rotator),
+            Clock.fixed(
+                Instant.parse("2026-09-10T19:00:00Z"),
+                ZoneOffset.UTC
+            )
+        ),
+        connectionId,
+        Clock.fixed(
+            Instant.parse("2026-09-10T19:00:00Z"),
+            ZoneOffset.UTC
+        )
+    )
 }

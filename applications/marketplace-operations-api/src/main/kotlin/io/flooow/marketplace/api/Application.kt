@@ -4,6 +4,10 @@ import io.flooow.integration.connector.ConnectorRuntime
 import io.flooow.integration.connector.IntegrationControlPlaneConnectorAccess
 import io.flooow.integration.control.IntegrationConnectionId
 import io.flooow.integration.control.IntegrationControlPlaneService
+import io.flooow.integration.credential.CredentialRotationExecutor
+import io.flooow.integration.credential.IntegrationControlPlaneCredentialRotationAccess
+import io.flooow.integration.provider.mercadolivre.MercadoLivreOAuthCredentialRotator
+import io.flooow.marketplace.persistence.postgres.PostgresCredentialRotationExecutionStore
 import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
@@ -143,6 +147,15 @@ fun main() {
         val oauthBootstrap = oauthConfiguration?.let {
             MercadoLivreOAuthBootstrap(controlPlane, serviceOrganizationId, it)
         }
+        val credentialRotationExecutor = CredentialRotationExecutor(
+            IntegrationControlPlaneCredentialRotationAccess(controlPlane),
+            PostgresCredentialRotationExecutionStore(configuration),
+            listOf(MercadoLivreOAuthCredentialRotator())
+        )
+        val mercadoLivreCredentialRotationApi = MercadoLivreCredentialRotationApi(
+            credentialRotationExecutor,
+            connectionId
+        )
         val omieBootstrap = OmieStaticCredentialBootstrap(controlPlane)
         val connectorRuntime = ConnectorRuntime(
             IntegrationControlPlaneConnectorAccess(controlPlane),
@@ -270,7 +283,8 @@ fun main() {
                 omieBootstrap,
                 omieEvidenceRefresh,
                 omieEvidenceReacquisition,
-                commerceIdentityRecompute
+                commerceIdentityRecompute,
+                mercadoLivreCredentialRotationApi
             )
         }.start(wait = true)
     }
@@ -309,7 +323,8 @@ internal fun Application.configureApi(
     omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null,
     omieEvidenceRefreshApi: OmieEvidenceRefreshApi? = null,
     omieEvidenceReacquisitionApi: OmieEvidenceRefreshApi? = null,
-    commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null
+    commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null,
+    mercadoLivreCredentialRotationApi: MercadoLivreCredentialRotationApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -423,6 +438,24 @@ internal fun Application.configureApi(
                 "Commerce identity recompute failed",
                 "Persisted identity evidence could not be evaluated",
                 "COMMERCE_IDENTITY_RECOMPUTE_FAILED"
+            )
+        }
+        exception<MercadoLivreCredentialRotationUnavailableException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/mercado-livre-credential-rotation-unavailable",
+                "Mercado Livre credential rotation unavailable",
+                "The configured Mercado Livre connection is unavailable",
+                "MERCADO_LIVRE_CREDENTIAL_ROTATION_UNAVAILABLE"
+            )
+        }
+        exception<MercadoLivreCredentialRotationFailureException> { call, cause ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/mercado-livre-credential-rotation-failed",
+                "Mercado Livre credential rotation failed",
+                "Credential rotation could not be completed safely: ${cause.kind.name}",
+                "MERCADO_LIVRE_CREDENTIAL_ROTATION_${cause.kind.name}"
             )
         }
         exception<PersistenceUnavailableException> { call, _ ->
@@ -583,6 +616,25 @@ internal fun Application.configureApi(
             }
         }
         authenticate("service-bearer") {
+            if (mercadoLivreCredentialRotationApi != null) {
+                post(MERCADO_LIVRE_CREDENTIAL_ROTATION_PATH) {
+                    if (
+                        call.request.queryParameters.names().isNotEmpty() ||
+                        call.receiveText().isNotEmpty()
+                    ) {
+                        throw MalformedRequestException(
+                            "Mercado Livre credential rotation accepts no request body or query"
+                        )
+                    }
+
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(
+                        mercadoLivreCredentialRotationApi.rotate(principal.organizationId)
+                    )
+                }
+            }
+
             if (mercadoLivreOAuthBootstrap != null) {
                 get("/v1/integrations/mercadolivre/oauth/start") {
                     call.response.header("Cache-Control", "no-store")

@@ -33,6 +33,40 @@
         }
       }
     },
+    "/v1/integrations/mercadolivre/credential/rotate": {
+      "post": {
+        "operationId": "rotateMercadoLivreCredential",
+        "security": [{ "serviceBearer": [] }],
+        "description": "Executes governed Mercado Livre OAuth credential assessment and rotation for the server-configured active connection. No credential material is accepted from or returned to the caller.",
+        "responses": {
+          "200": {
+            "description": "Credential is usable or was rotated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["status", "provider"],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": ["READY", "ROTATED", "ROTATED_CLEANUP_REQUIRED"]
+                    },
+                    "provider": {
+                      "type": "string",
+                      "const": "br.com.mercadolivre"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/integrations/omie/bootstrap": {
       "post": {
         "operationId": "bootstrapOmieCredential",

@@ -12,6 +12,7 @@ dependencies {
     implementation(project(":applications:marketplace-operations"))
     implementation(project(":applications:marketplace-operations-persistence-postgres"))
     implementation(project(":applications:integration-control-plane"))
+    implementation(project(":applications:credential-rotation-execution"))
     implementation(project(":applications:marketplace-provider-authentication"))
     implementation(project(":applications:connector-runtime"))
     implementation(project(":applications:mvp-secure-runtime"))
