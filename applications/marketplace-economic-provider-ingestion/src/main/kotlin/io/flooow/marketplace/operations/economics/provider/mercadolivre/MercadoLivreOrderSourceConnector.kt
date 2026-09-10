@@ -85,6 +85,10 @@ class MercadoLivreOrderSourceConnector(
             ConnectorRecordDefinition(
                 MarketplaceEconomicOrderSourceCapability.KEY,
                 MercadoLivreOrderSourceRecord::class
+            ),
+            ConnectorRecordDefinition(
+                MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY,
+                MercadoLivreOrderSourceRecord::class
             )
         )
     )
@@ -105,7 +109,9 @@ class MercadoLivreOrderSourceConnector(
         budget: ConnectorBudget,
         cancellation: ConnectorCancellation
     ): ConnectorReadResult {
-        if (capability != MarketplaceEconomicOrderSourceCapability.KEY) {
+        if (capability != MarketplaceEconomicOrderSourceCapability.KEY &&
+            capability != MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY
+        ) {
             return failed(ConnectorAdapterFailureKind.REMOTE_PERMANENT)
         }
         if (cancellation.isCancelled()) {

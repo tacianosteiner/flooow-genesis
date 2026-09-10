@@ -114,6 +114,8 @@ class OmieProductCostSourceRecord(
 object MarketplaceEconomicOrderSourceCapability {
     const val VALUE = "marketplace-economic.order-source"
     val KEY: ConnectorCapability = ConnectorCapability.of(VALUE)
+    const val REACQUISITION_VALUE = "marketplace-economic.order-source.reacquisition-v1"
+    val REACQUISITION_KEY: ConnectorCapability = ConnectorCapability.of(REACQUISITION_VALUE)
 }
 
 class MercadoLivreOrderReference private constructor(value: String) :
@@ -290,6 +292,8 @@ class MercadoLivreOrderSourceRecord(
 object OmieTransactionEvidenceCapability {
     const val VALUE = "marketplace-economic.omie-transaction-evidence"
     val KEY: ConnectorCapability = ConnectorCapability.of(VALUE)
+    const val REACQUISITION_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v1"
+    val REACQUISITION_KEY: ConnectorCapability = ConnectorCapability.of(REACQUISITION_VALUE)
 }
 
 class OmieOrderReference private constructor(value: String) : ProviderSourceText(value, 64) {

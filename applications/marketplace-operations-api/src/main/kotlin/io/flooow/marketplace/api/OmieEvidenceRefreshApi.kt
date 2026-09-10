@@ -22,6 +22,7 @@ import java.time.Instant
 import java.util.UUID
 
 internal const val OMIE_EVIDENCE_REFRESH_PATH = "/v1/commerce-identity/omie/refresh"
+internal const val OMIE_EVIDENCE_REACQUISITION_PATH = "/v1/commerce-identity/omie/reacquire"
 
 private val OMIE_PROVIDER = ProviderKey.of("omie")
 private val OMIE_CAPABILITY = OmieTransactionEvidenceCapability.KEY
@@ -39,7 +40,8 @@ internal class OmieEvidenceRefreshApi(
     private val controlPlane: IntegrationControlPlaneService,
     private val runtime: ConnectorRuntime,
     private val configuredConnectionId: IntegrationConnectionId?,
-    private val clock: Clock = Clock.systemUTC()
+    private val clock: Clock = Clock.systemUTC(),
+    private val capability: io.flooow.integration.connector.ConnectorCapability = OMIE_CAPABILITY
 ) {
     fun refresh(organizationId: OrganizationId): JsonObject {
         val connectionId = configuredConnectionId
@@ -62,7 +64,7 @@ internal class OmieEvidenceRefreshApi(
                 ConnectorInvocation(
                     organizationId = organizationId,
                     connectionId = connectionId,
-                    capability = OMIE_CAPABILITY,
+                    capability = capability,
                     invocationId = ConnectorInvocationId(UUID.randomUUID()),
                     budget = ConnectorBudget(deadline, MAX_RECORDS_PER_PAGE, MAX_RESPONSE_BYTES)
                 )
@@ -70,7 +72,7 @@ internal class OmieEvidenceRefreshApi(
             invocations += 1
             when (outcome) {
                 is ConnectorExecutionOutcome.Success -> {
-                    if (outcome.providerKey != OMIE_PROVIDER || outcome.capability != OMIE_CAPABILITY) {
+                    if (outcome.providerKey != OMIE_PROVIDER || outcome.capability != capability) {
                         throw OmieEvidenceRefreshFailureException()
                     }
                     records += outcome.recordCount.toLong()
@@ -101,6 +103,7 @@ internal class OmieEvidenceRefreshApi(
         put("committedPages", committedPages)
         put("alreadyCommittedPages", alreadyCommittedPages)
         put("records", records)
+        put("acquisitionGeneration", capability.value)
     }
 }
 

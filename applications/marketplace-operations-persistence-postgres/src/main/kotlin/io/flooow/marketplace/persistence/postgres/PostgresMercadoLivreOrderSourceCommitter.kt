@@ -25,12 +25,10 @@ import kotlin.reflect.KClass
 class PostgresMercadoLivreOrderSourceCommitter(
     configuration: PostgresConfiguration,
     protector: ConnectorProgressProtector,
-    clock: Clock = Clock.systemUTC()
+    clock: Clock = Clock.systemUTC(),
+    override val capability: ConnectorCapability = MarketplaceEconomicOrderSourceCapability.KEY
 ) : ConnectorPageCommitter {
     private val progress = PostgresConnectorProgressStore(configuration, protector, clock)
-
-    override val capability: ConnectorCapability =
-        MarketplaceEconomicOrderSourceCapability.KEY
 
     override val recordType: KClass<out ConnectorRecord> =
         MercadoLivreOrderSourceRecord::class
