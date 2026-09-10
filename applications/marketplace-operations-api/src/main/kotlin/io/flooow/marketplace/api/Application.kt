@@ -245,7 +245,7 @@ fun main() {
                 connectionId = it,
                 cursors = cursorCodec,
                 reacquire = { organizationId, configuredConnectionId, deadline ->
-                    reacquisitionPipeline.run(organizationId, configuredConnectionId, deadline)
+                    reacquisitionPipeline.run(organizationId, configuredConnectionId, deadline, stopAfterSource = true)
                 }
             )
         }

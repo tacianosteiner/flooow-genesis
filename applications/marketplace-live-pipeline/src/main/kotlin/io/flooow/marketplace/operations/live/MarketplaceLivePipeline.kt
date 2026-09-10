@@ -327,7 +327,8 @@ class MarketplaceLivePipelineService(
         connectionId: IntegrationConnectionId,
         deadline: Instant,
         limits: MarketplaceLivePipelineLimits = MarketplaceLivePipelineLimits(),
-        cancellation: ConnectorCancellation = ConnectorCancellation.NEVER
+        cancellation: ConnectorCancellation = ConnectorCancellation.NEVER,
+        stopAfterSource: Boolean = false
     ): MarketplaceLivePipelineResult {
         val startedAt = clock.instant()
         require(deadline.isAfter(startedAt)) {
@@ -358,6 +359,15 @@ class MarketplaceLivePipelineService(
             is SourcePhase.Done -> Unit
         }
         val sourceSummary = (sourcePhase as SourcePhase.Done).summary
+
+        if (stopAfterSource) {
+            return MarketplaceLivePipelineResult.Completed(
+                source = sourceSummary,
+                occurrence = MarketplaceLivePipelinePromotionSummary.EMPTY,
+                revenue = MarketplaceLivePipelinePromotionSummary.EMPTY,
+                projection = MarketplaceLivePipelineProjectionSummary.EMPTY
+            )
+        }
 
         gate(deadline, cancellation)?.let {
             return MarketplaceLivePipelineResult.Blocked(
