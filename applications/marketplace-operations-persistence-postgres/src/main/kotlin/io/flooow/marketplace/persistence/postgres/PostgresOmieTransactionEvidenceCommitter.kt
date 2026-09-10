@@ -13,9 +13,8 @@ import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-class PostgresOmieTransactionEvidenceCommitter(configuration: PostgresConfiguration, protector: ConnectorProgressProtector, clock: Clock = Clock.systemUTC()) : ConnectorPageCommitter {
+class PostgresOmieTransactionEvidenceCommitter(configuration: PostgresConfiguration, protector: ConnectorProgressProtector, clock: Clock = Clock.systemUTC(), override val capability: ConnectorCapability = OmieTransactionEvidenceCapability.KEY) : ConnectorPageCommitter {
     private val progress = PostgresConnectorProgressStore(configuration, protector, clock)
-    override val capability = OmieTransactionEvidenceCapability.KEY
     override val recordType: KClass<out ConnectorRecord> = OmieTransactionEvidenceRecord::class
     override fun load(organizationId: OrganizationId, connectionId: IntegrationConnectionId, capability: ConnectorCapability): VersionedConnectorProgress { require(capability == this.capability); return progress.load(organizationId, connectionId, capability) }
     override fun commit(organizationId: OrganizationId, connectionId: IntegrationConnectionId, capability: ConnectorCapability, expectedProgressVersion: Long, pageCommitKey: ConnectorPageCommitKey, records: List<ConnectorRecord>, nextProgress: ConnectorProgress?, exhausted: Boolean, observedAt: Instant): ConnectorPageCommitResult {

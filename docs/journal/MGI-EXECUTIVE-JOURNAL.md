@@ -1294,3 +1294,12 @@ identity policy. Mercado Livre seller SKU is captured distinctly from item ID
 through additive migration V027. Existing evidence is not rewritten; a fresh
 bounded read is required to observe enriched rows. No provider write, Economic
 Truth mutation, mapping confirmation, recovery, or authority is introduced.
+## TASK-0165F.1 - Governed evidence reacquisition
+
+Normal refresh progress is intentionally idempotent: the Omie production page
+was already committed in its normal capability namespace, so replay returned
+`alreadyCommittedPages=1` without re-parsing. Mercado Livre failed before a
+page commit; the historical response did not retain a safe failure category.
+Explicit versioned reacquisition capabilities now provide an auditable second
+generation without deleting or rewriting historical evidence. Replays remain
+idempotent and source failures expose only bounded category/retry metadata.

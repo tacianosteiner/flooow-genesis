@@ -32,14 +32,14 @@ class MercadoLivreOrderSourceConnectorTest {
     fun `descriptor and capability are exact`() {
         val connector = connector(RecordingTransport { validPage() })
         assertEquals("br.com.mercadolivre", connector.descriptor.providerKey.value)
-        assertEquals(
-            MarketplaceEconomicOrderSourceCapability.KEY,
-            connector.descriptor.definitions.single().capability
-        )
-        assertEquals(
-            MercadoLivreOrderSourceRecord::class,
-            connector.descriptor.definitions.single().recordType
-        )
+        assertEquals(2, connector.descriptor.definitions.size)
+        assertTrue(connector.descriptor.definitions.map { it.capability }.containsAll(
+            listOf(
+                MarketplaceEconomicOrderSourceCapability.KEY,
+                MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY
+            )
+        ))
+        assertTrue(connector.descriptor.definitions.all { it.recordType == MercadoLivreOrderSourceRecord::class })
     }
 
     @Test

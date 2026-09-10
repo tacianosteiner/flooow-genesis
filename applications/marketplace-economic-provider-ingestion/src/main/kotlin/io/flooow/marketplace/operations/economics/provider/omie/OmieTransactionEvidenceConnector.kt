@@ -23,13 +23,18 @@ class OmieTransactionEvidenceConnector(
 ) : PullConnector {
     override val descriptor = ConnectorDescriptor(
         ProviderKey.of("omie"),
-        listOf(ConnectorRecordDefinition(OmieTransactionEvidenceCapability.KEY, OmieTransactionEvidenceRecord::class))
+        listOf(
+            ConnectorRecordDefinition(OmieTransactionEvidenceCapability.KEY, OmieTransactionEvidenceRecord::class),
+            ConnectorRecordDefinition(OmieTransactionEvidenceCapability.REACQUISITION_KEY, OmieTransactionEvidenceRecord::class)
+        )
     )
 
     init { require(endpoint.scheme.equals("https", true)); require(endpoint.host != null) }
 
     override fun readPage(capability: ConnectorCapability, credentialBytes: ByteArray, currentProgress: ConnectorProgress?, budget: ConnectorBudget, cancellation: ConnectorCancellation): ConnectorReadResult {
-        if (capability != OmieTransactionEvidenceCapability.KEY) return failed(ConnectorAdapterFailureKind.REMOTE_PERMANENT)
+        if (capability != OmieTransactionEvidenceCapability.KEY &&
+            capability != OmieTransactionEvidenceCapability.REACQUISITION_KEY
+        ) return failed(ConnectorAdapterFailureKind.REMOTE_PERMANENT)
         if (cancellation.isCancelled()) return failed(ConnectorAdapterFailureKind.CANCELLED)
         if (!clock.instant().isBefore(budget.deadline)) return failed(ConnectorAdapterFailureKind.BUDGET_EXCEEDED)
         val page = decodePage(currentProgress) ?: if (currentProgress == null) 1 else return failed(ConnectorAdapterFailureKind.REMOTE_DATA_INVALID)

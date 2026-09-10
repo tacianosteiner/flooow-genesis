@@ -8,6 +8,8 @@ import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
 import io.flooow.marketplace.operations.economics.provider.omie.OmieTransactionEvidenceConnector
+import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicOrderSourceCapability
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
 import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergencePolicies
@@ -149,13 +151,27 @@ fun main() {
                     configuration,
                     security.progressProtector
                 ),
-                PostgresOmieTransactionEvidenceCommitter(configuration, security.progressProtector)
+                PostgresOmieTransactionEvidenceCommitter(configuration, security.progressProtector),
+                PostgresMercadoLivreOrderSourceCommitter(
+                    configuration, security.progressProtector,
+                    capability = MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY
+                ),
+                PostgresOmieTransactionEvidenceCommitter(
+                    configuration, security.progressProtector,
+                    capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY
+                )
             )
         )
         val omieEvidenceRefresh = OmieEvidenceRefreshApi(
             controlPlane,
             connectorRuntime,
             omieConnectionId
+        )
+        val omieEvidenceReacquisition = OmieEvidenceRefreshApi(
+            controlPlane,
+            connectorRuntime,
+            omieConnectionId,
+            capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY
         )
         val commerceIdentityRecompute = CommerceIdentityRecomputeApi(
             PostgresMercadoLivreIdentityEvidenceReader(configuration, connectionId),
@@ -203,12 +219,34 @@ fun main() {
                 )
             )
         )
+        val reacquisitionPipeline = MarketplaceLivePipelineService(
+            ConnectorRuntimeMarketplaceLivePipelineSourceRunner(connectorRuntime),
+            MarketplaceOrderSourcePromotionLivePipelineAdapter(
+                MarketplaceOrderSourcePromotionService(promotionRepository, evidenceRepository)
+            ),
+            MarketplaceOrderRevenuePromotionLivePipelineAdapter(
+                MarketplaceOrderRevenuePromotionService(promotionRepository, evidenceRepository)
+            ),
+            MarketplaceSalesIntelligenceLivePipelineAdapter(
+                MarketplaceSalesIntelligenceProjectionProcessor(
+                    evidenceRepository,
+                    PostgresMarketplaceEconomicEvidenceChangeFeed(configuration),
+                    projection
+                )
+            ),
+            sourceCapability = MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY
+        )
         val salesIntelligenceApi = connectionId?.let {
             SalesIntelligenceApi(
-                projection,
-                pipeline,
-                it,
-                cursorCodec
+                projection = projection,
+                refresh = { organizationId, configuredConnectionId, deadline ->
+                    pipeline.run(organizationId, configuredConnectionId, deadline)
+                },
+                connectionId = it,
+                cursors = cursorCodec,
+                reacquire = { organizationId, configuredConnectionId, deadline ->
+                    reacquisitionPipeline.run(organizationId, configuredConnectionId, deadline, stopAfterSource = true)
+                }
             )
         }
         embeddedServer(Netty, host = host, port = port) {
@@ -224,6 +262,7 @@ fun main() {
                 oauthBootstrap,
                 omieBootstrap,
                 omieEvidenceRefresh,
+                omieEvidenceReacquisition,
                 commerceIdentityRecompute
             )
         }.start(wait = true)
@@ -262,6 +301,7 @@ internal fun Application.configureApi(
     mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null,
     omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null,
     omieEvidenceRefreshApi: OmieEvidenceRefreshApi? = null,
+    omieEvidenceReacquisitionApi: OmieEvidenceRefreshApi? = null,
     commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null
 ) {
     install(Authentication) {
@@ -577,6 +617,16 @@ internal fun Application.configureApi(
                     call.respondJson(omieEvidenceRefreshApi.refresh(organizationId))
                 }
             }
+            if (omieEvidenceReacquisitionApi != null) {
+                post(OMIE_EVIDENCE_REACQUISITION_PATH) {
+                    if (call.request.queryParameters.names().isNotEmpty() || call.receiveText().isNotEmpty()) {
+                        throw MalformedRequestException("Omie reacquisition accepts no request body or query")
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(omieEvidenceReacquisitionApi.refresh(organizationId))
+                }
+            }
             if (commerceIdentityRecomputeApi != null) {
                 post("/v1/commerce-identity/recompute") {
                     if (call.request.queryParameters.names().isNotEmpty() ||
@@ -675,6 +725,14 @@ internal fun Application.configureApi(
                     val organizationId = requireNotNull(call.principal<ServicePrincipal>())
                         .organizationId
                     call.respondJson(salesIntelligenceApi.refresh(organizationId))
+                }
+                post(SALES_INTELLIGENCE_REACQUISITION_PATH) {
+                    if (call.request.queryParameters.names().isNotEmpty() || call.receiveText().isNotEmpty()) {
+                        throw MalformedRequestException("Sales Intelligence reacquisition accepts no request body or query")
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(salesIntelligenceApi.reacquire(organizationId))
                 }
             }
             if (reconciliationCasesApi != null) {

@@ -73,6 +73,19 @@
         }
       }
     },
+    "/v1/commerce-identity/omie/reacquire": {
+      "post": {
+        "operationId": "reacquireOmieTransactionEvidence",
+        "security": [{ "serviceBearer": [] }],
+        "description": "Explicit read-only Omie evidence reacquisition using the governed versioned capability. Historical observations are preserved.",
+        "responses": {
+          "200": { "description": "Evidence reacquisition operational metadata", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OmieEvidenceRefreshResponse" } } } },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/commerce-identity/recompute": {
       "post": {
         "operationId": "recomputeCommerceIdentityHealth",
@@ -171,6 +184,20 @@
           "409": { "$ref": "#/components/responses/Problem" },
           "503": { "$ref": "#/components/responses/Problem" },
           "500": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/sales-intelligence/reacquire": {
+      "post": {
+        "operationId": "reacquireSalesIntelligenceEvidence",
+        "security": [{ "serviceBearer": [] }],
+        "description": "Explicit read-only Mercado Livre evidence reacquisition using a versioned capability. Historical observations are preserved.",
+        "responses": {
+          "200": { "description": "Evidence reacquisition operational metadata", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SalesIntelligenceRefresh" } } } },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "409": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
         }
       }
     },
@@ -387,6 +414,7 @@
           "committedPages": { "type": "integer", "minimum": 0 },
           "alreadyCommittedPages": { "type": "integer", "minimum": 0 },
           "records": { "type": "integer", "minimum": 0 }
+          ,"acquisitionGeneration": { "type": "string" }
         }
       },
       "CommerceIdentityRecomputeResponse": {
@@ -615,6 +643,8 @@
           "committedPages": { "type": "integer", "minimum": 0 },
           "alreadyCommittedPages": { "type": "integer", "minimum": 0 },
           "records": { "type": "integer", "minimum": 0 }
+          ,"failureCategory": { "type": "string" },
+          "retryable": { "type": "boolean" }
         }
       },
       "RefreshPromotionSummary": {

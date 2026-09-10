@@ -33,8 +33,10 @@ import java.util.Base64
 import java.util.UUID
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import java.util.logging.Logger
 
 internal const val SALES_INTELLIGENCE_REFRESH_PATH = "/v1/sales-intelligence/refresh"
+internal const val SALES_INTELLIGENCE_REACQUISITION_PATH = "/v1/sales-intelligence/reacquire"
 internal const val SALES_INTELLIGENCE_ORDERS_PATH = "/v1/sales-intelligence/orders"
 private val REFRESH_DEADLINE: Duration = Duration.ofMinutes(2)
 
@@ -44,7 +46,8 @@ internal class SalesIntelligenceApi(
         MarketplaceLivePipelineResult,
     private val connectionId: IntegrationConnectionId,
     private val cursors: SalesIntelligenceCursorCodec,
-    private val clock: Clock = Clock.systemUTC()
+    private val clock: Clock = Clock.systemUTC(),
+    private val reacquire: ((OrganizationId, IntegrationConnectionId, Instant) -> MarketplaceLivePipelineResult)? = null
 ) {
     constructor(
         projection: MarketplaceSalesIntelligenceProjection,
@@ -127,7 +130,26 @@ internal class SalesIntelligenceApi(
             throw LiveRefreshInternalFailureException()
         }
         return when (result) {
-            is MarketplaceLivePipelineResult.Completed -> refreshJson(result)
+            is MarketplaceLivePipelineResult.Completed -> {
+                result.source.failureKind?.let { SOURCE_FAILURE_LOGGER.warning("marketplace_source_failure category=${it.safeFailureCategory()} retryable=${result.source.stop == MarketplaceLivePipelineSourceStop.RETRYABLE_FAILURE}") }
+                refreshJson(result)
+            }
+            is MarketplaceLivePipelineResult.Blocked -> throw LiveRefreshBlockedException()
+        }
+    }
+
+    fun reacquire(organizationId: OrganizationId): JsonObject {
+        val run = reacquire ?: throw LiveRefreshUnavailableException()
+        val result = try {
+            run(organizationId, connectionId, clock.instant().plus(REFRESH_DEADLINE))
+        } catch (_: Exception) {
+            throw LiveRefreshInternalFailureException()
+        }
+        return when (result) {
+            is MarketplaceLivePipelineResult.Completed -> {
+                result.source.failureKind?.let { SOURCE_FAILURE_LOGGER.warning("marketplace_reacquisition_failure category=${it.safeFailureCategory()} retryable=${result.source.stop == MarketplaceLivePipelineSourceStop.RETRYABLE_FAILURE}") }
+                refreshJson(result)
+            }
             is MarketplaceLivePipelineResult.Blocked -> throw LiveRefreshBlockedException()
         }
     }
@@ -150,6 +172,8 @@ internal class SalesIntelligenceApi(
         }
     }
 }
+
+private val SOURCE_FAILURE_LOGGER = Logger.getLogger("flooow.marketplace.source")
 
 internal class SalesIntelligenceCursorCodec(secret: ByteArray) {
     private val key = hmac(secret, "flooow.sales-intelligence.cursor.v1".toByteArray())
@@ -303,6 +327,25 @@ private fun sourceJson(summary: MarketplaceLivePipelineSourceSummary) = buildJso
     put("committedPages", summary.committedPages)
     put("alreadyCommittedPages", summary.alreadyCommittedPages)
     put("records", summary.records)
+    summary.failureKind?.let {
+        put("failureCategory", it.safeFailureCategory())
+        put("retryable", summary.stop == MarketplaceLivePipelineSourceStop.RETRYABLE_FAILURE)
+    }
+}
+
+private fun io.flooow.integration.connector.ConnectorExecutionFailureKind.safeFailureCategory(): String = when (this) {
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.AUTHENTICATION_REQUIRED -> "AUTHENTICATION"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.AUTHORIZATION_DENIED -> "AUTHORIZATION"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.RATE_LIMITED -> "RATE_LIMIT"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.REMOTE_TEMPORARY -> "PROVIDER_TEMPORARY"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.REMOTE_PERMANENT -> "PROVIDER_PERMANENT"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.REMOTE_DATA_INVALID -> "RESPONSE_SCHEMA"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.BUDGET_EXCEEDED -> "BUDGET_EXHAUSTED"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.CANCELLED -> "CANCELLED"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.CONNECTION_UNAVAILABLE -> "CONNECTION"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.CONNECTOR_UNAVAILABLE -> "CONNECTOR"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.PROGRESS_CONFLICT -> "PERSISTENCE"
+    io.flooow.integration.connector.ConnectorExecutionFailureKind.INTERNAL -> "UNKNOWN"
 }
 
 private fun promotionJson(summary: MarketplaceLivePipelinePromotionSummary) = buildJsonObject {
