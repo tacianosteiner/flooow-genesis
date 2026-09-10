@@ -1,6 +1,8 @@
 package io.flooow.marketplace.api
 
+import io.flooow.integration.connector.*
 import io.flooow.integration.control.*
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
 import io.flooow.organization.OrganizationId
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
@@ -12,6 +14,7 @@ import io.ktor.http.contentType
 import io.ktor.server.application.Application
 import io.ktor.server.testing.testApplication
 import java.time.Instant
+import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -136,6 +139,67 @@ class OmieStaticCredentialBootstrapTest {
         assertEquals(principalOrganization, repository.connections.single().organizationId)
     }
 
+    @Test
+    fun `HTTP Omie refresh uses configured active connection and returns operational metadata`() = testApplication {
+        val repository = MemoryRepository(organization)
+        val vault = MemoryVault()
+        val controlPlane = IntegrationControlPlaneService(repository, vault)
+        val connection = OmieStaticCredentialBootstrap(controlPlane)
+            .bootstrap(organization, "app-key", "app-secret")
+        val committer = MemoryOmieCommitter()
+        val runtime = ConnectorRuntime(
+            IntegrationControlPlaneConnectorAccess(controlPlane),
+            listOf(EmptyOmieConnector()),
+            listOf(committer)
+        )
+        application {
+            configureApi(
+                serviceToken = ServiceToken.test(TEST_SERVICE_TOKEN),
+                serviceOrganizationId = organization,
+                record = { _, _ -> error("not used") },
+                omieEvidenceRefreshApi = OmieEvidenceRefreshApi(controlPlane, runtime, connection.connectionId)
+            )
+        }
+
+        val response = client.post(OMIE_EVIDENCE_REFRESH_PATH) {
+            bearerAuth(TEST_SERVICE_TOKEN)
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"status\":\"COMPLETED\"")
+        assertContains(response.bodyAsText(), "\"committedPages\":1")
+        assertFalse(response.bodyAsText().contains("app-secret"))
+        assertEquals(1, committer.commits)
+    }
+
+    @Test
+    fun `refresh fails closed for missing configuration wrong provider and wrong organization`() {
+        val repository = MemoryRepository(organization)
+        val vault = MemoryVault()
+        val controlPlane = IntegrationControlPlaneService(repository, vault)
+        val omieConnection = OmieStaticCredentialBootstrap(controlPlane)
+            .bootstrap(organization, "app-key", "app-secret")
+        val otherOrganization = OrganizationId.parse("22222222-2222-4222-8222-222222222222")
+
+        assertFailsWith<OmieEvidenceRefreshConfigurationUnavailableException> {
+            OmieEvidenceRefreshApi(controlPlane, emptyRuntime(), null).refresh(organization)
+        }
+        assertFailsWith<OmieEvidenceRefreshConnectionUnavailableException> {
+            OmieEvidenceRefreshApi(controlPlane, emptyRuntime(), omieConnection.connectionId)
+                .refresh(otherOrganization)
+        }
+
+        val wrongProvider = controlPlane.createConnection(
+            organization,
+            ProviderKey.of("br.com.mercadolivre"),
+            CredentialKind.STATIC_API_CREDENTIAL
+        )
+        controlPlane.bindInitialCredential(organization, wrongProvider.id, "{}".toByteArray())
+        assertFailsWith<OmieEvidenceRefreshConnectionUnavailableException> {
+            OmieEvidenceRefreshApi(controlPlane, emptyRuntime(), wrongProvider.id).refresh(organization)
+        }
+    }
+
     private fun Application.configureForTest() {
         val repository = MemoryRepository(TEST_ORGANIZATION_ID)
         configureApi(
@@ -160,6 +224,15 @@ class OmieStaticCredentialBootstrapTest {
         override fun revoke(organizationId: OrganizationId, connectionId: IntegrationConnectionId, reference: SecretReference) = Unit
     }
 
+    private fun emptyRuntime() = ConnectorRuntime(
+        object : ConnectorConnectionAccess {
+            override fun activeProvider(organizationId: OrganizationId, connectionId: IntegrationConnectionId): ProviderKey? = null
+            override fun <T> withActiveCredential(organizationId: OrganizationId, connectionId: IntegrationConnectionId, operation: (ByteArray) -> T): T = error("not used")
+        },
+        emptyList(),
+        emptyList()
+    )
+
     private class MemoryRepository(
         private val organization: OrganizationId,
         private val bindResult: Boolean = true
@@ -178,12 +251,34 @@ class OmieStaticCredentialBootstrapTest {
             return true
         }
         override fun rotateCredential(organizationId: OrganizationId, connectionId: IntegrationConnectionId, expectedVersion: Int, newReference: SecretReference, now: Instant, audit: IntegrationAuditEntry): SecretReference? = null
-        override fun currentBinding(organizationId: OrganizationId, connectionId: IntegrationConnectionId): CredentialBinding? = null
+        override fun currentBinding(organizationId: OrganizationId, connectionId: IntegrationConnectionId): CredentialBinding? =
+            findConnection(organizationId, connectionId)?.takeIf { it.status == IntegrationConnectionStatus.ACTIVE }
+                ?.let { CredentialBinding(organizationId, connectionId, 1, SecretReference.of("memory-${connectionId.value}"), Instant.EPOCH, null) }
         override fun changeConnectionStatus(organizationId: OrganizationId, connectionId: IntegrationConnectionId, expected: IntegrationConnectionStatus, target: IntegrationConnectionStatus, now: Instant, audit: IntegrationAuditEntry) = true
         override fun revokeConnection(organizationId: OrganizationId, connectionId: IntegrationConnectionId, now: Instant, audit: IntegrationAuditEntry) = true
         override fun registerDestination(destination: IntegrationDestination, audit: IntegrationAuditEntry) = Unit
         override fun findDestination(organizationId: OrganizationId, destinationId: IntegrationDestinationId): IntegrationDestination? = null
         override fun changeDestinationStatus(organizationId: OrganizationId, destinationId: IntegrationDestinationId, expected: IntegrationDestinationStatus, target: IntegrationDestinationStatus, now: Instant, audit: IntegrationAuditEntry) = true
         override fun auditEntries(organizationId: OrganizationId): List<IntegrationAuditEntry> = emptyList()
+    }
+
+    private class EmptyOmieConnector : PullConnector {
+        override val descriptor = ConnectorDescriptor(
+            ProviderKey.of("omie"),
+            listOf(ConnectorRecordDefinition(OmieTransactionEvidenceCapability.KEY, io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceRecord::class))
+        )
+        override fun readPage(capability: ConnectorCapability, credentialBytes: ByteArray, currentProgress: ConnectorProgress?, budget: ConnectorBudget, cancellation: ConnectorCancellation): ConnectorReadResult =
+            ConnectorReadResult.Page(ConnectorPage(emptyList(), null, Instant.parse("2026-09-09T12:00:00Z"), true, 2))
+    }
+
+    private class MemoryOmieCommitter : ConnectorPageCommitter {
+        override val capability = OmieTransactionEvidenceCapability.KEY
+        override val recordType: KClass<out ConnectorRecord> = io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceRecord::class
+        var commits = 0
+        override fun load(organizationId: OrganizationId, connectionId: IntegrationConnectionId, capability: ConnectorCapability) = VersionedConnectorProgress(0, null, false)
+        override fun commit(organizationId: OrganizationId, connectionId: IntegrationConnectionId, capability: ConnectorCapability, expectedProgressVersion: Long, pageCommitKey: ConnectorPageCommitKey, records: List<ConnectorRecord>, nextProgress: ConnectorProgress?, exhausted: Boolean, observedAt: Instant): ConnectorPageCommitResult {
+            commits += 1
+            return ConnectorPageCommitResult.COMMITTED
+        }
     }
 }

@@ -52,6 +52,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import java.time.Clock
 import java.time.Instant
@@ -775,7 +776,23 @@ class ApplicationTest {
                 }.exceptionOrNull()
                 assertNotNull(error)
                 assertFalse(error.message.orEmpty().contains(id))
-            }
+        }
+        assertNull(
+            mercadoLivreConnectionFromEnvironmentOrNull(
+                mapOf("FLOOOW_MERCADO_LIVRE_CONNECTION_ID" to "   ")
+            )
+        )
+        assertNull(
+            omieConnectionFromEnvironmentOrNull(
+                mapOf("FLOOOW_OMIE_CONNECTION_ID" to "")
+            )
+        )
+        assertEquals(
+            IntegrationConnectionId(UUID.fromString(id)),
+            omieConnectionFromEnvironmentOrNull(
+                mapOf("FLOOOW_OMIE_CONNECTION_ID" to id)
+            )
+        )
     }
 
     private fun Application.configureForSales(

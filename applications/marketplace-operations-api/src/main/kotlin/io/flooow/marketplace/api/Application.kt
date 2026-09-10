@@ -106,13 +106,13 @@ fun main() {
     val serviceToken = ServiceToken.fromEnvironment(environment)
     val serviceOrganizationId = serviceOrganizationFromEnvironment(environment)
     val oauthConfiguration = mercadoLivreOAuthBootstrapConfigurationOrNull(environment)
-    val connectionId = environment["FLOOOW_MERCADO_LIVRE_CONNECTION_ID"]?.let {
-        mercadoLivreConnectionFromEnvironment(environment)
-    } ?: if (oauthConfiguration == null) {
+    val connectionId = mercadoLivreConnectionFromEnvironmentOrNull(environment)
+        ?: if (oauthConfiguration == null) {
         mercadoLivreConnectionFromEnvironment(environment)
     } else {
         null
     }
+    val omieConnectionId = omieConnectionFromEnvironmentOrNull(environment)
     val configuration = PostgresConfiguration.fromEnvironment(environment)
     val journal = PostgresInventoryRiskAssessmentJournal.connect(configuration)
     val recorder = InventoryRiskAssessmentRecorder(journal)
@@ -148,6 +148,11 @@ fun main() {
                 ),
                 PostgresOmieTransactionEvidenceCommitter(configuration, security.progressProtector)
             )
+        )
+        val omieEvidenceRefresh = OmieEvidenceRefreshApi(
+            controlPlane,
+            connectorRuntime,
+            omieConnectionId
         )
         val promotionRepository =
             PostgresMarketplaceOrderSourcePromotionRepository(configuration)
@@ -210,7 +215,8 @@ fun main() {
                 systemicDivergences,
                 CommerceIdentityHealthApi { null },
                 oauthBootstrap,
-                omieBootstrap
+                omieBootstrap,
+                omieEvidenceRefresh
             )
         }.start(wait = true)
     }
@@ -246,7 +252,8 @@ internal fun Application.configureApi(
     systemicDivergencesApi: SystemicDivergencesApi? = null,
     commerceIdentityHealthApi: CommerceIdentityHealthApi? = null,
     mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null,
-    omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null
+    omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null,
+    omieEvidenceRefreshApi: OmieEvidenceRefreshApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -324,6 +331,33 @@ internal fun Application.configureApi(
                 title = "Assessment not found",
                 detail = "The requested assessment was not found",
                 code = "ASSESSMENT_NOT_FOUND"
+            )
+        }
+        exception<OmieEvidenceRefreshConfigurationUnavailableException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/omie-evidence-refresh-unavailable",
+                "Omie evidence refresh unavailable",
+                "The Omie connection is not configured",
+                "OMIE_EVIDENCE_REFRESH_UNAVAILABLE"
+            )
+        }
+        exception<OmieEvidenceRefreshConnectionUnavailableException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/omie-evidence-refresh-unavailable",
+                "Omie evidence refresh unavailable",
+                "The configured Omie connection is not active for this organization",
+                "OMIE_EVIDENCE_REFRESH_UNAVAILABLE"
+            )
+        }
+        exception<OmieEvidenceRefreshFailureException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/omie-evidence-refresh-failed",
+                "Omie evidence refresh failed",
+                "Omie evidence could not be refreshed",
+                "OMIE_EVIDENCE_REFRESH_FAILED"
             )
         }
         exception<PersistenceUnavailableException> { call, _ ->
@@ -513,6 +547,18 @@ internal fun Application.configureApi(
                     }, HttpStatusCode.Created)
                 }
             }
+            if (omieEvidenceRefreshApi != null) {
+                post(OMIE_EVIDENCE_REFRESH_PATH) {
+                    if (call.request.queryParameters.names().isNotEmpty() ||
+                        call.receiveText().isNotEmpty()
+                    ) {
+                        throw MalformedRequestException("Omie refresh accepts no request body or query")
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(omieEvidenceRefreshApi.refresh(organizationId))
+                }
+            }
             get("/openapi.json") {
                 val openApi = requireNotNull(
                     Application::class.java.getResource("/openapi.json")
@@ -630,16 +676,35 @@ internal fun Application.configureApi(
 internal fun mercadoLivreConnectionFromEnvironment(
     environment: Map<String, String> = System.getenv()
 ): IntegrationConnectionId {
-    val value = requireNotNull(environment["FLOOOW_MERCADO_LIVRE_CONNECTION_ID"]) {
+    val value = requireNotNull(mercadoLivreConnectionFromEnvironmentOrNull(environment)) {
         "FLOOOW_MERCADO_LIVRE_CONNECTION_ID is required"
     }
+    return value
+}
+
+internal fun mercadoLivreConnectionFromEnvironmentOrNull(
+    environment: Map<String, String> = System.getenv()
+): IntegrationConnectionId? = parseOptionalConnectionId(
+    environment["FLOOOW_MERCADO_LIVRE_CONNECTION_ID"],
+    "FLOOOW_MERCADO_LIVRE_CONNECTION_ID"
+)
+
+internal fun omieConnectionFromEnvironmentOrNull(
+    environment: Map<String, String> = System.getenv()
+): IntegrationConnectionId? = parseOptionalConnectionId(
+    environment["FLOOOW_OMIE_CONNECTION_ID"],
+    "FLOOOW_OMIE_CONNECTION_ID"
+)
+
+private fun parseOptionalConnectionId(value: String?, name: String): IntegrationConnectionId? {
+    if (value.isNullOrBlank()) return null
     return try {
         val parsed = UUID.fromString(value)
         require(parsed.toString() == value)
         IntegrationConnectionId(parsed)
     } catch (_: IllegalArgumentException) {
         throw IllegalArgumentException(
-            "FLOOOW_MERCADO_LIVRE_CONNECTION_ID must be a canonical UUID"
+            "$name must be a canonical UUID"
         )
     }
 }
