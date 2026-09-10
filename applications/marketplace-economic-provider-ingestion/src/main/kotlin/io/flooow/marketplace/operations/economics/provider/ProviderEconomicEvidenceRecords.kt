@@ -171,6 +171,13 @@ class MercadoLivreVariationReference private constructor(value: String) :
     }
 }
 
+class MercadoLivreSellerSkuReference private constructor(value: String) :
+    ProviderSourceText(value, 128) {
+    companion object {
+        fun of(value: String) = MercadoLivreSellerSkuReference(normalize(value))
+    }
+}
+
 class MercadoLivrePaymentReference private constructor(value: String) :
     ProviderSourceText(value, 64) {
     companion object {
@@ -185,7 +192,8 @@ class MercadoLivreOrderItemSourceObservation(
     val unitPrice: ProviderSourceDecimal,
     val currency: MercadoLivreSourceCurrency,
     val saleFee: ProviderSourceDecimal?,
-    val grossPrice: ProviderSourceDecimal?
+    val grossPrice: ProviderSourceDecimal?,
+    val sellerSku: MercadoLivreSellerSkuReference? = null
 ) {
     init {
         require(quantity.valueForPersistence() > BigDecimal.ZERO) {

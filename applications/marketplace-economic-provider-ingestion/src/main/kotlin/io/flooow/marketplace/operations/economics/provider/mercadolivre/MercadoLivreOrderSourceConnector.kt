@@ -23,6 +23,7 @@ import io.flooow.marketplace.operations.economics.provider.MercadoLivrePaymentRe
 import io.flooow.marketplace.operations.economics.provider.MercadoLivrePaymentSourceObservation
 import io.flooow.marketplace.operations.economics.provider.MercadoLivreProviderStatus
 import io.flooow.marketplace.operations.economics.provider.MercadoLivreShippingReference
+import io.flooow.marketplace.operations.economics.provider.MercadoLivreSellerSkuReference
 import io.flooow.marketplace.operations.economics.provider.MercadoLivreSourceCurrency
 import io.flooow.marketplace.operations.economics.provider.MercadoLivreVariationReference
 import io.flooow.marketplace.operations.economics.provider.ProviderSourceDecimal
@@ -351,7 +352,9 @@ class MercadoLivreOrderSourceConnector(
             unitPrice = value.requiredDecimal("unit_price"),
             currency = MercadoLivreSourceCurrency.of(value.requiredText("currency_id")),
             saleFee = value.optionalDecimal("sale_fee"),
-            grossPrice = value.optionalDecimal("full_unit_price")
+            grossPrice = value.optionalDecimal("full_unit_price"),
+            sellerSku = (item["seller_sku"] as? JsonPrimitive)?.content?.trim()
+                ?.takeIf { it.isNotEmpty() }?.let(MercadoLivreSellerSkuReference::of)
         )
     }
 

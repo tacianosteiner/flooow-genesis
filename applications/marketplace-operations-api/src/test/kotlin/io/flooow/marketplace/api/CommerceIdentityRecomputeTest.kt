@@ -26,7 +26,7 @@ class CommerceIdentityRecomputeTest {
     fun `recompute is authenticated bodyless and exposes real evaluator health`() = testApplication {
         application {
             val recompute = CommerceIdentityRecomputeApi(
-                MercadoLivreIdentityEvidenceReader { org, _ -> listOf(ml(org)) },
+                MercadoLivreIdentityEvidenceReader { org, _ -> MercadoLivreIdentityEvidenceRead(listOf(ml(org)), 1, 1, 1) },
                 OmieIdentityEvidenceReader { org, _ -> OmieIdentityEvidenceRead(listOf(omie(org)), 1, 0) }
             )
             configureApi(
@@ -51,6 +51,8 @@ class CommerceIdentityRecomputeTest {
         }
         assertEquals(HttpStatusCode.OK, response.status)
         assertContains(response.bodyAsText(), "\"exactConfirmed\":1")
+        assertContains(response.bodyAsText(), "\"mlSellerSkuRows\":1")
+        assertContains(response.bodyAsText(), "\"omieProductEvidenceRows\":0")
         assertFalse(response.bodyAsText().contains("secret"))
 
         val health = client.get("/v1/commerce-identity/health") {
@@ -67,7 +69,7 @@ class CommerceIdentityRecomputeTest {
                 ServiceToken.test(TEST_SERVICE_TOKEN), organization,
                 record = { _, _ -> error("not used") },
                 commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
-                    MercadoLivreIdentityEvidenceReader { _, _ -> emptyList() },
+                    MercadoLivreIdentityEvidenceReader { _, _ -> MercadoLivreIdentityEvidenceRead(emptyList(), 0, 0, 0) },
                     OmieIdentityEvidenceReader { _, _ -> OmieIdentityEvidenceRead(emptyList(), 0, 0) }
                 )
             )
@@ -88,7 +90,7 @@ class CommerceIdentityRecomputeTest {
                 ServiceToken.test(TEST_SERVICE_TOKEN), organization,
                 record = { _, _ -> error("not used") },
                 commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
-                    MercadoLivreIdentityEvidenceReader { _, _ -> emptyList() },
+                    MercadoLivreIdentityEvidenceReader { _, _ -> MercadoLivreIdentityEvidenceRead(emptyList(), 0, 0, 0) },
                     OmieIdentityEvidenceReader { _, _ -> OmieIdentityEvidenceRead(records, 132, 15) }
                 )
             )

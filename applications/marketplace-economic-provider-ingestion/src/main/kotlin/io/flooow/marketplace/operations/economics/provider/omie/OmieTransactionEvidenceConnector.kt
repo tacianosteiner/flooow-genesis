@@ -58,24 +58,31 @@ class OmieTransactionEvidenceConnector(
     private fun parseRecord(o: JsonObject, observed: Instant): OmieTransactionEvidenceRecord {
         val header = (o["cabecalho"] ?: o["cab"] ?: o).jsonObject
         val ref = text(header, "codigo_pedido") ?: text(o, "codigo_pedido") ?: error("Missing order code")
+        val additional = (o["informacoes_adicionais"] ?: o["informacoes_adicionais_pedido"])?.jsonObject
         val integration = text(header, "codigo_pedido_integracao")?.let(OmieIntegrationReference::of)
-        val customer = text(header, "numero_pedido_cliente")?.let(OmieCustomerOrderReference::of)
+        val customer = (text(additional, "numero_pedido_cliente") ?: text(header, "numero_pedido_cliente"))
+            ?.let(OmieCustomerOrderReference::of)
         val occurred = (text(header, "data_previsao") ?: text(header, "data_faturamento") ?: text(header, "data_pedido"))?.let { parseDate(it) }
-        val amount = (text(header, "valor_total_pedido") ?: text(header, "valor_total"))?.let { ProviderSourceDecimal.parse(it.replace(',', '.')) }
+        val totals = o["total_pedido"]?.jsonObject
+        val amount = (text(totals, "valor_total_pedido") ?: text(header, "valor_total_pedido") ?: text(header, "valor_total"))
+            ?.let { ProviderSourceDecimal.parse(it.replace(',', '.')) }
         val currency = text(header, "codigo_moeda")?.uppercase()?.let(MercadoLivreSourceCurrency::of)
         val status = text(header, "etapa")?.let(OmieOrderStatus::of)
         val details = (o["det"] ?: o["itens"] ?: o["detalhes"]) as? JsonArray ?: JsonArray(emptyList())
         val products = details.mapNotNull { d ->
-            val x = d.jsonObject["ide"]?.jsonObject ?: d.jsonObject
-            val code = text(x, "codigo") ?: text(x, "codigo_produto") ?: text(x, "cCodInt") ?: return@mapNotNull null
-            val qty = text(x, "quantidade")?.let { ProviderSourceDecimal.parse(it.replace(',', '.')) } ?: return@mapNotNull null
+            val detail = d.jsonObject
+            val x = detail["produto"]?.jsonObject ?: detail["ide"]?.jsonObject ?: detail
+            val code = text(x, "codigo_produto_integracao") ?: text(x, "codigo_produto") ?:
+                text(x, "codigo") ?: text(x, "cCodInt") ?: text(x, "cCodigo") ?: return@mapNotNull null
+            val qty = (text(x, "quantidade") ?: text(detail, "quantidade"))
+                ?.let { ProviderSourceDecimal.parse(it.replace(',', '.')) } ?: return@mapNotNull null
             OmieTransactionProductObservation(OmieDisplayedProductCode.of(code), qty)
         }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(o.toString().toByteArray()).joinToString("") { "%02x".format(it) }
         return OmieTransactionEvidenceRecord(OmieOrderReference.of(ref), integration, customer, occurred, status, currency, amount, products, observed, fingerprint)
     }
 
-    private fun text(o: JsonObject, key: String): String? = o[key]?.jsonPrimitive?.content?.trim()?.takeIf { it.isNotEmpty() }
+    private fun text(o: JsonObject?, key: String): String? = (o?.get(key) as? JsonPrimitive)?.content?.trim()?.takeIf { it.isNotEmpty() }
     private fun parseDate(v: String): Instant? = runCatching { LocalDate.parse(v.take(10), DateTimeFormatter.ofPattern("dd/MM/uuuu")).atStartOfDay(ZoneOffset.UTC).toInstant() }.getOrNull()
     private fun decodePage(p: ConnectorProgress?) = p?.useBytes { Regex("page=([1-9][0-9]*)").matchEntire(it.decodeToString())?.groupValues?.get(1)?.toIntOrNull()?.takeIf { n -> n >= 2 } }
     private fun decodeCredential(b: ByteArray): Pair<String, String>? = runCatching { val o = Json.parseToJsonElement(b.decodeToString()).jsonObject; if (o["schemaVersion"]?.jsonPrimitive?.intOrNull != 1) null else Pair(o["appKey"]!!.jsonPrimitive.content, o["appSecret"]!!.jsonPrimitive.content).takeIf { it.first.isNotBlank() && it.second.isNotBlank() } }.getOrNull()
