@@ -93,7 +93,7 @@ class MercadoLivreOrderSourceConnectorTest {
     }
 
     @Test
-    fun `reacquisition first read starts twenty four hours behind current UTC hour`() {
+    fun `reacquisition first read starts forty eight hours behind current UTC hour`() {
         val transport = RecordingTransport { validPage() }
         val connector = connector(transport)
         val credential = credential()
@@ -115,15 +115,15 @@ class MercadoLivreOrderSourceConnectorTest {
 
         val uri = requireNotNull(transport.lastUri).toString()
         assertTrue(uri.contains(
-            "order.date_last_updated.from=2026-09-05T20%3A00%3A00.000Z"
+            "order.date_last_updated.from=2026-09-04T20%3A00%3A00.000Z"
         ))
         assertTrue(uri.contains(
-            "order.date_last_updated.to=2026-09-05T21%3A00%3A00.000Z"
+            "order.date_last_updated.to=2026-09-04T21%3A00%3A00.000Z"
         ))
 
         page.nextProgress!!.use {
             assertEquals(
-                "v1|hour=2026-09-05T21:00:00Z|offset=0",
+                "v1|hour=2026-09-04T21:00:00Z|offset=0",
                 it.useBytes(ByteArray::decodeToString)
             )
         }

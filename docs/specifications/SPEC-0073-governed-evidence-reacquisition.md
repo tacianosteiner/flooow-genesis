@@ -25,7 +25,7 @@ Mercado Livre normal order-source ingestion and explicit reacquisition have
 different initial temporal semantics.
 
 - normal ingestion starts at the previous fully closed UTC hour;
-- `marketplace-economic.order-source.reacquisition-v1` starts 24 fully bounded
+- `marketplace-economic.order-source.reacquisition-v1` starts 48 fully bounded
   hours before the current UTC hour when no reacquisition progress exists;
 - subsequent reads resume exclusively from durable reacquisition progress;
 - API orchestration permits at most 48 source pages per reacquisition run and
