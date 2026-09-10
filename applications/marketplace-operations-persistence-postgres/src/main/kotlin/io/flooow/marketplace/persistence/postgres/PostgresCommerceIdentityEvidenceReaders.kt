@@ -40,7 +40,15 @@ class PostgresOmieIdentityEvidenceReader(
         }
         val distinctRows = rows.distinctBy { it.orderRef to it.fingerprint }
         val records = distinctRows.mapNotNull { it.toDomain(organizationId) }
-        return OmieIdentityEvidenceRead(records, distinctRows.size, distinctRows.size - records.size)
+        return OmieIdentityEvidenceRead(
+            records = records,
+            persistedRows = distinctRows.size,
+            skippedRows = distinctRows.size - records.size,
+            integrationReferenceRows = distinctRows.count { !it.integration.isNullOrBlank() },
+            customerOrderReferenceRows = distinctRows.count { !it.customer.isNullOrBlank() },
+            productEvidenceRows = distinctRows.count { it.hasProductEvidence() },
+            amountEvidenceRows = distinctRows.count { it.currency != null && it.amount != null }
+        )
     }
 
     private fun readRow(rs: ResultSet) = OmieRow(
@@ -60,6 +68,14 @@ class PostgresOmieIdentityEvidenceReader(
         val currency: String?, val amount: BigDecimal?, val products: String, val observed: Instant,
         val fingerprint: String
     ) {
+        fun hasProductEvidence(): Boolean = runCatching {
+            Json.parseToJsonElement(products).jsonArray.any { element ->
+                val obj = element.jsonObject
+                !obj["code"]?.jsonPrimitive?.content.isNullOrBlank() &&
+                    obj["quantity"]?.jsonPrimitive?.content?.toBigDecimalOrNull() != null
+            }
+        }.getOrDefault(false)
+
         fun toDomain(org: OrganizationId): OmieSalesOrderEvidence? {
             val productQuantities = Json.parseToJsonElement(products).jsonArray.mapNotNull { element ->
                 val obj = element.jsonObject
@@ -83,7 +99,7 @@ class PostgresMercadoLivreIdentityEvidenceReader(
     private val configuration: PostgresConfiguration,
     private val connectionId: IntegrationConnectionId? = null
 ) : MercadoLivreIdentityEvidenceReader {
-    override fun read(organizationId: OrganizationId, limit: Int): List<MercadoLivreTransactionEvidence> {
+    override fun read(organizationId: OrganizationId, limit: Int): MercadoLivreIdentityEvidenceRead {
         require(limit in 1..10_000)
         val rows = mutableListOf<MlRow>()
         DriverManager.getConnection(configuration.url, configuration.user, configuration.password).use { c ->
@@ -103,14 +119,20 @@ class PostgresMercadoLivreIdentityEvidenceReader(
                 s.executeQuery().use { rs -> while (rs.next()) rows += readRow(c, rs) }
             }
         }
-        return rows.map { it.toDomain(organizationId) }
+        val records = rows.map { it.toDomain(organizationId) }
+        return MercadoLivreIdentityEvidenceRead(
+            records = records,
+            persistedRows = rows.size,
+            sellerSkuRows = rows.count { row -> row.items.any { it.sellerSku != null } },
+            usableAmountDateRows = rows.size
+        )
     }
 
     private fun readRow(c: java.sql.Connection, rs: ResultSet): MlRow {
         val organizationId = rs.getObject("connection_id")
-        val items = mutableListOf<Pair<String, BigDecimal>>()
+        val items = mutableListOf<MlItem>()
         c.prepareStatement(
-            "SELECT item_ref,quantity FROM integration_mercado_livre_order_item_source_observation " +
+            "SELECT item_ref,seller_sku,quantity FROM integration_mercado_livre_order_item_source_observation " +
                 "WHERE organization_id=? AND connection_id=? AND capability=? AND input_progress_version=? " +
                 "AND record_ordinal=? ORDER BY item_ordinal"
         ).use { s ->
@@ -119,14 +141,19 @@ class PostgresMercadoLivreIdentityEvidenceReader(
             s.setString(3, MarketplaceEconomicOrderSourceCapability.KEY.value)
             s.setLong(4, rs.getLong("input_progress_version"))
             s.setInt(5, rs.getInt("record_ordinal"))
-            s.executeQuery().use { itemRs -> while (itemRs.next()) items += itemRs.getString("item_ref") to itemRs.getBigDecimal("quantity") }
+            s.executeQuery().use { itemRs -> while (itemRs.next()) items += MlItem(
+                itemRs.getString("item_ref"), itemRs.getString("seller_sku")?.trim()?.takeIf { it.isNotEmpty() },
+                itemRs.getBigDecimal("quantity")
+            ) }
         }
         return MlRow(rs.getString("external_order_ref"), rs.getString("pack_ref"), rs.getString("shipping_ref"), rs.getTimestamp("date_created").toInstant(), rs.getString("currency").trim(), rs.getBigDecimal("total_amount"), rs.getTimestamp("observed_at").toInstant(), items)
     }
 
-    private data class MlRow(val order: String, val pack: String?, val shipping: String?, val occurred: Instant, val currency: String, val amount: BigDecimal, val observed: Instant, val items: List<Pair<String, BigDecimal>>) {
+    private data class MlItem(val item: String, val sellerSku: String?, val quantity: BigDecimal)
+    private data class MlRow(val order: String, val pack: String?, val shipping: String?, val occurred: Instant, val currency: String, val amount: BigDecimal, val observed: Instant, val items: List<MlItem>) {
         fun toDomain(org: OrganizationId) = MercadoLivreTransactionEvidence(
-            org, order, pack, shipping, items.map { it.first }.toSet(), emptySet(), emptyMap(),
+            org, order, pack, shipping, items.map { it.item }.toSet(), items.mapNotNull { it.sellerSku }.toSet(),
+            items.mapNotNull { item -> item.sellerSku?.let { it to item.quantity } }.toMap(),
             CommerceIdentityAmount(currency, amount), occurred, setOf("mercadolivre:$order:$observed")
         )
     }

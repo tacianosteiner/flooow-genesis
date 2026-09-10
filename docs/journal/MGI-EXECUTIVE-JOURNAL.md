@@ -1283,3 +1283,14 @@ recompute route invokes the existing identity evaluator and exposes only the
 derived health/relations read model. No identity mapping confirmation,
 Economic Truth mutation, provider call, recovery authority, or execution is
 introduced; missing identity fields remain missing.
+
+## TASK-0165F - Real cross-system identity evidence enrichment
+
+The production zero-match baseline was traced to nested Omie response paths
+being read at the wrong level: customer order references live under
+`informacoes_adicionais`, products under `det[].produto`, and totals under
+`total_pedido`. Genesis now normalizes those documented fields without changing
+identity policy. Mercado Livre seller SKU is captured distinctly from item ID
+through additive migration V027. Existing evidence is not rewritten; a fresh
+bounded read is required to observe enriched rows. No provider write, Economic
+Truth mutation, mapping confirmation, recovery, or authority is introduced.

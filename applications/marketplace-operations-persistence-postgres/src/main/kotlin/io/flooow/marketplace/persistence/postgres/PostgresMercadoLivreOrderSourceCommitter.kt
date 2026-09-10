@@ -184,9 +184,9 @@ class PostgresMercadoLivreOrderSourceCommitter(
         connection.prepareStatement(
             "INSERT INTO integration_mercado_livre_order_item_source_observation (" +
                 "organization_id,connection_id,capability,input_progress_version," +
-                "record_ordinal,item_ordinal,item_ref,variation_ref,quantity,unit_price," +
+                "record_ordinal,item_ordinal,item_ref,variation_ref,seller_sku,quantity,unit_price," +
                 "currency,sale_fee,gross_price" +
-                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)"
+                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
         ).use { statement ->
             statement.setObject(1, organizationId.value)
             statement.setObject(2, connectionId.value)
@@ -196,11 +196,12 @@ class PostgresMercadoLivreOrderSourceCommitter(
             statement.setInt(6, itemOrdinal)
             statement.setString(7, item.itemReference.encodedForPersistence())
             statement.setString(8, item.variationReference?.encodedForPersistence())
-            statement.setBigDecimal(9, item.quantity.valueForPersistence())
-            statement.setBigDecimal(10, item.unitPrice.valueForPersistence())
-            statement.setString(11, item.currency.encodedForPersistence())
-            statement.setBigDecimal(12, item.saleFee?.valueForPersistence())
-            statement.setBigDecimal(13, item.grossPrice?.valueForPersistence())
+            statement.setString(9, item.sellerSku?.encodedForPersistence())
+            statement.setBigDecimal(10, item.quantity.valueForPersistence())
+            statement.setBigDecimal(11, item.unitPrice.valueForPersistence())
+            statement.setString(12, item.currency.encodedForPersistence())
+            statement.setBigDecimal(13, item.saleFee?.valueForPersistence())
+            statement.setBigDecimal(14, item.grossPrice?.valueForPersistence())
             check(statement.executeUpdate() == 1)
         }
     }
@@ -316,7 +317,7 @@ class PostgresMercadoLivreOrderSourceCommitter(
         expected: List<MercadoLivreOrderItemSourceObservation>
     ) {
         connection.prepareStatement(
-            "SELECT item_ordinal,item_ref,variation_ref,quantity,unit_price,currency," +
+            "SELECT item_ordinal,item_ref,variation_ref,seller_sku,quantity,unit_price,currency," +
                 "sale_fee,gross_price FROM integration_mercado_livre_order_item_source_observation " +
                 "WHERE organization_id=? AND connection_id=? AND capability=? " +
                 "AND input_progress_version=? AND record_ordinal=? ORDER BY item_ordinal"
@@ -335,6 +336,7 @@ class PostgresMercadoLivreOrderSourceCommitter(
                     check(result.getString("item_ref") == item.itemReference.encodedForPersistence())
                     check(result.getString("variation_ref") ==
                         item.variationReference?.encodedForPersistence())
+                    check(result.getString("seller_sku") == item.sellerSku?.encodedForPersistence())
                     check(decimalEquals(result, "quantity", item.quantity.valueForPersistence()))
                     check(decimalEquals(result, "unit_price", item.unitPrice.valueForPersistence()))
                     check(result.getString("currency") == item.currency.encodedForPersistence())

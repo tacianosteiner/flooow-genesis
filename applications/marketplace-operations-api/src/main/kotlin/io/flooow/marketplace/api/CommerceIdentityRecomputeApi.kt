@@ -24,11 +24,12 @@ internal class CommerceIdentityRecomputeApi(
 
     fun recompute(organizationId: OrganizationId): JsonObject {
         val evaluatedAt = clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MICROS)
-        val marketplaceEvidence = try {
+        val marketplaceRead = try {
             marketplace.read(organizationId, MAX_EVIDENCE)
         } catch (_: Exception) {
             throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVIDENCE_READ)
         }
+        val marketplaceEvidence = marketplaceRead.records
         val omieRead = try {
             omie.read(organizationId, MAX_EVIDENCE)
         } catch (_: Exception) {
@@ -46,10 +47,18 @@ internal class CommerceIdentityRecomputeApi(
         return buildJsonObject {
             put("status", "COMPLETED")
             put("mlTransactionsInspected", evaluation.health.mlTransactionsInspected)
+            put("mlPersistedRows", marketplaceRead.persistedRows)
+            put("mlSellerSkuRows", marketplaceRead.sellerSkuRows)
+            put("mlUsableAmountDateRows", marketplaceRead.usableAmountDateRows)
             put("omieTransactionsInspected", evaluation.health.omieTransactionsInspected)
             put("omiePersistedRows", omieRead.persistedRows)
             put("omieIdentityEvaluableRows", omieEvidence.size)
             put("omieNonEvaluableRows", omieRead.skippedRows)
+            put("omieIntegrationReferenceRows", omieRead.integrationReferenceRows)
+            put("omieCustomerOrderReferenceRows", omieRead.customerOrderReferenceRows)
+            put("omieProductEvidenceRows", omieRead.productEvidenceRows)
+            put("omieAmountEvidenceRows", omieRead.amountEvidenceRows)
+            put("omieExplicitMarketplaceOrderReferenceRows", omieRead.explicitMarketplaceOrderReferenceRows)
             put("exactConfirmed", evaluation.health.exactConfirmed)
             put("candidate", evaluation.health.candidate)
             put("ambiguous", evaluation.health.ambiguous)

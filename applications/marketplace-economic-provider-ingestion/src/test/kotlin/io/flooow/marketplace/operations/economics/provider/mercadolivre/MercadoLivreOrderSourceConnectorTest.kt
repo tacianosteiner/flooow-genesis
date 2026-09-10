@@ -87,6 +87,7 @@ class MercadoLivreOrderSourceConnectorTest {
         assertEquals("125.92", record.totalAmount.canonicalValue())
         assertEquals("125.92", record.paidAmount?.canonicalValue())
         assertEquals("MLB333", record.orderItems.single().itemReference.encodedForPersistence())
+        assertEquals("SKU-MLB333", record.orderItems.single().sellerSku?.encodedForPersistence())
         assertEquals("11.07", record.orderItems.single().saleFee?.canonicalValue())
         assertEquals("91776699099", record.payments.single().paymentReference.encodedForPersistence())
     }
@@ -467,7 +468,7 @@ class MercadoLivreOrderSourceConnectorTest {
           "pack_id":2000006556183755,
           "shipping":{"id":46803546483},
           "order_items":[{
-            "item":{"id":"$item","variation_id":null,"title":"PII-like ignored title"},
+            "item":{"id":"$item","seller_sku":"SKU-$item","variation_id":null,"title":"PII-like ignored title"},
             "quantity":1,
             "unit_price":62.96,
             "full_unit_price":72.37,
