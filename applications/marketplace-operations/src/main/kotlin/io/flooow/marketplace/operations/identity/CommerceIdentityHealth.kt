@@ -46,10 +46,21 @@ object CommerceIdentityHealthEvaluator {
         evaluatedAt: Instant,
         evaluationWindow: String? = null
     ): CommerceIdentityHealthEvaluation {
-        require(marketplace.all { it.organizationId == omie.firstOrNull()?.organizationId ?: it.organizationId })
-        require(omie.all { it.organizationId == marketplace.firstOrNull()?.organizationId ?: it.organizationId })
         val organization = marketplace.firstOrNull()?.organizationId ?: omie.firstOrNull()?.organizationId
             ?: error("At least one source record is required")
+        return evaluate(organization, marketplace, omie, policy, evaluatedAt, evaluationWindow)
+    }
+
+    fun evaluate(
+        organization: OrganizationId,
+        marketplace: List<MercadoLivreTransactionEvidence>,
+        omie: List<OmieSalesOrderEvidence>,
+        policy: CommerceIdentityPolicy,
+        evaluatedAt: Instant,
+        evaluationWindow: String? = null
+    ): CommerceIdentityHealthEvaluation {
+        require(marketplace.all { it.organizationId == organization })
+        require(omie.all { it.organizationId == organization })
         val assessments = marketplace.map { CommerceIdentityBridge.assess(it, omie, policy, evaluatedAt) }
         val relations = assessments.map { a ->
             val c = a.transaction

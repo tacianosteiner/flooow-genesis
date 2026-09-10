@@ -33,6 +33,8 @@ import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationC
 import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceCommitter
+import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceReader
+import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
 import io.flooow.marketplace.operations.live.MarketplaceOrderRevenuePromotionLivePipelineAdapter
@@ -154,6 +156,10 @@ fun main() {
             connectorRuntime,
             omieConnectionId
         )
+        val commerceIdentityRecompute = CommerceIdentityRecomputeApi(
+            PostgresMercadoLivreIdentityEvidenceReader(configuration, connectionId),
+            PostgresOmieIdentityEvidenceReader(configuration, omieConnectionId)
+        )
         val promotionRepository =
             PostgresMarketplaceOrderSourcePromotionRepository(configuration)
         val evidenceRepository =
@@ -213,10 +219,11 @@ fun main() {
                 salesIntelligenceApi,
                 reconciliationCases,
                 systemicDivergences,
-                CommerceIdentityHealthApi { null },
+                CommerceIdentityHealthApi(commerceIdentityRecompute::current),
                 oauthBootstrap,
                 omieBootstrap,
-                omieEvidenceRefresh
+                omieEvidenceRefresh,
+                commerceIdentityRecompute
             )
         }.start(wait = true)
     }
@@ -253,7 +260,8 @@ internal fun Application.configureApi(
     commerceIdentityHealthApi: CommerceIdentityHealthApi? = null,
     mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null,
     omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null,
-    omieEvidenceRefreshApi: OmieEvidenceRefreshApi? = null
+    omieEvidenceRefreshApi: OmieEvidenceRefreshApi? = null,
+    commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -358,6 +366,15 @@ internal fun Application.configureApi(
                 "Omie evidence refresh failed",
                 "Omie evidence could not be refreshed",
                 "OMIE_EVIDENCE_REFRESH_FAILED"
+            )
+        }
+        exception<CommerceIdentityRecomputeFailureException> { call, _ ->
+            call.respondProblem(
+                HttpStatusCode.ServiceUnavailable,
+                "https://flooow.io/problems/commerce-identity-recompute-failed",
+                "Commerce identity recompute failed",
+                "Persisted identity evidence could not be evaluated",
+                "COMMERCE_IDENTITY_RECOMPUTE_FAILED"
             )
         }
         exception<PersistenceUnavailableException> { call, _ ->
@@ -557,6 +574,24 @@ internal fun Application.configureApi(
                     val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
                     call.response.header("Cache-Control", "no-store")
                     call.respondJson(omieEvidenceRefreshApi.refresh(organizationId))
+                }
+            }
+            if (commerceIdentityRecomputeApi != null) {
+                post("/v1/commerce-identity/recompute") {
+                    if (call.request.queryParameters.names().isNotEmpty() ||
+                        call.receiveText().isNotEmpty()
+                    ) {
+                        throw MalformedRequestException("Commerce identity recompute accepts no request body or query")
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
+                    call.response.header("Cache-Control", "no-store")
+                    try {
+                        call.respondJson(commerceIdentityRecomputeApi.recompute(organizationId))
+                    } catch (_: CommerceIdentityRecomputeFailureException) {
+                        throw CommerceIdentityRecomputeFailureException()
+                    } catch (_: Exception) {
+                        throw CommerceIdentityRecomputeFailureException()
+                    }
                 }
             }
             get("/openapi.json") {

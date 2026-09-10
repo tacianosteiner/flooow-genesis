@@ -73,6 +73,22 @@
         }
       }
     },
+    "/v1/commerce-identity/recompute": {
+      "post": {
+        "operationId": "recomputeCommerceIdentityHealth",
+        "security": [{ "serviceBearer": [] }],
+        "description": "Recomputes read-only identity health from persisted Mercado Livre and Omie evidence. Organization is derived from the authenticated principal.",
+        "responses": {
+          "200": {
+            "description": "Identity health recomputation metadata",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CommerceIdentityRecomputeResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/marketplace-operations/inventory-risk-assessments": {
       "post": {
         "operationId": "assessInventoryRisk",
@@ -371,6 +387,24 @@
           "committedPages": { "type": "integer", "minimum": 0 },
           "alreadyCommittedPages": { "type": "integer", "minimum": 0 },
           "records": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "CommerceIdentityRecomputeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "mlTransactionsInspected", "omieTransactionsInspected", "exactConfirmed", "candidate", "ambiguous", "conflict", "unresolved", "policyVersion", "evaluatedAt"],
+        "properties": {
+          "status": { "type": "string", "const": "COMPLETED" },
+          "mlTransactionsInspected": { "type": "integer", "minimum": 0 },
+          "omieTransactionsInspected": { "type": "integer", "minimum": 0 },
+          "exactConfirmed": { "type": "integer", "minimum": 0 },
+          "candidate": { "type": "integer", "minimum": 0 },
+          "ambiguous": { "type": "integer", "minimum": 0 },
+          "conflict": { "type": "integer", "minimum": 0 },
+          "unresolved": { "type": "integer", "minimum": 0 },
+          "coveragePercentage": { "type": "string" },
+          "policyVersion": { "type": "string" },
+          "evaluatedAt": { "type": "string", "format": "date-time" }
         }
       },
       "InventoryRiskRequest": {
