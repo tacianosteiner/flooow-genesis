@@ -27,7 +27,7 @@ class CommerceIdentityRecomputeTest {
         application {
             val recompute = CommerceIdentityRecomputeApi(
                 MercadoLivreIdentityEvidenceReader { org, _ -> listOf(ml(org)) },
-                OmieIdentityEvidenceReader { org, _ -> listOf(omie(org)) }
+                OmieIdentityEvidenceReader { org, _ -> OmieIdentityEvidenceRead(listOf(omie(org)), 1, 0) }
             )
             configureApi(
                 ServiceToken.test(TEST_SERVICE_TOKEN), organization,
@@ -68,7 +68,7 @@ class CommerceIdentityRecomputeTest {
                 record = { _, _ -> error("not used") },
                 commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
                     MercadoLivreIdentityEvidenceReader { _, _ -> emptyList() },
-                    OmieIdentityEvidenceReader { _, _ -> emptyList() }
+                    OmieIdentityEvidenceReader { _, _ -> OmieIdentityEvidenceRead(emptyList(), 0, 0) }
                 )
             )
         }
@@ -80,13 +80,35 @@ class CommerceIdentityRecomputeTest {
         assertFalse(response.bodyAsText().contains("coveragePercentage"))
     }
 
+    @Test
+    fun `non evaluable persisted Omie rows are reported without failing recompute`() = testApplication {
+        application {
+            val records = List(117) { index -> omie(organization, "ERP-$index") }
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
+                    MercadoLivreIdentityEvidenceReader { _, _ -> emptyList() },
+                    OmieIdentityEvidenceReader { _, _ -> OmieIdentityEvidenceRead(records, 132, 15) }
+                )
+            )
+        }
+        val response = client.post("/v1/commerce-identity/recompute") {
+            bearerAuth(TEST_SERVICE_TOKEN)
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"omiePersistedRows\":132")
+        assertContains(response.bodyAsText(), "\"omieIdentityEvaluableRows\":117")
+        assertContains(response.bodyAsText(), "\"omieNonEvaluableRows\":15")
+    }
+
     private fun ml(org: OrganizationId) = MercadoLivreTransactionEvidence(
         org, "123456789012", null, null, emptySet(), setOf("SKU"),
         mapOf("SKU" to BigDecimal.ONE), CommerceIdentityAmount("BRL", BigDecimal("10.00")), at, setOf("ml:evidence")
     )
 
-    private fun omie(org: OrganizationId) = OmieSalesOrderEvidence(
-        org, setOf("SKU"), mapOf("SKU" to BigDecimal.ONE), "ERP-1", null,
+    private fun omie(org: OrganizationId, integration: String = "ERP-1") = OmieSalesOrderEvidence(
+        org, setOf("SKU"), mapOf("SKU" to BigDecimal.ONE), integration, null,
         CommerceIdentityAmount("BRL", BigDecimal("10.00")), at, setOf("omie:evidence"), setOf("123456789012")
     )
 }

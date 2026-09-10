@@ -24,16 +24,32 @@ internal class CommerceIdentityRecomputeApi(
 
     fun recompute(organizationId: OrganizationId): JsonObject {
         val evaluatedAt = clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MICROS)
-        val marketplaceEvidence = marketplace.read(organizationId, MAX_EVIDENCE)
-        val omieEvidence = omie.read(organizationId, MAX_EVIDENCE)
-        val evaluation = CommerceIdentityHealthEvaluator.evaluate(
-            organizationId, marketplaceEvidence, omieEvidence, policy, evaluatedAt
-        )
+        val marketplaceEvidence = try {
+            marketplace.read(organizationId, MAX_EVIDENCE)
+        } catch (_: Exception) {
+            throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVIDENCE_READ)
+        }
+        val omieRead = try {
+            omie.read(organizationId, MAX_EVIDENCE)
+        } catch (_: Exception) {
+            throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVIDENCE_READ)
+        }
+        val omieEvidence = omieRead.records
+        val evaluation = try {
+            CommerceIdentityHealthEvaluator.evaluate(
+                organizationId, marketplaceEvidence, omieEvidence, policy, evaluatedAt
+            )
+        } catch (_: Exception) {
+            throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVALUATION)
+        }
         evaluations[organizationId] = evaluation
         return buildJsonObject {
             put("status", "COMPLETED")
             put("mlTransactionsInspected", evaluation.health.mlTransactionsInspected)
             put("omieTransactionsInspected", evaluation.health.omieTransactionsInspected)
+            put("omiePersistedRows", omieRead.persistedRows)
+            put("omieIdentityEvaluableRows", omieEvidence.size)
+            put("omieNonEvaluableRows", omieRead.skippedRows)
             put("exactConfirmed", evaluation.health.exactConfirmed)
             put("candidate", evaluation.health.candidate)
             put("ambiguous", evaluation.health.ambiguous)
@@ -48,4 +64,8 @@ internal class CommerceIdentityRecomputeApi(
     private companion object { const val MAX_EVIDENCE = 10_000 }
 }
 
-internal class CommerceIdentityRecomputeFailureException : RuntimeException()
+internal enum class CommerceIdentityFailureCategory { EVIDENCE_READ, EVALUATION, UNKNOWN }
+
+internal class CommerceIdentityRecomputeFailureException(
+    val category: CommerceIdentityFailureCategory = CommerceIdentityFailureCategory.UNKNOWN
+) : RuntimeException()

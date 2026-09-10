@@ -1267,6 +1267,14 @@ pages use the existing PostgreSQL committer and progress idempotency. No
 provider mutation, Economic Truth write, identity confirmation, recovery, or
 authority is introduced.
 
+## TASK-0165E.1 - Omie identity projection hardening
+
+Production inspection found 132 persisted Omie evidence rows, 117
+identity-evaluable rows, and 15 rows lacking all identity-bearing references.
+The durable reader preserves all evidence while excluding only the 15 rows
+from the identity projection. Recompute now reports this metadata, remains
+deterministic, and does not mutate source evidence or fabricate missing values.
+
 ## TASK-0165E - Durable Commerce Identity Recompute
 
 TASK-0165E adds deterministic, organization-scoped PostgreSQL reconstruction of
