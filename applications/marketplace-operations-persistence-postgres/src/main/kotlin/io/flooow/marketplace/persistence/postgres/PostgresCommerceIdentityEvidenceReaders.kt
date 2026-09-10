@@ -18,7 +18,7 @@ class PostgresOmieIdentityEvidenceReader(
     private val configuration: PostgresConfiguration,
     private val connectionId: IntegrationConnectionId? = null
 ) : OmieIdentityEvidenceReader {
-    override fun read(organizationId: OrganizationId, limit: Int): List<OmieSalesOrderEvidence> {
+    override fun read(organizationId: OrganizationId, limit: Int): OmieIdentityEvidenceRead {
         require(limit in 1..10_000)
         val rows = mutableListOf<OmieRow>()
         DriverManager.getConnection(configuration.url, configuration.user, configuration.password).use { c ->
@@ -38,14 +38,15 @@ class PostgresOmieIdentityEvidenceReader(
                 s.executeQuery().use { rs -> while (rs.next()) rows += readRow(rs) }
             }
         }
-        return rows.distinctBy { it.orderRef to it.fingerprint }
-            .mapNotNull { it.toDomain(organizationId) }
+        val distinctRows = rows.distinctBy { it.orderRef to it.fingerprint }
+        val records = distinctRows.mapNotNull { it.toDomain(organizationId) }
+        return OmieIdentityEvidenceRead(records, distinctRows.size, distinctRows.size - records.size)
     }
 
     private fun readRow(rs: ResultSet) = OmieRow(
-        rs.getString("source_order_ref"),
-        rs.getString("source_integration_ref"),
-        rs.getString("source_customer_order_ref"),
+        rs.getString("source_order_ref").trim(),
+        rs.getString("source_integration_ref")?.trim()?.takeIf { it.isNotEmpty() },
+        rs.getString("source_customer_order_ref")?.trim()?.takeIf { it.isNotEmpty() },
         rs.getTimestamp("occurred_at")?.toInstant(),
         rs.getString("currency")?.trim(),
         rs.getBigDecimal("total_amount"),
@@ -54,7 +55,7 @@ class PostgresOmieIdentityEvidenceReader(
         rs.getString("source_fingerprint")
     )
 
-    private data class OmieRow(
+    internal data class OmieRow(
         val orderRef: String, val integration: String?, val customer: String?, val occurred: Instant?,
         val currency: String?, val amount: BigDecimal?, val products: String, val observed: Instant,
         val fingerprint: String
@@ -67,6 +68,7 @@ class PostgresOmieIdentityEvidenceReader(
                 if (code.isNullOrBlank() || quantity == null) null else code to quantity
             }.toMap()
             val at = occurred ?: return null
+            if (integration.isNullOrBlank() && customer.isNullOrBlank() && productQuantities.isEmpty()) return null
             val money = if (currency != null && amount != null) CommerceIdentityAmount(currency, amount) else null
             return OmieSalesOrderEvidence(
                 org, productQuantities.keys, productQuantities, integration, customer, money, at,

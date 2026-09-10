@@ -61,6 +61,7 @@ import io.ktor.server.request.contentType
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.respondText
+import java.util.logging.Logger
 import io.ktor.server.response.header
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -587,10 +588,12 @@ internal fun Application.configureApi(
                     call.response.header("Cache-Control", "no-store")
                     try {
                         call.respondJson(commerceIdentityRecomputeApi.recompute(organizationId))
-                    } catch (_: CommerceIdentityRecomputeFailureException) {
-                        throw CommerceIdentityRecomputeFailureException()
+                    } catch (failure: CommerceIdentityRecomputeFailureException) {
+                        COMMERCE_IDENTITY_LOGGER.warning("commerce_identity_recompute_failure category=${failure.category}")
+                        throw failure
                     } catch (_: Exception) {
-                        throw CommerceIdentityRecomputeFailureException()
+                        COMMERCE_IDENTITY_LOGGER.warning("commerce_identity_recompute_failure category=UNKNOWN")
+                        throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.UNKNOWN)
                     }
                 }
             }
@@ -953,6 +956,8 @@ private class InMemoryAssessmentJournal : InventoryRiskAssessmentJournal {
         assessmentId: String
     ): RecordedInventoryRiskAssessment? = records[organizationId to assessmentId]
 }
+
+private val COMMERCE_IDENTITY_LOGGER: Logger = Logger.getLogger("io.flooow.marketplace.api.commerce-identity")
 
 private class MalformedRequestException(message: String) : RuntimeException(message)
 private class DomainValidationException(message: String) : RuntimeException(message)
