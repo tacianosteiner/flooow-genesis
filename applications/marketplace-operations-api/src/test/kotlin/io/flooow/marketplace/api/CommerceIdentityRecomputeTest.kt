@@ -1,0 +1,92 @@
+package io.flooow.marketplace.api
+
+import io.flooow.marketplace.operations.identity.*
+import io.flooow.organization.OrganizationId
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.post
+import io.ktor.client.request.get
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.server.testing.testApplication
+import java.math.BigDecimal
+import java.time.Instant
+import kotlin.test.Test
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+
+class CommerceIdentityRecomputeTest {
+    private val organization = OrganizationId.parse("11111111-1111-4111-8111-111111111111")
+    private val at = Instant.parse("2026-09-09T12:00:00Z")
+
+    @Test
+    fun `recompute is authenticated bodyless and exposes real evaluator health`() = testApplication {
+        application {
+            val recompute = CommerceIdentityRecomputeApi(
+                MercadoLivreIdentityEvidenceReader { org, _ -> listOf(ml(org)) },
+                OmieIdentityEvidenceReader { org, _ -> listOf(omie(org)) }
+            )
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityHealthApi = CommerceIdentityHealthApi(recompute::current),
+                commerceIdentityRecomputeApi = recompute
+            )
+        }
+        val unauthorized = client.post("/v1/commerce-identity/recompute")
+        assertEquals(HttpStatusCode.Unauthorized, unauthorized.status)
+
+        val withBody = client.post("/v1/commerce-identity/recompute") {
+            bearerAuth(TEST_SERVICE_TOKEN)
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        assertEquals(HttpStatusCode.BadRequest, withBody.status)
+
+        val response = client.post("/v1/commerce-identity/recompute") {
+            bearerAuth(TEST_SERVICE_TOKEN)
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"exactConfirmed\":1")
+        assertFalse(response.bodyAsText().contains("secret"))
+
+        val health = client.get("/v1/commerce-identity/health") {
+            bearerAuth(TEST_SERVICE_TOKEN)
+        }
+        assertEquals(HttpStatusCode.OK, health.status)
+        assertContains(health.bodyAsText(), "\"exactConfirmed\":1")
+    }
+
+    @Test
+    fun `zero evidence recompute remains explicit zero`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
+                    MercadoLivreIdentityEvidenceReader { _, _ -> emptyList() },
+                    OmieIdentityEvidenceReader { _, _ -> emptyList() }
+                )
+            )
+        }
+        val response = client.post("/v1/commerce-identity/recompute") {
+            bearerAuth(TEST_SERVICE_TOKEN)
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"mlTransactionsInspected\":0")
+        assertFalse(response.bodyAsText().contains("coveragePercentage"))
+    }
+
+    private fun ml(org: OrganizationId) = MercadoLivreTransactionEvidence(
+        org, "123456789012", null, null, emptySet(), setOf("SKU"),
+        mapOf("SKU" to BigDecimal.ONE), CommerceIdentityAmount("BRL", BigDecimal("10.00")), at, setOf("ml:evidence")
+    )
+
+    private fun omie(org: OrganizationId) = OmieSalesOrderEvidence(
+        org, setOf("SKU"), mapOf("SKU" to BigDecimal.ONE), "ERP-1", null,
+        CommerceIdentityAmount("BRL", BigDecimal("10.00")), at, setOf("omie:evidence"), setOf("123456789012")
+    )
+}

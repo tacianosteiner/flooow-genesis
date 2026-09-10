@@ -1257,7 +1257,7 @@ the code server-side, validates the Mercado Livre identity, and binds the
 existing credential envelope through the secure vault. The refresh lifecycle
 continues unchanged. No token import, provider business mutation, Economic
 Truth mutation, identity confirmation or recovery authority is introduced.
-## TASK-0165D — Governed Omie Evidence Refresh
+## TASK-0165D - Governed Omie Evidence Refresh
 
 TASK-0165D adds the organization-scoped, authenticated Omie evidence refresh
 seam. The server-bound `FLOOOW_OMIE_CONNECTION_ID` is validated against the
@@ -1266,3 +1266,12 @@ authenticated organization and the existing Integration Control Plane before
 pages use the existing PostgreSQL committer and progress idempotency. No
 provider mutation, Economic Truth write, identity confirmation, recovery, or
 authority is introduced.
+
+## TASK-0165E - Durable Commerce Identity Recompute
+
+TASK-0165E adds deterministic, organization-scoped PostgreSQL reconstruction of
+the existing Mercado Livre and Omie source evidence. A bodyless authenticated
+recompute route invokes the existing identity evaluator and exposes only the
+derived health/relations read model. No identity mapping confirmation,
+Economic Truth mutation, provider call, recovery authority, or execution is
+introduced; missing identity fields remain missing.
