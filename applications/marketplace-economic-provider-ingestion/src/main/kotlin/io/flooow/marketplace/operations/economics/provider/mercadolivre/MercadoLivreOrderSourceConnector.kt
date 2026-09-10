@@ -455,7 +455,7 @@ class MercadoLivreOrderSourceConnector(
         internal const val MAX_CHILDREN = 100
         internal const val MAX_OFFSET = 10_000_000
         internal const val NORMAL_LOOKBACK_HOURS = 1L
-        internal const val REACQUISITION_LOOKBACK_HOURS = 24L
+        internal const val REACQUISITION_LOOKBACK_HOURS = 48L
 
         private val SOURCE_DATE_FORMAT: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
