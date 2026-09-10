@@ -93,6 +93,43 @@ class MercadoLivreOrderSourceConnectorTest {
     }
 
     @Test
+    fun `reacquisition first read starts twenty four hours behind current UTC hour`() {
+        val transport = RecordingTransport { validPage() }
+        val connector = connector(transport)
+        val credential = credential()
+
+        val result = try {
+            connector.readPage(
+                MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY,
+                credential,
+                null,
+                budget(maxRecords = 50),
+                ConnectorCancellation.NEVER
+            )
+        } finally {
+            credential.fill(0)
+        }
+
+        val page = assertIs<ConnectorReadResult.Page>(result).value
+        assertEquals(1, transport.calls.get())
+
+        val uri = requireNotNull(transport.lastUri).toString()
+        assertTrue(uri.contains(
+            "order.date_last_updated.from=2026-09-05T20%3A00%3A00.000Z"
+        ))
+        assertTrue(uri.contains(
+            "order.date_last_updated.to=2026-09-05T21%3A00%3A00.000Z"
+        ))
+
+        page.nextProgress!!.use {
+            assertEquals(
+                "v1|hour=2026-09-05T21:00:00Z|offset=0",
+                it.useBytes(ByteArray::decodeToString)
+            )
+        }
+    }
+
+    @Test
     fun `paging stays in hour until total consumed`() {
         val transport = RecordingTransport {
             validPage(total = 3, offset = 0, limit = 2, includeTwo = true)
