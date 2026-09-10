@@ -39,6 +39,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceRe
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
+import io.flooow.marketplace.operations.live.MarketplaceLivePipelineLimits
 import io.flooow.marketplace.operations.live.MarketplaceOrderRevenuePromotionLivePipelineAdapter
 import io.flooow.marketplace.operations.live.MarketplaceOrderSourcePromotionLivePipelineAdapter
 import io.flooow.marketplace.operations.live.MarketplaceSalesIntelligenceLivePipelineAdapter
@@ -245,7 +246,13 @@ fun main() {
                 connectionId = it,
                 cursors = cursorCodec,
                 reacquire = { organizationId, configuredConnectionId, deadline ->
-                    reacquisitionPipeline.run(organizationId, configuredConnectionId, deadline, stopAfterSource = true)
+                    reacquisitionPipeline.run(
+                        organizationId,
+                        configuredConnectionId,
+                        deadline,
+                        limits = MarketplaceLivePipelineLimits(maxSourcePages = 48),
+                        stopAfterSource = true
+                    )
                 }
             )
         }

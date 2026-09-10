@@ -125,7 +125,14 @@ class MercadoLivreOrderSourceConnector(
 
         val currentHour = now.truncatedTo(ChronoUnit.HOURS)
         val cursor = if (currentProgress == null) {
-            SourceCursor(currentHour.minus(1, ChronoUnit.HOURS), 0)
+            val lookbackHours = if (
+                capability == MarketplaceEconomicOrderSourceCapability.REACQUISITION_KEY
+            ) {
+                REACQUISITION_LOOKBACK_HOURS
+            } else {
+                NORMAL_LOOKBACK_HOURS
+            }
+            SourceCursor(currentHour.minus(lookbackHours, ChronoUnit.HOURS), 0)
         } else {
             decodeProgress(currentProgress)
                 ?: return failed(ConnectorAdapterFailureKind.REMOTE_DATA_INVALID)
@@ -447,6 +454,8 @@ class MercadoLivreOrderSourceConnector(
         internal const val MAX_PROVIDER_PAGE_SIZE = 50
         internal const val MAX_CHILDREN = 100
         internal const val MAX_OFFSET = 10_000_000
+        internal const val NORMAL_LOOKBACK_HOURS = 1L
+        internal const val REACQUISITION_LOOKBACK_HOURS = 24L
 
         private val SOURCE_DATE_FORMAT: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")

@@ -18,3 +18,22 @@ counts and the generation identifier only.
 The source failure category is bounded metadata (`AUTHENTICATION`,
 `AUTHORIZATION`, `RATE_LIMIT`, provider, schema, budget, persistence, or
 `UNKNOWN`). It never contains provider payloads or secrets.
+
+## Historical Mercado Livre reacquisition bootstrap
+
+Mercado Livre normal order-source ingestion and explicit reacquisition have
+different initial temporal semantics.
+
+- normal ingestion starts at the previous fully closed UTC hour;
+- `marketplace-economic.order-source.reacquisition-v1` starts 24 fully bounded
+  hours before the current UTC hour when no reacquisition progress exists;
+- subsequent reads resume exclusively from durable reacquisition progress;
+- API orchestration permits at most 48 source pages per reacquisition run and
+  retains the existing two-minute request deadline;
+- the historical window is evidence reacquisition only. It does not promote an
+  identity relation, relax matching, mutate Economic Truth, or write to the
+  provider.
+
+The purpose is to reacquire older provider observations after extraction
+capabilities improve, while preserving historical observations and independent
+progress namespaces.
