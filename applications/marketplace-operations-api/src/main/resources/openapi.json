@@ -57,6 +57,22 @@
         }
       }
     },
+    "/v1/commerce-identity/omie/refresh": {
+      "post": {
+        "operationId": "refreshOmieTransactionEvidence",
+        "security": [{ "serviceBearer": [] }],
+        "description": "Read-only bounded Omie ListarPedidos ingestion. Organization and connection are selected server-side.",
+        "responses": {
+          "200": {
+            "description": "Evidence refresh operational metadata",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OmieEvidenceRefreshResponse" } } }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/marketplace-operations/inventory-risk-assessments": {
       "post": {
         "operationId": "assessInventoryRisk",
@@ -342,6 +358,19 @@
         "properties": {
           "status": { "type": "string", "const": "READY" },
           "connectionId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "OmieEvidenceRefreshResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "connectionStatus", "invocations", "committedPages", "alreadyCommittedPages", "records"],
+        "properties": {
+          "status": { "type": "string", "const": "COMPLETED" },
+          "connectionStatus": { "type": "string", "const": "ACTIVE" },
+          "invocations": { "type": "integer", "minimum": 1 },
+          "committedPages": { "type": "integer", "minimum": 0 },
+          "alreadyCommittedPages": { "type": "integer", "minimum": 0 },
+          "records": { "type": "integer", "minimum": 0 }
         }
       },
       "InventoryRiskRequest": {
