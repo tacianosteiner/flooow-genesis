@@ -38,17 +38,29 @@ internal class CommerceIdentityRecomputeApi(
             throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVIDENCE_READ)
         }
         val observedOrderIds = marketplaceEvidence.map { it.orderId }.toSet()
+        val knownObserved = KNOWN_PRODUCTION_ORDER_IDS.associateWith(observedOrderIds::contains)
+        val omieReferences = omieRead.records.flatMap { listOf(it.integrationCode, it.customerOrderNumber) }
+            .filterNotNull()
+        val knownInOmieReferences = KNOWN_PRODUCTION_ORDER_IDS.associateWith { id ->
+            omieReferences.any { ExplicitMarketplaceOrderReferenceResolver.normalize(it) == id }
+        }
+        val resolverEmissions = omieRead.records.map { order ->
+            ExplicitMarketplaceOrderReferenceResolver.resolve(
+                observedOrderIds,
+                listOf(order.integrationCode, order.customerOrderNumber)
+            )
+        }
         val omieEvidence = deduplicateSemanticEvidence(
-            omieRead.records.map { order ->
-                order.copy(
-                    declaredMarketplaceOrderIds =
-                        ExplicitMarketplaceOrderReferenceResolver.resolve(
-                            observedOrderIds,
-                            listOf(order.integrationCode, order.customerOrderNumber)
-                        )
-                )
+            omieRead.records.mapIndexed { index, order ->
+                order.copy(declaredMarketplaceOrderIds = resolverEmissions[index])
             }
         )
+        val knownResolverEmissions = KNOWN_PRODUCTION_ORDER_IDS.associateWith { id ->
+            resolverEmissions.any { id in it }
+        }
+        val knownAfterAggregation = KNOWN_PRODUCTION_ORDER_IDS.associateWith { id ->
+            omieEvidence.any { id in it.declaredMarketplaceOrderIds }
+        }
         val evaluation = try {
             CommerceIdentityHealthEvaluator.evaluate(
                 organizationId, marketplaceEvidence, omieEvidence, policy, evaluatedAt
@@ -72,6 +84,21 @@ internal class CommerceIdentityRecomputeApi(
             put("omieProductEvidenceRows", omieRead.productEvidenceRows)
             put("omieAmountEvidenceRows", omieRead.amountEvidenceRows)
             put("omieExplicitMarketplaceOrderReferenceRows", omieEvidence.count { it.declaredMarketplaceOrderIds.isNotEmpty() })
+            put("diagnostics", buildJsonObject {
+                put("observedMlOrderIdCount", observedOrderIds.size)
+                put("omieIntegrationReferenceCount", omieRead.records.count { it.integrationCode != null })
+                put("omieCustomerOrderReferenceCount", omieRead.records.count { it.customerOrderNumber != null })
+                put("knownProductionOrderIds", buildJsonObject {
+                    KNOWN_PRODUCTION_ORDER_IDS.forEach { id ->
+                        put(id, buildJsonObject {
+                            put("observedInMl", knownObserved.getValue(id))
+                            put("inOmieReferencesBeforeResolver", knownInOmieReferences.getValue(id))
+                            put("emittedByResolverBeforeAggregation", knownResolverEmissions.getValue(id))
+                            put("survivesSemanticAggregation", knownAfterAggregation.getValue(id))
+                        })
+                    }
+                })
+            })
             put("exactConfirmed", evaluation.health.exactConfirmed)
             put("candidate", evaluation.health.candidate)
             put("ambiguous", evaluation.health.ambiguous)
@@ -135,6 +162,12 @@ internal class CommerceIdentityRecomputeApi(
         val OMIE_EVIDENCE_ORDER = compareBy<OmieSalesOrderEvidence> {
             it.evidenceReferences.sorted().joinToString("|")
         }
+        val KNOWN_PRODUCTION_ORDER_IDS = listOf(
+            "2000017885956380",
+            "2000017921418896",
+            "2000018336941860",
+            "2000018381665458"
+        )
         const val MAX_EVIDENCE = 10_000
     }
 

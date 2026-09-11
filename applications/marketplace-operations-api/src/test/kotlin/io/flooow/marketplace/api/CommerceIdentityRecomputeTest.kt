@@ -130,6 +130,10 @@ class CommerceIdentityRecomputeTest {
         assertEquals(HttpStatusCode.OK, response.status)
         assertContains(response.bodyAsText(), "\"exactConfirmed\":1")
         assertContains(response.bodyAsText(), "\"omieExplicitMarketplaceOrderReferenceRows\":1")
+        assertContains(response.bodyAsText(), "\"observedInMl\":true")
+        assertContains(response.bodyAsText(), "\"inOmieReferencesBeforeResolver\":true")
+        assertContains(response.bodyAsText(), "\"emittedByResolverBeforeAggregation\":true")
+        assertContains(response.bodyAsText(), "\"survivesSemanticAggregation\":true")
     }
 
     @Test
