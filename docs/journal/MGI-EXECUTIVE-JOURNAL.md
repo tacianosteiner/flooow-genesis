@@ -1358,3 +1358,20 @@ exact-text candidates only; no catalog resolution, explicit confirmation, or
 transitive promotion occurred. The live transaction set changed, so final
 health moved to 5 exact, 10 candidate, 2 ambiguous, 0 conflict, 16 unresolved,
 and 15.15% coverage under the unchanged policy.
+
+## 2026-09-11 — TASK-0165J governed Omie product-cost activation
+
+The zero-row catalog cause was production composition, not missing provider
+evidence: TASK-0149's connector and committer existed but were never registered
+or triggered by the API runtime. One Omie provider connector now delegates the
+existing transaction and product-cost capabilities, and an authenticated,
+organization-scoped trigger executes the read-only `ListarPosEstoque` path.
+
+Exact commit `5f7728c` completed 41 durable pages and 2,009 immutable source
+observations: 287 provider products, 12 integration codes, 287 display codes,
+zero missing `nCMC`, 1,793 observed zeros, and 216 non-zero values. All 37
+historical internal product IDs now resolve exactly within Omie. The golden
+display code resolves uniquely within Omie, while every Mercado Livre
+seller-SKU relation remains candidate-only. No provider write, currency
+inference, Economic Truth promotion, historical rewrite, or authority widening
+was introduced.
