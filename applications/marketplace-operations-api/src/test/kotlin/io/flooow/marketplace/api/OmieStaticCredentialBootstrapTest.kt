@@ -3,6 +3,8 @@ package io.flooow.marketplace.api
 import io.flooow.integration.connector.*
 import io.flooow.integration.control.*
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
+import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicProductCostCapability
+import io.flooow.marketplace.operations.economics.provider.OmieProductCostSourceRecord
 import io.flooow.organization.OrganizationId
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
@@ -173,6 +175,50 @@ class OmieStaticCredentialBootstrapTest {
     }
 
     @Test
+    fun `HTTP Omie product-cost refresh invokes registered capability with scoped credential`() =
+        testApplication {
+            val repository = MemoryRepository(organization)
+            val vault = MemoryVault()
+            val controlPlane = IntegrationControlPlaneService(repository, vault)
+            val connection = OmieStaticCredentialBootstrap(controlPlane)
+                .bootstrap(organization, "app-key", "app-secret")
+            val connector = EmptyOmieProductCostConnector()
+            val committer = MemoryOmieProductCostCommitter()
+            val runtime = ConnectorRuntime(
+                IntegrationControlPlaneConnectorAccess(controlPlane),
+                listOf(connector),
+                listOf(committer)
+            )
+            application {
+                configureApi(
+                    serviceToken = ServiceToken.test(TEST_SERVICE_TOKEN),
+                    serviceOrganizationId = organization,
+                    record = { _, _ -> error("not used") },
+                    omieProductCostRefreshApi = OmieEvidenceRefreshApi(
+                        controlPlane,
+                        runtime,
+                        connection.connectionId,
+                        capability = MarketplaceEconomicProductCostCapability.KEY
+                    )
+                )
+            }
+
+            val response = client.post(OMIE_PRODUCT_COST_REFRESH_PATH) {
+                bearerAuth(TEST_SERVICE_TOKEN)
+            }
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertContains(
+                response.bodyAsText(),
+                "\"acquisitionGeneration\":\"marketplace-economic.product-cost\""
+            )
+            assertEquals(1, connector.invocations)
+            assertEquals(1, committer.commits)
+            assertEquals("app-key", connector.observedAppKey)
+            assertFalse(response.bodyAsText().contains("app-secret"))
+        }
+
+    @Test
     fun `refresh fails closed for missing configuration wrong provider and wrong organization`() {
         val repository = MemoryRepository(organization)
         val vault = MemoryVault()
@@ -277,6 +323,59 @@ class OmieStaticCredentialBootstrapTest {
         var commits = 0
         override fun load(organizationId: OrganizationId, connectionId: IntegrationConnectionId, capability: ConnectorCapability) = VersionedConnectorProgress(0, null, false)
         override fun commit(organizationId: OrganizationId, connectionId: IntegrationConnectionId, capability: ConnectorCapability, expectedProgressVersion: Long, pageCommitKey: ConnectorPageCommitKey, records: List<ConnectorRecord>, nextProgress: ConnectorProgress?, exhausted: Boolean, observedAt: Instant): ConnectorPageCommitResult {
+            commits += 1
+            return ConnectorPageCommitResult.COMMITTED
+        }
+    }
+
+    private class EmptyOmieProductCostConnector : PullConnector {
+        var invocations = 0
+        var observedAppKey: String? = null
+        override val descriptor = ConnectorDescriptor(
+            ProviderKey.of("omie"),
+            listOf(
+                ConnectorRecordDefinition(
+                    MarketplaceEconomicProductCostCapability.KEY,
+                    OmieProductCostSourceRecord::class
+                )
+            )
+        )
+        override fun readPage(
+            capability: ConnectorCapability,
+            credentialBytes: ByteArray,
+            currentProgress: ConnectorProgress?,
+            budget: ConnectorBudget,
+            cancellation: ConnectorCancellation
+        ): ConnectorReadResult {
+            invocations += 1
+            observedAppKey = Regex("\\\"appKey\\\":\\\"([^\\\"]+)\\\"")
+                .find(credentialBytes.decodeToString())?.groupValues?.get(1)
+            return ConnectorReadResult.Page(
+                ConnectorPage(emptyList(), null, Instant.parse("2026-09-11T12:00:00Z"), true, 2)
+            )
+        }
+    }
+
+    private class MemoryOmieProductCostCommitter : ConnectorPageCommitter {
+        override val capability = MarketplaceEconomicProductCostCapability.KEY
+        override val recordType: KClass<out ConnectorRecord> = OmieProductCostSourceRecord::class
+        var commits = 0
+        override fun load(
+            organizationId: OrganizationId,
+            connectionId: IntegrationConnectionId,
+            capability: ConnectorCapability
+        ) = VersionedConnectorProgress(0, null, false)
+        override fun commit(
+            organizationId: OrganizationId,
+            connectionId: IntegrationConnectionId,
+            capability: ConnectorCapability,
+            expectedProgressVersion: Long,
+            pageCommitKey: ConnectorPageCommitKey,
+            records: List<ConnectorRecord>,
+            nextProgress: ConnectorProgress?,
+            exhausted: Boolean,
+            observedAt: Instant
+        ): ConnectorPageCommitResult {
             commits += 1
             return ConnectorPageCommitResult.COMMITTED
         }
