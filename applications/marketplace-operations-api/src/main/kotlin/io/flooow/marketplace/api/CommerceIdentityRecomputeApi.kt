@@ -84,31 +84,60 @@ internal class CommerceIdentityRecomputeApi(
     }
 
     private fun deduplicateSemanticEvidence(records: List<OmieSalesOrderEvidence>): List<OmieSalesOrderEvidence> =
-        records.groupBy(::semanticKey).toSortedMap().values.map { revisions ->
-            revisions.sortedWith(compareBy<OmieSalesOrderEvidence> { it.integrationCode ?: "" }
-                .thenBy { it.customerOrderNumber ?: "" }
-                .thenBy { it.evidenceReferences.sorted().joinToString("|") })
-                .reduce { left, right ->
-                    left.copy(
-                        evidenceReferences = (left.evidenceReferences + right.evidenceReferences).toSortedSet(),
-                        declaredMarketplaceOrderIds =
-                            (left.declaredMarketplaceOrderIds + right.declaredMarketplaceOrderIds).toSortedSet()
-                    )
-                }
+        records.groupBy(::semanticRevisionKey).toSortedMap().flatMap { (key, revisions) ->
+            if (key.startsWith("unparseable:")) {
+                revisions.sortedWith(OMIE_EVIDENCE_ORDER)
+            } else if (hasContradictoryProviderReferences(revisions)) {
+                // Preserve contradiction as separate evidence; the bridge can
+                // then retain its authoritative CONFLICT semantics.
+                revisions.sortedWith(OMIE_EVIDENCE_ORDER)
+            } else {
+                listOf(aggregateRevisions(revisions))
+            }
         }
 
-    private fun semanticKey(order: OmieSalesOrderEvidence): String {
-        val sourceOrder = order.evidenceReferences
-            .mapNotNull { reference ->
-                reference.removePrefix("omie:").substringBeforeLast(":", "").takeIf { it.isNotBlank() }
-            }
-            .sorted()
-            .firstOrNull() ?: "unknown"
-        return listOf(sourceOrder, order.integrationCode ?: "", order.customerOrderNumber ?: "")
-            .joinToString("\u001f")
+    /** Accept only the exact provenance shape emitted by the durable reader. */
+    private fun semanticRevisionKey(order: OmieSalesOrderEvidence): String {
+        val sourceOrders = order.evidenceReferences.mapNotNull { reference ->
+            OMIE_PROVENANCE_PATTERN.matchEntire(reference)?.groupValues?.get(1)
+        }.distinct()
+        return if (sourceOrders.size == 1) "source:${sourceOrders.single()}"
+        else "unparseable:${order.evidenceReferences.sorted().joinToString("|")}"
     }
 
-    private companion object { const val MAX_EVIDENCE = 10_000 }
+    private fun hasContradictoryProviderReferences(revisions: List<OmieSalesOrderEvidence>): Boolean =
+        revisions.mapNotNull { it.integrationCode }.toSet().size > 1 ||
+            revisions.mapNotNull { it.customerOrderNumber }.toSet().size > 1
+
+    private fun aggregateRevisions(revisions: List<OmieSalesOrderEvidence>): OmieSalesOrderEvidence {
+        val representative = revisions.maxWithOrNull(
+            compareBy<OmieSalesOrderEvidence> { revisionRichness(it) }
+                .thenBy { it.integrationCode ?: "" }
+                .thenBy { it.customerOrderNumber ?: "" }
+                .thenBy { it.evidenceReferences.sorted().joinToString("|") }
+        ) ?: error("Omie evidence revision group is empty")
+        return representative.copy(
+            integrationCode = revisions.mapNotNull { it.integrationCode }.distinct().sorted().firstOrNull(),
+            customerOrderNumber = revisions.mapNotNull { it.customerOrderNumber }.distinct().sorted().firstOrNull(),
+            evidenceReferences = revisions.flatMap { it.evidenceReferences }.toSortedSet(),
+            declaredMarketplaceOrderIds = revisions.flatMap { it.declaredMarketplaceOrderIds }.toSortedSet()
+        )
+    }
+
+    private fun revisionRichness(order: OmieSalesOrderEvidence): Int =
+        (if (order.integrationCode != null) 1 else 0) +
+            (if (order.customerOrderNumber != null) 1 else 0) +
+            order.productCodes.size * 2 +
+            (if (order.orderAmount != null) 1 else 0)
+
+    private companion object {
+        val OMIE_PROVENANCE_PATTERN = Regex("omie:([^:]+):[^:]+")
+        val OMIE_EVIDENCE_ORDER = compareBy<OmieSalesOrderEvidence> {
+            it.evidenceReferences.sorted().joinToString("|")
+        }
+        const val MAX_EVIDENCE = 10_000
+    }
+
 }
 
 internal enum class CommerceIdentityFailureCategory { EVIDENCE_READ, EVALUATION, UNKNOWN }
