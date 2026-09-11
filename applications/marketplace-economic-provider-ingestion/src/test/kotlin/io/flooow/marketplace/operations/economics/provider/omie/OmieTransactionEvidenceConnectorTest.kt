@@ -14,10 +14,38 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class OmieTransactionEvidenceConnectorTest {
     private val now = Instant.parse("2026-09-10T12:00:00Z")
     private val credential = """{"schemaVersion":1,"appKey":"key","appSecret":"secret"}""".toByteArray()
+
+    @Test
+    fun `typed parser uses a fresh reacquisition generation while retaining historical readability`() {
+        val connector = connector {
+            OmieHttpResponse(200, """{"nPagina":1,"nTotPaginas":1,"pedido_venda_produto":[]}""".toByteArray())
+        }
+
+        assertEquals(
+            "marketplace-economic.omie-transaction-evidence.reacquisition-v1",
+            OmieTransactionEvidenceCapability.REACQUISITION_V1_KEY.value
+        )
+        assertEquals(
+            "marketplace-economic.omie-transaction-evidence.reacquisition-v2",
+            OmieTransactionEvidenceCapability.REACQUISITION_KEY.value
+        )
+        assertTrue(connector.descriptor.definitions.any {
+            it.capability == OmieTransactionEvidenceCapability.REACQUISITION_V1_KEY
+        })
+        assertIs<ConnectorReadResult.Page>(
+            connector.readPage(
+                OmieTransactionEvidenceCapability.REACQUISITION_KEY,
+                credential.copyOf(), null,
+                ConnectorBudget(now.plusSeconds(30), 100, 100_000),
+                ConnectorCancellation.NEVER
+            )
+        )
+    }
 
     @Test
     fun `parses documented pedido venda shape including customer reference products and amount`() {

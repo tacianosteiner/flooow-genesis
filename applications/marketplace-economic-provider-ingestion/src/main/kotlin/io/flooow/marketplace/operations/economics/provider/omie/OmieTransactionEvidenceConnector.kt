@@ -25,6 +25,7 @@ class OmieTransactionEvidenceConnector(
         ProviderKey.of("omie"),
         listOf(
             ConnectorRecordDefinition(OmieTransactionEvidenceCapability.KEY, OmieTransactionEvidenceRecord::class),
+            ConnectorRecordDefinition(OmieTransactionEvidenceCapability.REACQUISITION_V1_KEY, OmieTransactionEvidenceRecord::class),
             ConnectorRecordDefinition(OmieTransactionEvidenceCapability.REACQUISITION_KEY, OmieTransactionEvidenceRecord::class)
         )
     )
@@ -33,6 +34,7 @@ class OmieTransactionEvidenceConnector(
 
     override fun readPage(capability: ConnectorCapability, credentialBytes: ByteArray, currentProgress: ConnectorProgress?, budget: ConnectorBudget, cancellation: ConnectorCancellation): ConnectorReadResult {
         if (capability != OmieTransactionEvidenceCapability.KEY &&
+            capability != OmieTransactionEvidenceCapability.REACQUISITION_V1_KEY &&
             capability != OmieTransactionEvidenceCapability.REACQUISITION_KEY
         ) return failed(ConnectorAdapterFailureKind.REMOTE_PERMANENT)
         if (cancellation.isCancelled()) return failed(ConnectorAdapterFailureKind.CANCELLED)

@@ -4,6 +4,7 @@ import io.flooow.organization.OrganizationId
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductIdentifier
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductIdentifierKind
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductObservation
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
 import io.flooow.marketplace.operations.economics.provider.ProviderSourceDecimal
 import io.flooow.marketplace.operations.identity.OmieEvidenceScope
 import io.flooow.marketplace.operations.identity.OmieProductIdentifierKind
@@ -67,10 +68,15 @@ class PostgresOmieIdentityEvidenceReaderTest {
         val reader = PostgresOmieIdentityEvidenceReader(
             PostgresConfiguration("jdbc:postgresql://localhost/unused", "unused", "unused")
         )
-        val old = row(products = "[{\"code\":\"101\",\"quantity\":\"1\"}]")
+        val old = row(products = "[{\"code\":\"101\",\"quantity\":\"1\"}]").copy(
+            capability = OmieTransactionEvidenceCapability.REACQUISITION_V1_KEY.value
+        )
         val typed = row(
             products = "[{\"kind\":\"INTERNAL_PRODUCT_ID\",\"value\":\"101\",\"quantity\":\"1\"}]"
-        ).copy(observed = occurredAt.minusSeconds(60))
+        ).copy(
+            observed = occurredAt.minusSeconds(60),
+            capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY.value
+        )
         val latestTyped = typed.copy(observed = occurredAt.minusSeconds(30), progressVersion = 2)
 
         assertEquals(latestTyped, reader.selectPreferredRevisions(listOf(old, typed, latestTyped)).single())

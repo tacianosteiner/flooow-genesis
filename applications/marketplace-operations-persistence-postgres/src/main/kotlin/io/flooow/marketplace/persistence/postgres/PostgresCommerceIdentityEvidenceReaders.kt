@@ -27,15 +27,16 @@ class PostgresOmieIdentityEvidenceReader(
                     "currency,total_amount,product_refs,observed_at,source_fingerprint,capability," +
                     "input_progress_version,record_ordinal " +
                     "FROM integration_omie_transaction_evidence WHERE organization_id=? " +
-                "AND capability IN (?,?) AND connection_id=? " +
+                "AND capability IN (?,?,?) AND connection_id=? " +
                     "ORDER BY source_order_ref,observed_at DESC,capability DESC,input_progress_version DESC,record_ordinal " +
                     "LIMIT ?"
             ).use { s ->
                 s.setObject(1, organizationId.value)
                 s.setString(2, OmieTransactionEvidenceCapability.KEY.value)
-                s.setString(3, OmieTransactionEvidenceCapability.REACQUISITION_KEY.value)
-                s.setObject(4, boundConnection.value)
-                s.setInt(5, limit)
+                s.setString(3, OmieTransactionEvidenceCapability.REACQUISITION_V1_KEY.value)
+                s.setString(4, OmieTransactionEvidenceCapability.REACQUISITION_KEY.value)
+                s.setObject(5, boundConnection.value)
+                s.setInt(6, limit)
                 s.executeQuery().use { rs -> while (rs.next()) rows += readRow(rs) }
             }
         }

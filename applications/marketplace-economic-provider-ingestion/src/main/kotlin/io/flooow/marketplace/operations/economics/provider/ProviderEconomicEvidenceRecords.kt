@@ -292,7 +292,9 @@ class MercadoLivreOrderSourceRecord(
 object OmieTransactionEvidenceCapability {
     const val VALUE = "marketplace-economic.omie-transaction-evidence"
     val KEY: ConnectorCapability = ConnectorCapability.of(VALUE)
-    const val REACQUISITION_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v1"
+    const val REACQUISITION_V1_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v1"
+    val REACQUISITION_V1_KEY: ConnectorCapability = ConnectorCapability.of(REACQUISITION_V1_VALUE)
+    const val REACQUISITION_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v2"
     val REACQUISITION_KEY: ConnectorCapability = ConnectorCapability.of(REACQUISITION_VALUE)
 }
 
