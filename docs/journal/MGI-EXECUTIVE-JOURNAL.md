@@ -1367,8 +1367,9 @@ or triggered by the API runtime. One Omie provider connector now delegates the
 existing transaction and product-cost capabilities, and an authenticated,
 organization-scoped trigger executes the read-only `ListarPosEstoque` path.
 
-Exact commit `5f7728c` completed 41 durable pages and 2,009 immutable source
-observations: 287 provider products, 12 integration codes, 287 display codes,
+Exact commits `a8ddf9c` and `5f7728c` committed and resumed 41 durable pages
+without rewriting progress, producing 2,009 immutable source observations: 287
+provider products, 12 integration codes, 287 display codes,
 zero missing `nCMC`, 1,793 observed zeros, and 216 non-zero values. All 37
 historical internal product IDs now resolve exactly within Omie. The golden
 display code resolves uniquely within Omie, while every Mercado Livre

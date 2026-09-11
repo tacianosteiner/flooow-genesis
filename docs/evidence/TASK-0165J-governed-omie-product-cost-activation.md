@@ -49,13 +49,25 @@ remain immutable.
 
 ## Exact runtime provenance
 
+The immutable acquisition spans two explicit provenance chains because the
+first one exposed the ten-page trigger ceiling after committing its pages:
+
 ```text
+source commit: a8ddf9c682776de55f28416cbad89f17b88dcf36
+image/tag: flooow-api-local:task-0165j-a8ddf9c-exact
+image digest: sha256:847c980f4f968e7a067fdb525c45bf0168de879a82bbafb2f97954307586f368
+runtime instance: 2956ad11ffc5bfbec3593ba0b01afe5af8731c28cd5c538f74bf74af0a55f804
+runtime started: 2026-09-11T15:38:22.060715581Z
+bounded evaluation timestamp: 2026-09-11T15:38:51.431670Z
+result: pages 1-10 / 500 observations committed; progress remained open
+
 source commit: 5f7728ceb96388f63c56ca657e02e332af827a09
 image/tag: flooow-api-local:task-0165j-5f7728c-exact
 image digest: sha256:59a431598ba59e683918956f64ea185c9705e8b26f05f87adcecc0035d2055d8
 runtime instance: 5a495c87ce8b54c875967df78f987d191d715e8580754dae6507ffd0d3354500
 runtime started: 2026-09-11T15:52:48.783448575Z
-evaluation timestamp: 2026-09-11T15:58:45.519613Z
+final evaluation timestamp: 2026-09-11T15:58:45.519613Z
+result: pages 11-41 / 1,509 observations committed; progress exhausted
 ```
 
 The runtime reused the retained local encrypted vault, active Control Plane
