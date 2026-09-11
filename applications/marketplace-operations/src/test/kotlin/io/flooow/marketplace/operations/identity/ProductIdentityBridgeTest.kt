@@ -15,8 +15,8 @@ class ProductIdentityBridgeTest {
     @Test
     fun `exact seller sku and Omie product code remains a suggested product relation`() {
         val relations = ProductIdentityBridge.candidates(
-            marketplace = marketplace(setOf("MKP-CONST-ELETR-TM11552-01")),
-            omieOrders = listOf(omie(setOf("MKP-CONST-ELETR-TM11552-01"))),
+            marketplace = marketplace(setOf("SYNTH-SHARED-SKU")),
+            omieOrders = listOf(omie(setOf("SYNTH-SHARED-SKU"))),
             policy = policy,
             evaluatedAt = at
         )
@@ -24,7 +24,7 @@ class ProductIdentityBridgeTest {
         assertEquals(CommerceIdentityMatchState.CANDIDATE, relations.single().state)
         assertEquals(CommerceIdentityConfirmationState.SUGGESTED, relations.single().confirmationState)
         assertEquals(CommerceIdentityType.SELLER_SKU, relations.single().sourceIdentityType)
-        assertEquals(CommerceIdentityType.ERP_PRODUCT_CODE, relations.single().targetIdentityType)
+        assertEquals(CommerceIdentityType.ERP_PRODUCT_INTEGRATION_CODE, relations.single().targetIdentityType)
     }
 
     @Test
@@ -47,14 +47,33 @@ class ProductIdentityBridgeTest {
         }
     }
 
+    @Test
+    fun `mixed Omie connections fail closed`() {
+        assertFails {
+            ProductIdentityBridge.candidates(
+                marketplace(setOf("SKU")),
+                listOf(
+                    omie(setOf("SKU")),
+                    omie(setOf("SKU")).copy(scope = OmieEvidenceScope(organization, "other-connection"))
+                ),
+                policy,
+                at
+            )
+        }
+    }
+
     private fun marketplace(skus: Set<String>) = MercadoLivreTransactionEvidence(
-        organization, "2000018389062712", "2000014965933949", "47981682511", setOf("MLB6190573804"),
+        organization, "SYNTH-ML-ORDER", "SYNTH-ML-PACK", "SYNTH-ML-SHIPMENT", setOf("SYNTH-ML-ITEM"),
         skus, skus.associateWith { BigDecimal.ONE }, CommerceIdentityAmount("BRL", BigDecimal("58.28")), at,
-        setOf("ml:order:2000018389062712")
+        setOf("ml:order:SYNTH-ML-ORDER")
     )
 
     private fun omie(codes: Set<String>, org: OrganizationId = organization) = OmieSalesOrderEvidence(
         org, codes, codes.associateWith { BigDecimal.ONE }, "OMIE-ORDER", null,
-        CommerceIdentityAmount("BRL", BigDecimal("58.28")), at, setOf("omie:order:OMIE-ORDER"), emptySet()
+        CommerceIdentityAmount("BRL", BigDecimal("58.28")), at, setOf("omie:order:OMIE-ORDER"), emptySet(),
+        OmieEvidenceScope(org, "omie-connection"),
+        codes.mapTo(linkedSetOf()) {
+            OmieProductIdentifier(OmieProductIdentifierKind.INTEGRATION_PRODUCT_CODE, it)
+        }
     )
 }

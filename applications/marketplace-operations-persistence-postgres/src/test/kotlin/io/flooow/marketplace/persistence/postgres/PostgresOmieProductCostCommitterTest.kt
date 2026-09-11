@@ -33,8 +33,21 @@ import io.flooow.marketplace.operations.economics.provider.OmieIntegrationRefere
 import io.flooow.marketplace.operations.economics.provider.OmieLocationReference
 import io.flooow.marketplace.operations.economics.provider.OmieProductCostSourceRecord
 import io.flooow.marketplace.operations.economics.provider.OmieProductReference
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceRecord
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductIdentifier
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductIdentifierKind
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductObservation
+import io.flooow.marketplace.operations.economics.provider.OmieOrderReference
+import io.flooow.marketplace.operations.economics.provider.OmieCustomerOrderReference
 import io.flooow.marketplace.operations.economics.provider.ProviderSourceDecimal
+import io.flooow.marketplace.operations.identity.CommerceIdentityBridge
+import io.flooow.marketplace.operations.identity.CommerceIdentityMatchState
+import io.flooow.marketplace.operations.identity.CommerceIdentityPolicy
+import io.flooow.marketplace.operations.identity.ExplicitMarketplaceOrderReferenceResolver
+import io.flooow.marketplace.operations.identity.MercadoLivreTransactionEvidence
 import io.flooow.organization.OrganizationId
+import java.math.BigDecimal
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.sql.DriverManager
@@ -56,6 +69,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.test.assertFailsWith
 
 class PostgresOmieProductCostCommitterTest {
     private val now = Instant.parse("2026-09-06T14:30:00Z")
@@ -144,6 +158,97 @@ class PostgresOmieProductCostCommitterTest {
         assertEquals(2, count("integration_connector_page_commit"))
         assertEquals(2, longValue("SELECT progress_version FROM integration_connector_progress"))
         assertEquals(2, connector.callCount)
+    }
+
+    @Test
+    fun `catalog reader aggregates repeated locations and preserves identity contradictions`() {
+        val active = activeConnection()
+        val connector = OmieRecordConnector { _, _ ->
+            ConnectorReadResult.Page(
+                ConnectorPage(
+                    listOf(
+                        record("product-1", "location-a", "10", integration = "INT-OLD"),
+                        record("product-1", "location-b", "11", integration = "INT-NEW")
+                    ),
+                    null,
+                    now,
+                    exhausted = true,
+                    responseBytes = 100
+                )
+            )
+        }
+        assertEquals(
+            ConnectorSuccessKind.COMMITTED,
+            success(runtime(active, committer(), connector).execute(invocation(active))).kind
+        )
+
+        val reader = PostgresOmieProductCatalogEvidenceReader(configuration, active.second)
+        val read = reader.read(active.first, active.second.value.toString(), 100)
+
+        assertEquals(2, read.persistedRows)
+        assertEquals(1, read.products.size)
+        assertEquals(setOf("INT-NEW", "INT-OLD"), read.products.single().integrationProductCodes)
+        assertEquals(
+            io.flooow.marketplace.operations.identity.OmieCatalogIdentityState.CONFLICT,
+            read.products.single().identityState
+        )
+        assertFailsWith<IllegalArgumentException> {
+            reader.read(active.first, UUID(9, 9).toString(), 100)
+        }
+    }
+
+    @Test
+    fun `synthetic durable Omie reader and transaction resolver path remains proven`() {
+        val active = activeConnection()
+        val source = OmieTransactionEvidenceRecord(
+            OmieOrderReference.of("SYNTH-OMIE-ORDER"),
+            null,
+            OmieCustomerOrderReference.of("#SYNTH-ML-ORDER"),
+            now,
+            null,
+            null,
+            null,
+            listOf(
+                OmieTransactionProductObservation(
+                    OmieTransactionProductIdentifier.of(
+                        OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE,
+                        "SYNTH-SKU"
+                    ),
+                    ProviderSourceDecimal.parse("1")
+                )
+            ),
+            now,
+            "synthetic-fingerprint"
+        )
+        val connector = SyntheticOmieTransactionConnector(source)
+        val committer = PostgresOmieTransactionEvidenceCommitter(configuration, protector, clock)
+        val runtime = ConnectorRuntime(
+            IntegrationControlPlaneConnectorAccess(service), listOf(connector), listOf(committer), clock
+        )
+        val invocation = ConnectorInvocation(
+            active.first, active.second, OmieTransactionEvidenceCapability.KEY,
+            ConnectorInvocationId(UUID.randomUUID()), ConnectorBudget(now.plusSeconds(30), 100, 100_000)
+        )
+        assertEquals(ConnectorSuccessKind.COMMITTED, success(runtime.execute(invocation)).kind)
+
+        val observed = PostgresOmieIdentityEvidenceReader(configuration, active.second)
+            .read(active.first, 100).records.single()
+        val ml = MercadoLivreTransactionEvidence(
+            active.first, "SYNTH-ML-ORDER", null, null, emptySet(), setOf("SYNTH-SKU"),
+            mapOf("SYNTH-SKU" to BigDecimal.ONE), null, now, setOf("synthetic:ml")
+        )
+        val declared = observed.copy(
+            declaredMarketplaceOrderIds = ExplicitMarketplaceOrderReferenceResolver.resolve(
+                setOf(ml.orderId), listOf(observed.integrationCode, observed.customerOrderNumber)
+            )
+        )
+
+        assertEquals(
+            CommerceIdentityMatchState.EXACT_CONFIRMED,
+            CommerceIdentityBridge.assess(
+                ml, listOf(declared), CommerceIdentityPolicy("synthetic-policy"), now
+            ).transaction.state
+        )
     }
 
     @Test
@@ -284,11 +389,17 @@ class PostgresOmieProductCostCommitterTest {
             ConnectorBudget(now.plusSeconds(30), 100, 100_000)
         )
 
-    private fun record(product: String, location: String, cmc: String) =
+    private fun record(
+        product: String,
+        location: String,
+        cmc: String,
+        integration: String = "integration-ref",
+        display: String = "SKU"
+    ) =
         OmieProductCostSourceRecord(
             OmieProductReference.of(product),
-            OmieIntegrationReference.of("integration-ref"),
-            OmieDisplayedProductCode.of("SKU"),
+            OmieIntegrationReference.of(integration),
+            OmieDisplayedProductCode.of(display),
             OmieLocationReference.of(location),
             ProviderSourceDecimal.parse(cmc),
             ProviderSourceDecimal.parse("13"),
@@ -490,4 +601,23 @@ private class OmieTestProtector : ConnectorProgressProtector {
             context.capability.value,
             context.progressVersion.toString()
         ).joinToString("\n").toByteArray(StandardCharsets.UTF_8)
+}
+
+private class SyntheticOmieTransactionConnector(
+    private val record: OmieTransactionEvidenceRecord
+) : PullConnector {
+    override val descriptor = ConnectorDescriptor(
+        ProviderKey.of("omie"),
+        listOf(ConnectorRecordDefinition(OmieTransactionEvidenceCapability.KEY, OmieTransactionEvidenceRecord::class))
+    )
+
+    override fun readPage(
+        capability: ConnectorCapability,
+        credentialBytes: ByteArray,
+        currentProgress: ConnectorProgress?,
+        budget: ConnectorBudget,
+        cancellation: ConnectorCancellation
+    ) = ConnectorReadResult.Page(
+        ConnectorPage(listOf(record), null, record.observedAt, exhausted = true, responseBytes = 100)
+    )
 }

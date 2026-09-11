@@ -17,15 +17,20 @@ object ProductIdentityBridge {
         require(omieOrders.all { it.organizationId == marketplace.organizationId }) {
             "Product identity evidence organization mismatch"
         }
+        val scopes = omieOrders.map { it.scope }.toSet()
+        require(scopes.size <= 1) { "Product identity evidence connection scope mixed" }
         return omieOrders.flatMap { omie ->
-            marketplace.sellerSkus.intersect(omie.productCodes).sorted().map { sellerSku ->
+            omie.productIdentifiers.filter { it.value in marketplace.sellerSkus }
+                .sortedWith(compareBy<OmieProductIdentifier> { it.kind.name }.thenBy { it.value })
+                .map { identifier ->
+                val sellerSku = identifier.value
                 CommerceIdentityCandidate(
                     marketplace.organizationId,
                     CommerceIdentitySystem.MERCADO_LIVRE,
                     CommerceIdentityType.SELLER_SKU,
                     sellerSku,
                     CommerceIdentitySystem.OMIE,
-                    CommerceIdentityType.ERP_PRODUCT_CODE,
+                    identifier.kind.commerceIdentityType(),
                     sellerSku,
                     CommerceIdentityMatchState.CANDIDATE,
                     CommerceIdentityConfirmationState.SUGGESTED,
@@ -35,8 +40,8 @@ object ProductIdentityBridge {
                             CommerceIdentitySystem.MERCADO_LIVRE,
                             CommerceIdentityType.SELLER_SKU,
                             sellerSku,
-                            CommerceIdentityEvidenceKind.EXACT_SELLER_SKU,
-                            "MGI_EXACT_SELLER_SKU",
+                            CommerceIdentityEvidenceKind.EXACT_SELLER_SKU_TO_OMIE_PRODUCT_REFERENCE_TEXT,
+                            "MGI_EXACT_SELLER_SKU_TO_OMIE_PRODUCT_REFERENCE_TEXT",
                             evaluatedAt
                         )
                     ),
@@ -45,5 +50,12 @@ object ProductIdentityBridge {
                 )
             }
         }
+    }
+
+    private fun OmieProductIdentifierKind.commerceIdentityType() = when (this) {
+        OmieProductIdentifierKind.INTERNAL_PRODUCT_ID -> CommerceIdentityType.ERP_PRODUCT_ID
+        OmieProductIdentifierKind.INTEGRATION_PRODUCT_CODE -> CommerceIdentityType.ERP_PRODUCT_INTEGRATION_CODE
+        OmieProductIdentifierKind.DISPLAY_PRODUCT_CODE -> CommerceIdentityType.ERP_PRODUCT_DISPLAY_CODE
+        OmieProductIdentifierKind.UNKNOWN_LEGACY -> CommerceIdentityType.ERP_PRODUCT_UNKNOWN_LEGACY
     }
 }

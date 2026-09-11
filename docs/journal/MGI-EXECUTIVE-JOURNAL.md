@@ -1318,6 +1318,26 @@ The product identity boundary now isolates exact Mercado Livre `seller_sku` to
 Omie transaction product-code intersections as read-only suggested candidates.
 No SKU is promoted to canonical product identity, and no fuzzy, amount, date,
 provider-write, Economic Truth, recovery, or authority behavior is introduced.
-The 37 Omie product references still lack a proven durable link to Omie
-catalog/cost identifiers; the golden SKU remains unresolved pending explicit
-provider-native evidence.
+The initial comparison of 37 Omie product references considered only the
+catalog internal reference and was therefore insufficient to decide whether
+integration or displayed-code relations exist. No conclusion from that partial
+comparison is promoted to truth.
+
+## 2026-09-11 — TASK-0165I.1 typed Omie product identity evidence
+
+The earlier apparent 0% TASK-0165H identity result was a build/runtime artifact
+provenance incident, not an identity-policy defect. A clean immutable diagnostic
+image proved the reader/resolver path; a clean immutable main image then
+reported 33 ML transactions, 133 Omie transactions, four exact confirmations,
+29 unresolved, and 12.12% coverage. Future governance must bind source commit
+to build artifact, image digest, runtime instance, evaluation, and decision.
+
+Omie transaction product identifiers now retain internal, integration,
+displayed, and unknown-legacy kinds. Historical JSON remains immutable and
+unknown legacy cannot exact-resolve. A read-only organization/connection-bound
+catalog view aggregates repeated stock/date observations, preserves
+contradictions, and permits only unique same-kind resolution within Omie.
+Cross-system seller-SKU equality remains candidate/suggested even when the
+within-Omie edge is exact. Live product evaluation was unavailable because the
+governed database and connection environment was absent; no metric or golden
+SKU conclusion was fabricated.

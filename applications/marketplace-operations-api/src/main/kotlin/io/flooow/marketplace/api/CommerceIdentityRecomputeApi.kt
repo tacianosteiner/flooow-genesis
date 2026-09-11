@@ -7,6 +7,10 @@ import io.flooow.marketplace.operations.identity.MercadoLivreIdentityEvidenceRea
 import io.flooow.marketplace.operations.identity.OmieIdentityEvidenceReader
 import io.flooow.marketplace.operations.identity.ExplicitMarketplaceOrderReferenceResolver
 import io.flooow.marketplace.operations.identity.OmieSalesOrderEvidence
+import io.flooow.marketplace.operations.identity.OmieProductCatalogEvidenceReader
+import io.flooow.marketplace.operations.identity.ProductIdentityMetricsEvaluator
+import io.flooow.marketplace.operations.identity.OmieProductIdentifierKind
+import io.flooow.marketplace.operations.identity.CommerceIdentityMatchState
 import io.flooow.organization.OrganizationId
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
@@ -18,7 +22,9 @@ internal class CommerceIdentityRecomputeApi(
     private val marketplace: MercadoLivreIdentityEvidenceReader,
     private val omie: OmieIdentityEvidenceReader,
     private val clock: Clock = Clock.systemUTC(),
-    private val policy: CommerceIdentityPolicy = CommerceIdentityPolicy("MGI_GENESIS_IDENTITY_V1")
+    private val policy: CommerceIdentityPolicy = CommerceIdentityPolicy("MGI_GENESIS_IDENTITY_V1"),
+    private val productCatalog: OmieProductCatalogEvidenceReader? = null,
+    private val omieConnectionId: String? = null
 ) {
     private val evaluations = ConcurrentHashMap<OrganizationId, CommerceIdentityHealthEvaluation>()
 
@@ -49,6 +55,18 @@ internal class CommerceIdentityRecomputeApi(
                 )
             }
         )
+        val catalogRead = if (productCatalog != null && omieConnectionId != null) try {
+            productCatalog.read(organizationId, omieConnectionId, MAX_PRODUCT_EVIDENCE)
+        } catch (_: Exception) {
+            throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVIDENCE_READ)
+        } else null
+        val productMetrics = try {
+            ProductIdentityMetricsEvaluator.evaluate(
+                marketplaceEvidence, omieEvidence, catalogRead, policy, evaluatedAt
+            )
+        } catch (_: Exception) {
+            throw CommerceIdentityRecomputeFailureException(CommerceIdentityFailureCategory.EVALUATION)
+        }
         val evaluation = try {
             CommerceIdentityHealthEvaluator.evaluate(
                 organizationId, marketplaceEvidence, omieEvidence, policy, evaluatedAt
@@ -72,6 +90,22 @@ internal class CommerceIdentityRecomputeApi(
             put("omieProductEvidenceRows", omieRead.productEvidenceRows)
             put("omieAmountEvidenceRows", omieRead.amountEvidenceRows)
             put("omieExplicitMarketplaceOrderReferenceRows", omieEvidence.count { it.declaredMarketplaceOrderIds.isNotEmpty() })
+            put("omieTransactionProductReferences", productMetrics.totalTypedTransactionProductReferences)
+            put("omieInternalProductIdReferences", productMetrics.transactionReferencesByKind.getValue(OmieProductIdentifierKind.INTERNAL_PRODUCT_ID))
+            put("omieIntegrationProductCodeReferences", productMetrics.transactionReferencesByKind.getValue(OmieProductIdentifierKind.INTEGRATION_PRODUCT_CODE))
+            put("omieDisplayProductCodeReferences", productMetrics.transactionReferencesByKind.getValue(OmieProductIdentifierKind.DISPLAY_PRODUCT_CODE))
+            put("omieUnknownLegacyProductReferences", productMetrics.transactionReferencesByKind.getValue(OmieProductIdentifierKind.UNKNOWN_LEGACY))
+            put("crossSystemProductCandidates", productMetrics.crossSystemCandidateCount)
+            productMetrics.distinctProviderProductsEvaluated?.let { put("omieCatalogProductsEvaluated", it) }
+            productMetrics.catalogProductsWithInternalId?.let { put("omieCatalogProductsWithInternalId", it) }
+            productMetrics.catalogProductsWithIntegrationCode?.let { put("omieCatalogProductsWithIntegrationCode", it) }
+            productMetrics.catalogProductsWithDisplayCode?.let { put("omieCatalogProductsWithDisplayCode", it) }
+            productMetrics.withinOmieByState?.let { counts ->
+                put("withinOmieProductExact", counts[CommerceIdentityMatchState.EXACT_CONFIRMED] ?: 0)
+                put("withinOmieProductAmbiguous", counts[CommerceIdentityMatchState.AMBIGUOUS] ?: 0)
+                put("withinOmieProductConflict", counts[CommerceIdentityMatchState.CONFLICT] ?: 0)
+                put("withinOmieProductUnresolved", counts[CommerceIdentityMatchState.UNRESOLVED] ?: 0)
+            }
             put("exactConfirmed", evaluation.health.exactConfirmed)
             put("candidate", evaluation.health.candidate)
             put("ambiguous", evaluation.health.ambiguous)
@@ -112,6 +146,7 @@ internal class CommerceIdentityRecomputeApi(
     private fun aggregateRevisions(revisions: List<OmieSalesOrderEvidence>): OmieSalesOrderEvidence {
         val representative = revisions.maxWithOrNull(
             compareBy<OmieSalesOrderEvidence> { revisionRichness(it) }
+                .thenBy { it.sourceObservedAt }
                 .thenBy { it.integrationCode ?: "" }
                 .thenBy { it.customerOrderNumber ?: "" }
                 .thenBy { it.evidenceReferences.sorted().joinToString("|") }
@@ -127,7 +162,9 @@ internal class CommerceIdentityRecomputeApi(
     private fun revisionRichness(order: OmieSalesOrderEvidence): Int =
         (if (order.integrationCode != null) 1 else 0) +
             (if (order.customerOrderNumber != null) 1 else 0) +
-            order.productCodes.size * 2 +
+            order.productIdentifiers.count {
+                it.kind != io.flooow.marketplace.operations.identity.OmieProductIdentifierKind.UNKNOWN_LEGACY
+            } * 4 + order.productIdentifiers.size * 2 +
             (if (order.orderAmount != null) 1 else 0)
 
     private companion object {
@@ -136,6 +173,7 @@ internal class CommerceIdentityRecomputeApi(
             it.evidenceReferences.sorted().joinToString("|")
         }
         const val MAX_EVIDENCE = 10_000
+        const val MAX_PRODUCT_EVIDENCE = 100_000
     }
 
 }

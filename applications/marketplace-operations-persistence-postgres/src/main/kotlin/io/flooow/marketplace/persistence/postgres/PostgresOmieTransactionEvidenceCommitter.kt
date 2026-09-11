@@ -9,9 +9,6 @@ import java.sql.Timestamp
 import java.time.Clock
 import java.time.Instant
 import kotlin.reflect.KClass
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 
 class PostgresOmieTransactionEvidenceCommitter(configuration: PostgresConfiguration, protector: ConnectorProgressProtector, clock: Clock = Clock.systemUTC(), override val capability: ConnectorCapability = OmieTransactionEvidenceCapability.KEY) : ConnectorPageCommitter {
     private val progress = PostgresConnectorProgressStore(configuration, protector, clock)
@@ -27,7 +24,7 @@ class PostgresOmieTransactionEvidenceCommitter(configuration: PostgresConfigurat
     }
     private fun insert(c: Connection, o: OrganizationId, id: IntegrationConnectionId, cap: ConnectorCapability, v: Long, ordinal: Int, r: OmieTransactionEvidenceRecord) {
         c.prepareStatement("INSERT INTO integration_omie_transaction_evidence (organization_id,connection_id,capability,input_progress_version,record_ordinal,source_order_ref,source_integration_ref,source_customer_order_ref,occurred_at,source_status,currency,total_amount,product_refs,observed_at,source_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?::jsonb,?,?)").use { s ->
-            s.setObject(1,o.value); s.setObject(2,id.value); s.setString(3,cap.value); s.setLong(4,v); s.setInt(5,ordinal); s.setString(6,r.orderReference.encodedForPersistence()); s.setString(7,r.integrationOrderReference?.encodedForPersistence()); s.setString(8,r.customerOrderReference?.encodedForPersistence()); s.setTimestamp(9,r.occurredAt?.let(Timestamp::from)); s.setString(10,r.status?.encodedForPersistence()); s.setString(11,r.currency?.encodedForPersistence()); s.setBigDecimal(12,r.totalAmount?.valueForPersistence()); s.setString(13,buildJsonArray { r.products.forEach { p -> add(buildJsonObject { put("code", p.productCode.encodedForPersistence()); put("quantity", p.quantity.canonicalValue()) }) } }.toString()); s.setTimestamp(14,Timestamp.from(r.observedAt)); s.setString(15,r.sourceFingerprint); check(s.executeUpdate()==1)
+            s.setObject(1,o.value); s.setObject(2,id.value); s.setString(3,cap.value); s.setLong(4,v); s.setInt(5,ordinal); s.setString(6,r.orderReference.encodedForPersistence()); s.setString(7,r.integrationOrderReference?.encodedForPersistence()); s.setString(8,r.customerOrderReference?.encodedForPersistence()); s.setTimestamp(9,r.occurredAt?.let(Timestamp::from)); s.setString(10,r.status?.encodedForPersistence()); s.setString(11,r.currency?.encodedForPersistence()); s.setBigDecimal(12,r.totalAmount?.valueForPersistence()); s.setString(13,OmieProductRefsJson.encode(r.products)); s.setTimestamp(14,Timestamp.from(r.observedAt)); s.setString(15,r.sourceFingerprint); check(s.executeUpdate()==1)
         }
     }
 }

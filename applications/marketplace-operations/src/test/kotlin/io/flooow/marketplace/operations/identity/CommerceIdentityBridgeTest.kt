@@ -58,6 +58,7 @@ class CommerceIdentityBridgeTest {
     private fun omie(integration: String, refs: Set<String> = emptySet(), organizationId: OrganizationId = org,
         date: Instant = at, amount: CommerceIdentityAmount? = CommerceIdentityAmount("BRL", BigDecimal("10.00")),
         quantity: BigDecimal = BigDecimal.ONE) = OmieSalesOrderEvidence(
-        organizationId, setOf("SKU-1"), mapOf("SKU-1" to quantity), integration, null, amount, date, setOf("omie:order:$integration"), refs
+        organizationId, setOf("SKU-1"), mapOf("SKU-1" to quantity), integration, null, amount, date,
+        setOf("omie:order:$integration"), refs, OmieEvidenceScope(organizationId, "omie-connection")
     )
 }

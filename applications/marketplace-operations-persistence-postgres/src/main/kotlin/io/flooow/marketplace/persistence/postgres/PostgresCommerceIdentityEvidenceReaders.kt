@@ -5,10 +5,6 @@ import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicOr
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
 import io.flooow.marketplace.operations.identity.*
 import io.flooow.organization.OrganizationId
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import java.math.BigDecimal
 import java.sql.DriverManager
 import java.sql.ResultSet
@@ -21,27 +17,31 @@ class PostgresOmieIdentityEvidenceReader(
 ) : OmieIdentityEvidenceReader {
     override fun read(organizationId: OrganizationId, limit: Int): OmieIdentityEvidenceRead {
         require(limit in 1..10_000)
+        val boundConnection = requireNotNull(connectionId) {
+            "Omie identity evidence connection scope is required"
+        }
         val rows = mutableListOf<OmieRow>()
         DriverManager.getConnection(configuration.url, configuration.user, configuration.password).use { c ->
             c.prepareStatement(
                 "SELECT source_order_ref,source_integration_ref,source_customer_order_ref,occurred_at," +
-                    "currency,total_amount,product_refs,observed_at,source_fingerprint,capability " +
+                    "currency,total_amount,product_refs,observed_at,source_fingerprint,capability," +
+                    "input_progress_version,record_ordinal " +
                     "FROM integration_omie_transaction_evidence WHERE organization_id=? " +
-                "AND capability IN (?,?) AND (? IS NULL OR connection_id=?) " +
+                "AND capability IN (?,?) AND connection_id=? " +
                     "ORDER BY source_order_ref,observed_at DESC,capability DESC,input_progress_version DESC,record_ordinal " +
                     "LIMIT ?"
             ).use { s ->
                 s.setObject(1, organizationId.value)
                 s.setString(2, OmieTransactionEvidenceCapability.KEY.value)
                 s.setString(3, OmieTransactionEvidenceCapability.REACQUISITION_KEY.value)
-                s.setObject(4, connectionId?.value)
-                s.setObject(5, connectionId?.value)
-                s.setInt(6, limit)
+                s.setObject(4, boundConnection.value)
+                s.setInt(5, limit)
                 s.executeQuery().use { rs -> while (rs.next()) rows += readRow(rs) }
             }
         }
-        val distinctRows = rows.distinctBy { it.orderRef to it.fingerprint }
-        val records = distinctRows.mapNotNull { it.toDomain(organizationId) }
+        val distinctRows = selectPreferredRevisions(rows)
+        val scope = OmieEvidenceScope(organizationId, boundConnection.value.toString())
+        val records = distinctRows.mapNotNull { it.toDomain(organizationId, scope) }
         return OmieIdentityEvidenceRead(
             records = records,
             persistedRows = distinctRows.size,
@@ -62,35 +62,53 @@ class PostgresOmieIdentityEvidenceReader(
         rs.getBigDecimal("total_amount"),
         rs.getString("product_refs"),
         rs.getTimestamp("observed_at").toInstant(),
-        rs.getString("source_fingerprint")
+        rs.getString("source_fingerprint"),
+        rs.getString("capability"),
+        rs.getLong("input_progress_version"),
+        rs.getInt("record_ordinal")
     )
+
+    internal fun selectPreferredRevisions(rows: List<OmieRow>): List<OmieRow> =
+        rows.groupBy { it.orderRef to it.fingerprint }.values.map { revisions ->
+            revisions.maxWithOrNull(
+                compareBy<OmieRow> { it.typedProductCount() }
+                    .thenBy { it.observed }
+                    .thenBy { it.capability }
+                    .thenBy { it.progressVersion }
+                    .thenBy { it.recordOrdinal }
+            ) ?: error("Omie revision group is empty")
+        }.sortedWith(compareBy<OmieRow> { it.orderRef }.thenByDescending { it.observed })
 
     internal data class OmieRow(
         val orderRef: String, val integration: String?, val customer: String?, val occurred: Instant?,
         val currency: String?, val amount: BigDecimal?, val products: String, val observed: Instant,
-        val fingerprint: String
+        val fingerprint: String,
+        val capability: String = OmieTransactionEvidenceCapability.KEY.value,
+        val progressVersion: Long = 0,
+        val recordOrdinal: Int = 0
     ) {
-        fun hasProductEvidence(): Boolean = runCatching {
-            Json.parseToJsonElement(products).jsonArray.any { element ->
-                val obj = element.jsonObject
-                !obj["code"]?.jsonPrimitive?.content.isNullOrBlank() &&
-                    obj["quantity"]?.jsonPrimitive?.content?.toBigDecimalOrNull() != null
-            }
-        }.getOrDefault(false)
+        private fun parsedProducts(): List<Pair<OmieProductIdentifier, BigDecimal>> =
+            OmieProductRefsJson.decode(products)
 
-        fun toDomain(org: OrganizationId): OmieSalesOrderEvidence? {
-            val productQuantities = Json.parseToJsonElement(products).jsonArray.mapNotNull { element ->
-                val obj = element.jsonObject
-                val code = obj["code"]?.jsonPrimitive?.content?.trim()
-                val quantity = obj["quantity"]?.jsonPrimitive?.content?.toBigDecimalOrNull()
-                if (code.isNullOrBlank() || quantity == null) null else code to quantity
-            }.toMap()
+        fun typedProductCount(): Int = parsedProducts().count {
+            it.first.kind != OmieProductIdentifierKind.UNKNOWN_LEGACY
+        }
+
+        fun hasProductEvidence(): Boolean = parsedProducts().isNotEmpty()
+
+        fun toDomain(org: OrganizationId, scope: OmieEvidenceScope): OmieSalesOrderEvidence? {
+            val parsed = parsedProducts()
+            val productQuantities = parsed.groupBy({ it.first }, { it.second })
+                .mapValues { (_, quantities) -> quantities.fold(BigDecimal.ZERO, BigDecimal::add) }
+            val legacyQuantities = productQuantities.entries.groupBy({ it.key.value }, { it.value })
+                .mapValues { (_, quantities) -> quantities.fold(BigDecimal.ZERO, BigDecimal::add) }
             val at = occurred ?: return null
             if (integration.isNullOrBlank() && customer.isNullOrBlank() && productQuantities.isEmpty()) return null
             val money = if (currency != null && amount != null) CommerceIdentityAmount(currency, amount) else null
             return OmieSalesOrderEvidence(
-                org, productQuantities.keys, productQuantities, integration, customer, money, at,
-                setOf("omie:$orderRef:$fingerprint"), emptySet()
+                org, legacyQuantities.keys, legacyQuantities, integration, customer, money, at,
+                setOf("omie:$orderRef:$fingerprint"), emptySet(), scope,
+                productQuantities.keys, productQuantities, observed
             )
         }
     }

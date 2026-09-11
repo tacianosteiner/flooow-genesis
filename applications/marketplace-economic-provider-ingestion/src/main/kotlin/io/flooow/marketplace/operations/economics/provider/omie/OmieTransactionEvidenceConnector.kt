@@ -74,14 +74,27 @@ class OmieTransactionEvidenceConnector(
         val currency = text(header, "codigo_moeda")?.uppercase()?.let(MercadoLivreSourceCurrency::of)
         val status = text(header, "etapa")?.let(OmieOrderStatus::of)
         val details = (o["det"] ?: o["itens"] ?: o["detalhes"]) as? JsonArray ?: JsonArray(emptyList())
-        val products = details.mapNotNull { d ->
+        val products = details.flatMap { d ->
             val detail = d.jsonObject
             val x = detail["produto"]?.jsonObject ?: detail["ide"]?.jsonObject ?: detail
-            val code = text(x, "codigo_produto_integracao") ?: text(x, "codigo_produto") ?:
-                text(x, "codigo") ?: text(x, "cCodInt") ?: text(x, "cCodigo") ?: return@mapNotNull null
             val qty = (text(x, "quantidade") ?: text(detail, "quantidade"))
-                ?.let { ProviderSourceDecimal.parse(it.replace(',', '.')) } ?: return@mapNotNull null
-            OmieTransactionProductObservation(OmieDisplayedProductCode.of(code), qty)
+                ?.let { ProviderSourceDecimal.parse(it.replace(',', '.')) } ?: return@flatMap emptyList()
+            listOf(
+                "codigo_produto" to OmieTransactionProductIdentifierKind.INTERNAL_PRODUCT_ID,
+                "codigo_produto_integracao" to OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE,
+                "codigo" to OmieTransactionProductIdentifierKind.DISPLAY_PRODUCT_CODE,
+                // Omie's compact pedido aliases use cCodInt for the integration
+                // code and cCodigo for the displayed product code.
+                "cCodInt" to OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE,
+                "cCodigo" to OmieTransactionProductIdentifierKind.DISPLAY_PRODUCT_CODE
+            ).mapNotNull { (field, kind) ->
+                text(x, field)?.let { value ->
+                    OmieTransactionProductObservation(
+                        OmieTransactionProductIdentifier.of(kind, value),
+                        qty
+                    )
+                }
+            }.distinctBy { it.identifier.kind to it.identifier.encodedForPersistence() }
         }
         val fingerprint = MessageDigest.getInstance("SHA-256").digest(o.toString().toByteArray()).joinToString("") { "%02x".format(it) }
         return OmieTransactionEvidenceRecord(OmieOrderReference.of(ref), integration, customer, occurred, status, currency, amount, products, observed, fingerprint)

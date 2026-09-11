@@ -5,6 +5,7 @@ import io.flooow.integration.connector.ConnectorCancellation
 import io.flooow.integration.connector.ConnectorReadResult
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceRecord
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionProductIdentifierKind
 import java.net.URI
 import java.time.Clock
 import java.time.Instant
@@ -34,7 +35,8 @@ class OmieTransactionEvidenceConnectorTest {
         val record = assertIs<OmieTransactionEvidenceRecord>(page.records.single())
         assertEquals("ERP-1", record.integrationOrderReference!!.encodedForPersistence())
         assertEquals("ML-123", record.customerOrderReference!!.encodedForPersistence())
-        assertEquals("SKU-1", record.products.single().productCode.encodedForPersistence())
+        assertEquals("SKU-1", record.products.single().identifier.encodedForPersistence())
+        assertEquals(OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE, record.products.single().identifier.kind)
         assertEquals("2", record.products.single().quantity.canonicalValue())
         assertEquals("95.02", record.totalAmount!!.canonicalValue())
         assertNull(record.currency)
@@ -54,8 +56,71 @@ class OmieTransactionEvidenceConnectorTest {
         val record = assertIs<OmieTransactionEvidenceRecord>(connector.read().let { (it as ConnectorReadResult.Page).value.records.single() })
         assertEquals("ERP-2", record.integrationOrderReference!!.encodedForPersistence())
         assertNull(record.customerOrderReference)
-        assertEquals("SKU-2", record.products.single().productCode.encodedForPersistence())
+        assertEquals("SKU-2", record.products.single().identifier.encodedForPersistence())
+        assertEquals(OmieTransactionProductIdentifierKind.DISPLAY_PRODUCT_CODE, record.products.single().identifier.kind)
         assertNull(record.currency)
+    }
+
+    @Test
+    fun `preserves every supported product identifier kind without collapsing aliases`() {
+        val connector = connector {
+            OmieHttpResponse(200, """
+                {"nPagina":1,"nTotPaginas":1,"pedido_venda_produto":[{
+                  "cabecalho":{"codigo_pedido":"125"},
+                  "det":[{"produto":{
+                    "codigo_produto":"101",
+                    "codigo_produto_integracao":"INT-101",
+                    "codigo":"DISPLAY-101",
+                    "cCodInt":"INT-101",
+                    "cCodigo":"DISPLAY-101",
+                    "quantidade":"3"
+                  }}]
+                }]}
+            """.trimIndent().toByteArray())
+        }
+        val record = assertIs<OmieTransactionEvidenceRecord>(
+            (connector.read() as ConnectorReadResult.Page).value.records.single()
+        )
+
+        assertEquals(
+            setOf(
+                OmieTransactionProductIdentifierKind.INTERNAL_PRODUCT_ID to "101",
+                OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE to "INT-101",
+                OmieTransactionProductIdentifierKind.DISPLAY_PRODUCT_CODE to "DISPLAY-101"
+            ),
+            record.products.map { it.identifier.kind to it.identifier.encodedForPersistence() }.toSet()
+        )
+    }
+
+    @Test fun `maps codigo_produto to internal product id`() =
+        assertProductField("codigo_produto", OmieTransactionProductIdentifierKind.INTERNAL_PRODUCT_ID)
+
+    @Test fun `maps codigo_produto_integracao to integration product code`() =
+        assertProductField("codigo_produto_integracao", OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE)
+
+    @Test fun `maps codigo to display product code`() =
+        assertProductField("codigo", OmieTransactionProductIdentifierKind.DISPLAY_PRODUCT_CODE)
+
+    @Test fun `maps cCodInt to integration product code`() =
+        assertProductField("cCodInt", OmieTransactionProductIdentifierKind.INTEGRATION_PRODUCT_CODE)
+
+    @Test fun `maps cCodigo to display product code`() =
+        assertProductField("cCodigo", OmieTransactionProductIdentifierKind.DISPLAY_PRODUCT_CODE)
+
+    private fun assertProductField(field: String, kind: OmieTransactionProductIdentifierKind) {
+        val connector = connector {
+            OmieHttpResponse(200, """
+                {"nPagina":1,"nTotPaginas":1,"pedido_venda_produto":[{
+                  "cabecalho":{"codigo_pedido":"FIELD-TEST"},
+                  "det":[{"produto":{"$field":"VALUE-1","quantidade":"1"}}]
+                }]}
+            """.trimIndent().toByteArray())
+        }
+        val record = assertIs<OmieTransactionEvidenceRecord>(
+            (connector.read() as ConnectorReadResult.Page).value.records.single()
+        )
+        assertEquals(kind, record.products.single().identifier.kind)
+        assertEquals("VALUE-1", record.products.single().identifier.encodedForPersistence())
     }
 
     private fun connector(response: () -> OmieHttpResponse) = OmieTransactionEvidenceConnector(
