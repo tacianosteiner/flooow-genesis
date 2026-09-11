@@ -12,7 +12,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.Instant
+import java.time.ZoneOffset
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -27,7 +29,9 @@ class CommerceIdentityRecomputeTest {
         application {
             val recompute = CommerceIdentityRecomputeApi(
                 MercadoLivreIdentityEvidenceReader { org, _ -> MercadoLivreIdentityEvidenceRead(listOf(ml(org)), 1, 1, 1) },
-                OmieIdentityEvidenceReader { org, _ -> OmieIdentityEvidenceRead(listOf(omie(org)), 1, 0) }
+                OmieIdentityEvidenceReader { org, _ ->
+                    OmieIdentityEvidenceRead(listOf(omie(org).copy(integrationCode = "123456789012", declaredMarketplaceOrderIds = emptySet())), 1, 0)
+                }
             )
             configureApi(
                 ServiceToken.test(TEST_SERVICE_TOKEN), organization,
@@ -102,6 +106,129 @@ class CommerceIdentityRecomputeTest {
         assertContains(response.bodyAsText(), "\"omiePersistedRows\":132")
         assertContains(response.bodyAsText(), "\"omieIdentityEvaluableRows\":117")
         assertContains(response.bodyAsText(), "\"omieNonEvaluableRows\":15")
+    }
+
+    @Test
+    fun `recompute recognizes only observed Omie external references`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
+                    MercadoLivreIdentityEvidenceReader { org, _ ->
+                        MercadoLivreIdentityEvidenceRead(listOf(ml(org).copy(orderId = "2000018336941860")), 1, 1, 1)
+                    },
+                    OmieIdentityEvidenceReader { org, _ ->
+                        OmieIdentityEvidenceRead(listOf(
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), "#2000018336941860", null, null, at, setOf("omie:order:revision"), emptySet())
+                        ), 1, 0)
+                    }
+                )
+            )
+        }
+        val response = client.post("/v1/commerce-identity/recompute") { bearerAuth(TEST_SERVICE_TOKEN) }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"exactConfirmed\":1")
+        assertContains(response.bodyAsText(), "\"omieExplicitMarketplaceOrderReferenceRows\":1")
+    }
+
+    @Test
+    fun `sparse and enriched revisions of one Omie order aggregate`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
+                    MercadoLivreIdentityEvidenceReader { org, _ ->
+                        MercadoLivreIdentityEvidenceRead(listOf(ml(org).copy(orderId = "2000018336941860")), 1, 1, 1)
+                    },
+                    OmieIdentityEvidenceReader { org, _ ->
+                        OmieIdentityEvidenceRead(listOf(
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), "ERP-1", null, null, at, setOf("omie:OM-1:old"), emptySet()),
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), null, "#2000018336941860", null, at, setOf("omie:OM-1:new"), emptySet())
+                        ), 2, 0)
+                    }
+                )
+            )
+        }
+        val response = client.post("/v1/commerce-identity/recompute") { bearerAuth(TEST_SERVICE_TOKEN) }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"omieIdentityEvaluableRows\":1")
+        assertContains(response.bodyAsText(), "\"exactConfirmed\":1")
+        assertContains(response.bodyAsText(), "\"conflict\":0")
+    }
+
+    @Test
+    fun `distinct Omie source orders declaring one ML order preserve conflict`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
+                    MercadoLivreIdentityEvidenceReader { org, _ ->
+                        MercadoLivreIdentityEvidenceRead(listOf(ml(org).copy(orderId = "2000018336941860")), 1, 1, 1)
+                    },
+                    OmieIdentityEvidenceReader { org, _ ->
+                        OmieIdentityEvidenceRead(listOf(
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), "#2000018336941860", null, null, at, setOf("omie:OM-1:one"), emptySet()),
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), "2000018336941860", null, null, at, setOf("omie:OM-2:two"), emptySet())
+                        ), 2, 0)
+                    }
+                )
+            )
+        }
+        val response = client.post("/v1/commerce-identity/recompute") { bearerAuth(TEST_SERVICE_TOKEN) }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"omieIdentityEvaluableRows\":2")
+        assertContains(response.bodyAsText(), "\"exactConfirmed\":0")
+        assertContains(response.bodyAsText(), "\"conflict\":1")
+    }
+
+    @Test
+    fun `contradictory references on one Omie source order fail closed`() = testApplication {
+        application {
+            configureApi(
+                ServiceToken.test(TEST_SERVICE_TOKEN), organization,
+                record = { _, _ -> error("not used") },
+                commerceIdentityRecomputeApi = CommerceIdentityRecomputeApi(
+                    MercadoLivreIdentityEvidenceReader { org, _ ->
+                        MercadoLivreIdentityEvidenceRead(listOf(ml(org).copy(orderId = "2000018336941860")), 1, 1, 1)
+                    },
+                    OmieIdentityEvidenceReader { org, _ ->
+                        OmieIdentityEvidenceRead(listOf(
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), "ERP-A", null, null, at, setOf("omie:OM-1:one"), emptySet()),
+                            OmieSalesOrderEvidence(org, emptySet(), emptyMap(), "ERP-B", null, null, at, setOf("omie:OM-1:two"), emptySet())
+                        ), 2, 0)
+                    }
+                )
+            )
+        }
+        val response = client.post("/v1/commerce-identity/recompute") { bearerAuth(TEST_SERVICE_TOKEN) }
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertContains(response.bodyAsText(), "\"omieIdentityEvaluableRows\":2")
+        assertContains(response.bodyAsText(), "\"exactConfirmed\":0")
+    }
+
+    @Test
+    fun `same source order aggregation is deterministic regardless revision order`() {
+        val sparse = OmieSalesOrderEvidence(
+            organization, emptySet(), emptyMap(), "ERP-1", null, null, at,
+            setOf("omie:OM-1:old"), emptySet()
+        )
+        val enriched = OmieSalesOrderEvidence(
+            organization, setOf("SKU"), mapOf("SKU" to BigDecimal.ONE), null,
+            "#2000018336941860", CommerceIdentityAmount("BRL", BigDecimal("10.00")), at,
+            setOf("omie:OM-1:new"), emptySet()
+        )
+        fun recompute(revisions: List<OmieSalesOrderEvidence>) = CommerceIdentityRecomputeApi(
+            MercadoLivreIdentityEvidenceReader { org, _ ->
+                MercadoLivreIdentityEvidenceRead(listOf(ml(org).copy(orderId = "2000018336941860")), 1, 1, 1)
+            },
+            OmieIdentityEvidenceReader { org, _ -> OmieIdentityEvidenceRead(revisions.map { it.copy(organizationId = org) }, 2, 0) },
+            Clock.fixed(at, ZoneOffset.UTC)
+        ).recompute(organization).toString()
+
+        assertEquals(recompute(listOf(sparse, enriched)), recompute(listOf(enriched, sparse)))
     }
 
     private fun ml(org: OrganizationId) = MercadoLivreTransactionEvidence(
