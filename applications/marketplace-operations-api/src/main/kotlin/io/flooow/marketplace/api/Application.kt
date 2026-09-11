@@ -11,8 +11,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresCredentialRotationExec
 import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
-import io.flooow.marketplace.operations.economics.provider.omie.OmieTransactionEvidenceConnector
-import io.flooow.marketplace.operations.economics.provider.omie.OmieEconomicEvidenceConnector
+import io.flooow.marketplace.operations.economics.provider.omie.OmieProviderConnector
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicOrderSourceCapability
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicProductCostCapability
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
@@ -165,8 +164,7 @@ fun main() {
             IntegrationControlPlaneConnectorAccess(controlPlane),
             listOf(
                 MercadoLivreOrderSourceConnector(),
-                OmieTransactionEvidenceConnector(),
-                OmieEconomicEvidenceConnector()
+                OmieProviderConnector()
             ),
             listOf(
                 PostgresMercadoLivreOrderSourceCommitter(
