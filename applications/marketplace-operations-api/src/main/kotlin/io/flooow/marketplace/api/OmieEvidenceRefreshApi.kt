@@ -23,6 +23,8 @@ import java.util.UUID
 
 internal const val OMIE_EVIDENCE_REFRESH_PATH = "/v1/commerce-identity/omie/refresh"
 internal const val OMIE_EVIDENCE_REACQUISITION_PATH = "/v1/commerce-identity/omie/reacquire"
+internal const val OMIE_PRODUCT_COST_REFRESH_PATH =
+    "/v1/commerce-identity/omie/product-cost/refresh"
 
 private val OMIE_PROVIDER = ProviderKey.of("omie")
 private val OMIE_CAPABILITY = OmieTransactionEvidenceCapability.KEY

@@ -12,7 +12,9 @@ import io.flooow.integration.security.MvpRuntimeMasterKey
 import io.flooow.integration.security.MvpSecureRuntime
 import io.flooow.marketplace.operations.economics.provider.mercadolivre.MercadoLivreOrderSourceConnector
 import io.flooow.marketplace.operations.economics.provider.omie.OmieTransactionEvidenceConnector
+import io.flooow.marketplace.operations.economics.provider.omie.OmieEconomicEvidenceConnector
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicOrderSourceCapability
+import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicProductCostCapability
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
 import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
@@ -39,6 +41,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationC
 import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceCommitter
+import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCostCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCatalogEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
@@ -160,7 +163,11 @@ fun main() {
         val omieBootstrap = OmieStaticCredentialBootstrap(controlPlane)
         val connectorRuntime = ConnectorRuntime(
             IntegrationControlPlaneConnectorAccess(controlPlane),
-            listOf(MercadoLivreOrderSourceConnector(), OmieTransactionEvidenceConnector()),
+            listOf(
+                MercadoLivreOrderSourceConnector(),
+                OmieTransactionEvidenceConnector(),
+                OmieEconomicEvidenceConnector()
+            ),
             listOf(
                 PostgresMercadoLivreOrderSourceCommitter(
                     configuration,
@@ -174,7 +181,8 @@ fun main() {
                 PostgresOmieTransactionEvidenceCommitter(
                     configuration, security.progressProtector,
                     capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY
-                )
+                ),
+                PostgresOmieProductCostCommitter(configuration, security.progressProtector)
             )
         )
         val omieEvidenceRefresh = OmieEvidenceRefreshApi(
@@ -187,6 +195,12 @@ fun main() {
             connectorRuntime,
             omieConnectionId,
             capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY
+        )
+        val omieProductCostRefresh = OmieEvidenceRefreshApi(
+            controlPlane,
+            connectorRuntime,
+            omieConnectionId,
+            capability = MarketplaceEconomicProductCostCapability.KEY
         )
         val commerceIdentityRecompute = CommerceIdentityRecomputeApi(
             PostgresMercadoLivreIdentityEvidenceReader(configuration, connectionId),
@@ -288,6 +302,7 @@ fun main() {
                 omieBootstrap,
                 omieEvidenceRefresh,
                 omieEvidenceReacquisition,
+                omieProductCostRefresh,
                 commerceIdentityRecompute,
                 mercadoLivreCredentialRotationApi
             )
@@ -328,6 +343,7 @@ internal fun Application.configureApi(
     omieStaticCredentialBootstrap: OmieStaticCredentialBootstrap? = null,
     omieEvidenceRefreshApi: OmieEvidenceRefreshApi? = null,
     omieEvidenceReacquisitionApi: OmieEvidenceRefreshApi? = null,
+    omieProductCostRefreshApi: OmieEvidenceRefreshApi? = null,
     commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null,
     mercadoLivreCredentialRotationApi: MercadoLivreCredentialRotationApi? = null
 ) {
@@ -689,6 +705,16 @@ internal fun Application.configureApi(
                     val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
                     call.response.header("Cache-Control", "no-store")
                     call.respondJson(omieEvidenceReacquisitionApi.refresh(organizationId))
+                }
+            }
+            if (omieProductCostRefreshApi != null) {
+                post(OMIE_PRODUCT_COST_REFRESH_PATH) {
+                    if (call.request.queryParameters.names().isNotEmpty() || call.receiveText().isNotEmpty()) {
+                        throw MalformedRequestException("Omie product-cost refresh accepts no request body or query")
+                    }
+                    val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(omieProductCostRefreshApi.refresh(organizationId))
                 }
             }
             if (commerceIdentityRecomputeApi != null) {
