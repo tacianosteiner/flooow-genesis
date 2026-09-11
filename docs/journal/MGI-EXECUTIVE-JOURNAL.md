@@ -1341,3 +1341,20 @@ Cross-system seller-SKU equality remains candidate/suggested even when the
 within-Omie edge is exact. Live product evaluation was unavailable because the
 governed database and connection environment was absent; no metric or golden
 SKU conclusion was fabricated.
+
+## 2026-09-11 — TASK-0165I.2 governed typed Omie runtime proof
+
+The rebooted runtime context was recovered from retained local containers and
+volumes without exposing credentials. Exact commit `b77b6f4` reproduced the
+historical 4/29/12.12 transaction-identity result but proved that its exhausted
+v1 namespace could not reacquire evidence after a parser change. The bounded
+fix advances Omie typed reacquisition to v2 and keeps v1 readable.
+
+An immutable exact-fix image acquired 135 additive typed revisions while all
+265 historical rows retained their count and digest. The 37 earlier reference
+values are internal product IDs, but all remain unresolved because this durable
+database contains no Omie catalog/cost rows. The requested golden SKU produced
+exact-text candidates only; no catalog resolution, explicit confirmation, or
+transitive promotion occurred. The live transaction set changed, so final
+health moved to 5 exact, 10 candidate, 2 ambiguous, 0 conflict, 16 unresolved,
+and 15.15% coverage under the unchanged policy.

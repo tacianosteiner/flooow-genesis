@@ -118,14 +118,98 @@ source commit
 That provenance capability is future governance work and does not widen the
 current product-identity scope.
 
-## Real-data evaluation
+## TASK-0165I.2 real-data runtime proof
 
-`REAL_EVALUATION_NOT_AVAILABLE` on 2026-09-11. The current process has no
-`DATABASE_URL`, `DATABASE_USER`, `DATABASE_PASSWORD`,
-`FLOOOW_OMIE_CONNECTION_ID`, or `FLOOOW_MERCADO_LIVRE_CONNECTION_ID`, so the
-37-reference comparison and golden SKU research cannot be rerun without the
-governed runtime/database context. No result is fabricated and no production
-identifier is committed as a fixture.
+The 2026-09-11 reboot left Docker Desktop running but removed the Docker CLI
+from `PATH` and cleared the process-scoped configuration. The stopped known-good
+main API retained all required database, service-principal, connection, vault,
+and key variables, while its bind-mounted vault and PostgreSQL named volume
+remained present. That context was reused internally without logging values.
+Before this proof, no PR #221 artifact was deployed: the retained main and
+diagnostic images came from other commits, and both API containers were stopped.
+
+### Immutable provenance and defect found
+
+The clean exact checkout at
+`b77b6f418fa8a059a993c5dd0f75a1abfad2d964` produced image
+`flooow-api-local:task-0165i2-b77b6f4-exact` with image ID/digest
+`sha256:8b66d046bbaa55ab36382ed2285991216575909c7adea653ff7127a0c5db7015`.
+Container
+`1fdf3f7de59e309d712cef00ea34248b6632fdb2b8d884fd293d45086a399a43`
+started at `2026-09-11T12:05:27.716042203Z` on a non-conflicting local port.
+Its pre-acquisition recompute reproduced TASK-0165H exactly: 33 Mercado Livre
+transactions, 133 Omie transactions, 4 exact confirmations, 29 unresolved, and
+12.12% coverage.
+
+That runtime exposed a real implementation defect. The endpoint was fixed to
+the already exhausted `reacquisition-v1` progress namespace and returned one
+already-committed page with zero records, so a parser upgrade could not create
+new revisions. The attempted run changed nothing: 265 historical rows retained
+digest `4f3f7fb11db88f723bbaebe474fd98db`.
+
+Commit `b8daa9799fab22b786602be4dd522b5ed5a59ba7` advances only the Omie typed
+reacquisition namespace to v2 while retaining v1 connector and reader support.
+The clean exact checkout produced image
+`flooow-api-local:task-0165i2-b8daa97-exact` with image ID/digest
+`sha256:ee929579a13f8a301b551ad5cce5a67e871efb59013f8a8c3d067d714bfe73f6`.
+Container
+`16eae0dc245cba35df4995a1a4949e84ed465fb7bb22950e09d329c117ab5dca`
+started at `2026-09-11T12:21:30.181246964Z`; the final evaluation timestamp was
+`2026-09-11T12:22:48.240172Z`.
+
+### Reacquisition and immutability
+
+The corrected endpoint completed two provider-read invocations, committed two
+new pages and 135 records, and reported zero already-committed pages under
+`marketplace-economic.omie-transaction-evidence.reacquisition-v2`. The live
+provider set had grown from 133 to 135 orders. The 265 v0/v1 rows remained
+present with the same digest. A v2 replay then reported two already-committed
+pages and left its 135 rows and digest unchanged. No row was updated or deleted,
+no other organization/connection received a v2 row, and the only provider
+operation was the read-only `ListarPedidos` call.
+
+### Product evidence result
+
+The selected 135 Omie transaction revisions contained 340 typed identifier
+occurrences:
+
+| Kind | Occurrences | Distinct values |
+|---|---:|---:|
+| `INTERNAL_PRODUCT_ID` | 170 | 37 |
+| `INTEGRATION_PRODUCT_CODE` | 0 | 0 |
+| `DISPLAY_PRODUCT_CODE` | 170 | 38 |
+| `UNKNOWN_LEGACY` | 0 | 0 |
+
+The governed catalog/cost reader was available, but the durable catalog table
+contained zero rows: zero provider products and zero internal, integration, or
+display identifiers. Consequently the 340 transaction identifier occurrences
+resolved within Omie as 0 exact, 0 ambiguous, 0 conflict, and 340 unresolved.
+This is an observed empty durable source, not a substituted value for a missing
+dependency.
+
+All 37 distinct historical transaction reference values map uniquely to
+`INTERNAL_PRODUCT_ID`; none map to integration, display, unknown, or multiple
+kinds. With no catalog evidence, their bounded same-kind result is 37 evaluated,
+0 exact, 0 ambiguous, 0 conflict, and 37 unresolved. No cross-kind match was
+attempted.
+
+The requested golden SKU matched 53 typed Omie transaction identifiers, all
+`DISPLAY_PRODUCT_CODE`. It was also present on 18 Mercado
+Livre orders, producing 954 exact-text candidate pairs. It did not resolve to a
+catalog identity because catalog evidence was empty, and no explicit
+cross-system confirmation evidence or confirmation mechanism exists. Across
+all SKUs, recompute reported 1,352 candidate pairs; every pair remained a
+candidate and none became a confirmed product relation.
+
+### Transaction identity regression result
+
+The exact corrected runtime reproduced the historical 4/29/12.12 result before
+reacquisition. After the live provider set changed, recompute inspected 135 Omie
+transactions and reported 5 exact, 10 candidate, 2 ambiguous, 0 conflict, 16
+unresolved, and 15.15% coverage. The change is attributable to newly observed
+provider evidence: the evaluator/policy version remained
+`MGI_GENESIS_IDENTITY_V1`, the historical rows remained immutable, and product
+candidate evidence did not promote transaction or product identity.
 
 ## Safety boundary
 
