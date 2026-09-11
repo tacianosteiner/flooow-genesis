@@ -106,11 +106,8 @@ object CommerceIdentityBridge {
         return candidate(m, top.first, if (tied > 1) CommerceIdentityMatchState.AMBIGUOUS else CommerceIdentityMatchState.CANDIDATE, top.second, p, at, false)
     }
 
-    private fun productCandidates(m: MercadoLivreTransactionEvidence, orders: List<OmieSalesOrderEvidence>, p: CommerceIdentityPolicy, at: Instant): List<CommerceIdentityCandidate> = orders.flatMap { o ->
-        m.sellerSkus.intersect(o.productCodes).sorted().map { sku ->
-            CommerceIdentityCandidate(m.organizationId, CommerceIdentitySystem.MERCADO_LIVRE, CommerceIdentityType.SELLER_SKU, sku, CommerceIdentitySystem.OMIE, CommerceIdentityType.ERP_PRODUCT_CODE, sku, CommerceIdentityMatchState.CANDIDATE, CommerceIdentityConfirmationState.SUGGESTED, listOf(evidence(m, CommerceIdentityEvidenceKind.EXACT_SELLER_SKU, "MGI_EXACT_SELLER_SKU", at)), p.version, at)
-        }
-    }
+    private fun productCandidates(m: MercadoLivreTransactionEvidence, orders: List<OmieSalesOrderEvidence>, p: CommerceIdentityPolicy, at: Instant): List<CommerceIdentityCandidate> =
+        ProductIdentityBridge.candidates(m, orders, p, at)
 
     private fun score(m: MercadoLivreTransactionEvidence, o: OmieSalesOrderEvidence, p: CommerceIdentityPolicy, at: Instant): Pair<OmieSalesOrderEvidence, List<CommerceIdentityEvidence>>? {
         if (o.declaredMarketplaceOrderIds.isNotEmpty()) return null

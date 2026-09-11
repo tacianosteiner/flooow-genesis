@@ -1312,3 +1312,12 @@ boundary. Only trim and one leading `#` are accepted; embedded or guessed
 numbers remain unresolved. Historical Omie revisions are aggregated by stable
 provider identity, while genuinely distinct Omie orders preserve conflict
 semantics. The bridge policy and durable evidence remain unchanged.
+## TASK-0165I — Governed Product Identity Bridge
+
+The product identity boundary now isolates exact Mercado Livre `seller_sku` to
+Omie transaction product-code intersections as read-only suggested candidates.
+No SKU is promoted to canonical product identity, and no fuzzy, amount, date,
+provider-write, Economic Truth, recovery, or authority behavior is introduced.
+The 37 Omie product references still lack a proven durable link to Omie
+catalog/cost identifiers; the golden SKU remains unresolved pending explicit
+provider-native evidence.
