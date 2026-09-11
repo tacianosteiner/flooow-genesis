@@ -6,7 +6,7 @@ import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
-/** Read-only organization-scoped identity diagnostics. No confirmation or write route exists. */
+/** Read-only candidate diagnostics; explicit cross-system decisions use their separate governed seam. */
 class CommerceIdentityHealthApi(private val current: (OrganizationId) -> CommerceIdentityHealthEvaluation?) {
     fun health(organizationId: OrganizationId) = current(organizationId)?.let { e ->
         buildJsonObject {
