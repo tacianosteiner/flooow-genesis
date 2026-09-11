@@ -292,7 +292,9 @@ class MercadoLivreOrderSourceRecord(
 object OmieTransactionEvidenceCapability {
     const val VALUE = "marketplace-economic.omie-transaction-evidence"
     val KEY: ConnectorCapability = ConnectorCapability.of(VALUE)
-    const val REACQUISITION_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v1"
+    const val REACQUISITION_V1_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v1"
+    val REACQUISITION_V1_KEY: ConnectorCapability = ConnectorCapability.of(REACQUISITION_V1_VALUE)
+    const val REACQUISITION_VALUE = "marketplace-economic.omie-transaction-evidence.reacquisition-v2"
     val REACQUISITION_KEY: ConnectorCapability = ConnectorCapability.of(REACQUISITION_VALUE)
 }
 
@@ -308,8 +310,31 @@ class OmieOrderStatus private constructor(value: String) : ProviderSourceText(va
     companion object { fun of(value: String) = OmieOrderStatus(normalize(value)) }
 }
 
+enum class OmieTransactionProductIdentifierKind {
+    INTERNAL_PRODUCT_ID,
+    INTEGRATION_PRODUCT_CODE,
+    DISPLAY_PRODUCT_CODE,
+    UNKNOWN_LEGACY
+}
+
+class OmieTransactionProductIdentifier private constructor(
+    val kind: OmieTransactionProductIdentifierKind,
+    value: String
+) : ProviderSourceText(value, 128) {
+    override fun equals(other: Any?): Boolean =
+        other is OmieTransactionProductIdentifier &&
+            kind == other.kind && encodedForPersistence() == other.encodedForPersistence()
+
+    override fun hashCode(): Int = 31 * kind.hashCode() + encodedForPersistence().hashCode()
+
+    companion object {
+        fun of(kind: OmieTransactionProductIdentifierKind, value: String) =
+            OmieTransactionProductIdentifier(kind, normalize(value))
+    }
+}
+
 class OmieTransactionProductObservation(
-    val productCode: OmieDisplayedProductCode,
+    val identifier: OmieTransactionProductIdentifier,
     val quantity: ProviderSourceDecimal
 ) {
     init { require(quantity.valueForPersistence() >= BigDecimal.ZERO) }

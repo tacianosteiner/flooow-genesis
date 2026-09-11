@@ -7,10 +7,10 @@ import java.time.temporal.ChronoUnit
 import kotlin.math.abs
 
 enum class CommerceIdentitySystem { MERCADO_LIVRE, OMIE }
-enum class CommerceIdentityType { ORDER_ID, PACK_ID, SHIPMENT_ID, ITEM_ID, SELLER_SKU, ERP_PRODUCT_ID, ERP_PRODUCT_CODE, ERP_ORDER_INTEGRATION_CODE, ERP_CUSTOMER_ORDER_NUMBER }
+enum class CommerceIdentityType { ORDER_ID, PACK_ID, SHIPMENT_ID, ITEM_ID, SELLER_SKU, ERP_PRODUCT_ID, ERP_PRODUCT_INTEGRATION_CODE, ERP_PRODUCT_DISPLAY_CODE, ERP_PRODUCT_UNKNOWN_LEGACY, ERP_PRODUCT_CODE, ERP_ORDER_INTEGRATION_CODE, ERP_CUSTOMER_ORDER_NUMBER }
 enum class CommerceIdentityMatchState { EXACT_CONFIRMED, CANDIDATE, AMBIGUOUS, CONFLICT, UNRESOLVED }
 enum class CommerceIdentityConfirmationState { SUGGESTED, GOVERNED_CONFIRMED }
-enum class CommerceIdentityEvidenceKind { DECLARED_EXTERNAL_REFERENCE, EXACT_SELLER_SKU, EXACT_QUANTITY, EXACT_ORDER_VALUE, SAME_CALENDAR_DATE, DATE_WITHIN_ONE_DAY, EXACT_ITEM_SET, CONFLICTING_EXTERNAL_REFERENCE }
+enum class CommerceIdentityEvidenceKind { DECLARED_EXTERNAL_REFERENCE, EXACT_SELLER_SKU_TO_OMIE_PRODUCT_REFERENCE_TEXT, EXACT_QUANTITY, EXACT_ORDER_VALUE, SAME_CALENDAR_DATE, DATE_WITHIN_ONE_DAY, EXACT_ITEM_SET, CONFLICTING_EXTERNAL_REFERENCE }
 
 data class CommerceIdentityEvidence(
     val organizationId: OrganizationId,
@@ -48,12 +48,23 @@ data class MercadoLivreTransactionEvidence(
 data class OmieSalesOrderEvidence(
     val organizationId: OrganizationId, val productCodes: Set<String>, val quantityByCode: Map<String, BigDecimal>,
     val integrationCode: String?, val customerOrderNumber: String?, val orderAmount: CommerceIdentityAmount?,
-    val occurredAt: Instant, val evidenceReferences: Set<String>, val declaredMarketplaceOrderIds: Set<String>
+    val occurredAt: Instant, val evidenceReferences: Set<String>, val declaredMarketplaceOrderIds: Set<String>,
+    val scope: OmieEvidenceScope,
+    val productIdentifiers: Set<OmieProductIdentifier> = productCodes.mapTo(linkedSetOf()) {
+        OmieProductIdentifier(OmieProductIdentifierKind.UNKNOWN_LEGACY, it)
+    },
+    val quantityByProductIdentifier: Map<OmieProductIdentifier, BigDecimal> =
+        productIdentifiers.associateWith { quantityByCode[it.value] ?: BigDecimal.ZERO },
+    val sourceObservedAt: Instant = occurredAt
 ) {
     init {
         require(productCodes.none { it.isBlank() }); require(quantityByCode.keys.all { it in productCodes })
+        require(productIdentifiers.none { it.value.isBlank() })
+        require(quantityByProductIdentifier.keys.all { it in productIdentifiers })
+        require(scope.organizationId == organizationId)
         require(integrationCode != null || customerOrderNumber != null || productCodes.isNotEmpty())
         require(evidenceReferences.isNotEmpty()); require(occurredAt.nano % 1_000 == 0)
+        require(sourceObservedAt.nano % 1_000 == 0)
     }
 }
 
@@ -106,16 +117,13 @@ object CommerceIdentityBridge {
         return candidate(m, top.first, if (tied > 1) CommerceIdentityMatchState.AMBIGUOUS else CommerceIdentityMatchState.CANDIDATE, top.second, p, at, false)
     }
 
-    private fun productCandidates(m: MercadoLivreTransactionEvidence, orders: List<OmieSalesOrderEvidence>, p: CommerceIdentityPolicy, at: Instant): List<CommerceIdentityCandidate> = orders.flatMap { o ->
-        m.sellerSkus.intersect(o.productCodes).sorted().map { sku ->
-            CommerceIdentityCandidate(m.organizationId, CommerceIdentitySystem.MERCADO_LIVRE, CommerceIdentityType.SELLER_SKU, sku, CommerceIdentitySystem.OMIE, CommerceIdentityType.ERP_PRODUCT_CODE, sku, CommerceIdentityMatchState.CANDIDATE, CommerceIdentityConfirmationState.SUGGESTED, listOf(evidence(m, CommerceIdentityEvidenceKind.EXACT_SELLER_SKU, "MGI_EXACT_SELLER_SKU", at)), p.version, at)
-        }
-    }
+    private fun productCandidates(m: MercadoLivreTransactionEvidence, orders: List<OmieSalesOrderEvidence>, p: CommerceIdentityPolicy, at: Instant): List<CommerceIdentityCandidate> =
+        ProductIdentityBridge.candidates(m, orders, p, at)
 
     private fun score(m: MercadoLivreTransactionEvidence, o: OmieSalesOrderEvidence, p: CommerceIdentityPolicy, at: Instant): Pair<OmieSalesOrderEvidence, List<CommerceIdentityEvidence>>? {
         if (o.declaredMarketplaceOrderIds.isNotEmpty()) return null
         val shared = m.sellerSkus.intersect(o.productCodes); if (shared.isEmpty()) return null
-        val e = mutableListOf(evidence(m, CommerceIdentityEvidenceKind.EXACT_SELLER_SKU, "MGI_EXACT_SELLER_SKU", at))
+        val e = mutableListOf(evidence(m, CommerceIdentityEvidenceKind.EXACT_SELLER_SKU_TO_OMIE_PRODUCT_REFERENCE_TEXT, "MGI_EXACT_SELLER_SKU_TO_OMIE_PRODUCT_REFERENCE_TEXT", at))
         if (shared.all { m.quantityBySku[it] == o.quantityByCode[it] }) e += evidence(m, CommerceIdentityEvidenceKind.EXACT_QUANTITY, "MGI_EVIDENCE_WEIGHTED_RECONCILIATION", at)
         val delta = if (m.orderAmount != null && o.orderAmount != null && m.orderAmount.currency == o.orderAmount.currency) m.orderAmount.value.subtract(o.orderAmount.value).abs() else null
         if (delta != null && delta <= p.valueTolerance) e += evidence(m, CommerceIdentityEvidenceKind.EXACT_ORDER_VALUE, "MGI_EVIDENCE_WEIGHTED_RECONCILIATION", at)

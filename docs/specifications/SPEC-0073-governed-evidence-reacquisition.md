@@ -1,10 +1,16 @@
 # SPEC-0073 — Governed evidence reacquisition
 
-The normal refresh capability and the explicit `reacquisition-v1` capability are
-separate progress namespaces. A page committed in one namespace cannot block a
-page in the other. Replaying the same namespace is idempotent through the
-existing page commit key and integrity checks. New observations coexist with
-historical observations and retain source fingerprints and observed timestamps.
+The normal refresh capability and each explicit versioned reacquisition capability
+are separate progress namespaces. A page committed in one namespace cannot block
+a page in another. Replaying the same namespace is idempotent through the existing
+page commit key and integrity checks. New observations coexist with historical
+observations and retain source fingerprints and observed timestamps.
+
+Omie typed product extraction uses
+`marketplace-economic.omie-transaction-evidence.reacquisition-v2`. The durable
+reader continues to include `reacquisition-v1`; advancing the generation never
+rewrites or hides an older observation. A new generation is required whenever a
+parser improvement must reacquire an already exhausted provider history.
 
 Endpoints:
 

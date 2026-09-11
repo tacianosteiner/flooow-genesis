@@ -1312,3 +1312,49 @@ boundary. Only trim and one leading `#` are accepted; embedded or guessed
 numbers remain unresolved. Historical Omie revisions are aggregated by stable
 provider identity, while genuinely distinct Omie orders preserve conflict
 semantics. The bridge policy and durable evidence remain unchanged.
+## TASK-0165I — Governed Product Identity Bridge
+
+The product identity boundary now isolates exact Mercado Livre `seller_sku` to
+Omie transaction product-code intersections as read-only suggested candidates.
+No SKU is promoted to canonical product identity, and no fuzzy, amount, date,
+provider-write, Economic Truth, recovery, or authority behavior is introduced.
+The initial comparison of 37 Omie product references considered only the
+catalog internal reference and was therefore insufficient to decide whether
+integration or displayed-code relations exist. No conclusion from that partial
+comparison is promoted to truth.
+
+## 2026-09-11 — TASK-0165I.1 typed Omie product identity evidence
+
+The earlier apparent 0% TASK-0165H identity result was a build/runtime artifact
+provenance incident, not an identity-policy defect. A clean immutable diagnostic
+image proved the reader/resolver path; a clean immutable main image then
+reported 33 ML transactions, 133 Omie transactions, four exact confirmations,
+29 unresolved, and 12.12% coverage. Future governance must bind source commit
+to build artifact, image digest, runtime instance, evaluation, and decision.
+
+Omie transaction product identifiers now retain internal, integration,
+displayed, and unknown-legacy kinds. Historical JSON remains immutable and
+unknown legacy cannot exact-resolve. A read-only organization/connection-bound
+catalog view aggregates repeated stock/date observations, preserves
+contradictions, and permits only unique same-kind resolution within Omie.
+Cross-system seller-SKU equality remains candidate/suggested even when the
+within-Omie edge is exact. Live product evaluation was unavailable because the
+governed database and connection environment was absent; no metric or golden
+SKU conclusion was fabricated.
+
+## 2026-09-11 — TASK-0165I.2 governed typed Omie runtime proof
+
+The rebooted runtime context was recovered from retained local containers and
+volumes without exposing credentials. Exact commit `b77b6f4` reproduced the
+historical 4/29/12.12 transaction-identity result but proved that its exhausted
+v1 namespace could not reacquire evidence after a parser change. The bounded
+fix advances Omie typed reacquisition to v2 and keeps v1 readable.
+
+An immutable exact-fix image acquired 135 additive typed revisions while all
+265 historical rows retained their count and digest. The 37 earlier reference
+values are internal product IDs, but all remain unresolved because this durable
+database contains no Omie catalog/cost rows. The requested golden SKU produced
+exact-text candidates only; no catalog resolution, explicit confirmation, or
+transitive promotion occurred. The live transaction set changed, so final
+health moved to 5 exact, 10 candidate, 2 ambiguous, 0 conflict, 16 unresolved,
+and 15.15% coverage under the unchanged policy.

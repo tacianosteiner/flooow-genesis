@@ -40,6 +40,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSign
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceReader
+import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCatalogEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
@@ -189,7 +190,11 @@ fun main() {
         )
         val commerceIdentityRecompute = CommerceIdentityRecomputeApi(
             PostgresMercadoLivreIdentityEvidenceReader(configuration, connectionId),
-            PostgresOmieIdentityEvidenceReader(configuration, omieConnectionId)
+            PostgresOmieIdentityEvidenceReader(configuration, omieConnectionId),
+            productCatalog = omieConnectionId?.let {
+                PostgresOmieProductCatalogEvidenceReader(configuration, it)
+            },
+            omieConnectionId = omieConnectionId?.value?.toString()
         )
         val promotionRepository =
             PostgresMarketplaceOrderSourcePromotionRepository(configuration)
