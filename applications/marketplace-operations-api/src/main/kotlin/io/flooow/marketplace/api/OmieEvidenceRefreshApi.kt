@@ -29,7 +29,7 @@ internal const val OMIE_PRODUCT_COST_REFRESH_PATH =
 private val OMIE_PROVIDER = ProviderKey.of("omie")
 private val OMIE_CAPABILITY = OmieTransactionEvidenceCapability.KEY
 private val REFRESH_DEADLINE = Duration.ofMinutes(2)
-private const val MAX_PAGES = 10
+private const val DEFAULT_MAX_PAGES = 10
 private const val MAX_RECORDS_PER_PAGE = 100
 private const val MAX_RESPONSE_BYTES = 2L * 1024L * 1024L
 
@@ -43,8 +43,13 @@ internal class OmieEvidenceRefreshApi(
     private val runtime: ConnectorRuntime,
     private val configuredConnectionId: IntegrationConnectionId?,
     private val clock: Clock = Clock.systemUTC(),
-    private val capability: io.flooow.integration.connector.ConnectorCapability = OMIE_CAPABILITY
+    private val capability: io.flooow.integration.connector.ConnectorCapability = OMIE_CAPABILITY,
+    private val maxPages: Int = DEFAULT_MAX_PAGES
 ) {
+    init {
+        require(maxPages in 1..100) { "Invalid Omie refresh page limit" }
+    }
+
     fun refresh(organizationId: OrganizationId): JsonObject {
         val connectionId = configuredConnectionId
             ?: throw OmieEvidenceRefreshConfigurationUnavailableException()
@@ -61,7 +66,7 @@ internal class OmieEvidenceRefreshApi(
         var alreadyCommittedPages = 0
         var records = 0L
 
-        repeat(MAX_PAGES) {
+        repeat(maxPages) {
             val outcome = runtime.execute(
                 ConnectorInvocation(
                     organizationId = organizationId,

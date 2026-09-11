@@ -198,7 +198,8 @@ fun main() {
             controlPlane,
             connectorRuntime,
             omieConnectionId,
-            capability = MarketplaceEconomicProductCostCapability.KEY
+            capability = MarketplaceEconomicProductCostCapability.KEY,
+            maxPages = 100
         )
         val commerceIdentityRecompute = CommerceIdentityRecomputeApi(
             PostgresMercadoLivreIdentityEvidenceReader(configuration, connectionId),
