@@ -136,6 +136,36 @@
         }
       }
     },
+    "/v1/commerce-identity/product-decisions": {
+      "post": {
+        "operationId": "recordCrossSystemProductIdentityDecision",
+        "security": [{ "serviceBearer": [] }],
+        "description": "Records append-only explicit confirmation or rejection evidence. Organization and both provider connections are selected server-side; text equality is not confirmation.",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProductIdentityDecisionRequest" } } } },
+        "responses": {
+          "201": { "description": "Decision appended", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProductIdentityDecision" } } } },
+          "200": { "description": "Idempotent replay", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProductIdentityDecision" } } } },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "409": { "$ref": "#/components/responses/Problem" },
+          "422": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
+    "/v1/commerce-identity/product-decisions/{decisionId}": {
+      "get": {
+        "operationId": "readCrossSystemProductIdentityDecision",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [{ "name": "decisionId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "Organization-scoped immutable decision", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/ProductIdentityDecision" } } } },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/marketplace-operations/inventory-risk-assessments": {
       "post": {
         "operationId": "assessInventoryRisk",
@@ -413,6 +443,37 @@
       }
     },
     "schemas": {
+      "ProductIdentityDecisionRequest": {
+        "type": "object", "additionalProperties": false,
+        "required": ["decisionId", "correlationId", "decision", "mercadoLivreItemId", "mercadoLivreSellerSku", "omieProviderProductId", "reason", "provenance"],
+        "properties": {
+          "decisionId": { "type": "string", "format": "uuid" },
+          "correlationId": { "type": "string", "format": "uuid" },
+          "decision": { "type": "string", "enum": ["CONFIRMED", "REJECTED"] },
+          "mercadoLivreItemId": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "mercadoLivreSellerSku": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "omieProviderProductId": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "reason": { "type": "string", "enum": ["EXPLICIT_CONFIRMATION", "EXPLICIT_REJECTION", "CORRECTION"] },
+          "provenance": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "supersedesDecisionId": { "type": "string", "format": "uuid" }
+        }
+      },
+      "ProductIdentityDecision": {
+        "type": "object", "additionalProperties": false,
+        "required": ["decisionId", "decision", "revision", "mercadoLivreItemId", "mercadoLivreSellerSku", "omieProviderProductId", "reason", "correlationId", "decidedAt"],
+        "properties": {
+          "decisionId": { "type": "string", "format": "uuid" },
+          "decision": { "type": "string", "enum": ["CONFIRMED", "REJECTED"] },
+          "revision": { "type": "integer", "minimum": 1 },
+          "supersedesDecisionId": { "type": "string", "format": "uuid" },
+          "mercadoLivreItemId": { "type": "string" },
+          "mercadoLivreSellerSku": { "type": "string" },
+          "omieProviderProductId": { "type": "string" },
+          "reason": { "type": "string", "enum": ["EXPLICIT_CONFIRMATION", "EXPLICIT_REJECTION", "CORRECTION"] },
+          "correlationId": { "type": "string", "format": "uuid" },
+          "decidedAt": { "type": "string", "format": "date-time" }
+        }
+      },
       "OAuthStartResponse": {
         "type": "object",
         "additionalProperties": false,

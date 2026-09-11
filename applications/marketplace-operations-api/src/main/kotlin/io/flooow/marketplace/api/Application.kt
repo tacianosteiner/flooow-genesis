@@ -29,6 +29,7 @@ import io.flooow.marketplace.operations.inventory.InventoryRiskInput
 import io.flooow.marketplace.operations.inventory.PersistenceIntegrityException
 import io.flooow.marketplace.operations.inventory.PersistenceUnavailableException
 import io.flooow.marketplace.operations.inventory.RecordedInventoryRiskAssessment
+import io.flooow.marketplace.operations.identity.CrossSystemProductIdentityConfirmationService
 import io.flooow.marketplace.persistence.postgres.PostgresConfiguration
 import io.flooow.marketplace.persistence.postgres.PostgresIntegrationControlPlaneRepository
 import io.flooow.marketplace.persistence.postgres.PostgresInventoryRiskAssessmentJournal
@@ -43,6 +44,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenc
 import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCostCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCatalogEvidenceReader
+import io.flooow.marketplace.persistence.postgres.PostgresCrossSystemProductIdentityDecisionRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
@@ -209,6 +211,13 @@ fun main() {
             },
             omieConnectionId = omieConnectionId?.value?.toString()
         )
+        val crossSystemProductIdentity = CrossSystemProductIdentityConfirmationApi(
+            CrossSystemProductIdentityConfirmationService(
+                PostgresCrossSystemProductIdentityDecisionRepository(configuration)
+            ),
+            connectionId,
+            omieConnectionId
+        )
         val promotionRepository =
             PostgresMarketplaceOrderSourcePromotionRepository(configuration)
         val evidenceRepository =
@@ -303,7 +312,8 @@ fun main() {
                 omieEvidenceReacquisition,
                 omieProductCostRefresh,
                 commerceIdentityRecompute,
-                mercadoLivreCredentialRotationApi
+                mercadoLivreCredentialRotationApi,
+                crossSystemProductIdentity
             )
         }.start(wait = true)
     }
@@ -344,7 +354,8 @@ internal fun Application.configureApi(
     omieEvidenceReacquisitionApi: OmieEvidenceRefreshApi? = null,
     omieProductCostRefreshApi: OmieEvidenceRefreshApi? = null,
     commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null,
-    mercadoLivreCredentialRotationApi: MercadoLivreCredentialRotationApi? = null
+    mercadoLivreCredentialRotationApi: MercadoLivreCredentialRotationApi? = null,
+    crossSystemProductIdentityApi: CrossSystemProductIdentityConfirmationApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -458,6 +469,15 @@ internal fun Application.configureApi(
                 "Commerce identity recompute failed",
                 "Persisted identity evidence could not be evaluated",
                 "COMMERCE_IDENTITY_RECOMPUTE_FAILED"
+            )
+        }
+        exception<CrossSystemProductIdentityMalformedException> { call, cause ->
+            call.respondProblem(
+                HttpStatusCode.BadRequest,
+                "https://flooow.io/problems/malformed-product-identity-decision",
+                "Malformed product identity decision",
+                cause.message ?: "The product identity decision is invalid",
+                "MALFORMED_PRODUCT_IDENTITY_DECISION"
             )
         }
         exception<MercadoLivreCredentialRotationUnavailableException> { call, _ ->
@@ -636,6 +656,33 @@ internal fun Application.configureApi(
             }
         }
         authenticate("service-bearer") {
+            if (crossSystemProductIdentityApi != null) {
+                post(CROSS_SYSTEM_PRODUCT_IDENTITY_DECISIONS_PATH) {
+                    if (!call.request.contentType().withoutParameters().match(ContentType.Application.Json) ||
+                        call.request.queryParameters.names().isNotEmpty()
+                    ) {
+                        throw CrossSystemProductIdentityMalformedException(
+                            "Product identity decisions require JSON and accept no query"
+                        )
+                    }
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    val result = crossSystemProductIdentityApi.record(
+                        principal.organizationId,
+                        call.receiveText()
+                    )
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(result.body, result.status)
+                }
+                get("$CROSS_SYSTEM_PRODUCT_IDENTITY_DECISIONS_PATH/{decisionId}") {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    val result = crossSystemProductIdentityApi.find(
+                        principal.organizationId,
+                        call.parameters["decisionId"].orEmpty()
+                    )
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(result.body, result.status)
+                }
+            }
             if (mercadoLivreCredentialRotationApi != null) {
                 post(MERCADO_LIVRE_CREDENTIAL_ROTATION_PATH) {
                     if (

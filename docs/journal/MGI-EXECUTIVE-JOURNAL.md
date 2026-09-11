@@ -1376,3 +1376,18 @@ display code resolves uniquely within Omie, while every Mercado Livre
 seller-SKU relation remains candidate-only. No provider write, currency
 inference, Economic Truth promotion, historical rewrite, or authority widening
 was introduced.
+
+## 2026-09-11 — TASK-0165K governed cross-system product identity confirmation
+
+Cross-system identity now has a single explicit, append-only decision boundary.
+Each decision binds an authenticated organization, server-selected Mercado
+Livre and Omie connections, exact item/SKU and provider-product identities,
+principal, provenance, and deterministic replay identifiers. Rejection and
+correction preserve every prior decision; competing current confirmations fail
+closed.
+
+The 1,352 historical text-equality relations remain candidate-only. Neither
+text equality nor exact within-Omie resolution transitively confirms a Mercado
+Livre relation. The new evidence does not write to providers, infer economic
+values or currency, promote Economic Truth or `PRODUCT_COST`, or authorize
+autonomous execution.
