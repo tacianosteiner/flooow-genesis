@@ -1391,3 +1391,35 @@ text equality nor exact within-Omie resolution transitively confirms a Mercado
 Livre relation. The new evidence does not write to providers, infer economic
 values or currency, promote Economic Truth or `PRODUCT_COST`, or authorize
 autonomous execution.
+
+## 2026-09-11 — TASK-0165L governed product-cost economic promotion
+
+Omie product-cost source evidence may now enter the existing append-only
+marketplace economic-evidence boundary only after explicit current product
+identity, subject, allocation, and currency authority gates. Omie `nCMC` does
+not supply currency: missing currency remains unavailable, missing cost remains
+missing, and observed zero remains an observed value.
+
+The promotion retains immutable source coordinates and the effective TASK-0165K
+decision ID, providing organization, connection, item/SKU, provider-product,
+principal, correlation, quantity, cost, and currency provenance through the
+existing durable records. Exact replay is duplicate-safe. A newer legitimate
+Omie source version appends a new independent fact while historical evidence
+remains unchanged.
+
+The amount is exact observed unit `nCMC` multiplied by exact durable item
+quantity, with insignificant trailing zeros normalized but no rounding. The
+focused gate passed 25 tests and the canonical full repository build passed once
+in 10m 40s (124 actionable tasks). Four defects were closed: JDBC first-row
+materialization/cardinality, missing currency authority, contradiction
+classification, and scale-only rejection of exact multiplication.
+
+Seller-SKU equality and exact within-Omie identity remain insufficient to confirm
+ML-to-Omie identity. The promotion does not write to either provider, create a
+parallel store, infer currency, rewrite history, claim canonical Economic Truth or
+reconciliation completeness, or grant decision, recommendation, or execution
+authority.
+
+`SOURCE OBSERVATION != IDENTITY AUTHORITY != SUBJECT AUTHORITY != CURRENCY AUTHORITY != ALLOCATION AUTHORITY != PROMOTED ECONOMIC EVIDENCE != CANONICAL ECONOMIC TRUTH`
+
+`PRODUCT_COST promotion != Economic Truth completeness != reconciliation completeness != decision readiness != recommendation authority != execution authority`
