@@ -1423,3 +1423,17 @@ authority.
 `SOURCE OBSERVATION != IDENTITY AUTHORITY != SUBJECT AUTHORITY != CURRENCY AUTHORITY != ALLOCATION AUTHORITY != PROMOTED ECONOMIC EVIDENCE != CANONICAL ECONOMIC TRUTH`
 
 `PRODUCT_COST promotion != Economic Truth completeness != reconciliation completeness != decision readiness != recommendation authority != execution authority`
+
+## 2026-09-12 — TASK-0165M governed Economic Truth decision readiness
+
+Economic readiness is now a deterministic, read-only projection over the existing independent evidence ledger and explicit governed identity, currency, allocation, currentness, and reconciliation assessments. Four decision profiles declare their own requirements, so narrower unit economics may be ready while broader executive completeness remains partial or blocked.
+
+Missing facts remain missing rather than zero. Explicit observed zero remains valid. Contradictory active evidence, superseded-only evidence, unresolved identity/currency/allocation, insufficient coverage, and required unreconciled state fail closed with exact typed reasons. Historical and authority provenance remains auditable.
+
+No provider write, new truth store, inferred currency/cost, recommendation, causality claim, execution authority, or historical rewrite was introduced. The projection is derivative, never canonical.
+
+`ECONOMIC EVIDENCE != ECONOMIC TRUTH COMPLETENESS != DECISION READINESS != RECOMMENDATION != AUTHORITY != EXECUTION`
+
+`EVIDENCE -> COMPLETENESS EVALUATION -> RECONCILIATION -> DECISION READINESS`
+
+`READINESS != RECOMMENDATION != AUTHORITY != EXECUTION`
