@@ -1437,3 +1437,31 @@ No provider write, new truth store, inferred currency/cost, recommendation, caus
 `EVIDENCE -> COMPLETENESS EVALUATION -> RECONCILIATION -> DECISION READINESS`
 
 `READINESS != RECOMMENDATION != AUTHORITY != EXECUTION`
+
+## TASK-0165N — Governed economic reconciliation and leakage
+
+Economic leakage semantics were introduced downstream from the existing financial
+reconciliation authority.
+
+The implementation preserves the institutional boundary:
+
+`FINANCIAL VARIANCE != ECONOMIC LEAKAGE`.
+
+Leakage interpretation now fails closed when identity, currency, allocation,
+currentness, or reconciliation authority is insufficient.
+
+Partial reconciliation cannot be labeled favorable or leakage.
+
+Contradictory or stale authority blocks interpretation.
+
+A reconciliation authority bridge binds the existing
+`FinancialReconciliationAssessment` into the same
+`EconomicTruthAuthorityAssessment` used by readiness and leakage governance,
+preventing separate reconciliation meanings between Decision Room and Economic
+Truth readiness.
+
+No new reconciliation engine, truth table, persistence schema, provider write,
+recommendation authority, or execution authority was introduced.
+
+Next boundary: expose only the smallest truthful read-only projection through the
+existing reconciliation seam when production authority context is available.
