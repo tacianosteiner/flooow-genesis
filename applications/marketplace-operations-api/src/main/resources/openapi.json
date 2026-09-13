@@ -375,6 +375,21 @@
         }
       }
     },
+    "/v1/economic-decision-room/reconciliation/{caseId}": {
+      "get": {
+        "operationId": "getEconomicDecisionRoomReconciliationProjection",
+        "description": "Read-only governed projection. Durable financial variance is not economic leakage; quantified leakage is returned only with a governed reconciliation assessment candidate whose declared context matches the case and with permitted governed authority; immutable assessment identity requires upstream lineage.",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [{ "name": "caseId", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+        "responses": {
+          "200": { "description": "Organization-scoped Economic Decision Room projection", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/EconomicDecisionRoomProjection" } } } },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/health/live": {
       "get": {
         "operationId": "liveness",
@@ -443,6 +458,53 @@
       }
     },
     "schemas": {
+      "EconomicDecisionRoomProjection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["caseId", "marketplaceOrderId", "financialTraceId", "policyVersion", "currency", "reconciliationCaseStatus", "reconciliationRevision", "lastObservedAt", "projectionStatus", "authorityStatus", "authorityBlockingReasons", "governancePermitted", "governanceBlockingReasons", "projectionBlockingReasons", "totalQuantifiedLeakage", "evidenceReferences", "stages"],
+        "properties": {
+          "caseId": { "type": "string", "format": "uuid" },
+          "marketplaceOrderId": { "type": "string", "format": "uuid" },
+          "financialTraceId": { "type": "string", "format": "uuid" },
+          "policyVersion": { "type": "string" },
+          "currency": { "type": "string" },
+          "reconciliationCaseStatus": { "type": "string", "enum": ["OPEN", "ACKNOWLEDGED", "RESOLVED"] },
+          "reconciliationRevision": { "type": "integer", "minimum": 1 },
+          "lastObservedAt": { "type": "string", "format": "date-time" },
+          "projectionStatus": { "type": "string", "enum": ["READY", "BLOCKED"] },
+          "authorityStatus": { "type": "string", "enum": ["ASSEMBLED", "NOT_ASSEMBLED"] },
+          "authorityBlockingReasons": { "type": "array", "items": { "type": "string", "enum": ["IDENTITY_AUTHORITY_UNAVAILABLE", "CURRENCY_AUTHORITY_UNAVAILABLE", "ALLOCATION_AUTHORITY_UNAVAILABLE", "CURRENTNESS_AUTHORITY_UNAVAILABLE"] } },
+          "governancePermitted": { "type": "boolean" },
+          "governanceBlockingReasons": { "type": "array", "items": { "type": "string", "enum": ["IDENTITY_UNRESOLVED", "CURRENCY_UNRESOLVED", "ALLOCATION_UNRESOLVED", "EVIDENCE_CURRENTNESS_UNRESOLVED", "CONTRADICTORY_AUTHORITY", "STALE_AUTHORITY"] } },
+          "projectionBlockingReasons": { "type": "array", "items": { "type": "string", "enum": ["RECONCILIATION_ASSESSMENT_UNAVAILABLE", "RECONCILIATION_CONTEXT_MISMATCH", "AUTHORITY_CONTEXT_MISMATCH", "AUTHORITY_NOT_ASSEMBLED", "GOVERNANCE_NOT_PERMITTED", "LEAKAGE_UNQUANTIFIED"] } },
+          "totalQuantifiedLeakage": { "oneOf": [{ "$ref": "#/components/schemas/EconomicDecisionRoomMoney" }, { "type": "null" }] },
+          "evidenceReferences": { "type": "array", "items": { "type": "string" } },
+          "stages": { "type": "array", "items": { "$ref": "#/components/schemas/EconomicDecisionRoomStage" } }
+        }
+      },
+      "EconomicDecisionRoomStage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["stage", "expected", "actual", "signedVariance", "absoluteVariance", "interpretation", "quantifiedLeakage", "blockingReason", "expectedEntryIds", "actualEntryIds"],
+        "properties": {
+          "stage": { "type": "string", "enum": ["SALE", "MARKETPLACE_COMMISSION", "MARKETPLACE_FEE", "SHIPPING", "ADVERTISING", "TAX", "PRODUCT_COST", "FINANCIAL_COST", "OTHER_ADJUSTMENT", "SETTLEMENT", "PAYMENT_ACCOUNT", "BANK"] },
+          "expected": { "oneOf": [{ "$ref": "#/components/schemas/EconomicDecisionRoomMoney" }, { "type": "null" }] },
+          "actual": { "oneOf": [{ "$ref": "#/components/schemas/EconomicDecisionRoomMoney" }, { "type": "null" }] },
+          "signedVariance": { "oneOf": [{ "$ref": "#/components/schemas/EconomicDecisionRoomMoney" }, { "type": "null" }] },
+          "absoluteVariance": { "oneOf": [{ "$ref": "#/components/schemas/EconomicDecisionRoomMoney" }, { "type": "null" }] },
+          "interpretation": { "oneOf": [{ "type": "string", "enum": ["NO_MATERIAL_VARIANCE", "UNFAVORABLE_LEAKAGE", "FAVORABLE_VARIANCE", "UNQUANTIFIED"] }, { "type": "null" }] },
+          "quantifiedLeakage": { "oneOf": [{ "$ref": "#/components/schemas/EconomicDecisionRoomMoney" }, { "type": "null" }] },
+          "blockingReason": { "oneOf": [{ "type": "string", "enum": ["RECONCILIATION_ASSESSMENT_UNAVAILABLE", "RECONCILIATION_CONTEXT_MISMATCH", "AUTHORITY_CONTEXT_MISMATCH", "AUTHORITY_NOT_ASSEMBLED", "GOVERNANCE_NOT_SATISFIED", "MISSING_EXPECTED", "MISSING_ACTUAL", "RECONCILIATION_INCOMPLETE", "UNSUPPORTED_STAGE"] }, { "type": "null" }] },
+          "expectedEntryIds": { "type": "array", "items": { "type": "string", "format": "uuid" } },
+          "actualEntryIds": { "type": "array", "items": { "type": "string", "format": "uuid" } }
+        }
+      },
+      "EconomicDecisionRoomMoney": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["currency", "amount"],
+        "properties": { "currency": { "type": "string" }, "amount": { "type": "string" } }
+      },
       "ProductIdentityDecisionRequest": {
         "type": "object", "additionalProperties": false,
         "required": ["decisionId", "correlationId", "decision", "mercadoLivreItemId", "mercadoLivreSellerSku", "omieProviderProductId", "reason", "provenance"],

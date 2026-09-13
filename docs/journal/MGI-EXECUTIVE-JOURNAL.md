@@ -1465,3 +1465,13 @@ recommendation authority, or execution authority was introduced.
 
 Next boundary: expose only the smallest truthful read-only projection through the
 existing reconciliation seam when production authority context is available.
+
+## 2026-09-13 — TASK-0165O governed Economic Decision Room projection
+
+The first production Decision Room economic projection now preserves durable financial variance while refusing to call it economic leakage without a governed reconciliation assessment candidate that passes contextual matching and assembled identity, currency, allocation, and currentness authority. Exact historical assessment identity remains an upstream lineage dependency. The public read-only endpoint is separate from the existing reconciliation-case API.
+
+The repository currently has no governed assessment-by-case lineage source. Production therefore returns explicit blocked/not-assembled states while retaining auditable variance and provenance; it does not reconstruct or infer an assessment. Governed test sources prove the existing authority assembler, governance mapper, and leakage interpreter compose correctly.
+
+The projection binds authority to typed organization/case coordinates and performs contextual assessment matching against case revision and assessment coordinates before assembly. That match is not immutable assessment identity; exact case-revision assessment lineage remains an upstream governed dependency and production stays fail-closed until it exists. Cross-tenant mismatches are externally not found, causal stage blockers remain explicit, and any unquantified stage suppresses the aggregate so a partial subtotal is never labeled total leakage.
+
+`AGENT != TRUTH`; `AGENT != AUTHORITY`; `Financial variance != Economic leakage`; `Missing != zero`.

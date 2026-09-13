@@ -19,6 +19,9 @@ import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconci
 import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergencePolicies
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergenceAnalysisTrigger
+import io.flooow.marketplace.operations.economics.reconciliation.EconomicDecisionRoomProjectionService
+import io.flooow.marketplace.operations.economics.reconciliation.UnavailableEconomicDecisionRoomAuthoritySource
+import io.flooow.marketplace.operations.economics.reconciliation.UnavailableEconomicDecisionRoomReconciliationAssessmentSource
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderRevenuePromotionService
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderSourcePromotionService
 import io.flooow.marketplace.operations.economics.sales.MarketplaceSalesIntelligenceProjectionProcessor
@@ -237,6 +240,13 @@ fun main() {
             }
         )
         val reconciliationCases = ReconciliationCasesApi(reconciliationCaseRepository, reconciliationCursorCodec)
+        val economicDecisionRoom = EconomicDecisionRoomApi(
+            EconomicDecisionRoomProjectionService(
+                reconciliationCaseRepository,
+                UnavailableEconomicDecisionRoomAuthoritySource,
+                UnavailableEconomicDecisionRoomReconciliationAssessmentSource
+            )
+        )
         val systemicDivergences = SystemicDivergencesApi(systemicSignalRepository, systemicDivergenceCursorCodec)
         val pipeline = MarketplaceLivePipelineService(
             ConnectorRuntimeMarketplaceLivePipelineSourceRunner(connectorRuntime),
@@ -304,6 +314,7 @@ fun main() {
                 recorder::findById,
                 salesIntelligenceApi,
                 reconciliationCases,
+                economicDecisionRoom,
                 systemicDivergences,
                 CommerceIdentityHealthApi(commerceIdentityRecompute::current),
                 oauthBootstrap,
@@ -346,6 +357,7 @@ internal fun Application.configureApi(
     findById: (OrganizationId, String) -> RecordedInventoryRiskAssessment? = { _, _ -> null },
     salesIntelligenceApi: SalesIntelligenceApi? = null,
     reconciliationCasesApi: ReconciliationCasesApi? = null,
+    economicDecisionRoomApi: EconomicDecisionRoomApi? = null,
     systemicDivergencesApi: SystemicDivergencesApi? = null,
     commerceIdentityHealthApi: CommerceIdentityHealthApi? = null,
     mercadoLivreOAuthBootstrap: MercadoLivreOAuthBootstrap? = null,
@@ -556,6 +568,9 @@ internal fun Application.configureApi(
         exception<InvalidReconciliationCaseIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-reconciliation-case-id", "Invalid reconciliation case identifier", "The reconciliation case identifier is invalid", "INVALID_RECONCILIATION_CASE_ID") }
         exception<ReconciliationCaseNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/reconciliation-case-not-found", "Reconciliation case not found", "The requested reconciliation case was not found", "RECONCILIATION_CASE_NOT_FOUND") }
         exception<ReconciliationCaseReadFailureException> { call, _ -> call.respondProblem(HttpStatusCode.ServiceUnavailable, "https://flooow.io/problems/reconciliation-case-read-failure", "Reconciliation case read failure", "Reconciliation cases are temporarily unavailable", "RECONCILIATION_CASE_READ_FAILURE") }
+        exception<InvalidEconomicDecisionRoomCaseIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-economic-decision-room-case-id", "Invalid Economic Decision Room case identifier", "The Economic Decision Room case identifier is invalid", "INVALID_ECONOMIC_DECISION_ROOM_CASE_ID") }
+        exception<EconomicDecisionRoomProjectionNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/economic-decision-room-projection-not-found", "Economic Decision Room projection not found", "The requested Economic Decision Room projection was not found", "ECONOMIC_DECISION_ROOM_PROJECTION_NOT_FOUND") }
+        exception<EconomicDecisionRoomProjectionReadFailureException> { call, _ -> call.respondProblem(HttpStatusCode.ServiceUnavailable, "https://flooow.io/problems/economic-decision-room-projection-read-failure", "Economic Decision Room projection read failure", "The Economic Decision Room projection is temporarily unavailable", "ECONOMIC_DECISION_ROOM_PROJECTION_READ_FAILURE") }
         exception<InvalidSystemicDivergenceCursorException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-systemic-divergence-cursor", "Invalid systemic divergence cursor", "The systemic divergence cursor or page limit is invalid", "INVALID_SYSTEMIC_DIVERGENCE_CURSOR") }
         exception<InvalidSystemicDivergenceSignalIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-systemic-divergence-id", "Invalid systemic divergence identifier", "The systemic divergence identifier is invalid", "INVALID_SYSTEMIC_DIVERGENCE_ID") }
         exception<SystemicDivergenceSignalNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/systemic-divergence-not-found", "Systemic divergence not found", "The requested systemic divergence was not found", "SYSTEMIC_DIVERGENCE_NOT_FOUND") }
@@ -879,6 +894,13 @@ internal fun Application.configureApi(
                 get("$RECONCILIATION_CASES_PATH/{caseId}") {
                     val principal = requireNotNull(call.principal<ServicePrincipal>())
                     call.respondJson(reconciliationCasesApi.detail(principal.organizationId, call.parameters["caseId"].orEmpty()))
+                }
+            }
+            if (economicDecisionRoomApi != null) {
+                get("$ECONOMIC_DECISION_ROOM_RECONCILIATION_PATH/{caseId}") {
+                    val principal = requireNotNull(call.principal<ServicePrincipal>())
+                    call.response.header("Cache-Control", "no-store")
+                    call.respondJson(economicDecisionRoomApi.detail(principal.organizationId, call.parameters["caseId"].orEmpty()))
                 }
             }
             if (systemicDivergencesApi != null) {
