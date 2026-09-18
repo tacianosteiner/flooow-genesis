@@ -325,6 +325,52 @@
         }
       }
     },
+    "/v1/reconciliation/traces/{traceId}/execute": {
+      "post": {
+        "operationId": "executeFinancialReconciliation",
+        "description": "Executes governed reconciliation for one existing durable financial trace. Organization is derived exclusively from the authenticated service principal. No request body or query parameters are accepted. Trace, policy, assessment identity, acceptance time and case revision remain server-owned.",
+        "security": [{ "serviceBearer": [] }],
+        "parameters": [
+          {
+            "name": "traceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reconciliation completed without creation of a new case revision",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationExecutionResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "A new durable reconciliation case was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconciliationExecutionResponse"
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Problem" },
+          "401": { "$ref": "#/components/responses/Problem" },
+          "404": { "$ref": "#/components/responses/Problem" },
+          "409": { "$ref": "#/components/responses/Problem" },
+          "500": { "$ref": "#/components/responses/Problem" },
+          "503": { "$ref": "#/components/responses/Problem" }
+        }
+      }
+    },
     "/v1/reconciliation/cases": {
       "get": {
         "operationId": "listReconciliationCases",
@@ -458,6 +504,42 @@
       }
     },
     "schemas": {
+      "ReconciliationExecutionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "outcome",
+          "assessmentStatus"
+        ],
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "CASE_CREATED",
+              "CASE_REVISED",
+              "UNCHANGED",
+              "NO_CASE"
+            ]
+          },
+          "assessmentStatus": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PARTIALLY_RECONCILED",
+              "DIVERGENCE",
+              "FULLY_RECONCILED"
+            ]
+          },
+          "caseId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
       "EconomicDecisionRoomProjection": {
         "type": "object",
         "additionalProperties": false,

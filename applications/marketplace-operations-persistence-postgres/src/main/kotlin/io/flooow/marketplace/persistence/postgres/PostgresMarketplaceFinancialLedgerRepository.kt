@@ -30,6 +30,7 @@ import io.flooow.organization.OrganizationId
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
+import java.sql.SQLException
 import java.sql.Timestamp
 import java.time.Instant
 import java.util.UUID
@@ -81,7 +82,9 @@ class PostgresMarketplaceFinancialLedgerRepository(
                 ?: return FinancialTraceReadResult.NotFound
             FinancialTraceReadResult.Found(loadTrace(connection, root))
         }
-    } catch (_: Exception) {
+    } catch (_: SQLException) {
+        FinancialTraceReadResult.Unavailable
+    } catch (_: RuntimeException) {
         FinancialTraceReadResult.IntegrityFailure
     }
 
@@ -94,8 +97,38 @@ class PostgresMarketplaceFinancialLedgerRepository(
                 ?: return FinancialTraceReadResult.NotFound
             FinancialTraceReadResult.Found(loadTrace(connection, root))
         }
-    } catch (_: Exception) {
+    } catch (_: SQLException) {
+        FinancialTraceReadResult.Unavailable
+    } catch (_: RuntimeException) {
         FinancialTraceReadResult.IntegrityFailure
+    }
+
+    /**
+     * Internal transaction seam for governed compound persistence.
+     *
+     * Transaction ownership remains with the caller. These methods do not
+     * commit, rollback, open a second connection, or weaken ledger semantics.
+     */
+    internal fun openWithinTransaction(
+        connection: Connection,
+        command: OpenFinancialTrace,
+        traceId: FinancialTraceId
+    ): FinancialTraceOpenResult {
+        check(!connection.autoCommit) {
+            "Financial ledger transaction seam requires autoCommit=false"
+        }
+        return open(connection, command, traceId)
+    }
+
+    internal fun appendWithinTransaction(
+        connection: Connection,
+        draft: FinancialLedgerEntryDraft,
+        entryId: FinancialLedgerEntryId
+    ): FinancialLedgerAppendResult {
+        check(!connection.autoCommit) {
+            "Financial ledger transaction seam requires autoCommit=false"
+        }
+        return append(connection, draft, entryId)
     }
 
     private fun open(

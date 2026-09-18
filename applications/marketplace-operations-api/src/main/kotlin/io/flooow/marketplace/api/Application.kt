@@ -15,6 +15,7 @@ import io.flooow.marketplace.operations.economics.provider.omie.OmieProviderConn
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicOrderSourceCapability
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicProductCostCapability
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
+import io.flooow.marketplace.operations.economics.reconciliation.GovernedFinancialReconciliationExecutionService
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
 import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergencePolicies
@@ -41,6 +42,9 @@ import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceIndependent
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceOrderSourcePromotionRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceSalesIntelligenceProjection
 import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationCaseRepository
+import io.flooow.marketplace.persistence.postgres.PostgresFinancialReconciliationPolicySource
+import io.flooow.marketplace.persistence.postgres.PostgresGovernedReconciliationCaseRevisionCommitStore
+import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceFinancialLedgerRepository
 import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceCommitter
@@ -227,6 +231,10 @@ fun main() {
             PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
         val projection = PostgresMarketplaceSalesIntelligenceProjection(configuration)
         val reconciliationCaseRepository = PostgresDurableReconciliationCaseRepository(configuration)
+        val reconciliationCaseCommitStore =
+            PostgresGovernedReconciliationCaseRevisionCommitStore(
+                configuration
+            )
         val systemicSignalRepository = PostgresSystemicDivergenceSignalRepository(configuration)
         val systemicDetector = DeterministicSystemicDivergenceDetector(systemicSignalRepository)
         // The orchestrator is composed at the durable boundary. Only an
@@ -234,11 +242,29 @@ fun main() {
         // can manufacture an assessment or choose an organization.
         val reconciliationCaseOrchestrator = GovernedReconciliationCaseOrchestrator(
             reconciliationCaseRepository,
+            reconciliationCaseCommitStore,
             SystemicDivergenceAnalysisTrigger { organizationId, evaluatedAt ->
                 val cases = reconciliationCaseRepository.list(organizationId, null, 100).cases
                 systemicDetector.analyze(organizationId, cases, SystemicDivergencePolicies.current, evaluatedAt)
             }
         )
+        val reconciliationExecutionService =
+            GovernedFinancialReconciliationExecutionService(
+                ledger =
+                    PostgresMarketplaceFinancialLedgerRepository(
+                        configuration
+                    ),
+                policySource =
+                    PostgresFinancialReconciliationPolicySource(
+                        configuration
+                    ),
+                orchestrator =
+                    reconciliationCaseOrchestrator
+            )
+        val reconciliationExecution =
+            ReconciliationExecutionApi(
+                reconciliationExecutionService::execute
+            )
         val reconciliationCases = ReconciliationCasesApi(reconciliationCaseRepository, reconciliationCursorCodec)
         val economicDecisionRoom = EconomicDecisionRoomApi(
             EconomicDecisionRoomProjectionService(
@@ -324,7 +350,9 @@ fun main() {
                 omieProductCostRefresh,
                 commerceIdentityRecompute,
                 mercadoLivreCredentialRotationApi,
-                crossSystemProductIdentity
+                crossSystemProductIdentity,
+                reconciliationExecutionApi =
+                    reconciliationExecution
             )
         }.start(wait = true)
     }
@@ -367,7 +395,8 @@ internal fun Application.configureApi(
     omieProductCostRefreshApi: OmieEvidenceRefreshApi? = null,
     commerceIdentityRecomputeApi: CommerceIdentityRecomputeApi? = null,
     mercadoLivreCredentialRotationApi: MercadoLivreCredentialRotationApi? = null,
-    crossSystemProductIdentityApi: CrossSystemProductIdentityConfirmationApi? = null
+    crossSystemProductIdentityApi: CrossSystemProductIdentityConfirmationApi? = null,
+    reconciliationExecutionApi: ReconciliationExecutionApi? = null
 ) {
     install(Authentication) {
         bearer("service-bearer") {
@@ -568,6 +597,19 @@ internal fun Application.configureApi(
         exception<InvalidReconciliationCaseIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-reconciliation-case-id", "Invalid reconciliation case identifier", "The reconciliation case identifier is invalid", "INVALID_RECONCILIATION_CASE_ID") }
         exception<ReconciliationCaseNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/reconciliation-case-not-found", "Reconciliation case not found", "The requested reconciliation case was not found", "RECONCILIATION_CASE_NOT_FOUND") }
         exception<ReconciliationCaseReadFailureException> { call, _ -> call.respondProblem(HttpStatusCode.ServiceUnavailable, "https://flooow.io/problems/reconciliation-case-read-failure", "Reconciliation case read failure", "Reconciliation cases are temporarily unavailable", "RECONCILIATION_CASE_READ_FAILURE") }
+        exception<ReconciliationExecutionProblemException> { call, cause ->
+            call.response.header(
+                "Cache-Control",
+                "no-store"
+            )
+            call.respondProblem(
+                cause.status,
+                cause.type,
+                cause.title,
+                cause.detail,
+                cause.code
+            )
+        }
         exception<InvalidEconomicDecisionRoomCaseIdException> { call, _ -> call.respondProblem(HttpStatusCode.BadRequest, "https://flooow.io/problems/invalid-economic-decision-room-case-id", "Invalid Economic Decision Room case identifier", "The Economic Decision Room case identifier is invalid", "INVALID_ECONOMIC_DECISION_ROOM_CASE_ID") }
         exception<EconomicDecisionRoomProjectionNotFoundException> { call, _ -> call.respondProblem(HttpStatusCode.NotFound, "https://flooow.io/problems/economic-decision-room-projection-not-found", "Economic Decision Room projection not found", "The requested Economic Decision Room projection was not found", "ECONOMIC_DECISION_ROOM_PROJECTION_NOT_FOUND") }
         exception<EconomicDecisionRoomProjectionReadFailureException> { call, _ -> call.respondProblem(HttpStatusCode.ServiceUnavailable, "https://flooow.io/problems/economic-decision-room-projection-read-failure", "Economic Decision Room projection read failure", "The Economic Decision Room projection is temporarily unavailable", "ECONOMIC_DECISION_ROOM_PROJECTION_READ_FAILURE") }
@@ -884,6 +926,41 @@ internal fun Application.configureApi(
                     val organizationId = requireNotNull(call.principal<ServicePrincipal>()).organizationId
                     call.response.header("Cache-Control", "no-store")
                     call.respondJson(salesIntelligenceApi.reacquire(organizationId))
+                }
+            }
+            if (reconciliationExecutionApi != null) {
+                post("$RECONCILIATION_EXECUTION_BASE_PATH/{traceId}/execute") {
+                    if (
+                        call.request.queryParameters.names().isNotEmpty() ||
+                        call.receiveText().isNotEmpty()
+                    ) {
+                        throw MalformedRequestException(
+                            "Reconciliation execution accepts no request body or query"
+                        )
+                    }
+
+                    val principal =
+                        requireNotNull(
+                            call.principal<ServicePrincipal>()
+                        )
+
+                    val result =
+                        reconciliationExecutionApi.execute(
+                            principal.organizationId,
+                            call.parameters[
+                                "traceId"
+                            ].orEmpty()
+                        )
+
+                    call.response.header(
+                        "Cache-Control",
+                        "no-store"
+                    )
+
+                    call.respondJson(
+                        result.body,
+                        result.status
+                    )
                 }
             }
             if (reconciliationCasesApi != null) {

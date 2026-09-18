@@ -311,6 +311,17 @@ sealed interface FinancialTraceReadResult {
     }
 
     data object NotFound : FinancialTraceReadResult
+
+    /**
+     * The durable source could not be read because its infrastructure is
+     * temporarily unavailable. This says nothing about semantic integrity.
+     */
+    data object Unavailable : FinancialTraceReadResult
+
+    /**
+     * Durable content was readable but could not be reconstructed as a valid
+     * FinancialTrace, or otherwise violated ledger integrity.
+     */
     data object IntegrityFailure : FinancialTraceReadResult
 }
 
