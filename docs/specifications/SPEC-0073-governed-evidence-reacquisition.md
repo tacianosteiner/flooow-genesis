@@ -6,11 +6,15 @@ a page in another. Replaying the same namespace is idempotent through the existi
 page commit key and integrity checks. New observations coexist with historical
 observations and retain source fingerprints and observed timestamps.
 
-Omie typed product extraction uses
-`marketplace-economic.omie-transaction-evidence.reacquisition-v2`. The durable
-reader continues to include `reacquisition-v1`; advancing the generation never
-rewrites or hides an older observation. A new generation is required whenever a
-parser improvement must reacquire an already exhausted provider history.
+Omie lifecycle, origin and financial-basis source evidence reacquisition uses
+`marketplace-economic.omie-transaction-evidence.reacquisition-v3`. V3 owns a
+separate typed record/parser and a separate durable progress namespace; it does
+not reinterpret the historical v0/v1/v2 rows. The existing diagnostic identity
+reader remains on its prior evidence generations until a later governed
+transaction-identity policy explicitly authorizes V3 use. Advancing a
+reacquisition generation never rewrites or hides an older observation. A new
+generation is required whenever a parser/evidence-contract improvement must
+reacquire an already exhausted provider history.
 
 Endpoints:
 

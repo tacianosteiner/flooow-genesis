@@ -15,6 +15,7 @@ import io.flooow.marketplace.operations.economics.provider.omie.OmieProviderConn
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicOrderSourceCapability
 import io.flooow.marketplace.operations.economics.provider.MarketplaceEconomicProductCostCapability
 import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceCapability
+import io.flooow.marketplace.operations.economics.provider.OmieTransactionEvidenceV3Capability
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedFinancialReconciliationExecutionService
 import io.flooow.marketplace.operations.economics.reconciliation.GovernedReconciliationCaseOrchestrator
 import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSystemicDivergenceDetector
@@ -48,6 +49,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceFinancialLe
 import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceCommitter
+import io.flooow.marketplace.persistence.postgres.PostgresOmieTransactionEvidenceV3Committer
 import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCostCommitter
 import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCatalogEvidenceReader
@@ -189,6 +191,10 @@ fun main() {
                     configuration, security.progressProtector,
                     capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY
                 ),
+                PostgresOmieTransactionEvidenceV3Committer(
+                    configuration,
+                    security.progressProtector
+                ),
                 PostgresOmieProductCostCommitter(configuration, security.progressProtector)
             )
         )
@@ -201,7 +207,7 @@ fun main() {
             controlPlane,
             connectorRuntime,
             omieConnectionId,
-            capability = OmieTransactionEvidenceCapability.REACQUISITION_KEY
+            capability = OmieTransactionEvidenceV3Capability.KEY
         )
         val omieProductCostRefresh = OmieEvidenceRefreshApi(
             controlPlane,
