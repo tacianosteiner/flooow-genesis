@@ -110,3 +110,103 @@ S1 = IMPLEMENTATION CANDIDATE
 S2 = HOLD
 S3 = HOLD
 ```
+
+## Final real-data proof - V6
+
+Final status:
+
+```text
+S1 / V033 = PROVEN
+```
+
+Provenance:
+
+```text
+implementation commit:
+27c291ee399a17ed97fdb8953b86a9a4c7301877
+
+final proof script SHA-256:
+23B144BD58725B581A16D350763283F40A9A1C0160EBACE1DA3E5C1C4A150C29
+
+final proof checkpoint:
+FLOOOW-0165S1-V3-FINAL-FIELD-PROOF-V6-20260918-141706.txt
+
+final proof checkpoint SHA-256:
+48820F04E4BDC33CE20BA3C84706CA9F7B8DD6FB0BC217130431DAAFA574BBF6
+```
+
+Admissible proof:
+
+```text
+historical v0 = 132
+historical v1 = 133
+historical v2 = 135
+historical evidence unchanged = true
+
+V3 base rows    = 141
+V3 sidecar rows = 141
+V3 line rows    = 196
+V3 progress exhausted = true
+
+real origin:
+API = 124
+ERP = 17
+MLV = 0
+
+origin semantics = provenance only
+
+V022 diagnostic relation:
+matched rows = 1
+canonical marketplace orders = 1
+integration matches = 1
+customer matches = 0
+one-to-many ambiguity = 0
+many-to-one ambiguity = 0
+
+durable candidate lineage:
+canonical integration-reference matches = 4
+canonical customer-reference matches = 0
+
+currentness conflicts = 0
+
+raw fingerprints present = 141
+semantic fingerprints present = 141
+raw equals semantic = 0
+
+missing order-ended evidence = preserved missing
+missing marketplace fee = preserved missing
+missing marketplace shipping = preserved missing
+```
+
+Replay proof:
+
+```text
+temporary bootstrap network disconnected before replay = true
+replay network count = 1
+replay network internal = true
+
+new committed pages = 0
+new records = 0
+already committed pages >= 1
+
+V3 replay idempotent = true
+v0/v1/v2 immutable = true
+```
+
+The real-data proof creates no transaction identity decision and no financial
+authority.
+
+Explicit holds remain:
+
+```text
+TransactionIdentityBindingPolicy = not yet frozen
+ExpectedSaleBasisPolicy = not yet frozen
+
+S2 = HOLD
+S3 = HOLD
+C2 = HOLD
+
+REAL EXPECTED/ACTUAL ECONOMIC BASIS EQUIVALENCE = NOT PROVEN
+REAL END-TO-END FINANCIAL VIABILITY = NOT YET PROVEN
+REAL NON-ZERO FINANCIAL LEAKAGE = NOT PROVEN
+```
