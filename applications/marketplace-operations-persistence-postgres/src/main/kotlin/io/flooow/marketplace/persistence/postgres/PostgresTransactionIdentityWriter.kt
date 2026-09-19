@@ -6,6 +6,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.time.LocalDateTime
+import java.util.UUID
 
 private const val ML_SOURCE = "marketplace-economic.order-source"
 private const val OMIE_V3 = "marketplace-economic.omie-transaction-evidence.reacquisition-v3"
@@ -33,6 +34,10 @@ class PostgresTransactionIdentityWriter {
                     } else failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
                 }
             }
+            if (command.kind == TransactionIdentityKind.WITHDRAWN) {
+                return withdraw(c, actor, command, intent, permission)
+            }
+
             c.prepareStatement("SELECT transaction_identity_locks(?,?,?,?,?,?)").use { s ->
                 val values = listOf(actor.organizationId.value, actor.principalId.value, command.decisionId,
                     actor.omieConnectionId, command.sourceOrderReference, command.marketplaceOrderId)
@@ -104,6 +109,190 @@ class PostgresTransactionIdentityWriter {
         }
     }
 
+    private fun withdraw(
+        c: Connection,
+        actor: AuthenticatedCommand,
+        command: TransactionIdentityCommand,
+        intent: String,
+        permission: CommandPermission
+    ): TransactionIdentityWriteResult {
+        val supersedes = command.supersedesDecisionId
+            ?: return failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
+
+        c.prepareStatement("SELECT transaction_identity_withdrawal_locks(?,?,?,?,?,?)").use { s ->
+            val values = listOf(
+                actor.organizationId.value,
+                actor.principalId.value,
+                command.decisionId,
+                actor.omieConnectionId,
+                command.sourceOrderReference,
+                command.marketplaceOrderId
+            )
+            values.forEachIndexed { i, v -> s.setObject(i + 1, v) }
+            s.executeQuery().close()
+        }
+
+        val parent = c.prepareStatement(
+            """SELECT d.revision,d.ml_connection_id,d.ml_capability,d.ml_progress_version,d.ml_record_ordinal,
+                d.external_order_id,d.currency,d.omie_capability,d.omie_progress_version,d.omie_record_ordinal,
+                d.omie_semantic_fingerprint,d.provider_revision_local
+                FROM marketplace_transaction_identity_head h
+                JOIN marketplace_transaction_identity_decision d
+                  ON d.organization_id=h.organization_id AND d.decision_id=h.decision_id
+                WHERE h.organization_id=?
+                  AND h.omie_connection_id=?
+                  AND h.source_order_reference=?
+                  AND h.marketplace_order_id=?
+                  AND h.decision_id=?
+                  AND h.kind='CONFIRMED'
+                  AND d.kind='CONFIRMED'"""
+        ).use { s ->
+            s.setObject(1, actor.organizationId.value)
+            s.setObject(2, actor.omieConnectionId)
+            s.setString(3, command.sourceOrderReference)
+            s.setObject(4, command.marketplaceOrderId)
+            s.setObject(5, supersedes)
+
+            s.executeQuery().use { r ->
+                if (!r.next()) {
+                    null
+                } else {
+                    WithdrawalParent(
+                        revision = r.getInt("revision"),
+                        mlConnectionId = r.getObject("ml_connection_id", UUID::class.java),
+                        mlCapability = r.getString("ml_capability"),
+                        mlProgressVersion = r.getLong("ml_progress_version"),
+                        mlRecordOrdinal = r.getInt("ml_record_ordinal"),
+                        externalOrderId = r.getString("external_order_id"),
+                        currency = r.getString("currency"),
+                        omieCapability = r.getString("omie_capability"),
+                        omieProgressVersion = r.getLong("omie_progress_version"),
+                        omieRecordOrdinal = r.getInt("omie_record_ordinal"),
+                        omieSemanticFingerprint = r.getString("omie_semantic_fingerprint"),
+                        providerRevision = r.getObject(
+                            "provider_revision_local",
+                            LocalDateTime::class.java
+                        )
+                    )
+                }
+            }
+        } ?: return failed(TransactionIdentityFailure.CONFLICT)
+
+        if (parent.mlConnectionId != actor.mercadoLivreConnectionId) {
+            return failed(TransactionIdentityFailure.AUTHORIZATION_DENIED)
+        }
+
+        val final = authorization.authorizeForWrite(
+            c,
+            actor,
+            permission
+        )
+
+        if (final is CommandAuthorizationResult.Denied) {
+            return failed(TransactionIdentityFailure.AUTHORIZATION_DENIED)
+        }
+
+        if (final !is CommandAuthorizationResult.Authorized) {
+            return failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
+        }
+
+        val lineage = final.lineage
+
+        val evidence = TransactionIdentityEvidence(
+            parent.mlCapability,
+            parent.mlProgressVersion,
+            parent.mlRecordOrdinal,
+            parent.externalOrderId,
+            parent.currency,
+            parent.omieCapability,
+            parent.omieProgressVersion,
+            parent.omieRecordOrdinal,
+            parent.omieSemanticFingerprint,
+            parent.providerRevision
+        )
+
+        val semantic = evidence.decisionFingerprint(
+            intent,
+            actor,
+            lineage
+        )
+
+        val revision = Math.addExact(
+            parent.revision,
+            1
+        )
+
+        val columns = """organization_id,decision_id,omie_connection_id,source_order_reference,marketplace_order_id,
+            kind,reason,revision,supersedes_decision_id,ml_connection_id,ml_capability,ml_progress_version,ml_record_ordinal,
+            external_order_id,currency,omie_capability,omie_progress_version,omie_record_ordinal,omie_semantic_fingerprint,
+            provider_revision_local,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,
+            authorization_semantic_version,authorization_fingerprint,intent_fingerprint,decision_semantic_fingerprint,
+            provenance,correlation_id"""
+
+        val values = listOf(
+            actor.organizationId.value,
+            command.decisionId,
+            actor.omieConnectionId,
+            command.sourceOrderReference,
+            command.marketplaceOrderId,
+            command.kind.name,
+            command.reason.name,
+            revision,
+            supersedes,
+            parent.mlConnectionId,
+            parent.mlCapability,
+            parent.mlProgressVersion,
+            parent.mlRecordOrdinal,
+            parent.externalOrderId,
+            parent.currency,
+            parent.omieCapability,
+            parent.omieProgressVersion,
+            parent.omieRecordOrdinal,
+            parent.omieSemanticFingerprint,
+            parent.providerRevision,
+            actor.principalId.value,
+            actor.credentialId,
+            actor.credentialRevision,
+            lineage.grantId,
+            lineage.grantRevision,
+            lineage.permission.name,
+            lineage.semanticVersion,
+            lineage.semanticFingerprint,
+            intent,
+            semantic,
+            command.provenance,
+            command.correlationId
+        )
+
+        c.prepareStatement(
+            "INSERT INTO marketplace_transaction_identity_decision ($columns) VALUES (${values.joinToString(",") { "?" }})"
+        ).use { s ->
+            values.forEachIndexed { i, v ->
+                s.setObject(i + 1, v)
+            }
+            s.executeUpdate()
+        }
+
+        return TransactionIdentityWriteResult.Applied(
+            command.decisionId,
+            semantic
+        )
+    }
+
+    private data class WithdrawalParent(
+        val revision: Int,
+        val mlConnectionId: UUID,
+        val mlCapability: String,
+        val mlProgressVersion: Long,
+        val mlRecordOrdinal: Int,
+        val externalOrderId: String,
+        val currency: String,
+        val omieCapability: String,
+        val omieProgressVersion: Long,
+        val omieRecordOrdinal: Int,
+        val omieSemanticFingerprint: String,
+        val providerRevision: LocalDateTime
+    )
     private fun target(c: Connection, actor: AuthenticatedCommand, command: TransactionIdentityCommand): Target? =
         c.prepareStatement("""SELECT i.external_order_id,i.currency,p.source_input_progress_version,p.source_record_ordinal
             FROM marketplace_order_identity_registry i JOIN marketplace_order_occurrence_source_promotion p

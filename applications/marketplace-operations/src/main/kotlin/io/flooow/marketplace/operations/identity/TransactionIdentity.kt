@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-enum class TransactionIdentityKind { CONFIRMED, REJECTED }
+enum class TransactionIdentityKind { CONFIRMED, REJECTED, WITHDRAWN }
 enum class ExplicitTransactionIdentityReason { EXPLICIT_CONFIRMATION, EXPLICIT_REJECTION, CORRECTION }
 
 data class TransactionIdentityCommand(

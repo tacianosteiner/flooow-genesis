@@ -366,6 +366,692 @@ class PostgresTransactionIdentityWriterTest {
         } finally { release.countDown(); pool.shutdownNow() }
     }
 
+    @Test fun `withdrawal releases contradicted confirmation without asserting replacement`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        observation(
+            1,
+            integration="ML-B",
+            modified=civil.plusDays(1),
+            semantic="c".repeat(64)
+        )
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="explicit governed withdrawal",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(withdrawal)
+        )
+
+        assertEquals(
+            "WITHDRAWN",
+            value(
+                "SELECT kind FROM marketplace_transaction_identity_head " +
+                    "WHERE decision_id='${withdrawal.decisionId}'"
+            )
+        )
+
+        assertEquals(
+            "0",
+            value(
+                "SELECT count(*)::text FROM marketplace_transaction_identity_head " +
+                    "WHERE kind='CONFIRMED'"
+            )
+        )
+
+        assertEquals(
+            "0",
+            value(
+                "SELECT count(*)::text FROM marketplace_transaction_identity_decision " +
+                    "WHERE marketplace_order_id='$targetB'"
+            )
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(command(targetB))
+        )
+
+        assertEquals(
+            "1",
+            value(
+                "SELECT count(*)::text FROM marketplace_transaction_identity_head " +
+                    "WHERE kind='CONFIRMED'"
+            )
+        )
+    }
+
+    @Test fun `withdrawal copies parent evidence and replay does not recalculate current V3`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="explicit governed withdrawal",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        val applied=assertIs<TransactionIdentityWriteResult.Applied>(
+            record(withdrawal)
+        )
+
+        assertEquals(
+            "1",
+            value(
+                """SELECT count(*)::text
+                     FROM marketplace_transaction_identity_decision child
+                     JOIN marketplace_transaction_identity_decision parent
+                       ON parent.organization_id=child.organization_id
+                      AND parent.decision_id=child.supersedes_decision_id
+                    WHERE child.decision_id='${withdrawal.decisionId}'
+                      AND ROW(
+                          child.ml_connection_id,
+                          child.ml_capability,
+                          child.ml_progress_version,
+                          child.ml_record_ordinal,
+                          child.external_order_id,
+                          child.currency,
+                          child.omie_capability,
+                          child.omie_progress_version,
+                          child.omie_record_ordinal,
+                          child.omie_semantic_fingerprint,
+                          child.provider_revision_local
+                      ) IS NOT DISTINCT FROM ROW(
+                          parent.ml_connection_id,
+                          parent.ml_capability,
+                          parent.ml_progress_version,
+                          parent.ml_record_ordinal,
+                          parent.external_order_id,
+                          parent.currency,
+                          parent.omie_capability,
+                          parent.omie_progress_version,
+                          parent.omie_record_ordinal,
+                          parent.omie_semantic_fingerprint,
+                          parent.provider_revision_local
+                      )"""
+            )
+        )
+
+        observation(
+            1,
+            integration="OTHER",
+            modified=civil.plusDays(1),
+            semantic="c".repeat(64)
+        )
+
+        val replay=assertIs<TransactionIdentityWriteResult.AlreadyApplied>(
+            record(
+                withdrawal.copy(
+                    correlationId=UUID.randomUUID()
+                )
+            )
+        )
+
+        assertEquals(
+            applied.semanticFingerprint,
+            replay.semanticFingerprint
+        )
+    }
+
+    @Test fun `withdrawal requires the current confirmed parent`() {
+        fixture()
+        observation(0)
+
+        val rejected=command(
+            kind=TransactionIdentityKind.REJECTED
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(rejected)
+        )
+
+        val invalidWithdrawal=rejected.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="invalid withdrawal attempt",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=rejected.decisionId
+        )
+
+        failure(
+            TransactionIdentityFailure.CONFLICT,
+            record(invalidWithdrawal)
+        )
+
+        val confirmed=command(targetB)
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(confirmed)
+        )
+
+        val withdrawal=confirmed.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="explicit governed withdrawal",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=confirmed.decisionId
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(withdrawal)
+        )
+
+        failure(
+            TransactionIdentityFailure.CONFLICT,
+            record(
+                withdrawal.copy(
+                    decisionId=UUID.randomUUID(),
+                    correlationId=UUID.randomUUID()
+                )
+            )
+        )
+    }
+
+    @Test fun `concurrent withdrawals create one current child`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        val actor=actor()
+
+        val first=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="first governed withdrawal",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        val second=first.copy(
+            decisionId=UUID.randomUUID(),
+            provenance="second governed withdrawal",
+            correlationId=UUID.randomUUID()
+        )
+
+        val pool=Executors.newFixedThreadPool(2)
+        val start=CountDownLatch(1)
+
+        try {
+            val futures=listOf(
+                pool.submit<TransactionIdentityWriteResult> {
+                    start.await()
+                    record(first,actor)
+                },
+                pool.submit<TransactionIdentityWriteResult> {
+                    start.await()
+                    record(second,actor)
+                }
+            )
+
+            start.countDown()
+
+            val outcomes=futures.map {
+                it.get(15,TimeUnit.SECONDS)
+            }
+
+            assertEquals(
+                1,
+                outcomes.count {
+                    it is TransactionIdentityWriteResult.Applied
+                }
+            )
+
+            assertEquals(
+                1,
+                outcomes.count {
+                    it ==
+                        TransactionIdentityWriteResult.Failed(
+                            TransactionIdentityFailure.CONFLICT
+                        )
+                }
+            )
+
+            assertEquals(
+                "1",
+                value(
+                    "SELECT count(*)::text FROM marketplace_transaction_identity_head " +
+                        "WHERE kind='WITHDRAWN'"
+                )
+            )
+
+            assertEquals(
+                "0",
+                value(
+                    "SELECT count(*)::text FROM marketplace_transaction_identity_head " +
+                        "WHERE kind='CONFIRMED'"
+                )
+            )
+        } finally {
+            pool.shutdownNow()
+        }
+    }
+
+    @Test fun `withdrawal ignores later V3 integrity damage but remains explicit authority`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        sql(
+            "UPDATE integration_connector_page_commit " +
+                "SET record_count=2 WHERE connection_id=?",
+            omie
+        )
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="explicit withdrawal despite later evidence damage",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(withdrawal)
+        )
+
+        assertEquals(
+            "WITHDRAWN",
+            value(
+                "SELECT kind FROM marketplace_transaction_identity_head " +
+                    "WHERE decision_id='${withdrawal.decisionId}'"
+            )
+        )
+    }
+    @Test fun `withdrawal serializes replacement confirmation on the same stable subject`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        val secondPrincipal=UUID.randomUUID()
+        val secondCredential=UUID.randomUUID()
+
+        authority(
+            actorId=secondPrincipal,
+            credId=secondCredential
+        )
+
+        val secondActor=actor(secondCredential)
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="serialized withdrawal before replacement confirmation",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        val pool=Executors.newSingleThreadExecutor()
+
+        try {
+            connection().use { c ->
+                c.autoCommit=false
+
+                assertIs<TransactionIdentityWriteResult.Applied>(
+                    writer.record(
+                        c,
+                        actor(),
+                        withdrawal
+                    )
+                )
+
+                val future=pool.submit<TransactionIdentityWriteResult> {
+                    record(
+                        command(targetB),
+                        secondActor
+                    )
+                }
+
+                awaitLock(
+                    "SELECT transaction_identity_locks"
+                )
+
+                assertFalse(future.isDone)
+
+                c.commit()
+
+                assertIs<TransactionIdentityWriteResult.Applied>(
+                    future.get(
+                        10,
+                        TimeUnit.SECONDS
+                    )
+                )
+            }
+
+            assertEquals(
+                "1",
+                value(
+                    "SELECT count(*)::text " +
+                        "FROM marketplace_transaction_identity_head " +
+                        "WHERE kind='CONFIRMED'"
+                )
+            )
+
+            assertEquals(
+                "WITHDRAWN",
+                value(
+                    "SELECT kind " +
+                        "FROM marketplace_transaction_identity_head " +
+                        "WHERE marketplace_order_id='$targetA'"
+                )
+            )
+
+            assertEquals(
+                "CONFIRMED",
+                value(
+                    "SELECT kind " +
+                        "FROM marketplace_transaction_identity_head " +
+                        "WHERE marketplace_order_id='$targetB'"
+                )
+            )
+        } finally {
+            pool.shutdownNow()
+        }
+    }
+
+    @Test fun `withdrawal serializes target reassignment from another stable subject`() {
+        fixture()
+
+        observation(
+            0,
+            subject="OMIE-1"
+        )
+
+        observation(
+            1,
+            subject="OMIE-2"
+        )
+
+        val original=command(
+            target=targetA,
+            subject="OMIE-1"
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        val secondPrincipal=UUID.randomUUID()
+        val secondCredential=UUID.randomUUID()
+
+        authority(
+            actorId=secondPrincipal,
+            credId=secondCredential
+        )
+
+        val secondActor=actor(secondCredential)
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="serialized target release",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        val replacement=command(
+            target=targetA,
+            subject="OMIE-2"
+        )
+
+        val pool=Executors.newSingleThreadExecutor()
+
+        try {
+            connection().use { c ->
+                c.autoCommit=false
+
+                assertIs<TransactionIdentityWriteResult.Applied>(
+                    writer.record(
+                        c,
+                        actor(),
+                        withdrawal
+                    )
+                )
+
+                val future=pool.submit<TransactionIdentityWriteResult> {
+                    record(
+                        replacement,
+                        secondActor
+                    )
+                }
+
+                awaitLock(
+                    "SELECT transaction_identity_locks"
+                )
+
+                assertFalse(future.isDone)
+
+                c.commit()
+
+                assertIs<TransactionIdentityWriteResult.Applied>(
+                    future.get(
+                        10,
+                        TimeUnit.SECONDS
+                    )
+                )
+            }
+
+            assertEquals(
+                "1",
+                value(
+                    "SELECT count(*)::text " +
+                        "FROM marketplace_transaction_identity_head " +
+                        "WHERE kind='CONFIRMED' " +
+                        "AND marketplace_order_id='$targetA'"
+                )
+            )
+
+            assertEquals(
+                "OMIE-2",
+                value(
+                    "SELECT source_order_reference " +
+                        "FROM marketplace_transaction_identity_head " +
+                        "WHERE kind='CONFIRMED' " +
+                        "AND marketplace_order_id='$targetA'"
+                )
+            )
+        } finally {
+            pool.shutdownNow()
+        }
+    }
+
+    @Test fun `withdrawal transaction serializes grant revocation and preserves historical authority`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="withdrawal before grant revocation",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        val aa=actor()
+        val pool=Executors.newSingleThreadExecutor()
+
+        try {
+            connection().use { c ->
+                c.autoCommit=false
+
+                assertIs<TransactionIdentityWriteResult.Applied>(
+                    writer.record(
+                        c,
+                        aa,
+                        withdrawal
+                    )
+                )
+
+                val future=pool.submit<Int> {
+                    connection().use {
+                        revoke(it)
+                    }
+                }
+
+                awaitLock(
+                    "INSERT INTO command_permission_grant"
+                )
+
+                assertFalse(future.isDone)
+
+                c.commit()
+
+                assertEquals(
+                    1,
+                    future.get(
+                        10,
+                        TimeUnit.SECONDS
+                    )
+                )
+            }
+
+            assertEquals(
+                grant.toString(),
+                value(
+                    "SELECT grant_id::text " +
+                        "FROM marketplace_transaction_identity_decision " +
+                        "WHERE decision_id='${withdrawal.decisionId}'"
+                )
+            )
+
+            failure(
+                TransactionIdentityFailure.AUTHORIZATION_DENIED,
+                record(
+                    command(
+                        target=targetB
+                    )
+                )
+            )
+        } finally {
+            pool.shutdownNow()
+        }
+    }
+
+    @Test fun `withdrawal rollback preserves original confirmed head and permits later governed withdrawal`() {
+        fixture()
+        observation(0)
+
+        val original=command()
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(original)
+        )
+
+        val withdrawal=original.copy(
+            decisionId=UUID.randomUUID(),
+            kind=TransactionIdentityKind.WITHDRAWN,
+            reason=ExplicitTransactionIdentityReason.CORRECTION,
+            provenance="rollback withdrawal",
+            correlationId=UUID.randomUUID(),
+            supersedesDecisionId=original.decisionId
+        )
+
+        val aa=actor()
+
+        connection().use { c ->
+            c.autoCommit=false
+
+            assertIs<TransactionIdentityWriteResult.Applied>(
+                writer.record(
+                    c,
+                    aa,
+                    withdrawal
+                )
+            )
+
+            c.rollback()
+        }
+
+        assertEquals(
+            "1",
+            value(
+                "SELECT count(*)::text " +
+                    "FROM marketplace_transaction_identity_decision"
+            )
+        )
+
+        assertEquals(
+            original.decisionId.toString(),
+            value(
+                "SELECT decision_id::text " +
+                    "FROM marketplace_transaction_identity_head"
+            )
+        )
+
+        assertEquals(
+            "CONFIRMED",
+            value(
+                "SELECT kind " +
+                    "FROM marketplace_transaction_identity_head"
+            )
+        )
+
+        assertIs<TransactionIdentityWriteResult.Applied>(
+            record(withdrawal)
+        )
+
+        assertEquals(
+            "2",
+            value(
+                "SELECT count(*)::text " +
+                    "FROM marketplace_transaction_identity_decision"
+            )
+        )
+
+        assertEquals(
+            "WITHDRAWN",
+            value(
+                "SELECT kind " +
+                    "FROM marketplace_transaction_identity_head"
+            )
+        )
+    }
     @Test fun `SQL NULL enums foreign keys fingerprints immutable history and projection attacks fail`() {
         fixture(); observation(0); val cmd=command(); assertIs<TransactionIdentityWriteResult.Applied>(record(cmd))
         val table="marketplace_transaction_identity_decision"
