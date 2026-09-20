@@ -23,6 +23,7 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEv
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceCorrection
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceCorrectionReason
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceFamily
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceChangeKind
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceObservationId
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceSubject
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceVersion
@@ -36,6 +37,8 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependen
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceRepository
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceUpdate
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceUpdateReader
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceUpdateReadResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicFact
 import io.flooow.marketplace.operations.economics.evidence.VersionedMarketplaceIndependentEconomicEvidence
 import io.flooow.marketplace.operations.economics.evidence.valueForPersistence
@@ -52,7 +55,8 @@ private val RETRYABLE_TRANSACTION_SQL_STATES = setOf("40P01", "40001")
 
 class PostgresMarketplaceIndependentEconomicEvidenceRepository(
     private val configuration: PostgresConfiguration
-) : MarketplaceIndependentEconomicEvidenceRepository {
+) : MarketplaceIndependentEconomicEvidenceRepository,
+    MarketplaceEconomicEvidenceUpdateReader {
 
     override fun find(
         subject: MarketplaceEconomicEvidenceSubject
@@ -79,6 +83,75 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
     } catch (_: Exception) {
         MarketplaceIndependentEconomicEvidenceReadResult.IntegrityFailure
     }
+    override fun findUpdate(
+        subject: MarketplaceEconomicEvidenceSubject,
+        evidenceVersion: MarketplaceEconomicEvidenceVersion,
+        updateId: MarketplaceEconomicEvidenceObservationId,
+        changeKind: MarketplaceEconomicEvidenceChangeKind
+    ): MarketplaceEconomicEvidenceUpdateReadResult = try {
+        connection().use { connection ->
+            val storedRoot =
+                root(
+                    connection,
+                    subject.organizationId,
+                    subject.orderId
+                ) ?: return MarketplaceEconomicEvidenceUpdateReadResult.NotFound
+
+            if (!storedRoot.matches(subject)) {
+                return MarketplaceEconomicEvidenceUpdateReadResult.IntegrityFailure
+            }
+
+            val version = evidenceVersion.valueForPersistence()
+
+            val storedMetadata =
+                connection.prepareStatement(
+                    "SELECT update_id,change_kind " +
+                        "FROM marketplace_economic_evidence_update " +
+                        "WHERE organization_id=? " +
+                        "AND marketplace_order_id=? " +
+                        "AND evidence_version=?"
+                ).use { statement ->
+                    statement.setObject(1, subject.organizationId.value)
+                    statement.setObject(2, subject.orderId.value)
+                    statement.setLong(3, version)
+
+                    statement.executeQuery().use { result ->
+                        if (!result.next()) {
+                            null
+                        } else {
+                            Pair(
+                                result.getObject(
+                                    "update_id",
+                                    UUID::class.java
+                                ),
+                                result.getString("change_kind")
+                            )
+                        }
+                    }
+                }
+                    ?: return MarketplaceEconomicEvidenceUpdateReadResult.NotFound
+
+            if (
+                storedMetadata.first != updateId.valueForPersistence() ||
+                storedMetadata.second != changeKind.name
+            ) {
+                return MarketplaceEconomicEvidenceUpdateReadResult.IntegrityFailure
+            }
+
+            MarketplaceEconomicEvidenceUpdateReadResult.Found(
+                storedUpdate(
+                    connection = connection,
+                    subject = subject,
+                    version = version,
+                    updateId = storedMetadata.first,
+                    changeKind = storedMetadata.second
+                )
+            )
+        }
+    } catch (_: Exception) {
+        MarketplaceEconomicEvidenceUpdateReadResult.IntegrityFailure
+    }
+
 
     override fun apply(
         expectedVersion: MarketplaceEconomicEvidenceVersion,
