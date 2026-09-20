@@ -345,6 +345,9 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
         sequence: Long
     ) = MarketplaceEconomicEvidenceChange(
         subject = subject,
+        updateId = MarketplaceEconomicEvidenceObservationId.parse(
+            "00000000-0000-0000-0000-000000000077"
+        ),
         evidenceVersion = MarketplaceEconomicEvidenceVersion(evidenceVersion),
         changeSequence = ChangeSequenceCheckpoint(sequence),
         changeKind = MarketplaceEconomicEvidenceChangeKind.FACT

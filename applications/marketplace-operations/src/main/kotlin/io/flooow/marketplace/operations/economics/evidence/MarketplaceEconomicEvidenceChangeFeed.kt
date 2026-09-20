@@ -57,6 +57,7 @@ enum class MarketplaceEconomicEvidenceChangeKind {
 
 data class MarketplaceEconomicEvidenceChange(
     val subject: MarketplaceEconomicEvidenceSubject,
+    val updateId: MarketplaceEconomicEvidenceObservationId,
     val evidenceVersion: MarketplaceEconomicEvidenceVersion,
     val changeSequence: ChangeSequenceCheckpoint,
     val changeKind: MarketplaceEconomicEvidenceChangeKind

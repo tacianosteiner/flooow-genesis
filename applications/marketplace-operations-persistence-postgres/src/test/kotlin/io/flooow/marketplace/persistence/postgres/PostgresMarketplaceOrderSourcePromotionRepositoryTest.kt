@@ -610,6 +610,22 @@ class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
             val connection =
                 io.flooow.integration.control.IntegrationConnectionId(java.util.UUID(0, 702))
 
+            val retainedFactId = java.util.UUID(0, 705)
+
+            seedExactRevenueEvidence(
+                configuration = configuration,
+                organization = java.util.UUID(0, 701),
+                order = java.util.UUID(0, 703),
+                fact = retainedFactId,
+                component = java.util.UUID(0, 706)
+            )
+
+            val retainedObservationId =
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceEconomicEvidenceObservationId.parse(
+                        retainedFactId.toString()
+                    )
+
             val pending =
                 kotlin.test.assertIs<
                     io.flooow.marketplace.operations.economics.promotion
@@ -654,6 +670,7 @@ class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
                     normal,
                     io.flooow.marketplace.operations.economics.promotion
                         .MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+                    retainedObservationId,
                     promotedAt
                 )
             )
@@ -665,6 +682,7 @@ class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
                     normal,
                     io.flooow.marketplace.operations.economics.promotion
                         .MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+                    retainedObservationId,
                     promotedAt.plusSeconds(1)
                 )
             )
@@ -676,6 +694,7 @@ class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
                     normal,
                     io.flooow.marketplace.operations.economics.promotion
                         .MarketplaceOrderRevenuePromotionOutcome.DUPLICATE,
+                    retainedObservationId,
                     promotedAt.plusSeconds(2)
                 )
             )
@@ -687,6 +706,7 @@ class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
                     mismatch,
                     io.flooow.marketplace.operations.economics.promotion
                         .MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT,
+                    null,
                     promotedAt.plusSeconds(3)
                 )
             )
@@ -751,6 +771,90 @@ class PostgresMarketplaceOrderRevenuePromotionRepositoryTest {
         }
     }
 
+
+    private fun seedExactRevenueEvidence(
+        configuration: PostgresConfiguration,
+        organization: java.util.UUID,
+        order: java.util.UUID,
+        fact: java.util.UUID,
+        component: java.util.UUID
+    ) {
+        java.sql.DriverManager.getConnection(
+            configuration.url,
+            configuration.user,
+            configuration.password
+        ).use { sql ->
+            sql.autoCommit = false
+            try {
+                fun execute(statement: String) {
+                    sql.createStatement().use { it.executeUpdate(statement) }
+                }
+
+                execute(
+                    "INSERT INTO marketplace_economic_evidence_subject (" +
+                        "organization_id,marketplace_order_id,marketplace_key," +
+                        "external_order_id,currency,current_version" +
+                        ") VALUES (" +
+                        "'$organization','$order','mercado-livre'," +
+                        "'200000000154','BRL',0)"
+                )
+
+                execute(
+                    "INSERT INTO marketplace_economic_evidence_update (" +
+                        "organization_id,marketplace_order_id,evidence_version," +
+                        "update_id,change_kind" +
+                        ") VALUES (" +
+                        "'$organization','$order',1,'$fact','FACT')"
+                )
+
+                execute(
+                    "INSERT INTO marketplace_economic_evidence_identifier (" +
+                        "organization_id,marketplace_order_id,observation_id," +
+                        "evidence_version,identifier_kind" +
+                        ") VALUES (" +
+                        "'$organization','$order','$fact',1,'FACT')"
+                )
+
+                execute(
+                    "INSERT INTO marketplace_economic_evidence_fact (" +
+                        "organization_id,marketplace_order_id,fact_id,evidence_version," +
+                        "identifier_kind,fact_kind,family,observed_at" +
+                        ") VALUES (" +
+                        "'$organization','$order','$fact',1,'FACT','COMPONENT'," +
+                        "'MARKETPLACE_ORDER'," +
+                        "'2026-09-06 21:00:00.123456+00')"
+                )
+
+                execute(
+                    "INSERT INTO marketplace_economic_evidence_component_fact (" +
+                        "organization_id,marketplace_order_id,fact_id,evidence_version," +
+                        "fact_kind,family,component_id,component_type,direction," +
+                        "magnitude,currency,source_kind,source_system_key," +
+                        "source_external_reference," +
+                        "source_external_reference_absence_reason," +
+                        "occurred_at,quality,coverage" +
+                        ") VALUES (" +
+                        "'$organization','$order','$fact',1,'COMPONENT'," +
+                        "'MARKETPLACE_ORDER','$component','REVENUE','ADDITION'," +
+                        "123.450000,'BRL','MARKETPLACE','br.com.mercadolivre'," +
+                        "'200000000154',NULL," +
+                        "'2026-09-06 20:30:00.123456+00'," +
+                        "'CONFIRMED','PARTIAL')"
+                )
+                execute(
+                    "UPDATE marketplace_economic_evidence_subject " +
+                        "SET current_version=1 " +
+                        "WHERE organization_id='$organization' " +
+                        "AND marketplace_order_id='$order'"
+                )
+
+                sql.commit()
+            } catch (error: Exception) {
+                sql.rollback()
+                throw error
+            }
+        }
+    }
     private fun seedRevenueFixtures(configuration: PostgresConfiguration) {
         val organization = java.util.UUID(0, 701)
         val connection = java.util.UUID(0, 702)

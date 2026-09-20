@@ -4,6 +4,7 @@ import io.flooow.integration.control.IntegrationConnectionId
 import io.flooow.marketplace.operations.economics.MarketplaceCurrency
 import io.flooow.marketplace.operations.economics.MarketplaceExternalOrderId
 import io.flooow.marketplace.operations.economics.MarketplaceOrderId
+import io.flooow.marketplace.operations.economics.evidence.valueForPersistence
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderIdentityResolution
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderOccurrencePromotionOutcome
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderOccurrencePromotionWriteResult
@@ -353,6 +354,9 @@ class PostgresMarketplaceOrderSourcePromotionRepository(
         outcome:
             io.flooow.marketplace.operations.economics.promotion
                 .MarketplaceOrderRevenuePromotionOutcome,
+        economicObservationId:
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceObservationId?,
         promotedAt: Instant
     ): io.flooow.marketplace.operations.economics.promotion
         .MarketplaceOrderRevenuePromotionWriteResult {
@@ -360,12 +364,29 @@ class PostgresMarketplaceOrderSourcePromotionRepository(
             connection().use { connection ->
                 connection.autoCommit = false
                 try {
+                    readRevenueTerminal(connection, candidate)?.let { existing ->
+                        connection.commit()
+                        return if (
+                            existing == ExistingRevenueTerminal(
+                                candidate.orderId,
+                                outcome,
+                                economicObservationId
+                            )
+                        ) {
+                            io.flooow.marketplace.operations.economics.promotion
+                                .MarketplaceOrderRevenuePromotionWriteResult.ALREADY_APPLIED
+                        } else {
+                            io.flooow.marketplace.operations.economics.promotion
+                                .MarketplaceOrderRevenuePromotionWriteResult.CONFLICT
+                        }
+                    }
+
                     val inserted = connection.prepareStatement(
                         "INSERT INTO marketplace_order_revenue_source_promotion (" +
                             "organization_id,source_connection_id,source_capability," +
                             "source_input_progress_version,source_record_ordinal," +
-                            "marketplace_order_id,outcome,promoted_at" +
-                            ") VALUES (?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING"
+                            "marketplace_order_id,outcome,economic_observation_id,promoted_at" +
+                            ") VALUES (?,?,?,?,?,?,?,?,?) ON CONFLICT DO NOTHING"
                     ).use { statement ->
                         statement.setObject(1, candidate.sourceKey.organizationId.value)
                         statement.setObject(2, candidate.sourceKey.connectionId.value)
@@ -374,7 +395,11 @@ class PostgresMarketplaceOrderSourcePromotionRepository(
                         statement.setInt(5, candidate.sourceKey.recordOrdinal)
                         statement.setObject(6, candidate.orderId.value)
                         statement.setString(7, outcome.name)
-                        statement.setTimestamp(8, Timestamp.from(promotedAt))
+                        statement.setObject(
+                            8,
+                            economicObservationId?.valueForPersistence()
+                        )
+                        statement.setTimestamp(9, Timestamp.from(promotedAt))
                         statement.executeUpdate() == 1
                     }
 
@@ -384,35 +409,16 @@ class PostgresMarketplaceOrderSourcePromotionRepository(
                             .MarketplaceOrderRevenuePromotionWriteResult.APPLIED
                     }
 
-                    val existing = connection.prepareStatement(
-                        "SELECT marketplace_order_id,outcome " +
-                            "FROM marketplace_order_revenue_source_promotion " +
-                            "WHERE organization_id=? AND source_connection_id=? " +
-                            "AND source_capability=? AND source_input_progress_version=? " +
-                            "AND source_record_ordinal=?"
-                    ).use { statement ->
-                        statement.setObject(1, candidate.sourceKey.organizationId.value)
-                        statement.setObject(2, candidate.sourceKey.connectionId.value)
-                        statement.setString(3, candidate.sourceKey.capability)
-                        statement.setLong(4, candidate.sourceKey.inputProgressVersion)
-                        statement.setInt(5, candidate.sourceKey.recordOrdinal)
-                        statement.executeQuery().use { result ->
-                            if (!result.next()) {
-                                null
-                            } else {
-                                MarketplaceOrderId(
-                                    result.getObject("marketplace_order_id", UUID::class.java)
-                                ) to
-                                    io.flooow.marketplace.operations.economics.promotion
-                                        .MarketplaceOrderRevenuePromotionOutcome.valueOf(
-                                            result.getString("outcome")
-                                        )
-                            }
-                        }
-                    }
-
+                    val existing = readRevenueTerminal(connection, candidate)
                     connection.commit()
-                    if (existing == (candidate.orderId to outcome)) {
+                    if (
+                        existing ==
+                            ExistingRevenueTerminal(
+                                candidate.orderId,
+                                outcome,
+                                economicObservationId
+                            )
+                    ) {
                         io.flooow.marketplace.operations.economics.promotion
                             .MarketplaceOrderRevenuePromotionWriteResult.ALREADY_APPLIED
                     } else {
@@ -429,6 +435,55 @@ class PostgresMarketplaceOrderSourcePromotionRepository(
                 .MarketplaceOrderRevenuePromotionWriteResult.UNAVAILABLE
         }
     }
+
+    private fun readRevenueTerminal(
+        connection: Connection,
+        candidate:
+            io.flooow.marketplace.operations.economics.promotion
+                .MarketplaceOrderRevenuePromotionCandidate
+    ): ExistingRevenueTerminal? = connection.prepareStatement(
+        "SELECT marketplace_order_id,outcome,economic_observation_id " +
+            "FROM marketplace_order_revenue_source_promotion " +
+            "WHERE organization_id=? AND source_connection_id=? " +
+            "AND source_capability=? AND source_input_progress_version=? " +
+            "AND source_record_ordinal=?"
+    ).use { statement ->
+        statement.setObject(1, candidate.sourceKey.organizationId.value)
+        statement.setObject(2, candidate.sourceKey.connectionId.value)
+        statement.setString(3, candidate.sourceKey.capability)
+        statement.setLong(4, candidate.sourceKey.inputProgressVersion)
+        statement.setInt(5, candidate.sourceKey.recordOrdinal)
+        statement.executeQuery().use { result ->
+            if (!result.next()) {
+                null
+            } else {
+                ExistingRevenueTerminal(
+                    MarketplaceOrderId(
+                        result.getObject("marketplace_order_id", UUID::class.java)
+                    ),
+                    io.flooow.marketplace.operations.economics.promotion
+                        .MarketplaceOrderRevenuePromotionOutcome.valueOf(
+                            result.getString("outcome")
+                        ),
+                    result.getObject("economic_observation_id", UUID::class.java)?.let {
+                        io.flooow.marketplace.operations.economics.evidence
+                            .MarketplaceEconomicEvidenceObservationId.parse(it.toString())
+                    }
+                )
+            }
+        }
+    }
+
+    private data class ExistingRevenueTerminal(
+        val orderId: MarketplaceOrderId,
+        val outcome:
+            io.flooow.marketplace.operations.economics.promotion
+                .MarketplaceOrderRevenuePromotionOutcome,
+        val economicObservationId:
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceObservationId?
+    )
+
     private fun activeOrganization(
         connection: Connection,
         organizationId: OrganizationId

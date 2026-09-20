@@ -663,6 +663,7 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
             repository.apply(MarketplaceEconomicEvidenceVersion.ZERO, update)
         )
         assertEquals(1L, duplicate.versionedEvidence.version.valueForPersistence())
+        assertEquals(update.fact.id, duplicate.retainedObservationId)
         assertEquals(1, journalRows(subject))
         assertEquals(sequenceBefore, maximumChangeSequence(subject.organizationId.value))
     }

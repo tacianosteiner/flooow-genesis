@@ -27,8 +27,13 @@ class MarketplaceEconomicEvidenceChangeFeedTest {
     private val checkpoint = ChangeSequenceCheckpoint(17)
     private val projectionName = ProjectionName("sales-intelligence")
     private val version = MarketplaceEconomicEvidenceVersion(7)
+    private val updateId =
+        MarketplaceEconomicEvidenceObservationId.parse(
+            "00000000-0000-0000-0000-000000000077"
+        )
     private val change = MarketplaceEconomicEvidenceChange(
         subject,
+        updateId,
         version,
         checkpoint,
         MarketplaceEconomicEvidenceChangeKind.FACT
@@ -164,11 +169,17 @@ class MarketplaceEconomicEvidenceChangeFeedTest {
     }
 
     @Test
-    fun `change contract exposes exactly four fields and no economic payload`() {
+    fun `change contract exposes exact update identity and no economic payload`() {
         val instanceFields = MarketplaceEconomicEvidenceChange::class.java.declaredFields
             .filterNot { Modifier.isStatic(it.modifiers) }
         assertEquals(
-            setOf("changeKind", "changeSequence", "evidenceVersion", "subject"),
+            setOf(
+                "changeKind",
+                "changeSequence",
+                "evidenceVersion",
+                "subject",
+                "updateId"
+            ),
             instanceFields.mapTo(mutableSetOf()) { it.name }
         )
         assertTrue(instanceFields.all { Modifier.isPrivate(it.modifiers) && Modifier.isFinal(it.modifiers) })

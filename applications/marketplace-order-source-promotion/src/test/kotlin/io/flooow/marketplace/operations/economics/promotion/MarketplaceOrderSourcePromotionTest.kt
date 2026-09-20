@@ -317,7 +317,9 @@ private enum class ApplyStep {
 
 private class ScriptedEvidenceRepository(
     private val steps: MutableList<ApplyStep>,
-    private val failFind: Boolean = false
+    private val failFind: Boolean = false,
+    private val duplicateRetainedObservationId:
+        MarketplaceEconomicEvidenceObservationId? = null
 ) : MarketplaceIndependentEconomicEvidenceRepository {
     val findCalls = AtomicInteger()
     val applyCalls = AtomicInteger()
@@ -355,7 +357,10 @@ private class ScriptedEvidenceRepository(
 
             ApplyStep.Duplicate ->
                 MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(
-                    versioned(update.subject, MarketplaceEconomicEvidenceVersion.ZERO)
+                    versioned(update.subject, MarketplaceEconomicEvidenceVersion.ZERO),
+                    duplicateRetainedObservationId
+                        ?: (update as MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact)
+                            .fact.id
                 )
 
             ApplyStep.Stale ->
@@ -458,6 +463,10 @@ class MarketplaceOrderRevenuePromotionTest {
                 io.flooow.marketplace.operations.economics.EconomicExternalReferenceState.Present
             >(component.source.externalReference)
         kotlin.test.assertEquals(candidate.externalOrderId.value, external.reference.value)
+        kotlin.test.assertEquals(
+            observation.id,
+            source.terminalEconomicObservationId
+        )
     }
 
     @kotlin.test.Test
@@ -477,12 +486,27 @@ class MarketplaceOrderRevenuePromotionTest {
             MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT,
             source.terminalOutcome
         )
+        kotlin.test.assertEquals(
+            null,
+            source.terminalEconomicObservationId
+        )
     }
 
     @kotlin.test.Test
     fun `duplicate and source conflict preserve existing economic evidence authority`() {
-        val duplicateSource = ScriptedRevenuePromotionRepository(listOf(candidate()))
-        val duplicateEvidence = ScriptedEvidenceRepository(mutableListOf(ApplyStep.Duplicate))
+        val retainedObservationId =
+            MarketplaceEconomicEvidenceObservationId.parse(
+                java.util.UUID(0, 699).toString()
+            )
+
+        val duplicateSource =
+            ScriptedRevenuePromotionRepository(listOf(candidate()))
+
+        val duplicateEvidence =
+            ScriptedEvidenceRepository(
+                mutableListOf(ApplyStep.Duplicate),
+                duplicateRetainedObservationId = retainedObservationId
+            )
 
         val duplicate =
             kotlin.test.assertIs<MarketplaceOrderRevenuePromotionBatchResult.Completed>(
@@ -493,6 +517,20 @@ class MarketplaceOrderRevenuePromotionTest {
         kotlin.test.assertEquals(
             MarketplaceOrderRevenuePromotionOutcome.DUPLICATE,
             duplicateSource.terminalOutcome
+        )
+
+        kotlin.test.assertEquals(
+            retainedObservationId,
+            duplicateSource.terminalEconomicObservationId
+        )
+
+        val duplicateUpdate =
+            kotlin.test.assertIs<
+                MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact
+            >(duplicateEvidence.lastUpdate)
+
+        kotlin.test.assertTrue(
+            duplicateUpdate.fact.id != retainedObservationId
         )
 
         val conflictSource = ScriptedRevenuePromotionRepository(listOf(candidate()))
@@ -508,6 +546,10 @@ class MarketplaceOrderRevenuePromotionTest {
         kotlin.test.assertEquals(
             MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT,
             conflictSource.terminalOutcome
+        )
+        kotlin.test.assertEquals(
+            null,
+            conflictSource.terminalEconomicObservationId
         )
         kotlin.test.assertTrue(
             conflictEvidence.lastUpdate is
@@ -587,6 +629,10 @@ private class ScriptedRevenuePromotionRepository(
     var terminalOutcome: MarketplaceOrderRevenuePromotionOutcome? = null
         private set
 
+    var terminalEconomicObservationId:
+        MarketplaceEconomicEvidenceObservationId? = null
+        private set
+
     override fun pendingRevenue(
         organizationId: io.flooow.organization.OrganizationId,
         connectionId: io.flooow.integration.control.IntegrationConnectionId,
@@ -602,6 +648,7 @@ private class ScriptedRevenuePromotionRepository(
     override fun markRevenueTerminal(
         candidate: MarketplaceOrderRevenuePromotionCandidate,
         outcome: MarketplaceOrderRevenuePromotionOutcome,
+        economicObservationId: MarketplaceEconomicEvidenceObservationId?,
         promotedAt: java.time.Instant
     ): MarketplaceOrderRevenuePromotionWriteResult {
         if (
@@ -609,6 +656,7 @@ private class ScriptedRevenuePromotionRepository(
             terminalWrite == MarketplaceOrderRevenuePromotionWriteResult.ALREADY_APPLIED
         ) {
             terminalOutcome = outcome
+            terminalEconomicObservationId = economicObservationId
         }
         return terminalWrite
     }

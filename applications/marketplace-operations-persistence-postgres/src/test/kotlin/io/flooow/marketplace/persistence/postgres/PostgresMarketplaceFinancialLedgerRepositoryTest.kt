@@ -382,6 +382,52 @@ class PostgresMarketplaceFinancialLedgerRepositoryTest {
     }
 
     @Test
+    fun `financial trace reads distinguish database unavailability from integrity failure`() {
+        val unavailableRepository =
+            PostgresMarketplaceFinancialLedgerRepository(
+                PostgresConfiguration(
+                    url =
+                        "jdbc:postgresql://127.0.0.1:1/" +
+                            "flooow_unavailable" +
+                            "?connectTimeout=1&socketTimeout=1",
+                    user = "none",
+                    password = "none"
+                )
+            )
+
+        val organization =
+            OrganizationId.parse(
+                "10000000-0000-0000-0000-000000000001"
+            )
+
+        val trace =
+            FinancialTraceId.parse(
+                "20000000-0000-0000-0000-000000000001"
+            )
+
+        val order =
+            MarketplaceOrderId.parse(
+                "30000000-0000-0000-0000-000000000001"
+            )
+
+        assertEquals(
+            FinancialTraceReadResult.Unavailable,
+            unavailableRepository.find(
+                organization,
+                trace
+            )
+        )
+
+        assertEquals(
+            FinancialTraceReadResult.Unavailable,
+            unavailableRepository.findByOrder(
+                organization,
+                order
+            )
+        )
+    }
+
+    @Test
     fun `database ledger is immutable and malformed persisted data fails closed`() {
         val organization = createOrganization()
         val traceId = openedTrace(organization)

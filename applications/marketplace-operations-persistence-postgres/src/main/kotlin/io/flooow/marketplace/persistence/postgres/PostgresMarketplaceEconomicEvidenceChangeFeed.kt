@@ -10,6 +10,7 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEv
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceChangeFeed
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceChangeFeedResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceChangeKind
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceObservationId
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceSubject
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicEvidenceVersion
 import io.flooow.marketplace.operations.economics.evidence.ProjectionName
@@ -176,6 +177,9 @@ class PostgresMarketplaceEconomicEvidenceChangeFeed(
                 externalOrderId = MarketplaceExternalOrderId(getString("external_order_id")),
                 currency = MarketplaceCurrency(getString("currency").trim())
             ),
+            updateId = MarketplaceEconomicEvidenceObservationId.parse(
+                getObject("update_id", UUID::class.java).toString()
+            ),
             evidenceVersion = MarketplaceEconomicEvidenceVersion(getLong("evidence_version")),
             changeSequence = ChangeSequenceCheckpoint(getLong("change_sequence")),
             changeKind = MarketplaceEconomicEvidenceChangeKind.valueOf(getString("change_kind"))
@@ -299,7 +303,7 @@ class PostgresMarketplaceEconomicEvidenceChangeFeed(
     companion object {
         private const val CHANGES_SINCE_SQL: String =
             "SELECT s.organization_id,s.marketplace_order_id,s.marketplace_key," +
-                "s.external_order_id,s.currency,u.evidence_version,u.change_sequence,u.change_kind " +
+                "s.external_order_id,s.currency,u.update_id,u.evidence_version,u.change_sequence,u.change_kind " +
                 "FROM marketplace_economic_evidence_update u " +
                 "JOIN marketplace_economic_evidence_subject s " +
                 "ON s.organization_id=u.organization_id " +

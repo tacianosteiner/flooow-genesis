@@ -15,6 +15,7 @@ import io.flooow.integration.control.ProviderKey
 class OmieProviderConnector(
     private val delegates: Collection<PullConnector> = listOf(
         OmieTransactionEvidenceConnector(),
+        OmieTransactionEvidenceV3Connector(),
         OmieEconomicEvidenceConnector()
     )
 ) : PullConnector {
