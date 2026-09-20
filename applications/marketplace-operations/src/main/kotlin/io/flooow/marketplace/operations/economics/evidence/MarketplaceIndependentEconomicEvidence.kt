@@ -380,8 +380,10 @@ sealed interface MarketplaceIndependentEconomicEvidenceResult {
         override fun toString(): String = "[REDACTED]"
     }
 
-    data class Duplicate(val evidence: MarketplaceIndependentEconomicEvidence) :
-        MarketplaceIndependentEconomicEvidenceResult {
+    data class Duplicate(
+        val evidence: MarketplaceIndependentEconomicEvidence,
+        val retainedObservationId: MarketplaceEconomicEvidenceObservationId
+    ) : MarketplaceIndependentEconomicEvidenceResult {
         override fun toString(): String = "[REDACTED]"
     }
 
@@ -444,7 +446,10 @@ object MarketplaceIndependentEconomicEvidenceMerger {
                 .firstOrNull { canonicalSourceFactKey(it) == sourceFactKey }
                 ?.let { existing ->
                     return if (sameCanonicalMeaning(existing, fact)) {
-                        MarketplaceIndependentEconomicEvidenceResult.Duplicate(current)
+                        MarketplaceIndependentEconomicEvidenceResult.Duplicate(
+                            current,
+                            existing.id
+                        )
                     } else {
                         MarketplaceIndependentEconomicEvidenceResult.SourceFactConflict
                     }
@@ -531,21 +536,21 @@ private fun classifyPrimaryIdentifier(
 ): MarketplaceIndependentEconomicEvidenceResult? {
     current.facts.firstOrNull { it.id == id }?.let {
         return if (it == payload) {
-            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current)
+            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current, it.id)
         } else {
             MarketplaceIndependentEconomicEvidenceResult.IdentifierConflict
         }
     }
     current.attempts.firstOrNull { it.id == id }?.let {
         return if (it == payload) {
-            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current)
+            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current, it.id)
         } else {
             MarketplaceIndependentEconomicEvidenceResult.IdentifierConflict
         }
     }
     current.corrections.firstOrNull { it.id == id }?.let {
         return if (it == payload) {
-            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current)
+            MarketplaceIndependentEconomicEvidenceResult.Duplicate(current, it.id)
         } else {
             MarketplaceIndependentEconomicEvidenceResult.IdentifierConflict
         }

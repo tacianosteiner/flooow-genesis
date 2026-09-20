@@ -61,7 +61,8 @@ sealed interface MarketplaceIndependentEconomicEvidencePersistResult {
     }
 
     data class Duplicate(
-        val versionedEvidence: VersionedMarketplaceIndependentEconomicEvidence
+        val versionedEvidence: VersionedMarketplaceIndependentEconomicEvidence,
+        val retainedObservationId: MarketplaceEconomicEvidenceObservationId
     ) : MarketplaceIndependentEconomicEvidencePersistResult {
         override fun toString(): String = "[REDACTED]"
     }

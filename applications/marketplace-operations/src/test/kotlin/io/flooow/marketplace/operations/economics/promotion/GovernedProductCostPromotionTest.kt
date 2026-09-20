@@ -182,7 +182,15 @@ class GovernedProductCostPromotionTest {
             val fact = (update as MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact).fact as MarketplaceIndependentEconomicFact.Component
             amount = fact.observation.component.magnitude.amount
             val versioned = VersionedMarketplaceIndependentEconomicEvidence(MarketplaceIndependentEconomicEvidence.empty(subject), MarketplaceEconomicEvidenceVersion.ZERO)
-            return if (inserted) MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(versioned) else MarketplaceIndependentEconomicEvidencePersistResult.Applied(versioned).also { inserted = true }
+            return if (inserted) {
+                MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(
+                    versioned,
+                    fact.id
+                )
+            } else {
+                MarketplaceIndependentEconomicEvidencePersistResult.Applied(versioned)
+                    .also { inserted = true }
+            }
         }
     }
 }

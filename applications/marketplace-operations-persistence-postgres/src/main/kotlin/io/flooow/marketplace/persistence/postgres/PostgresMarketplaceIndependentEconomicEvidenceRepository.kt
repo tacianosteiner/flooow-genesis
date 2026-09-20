@@ -213,7 +213,10 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
 
         if (domainResult is MarketplaceIndependentEconomicEvidenceResult.Duplicate) {
             return outcome(
-                MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(current),
+                MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(
+                    current,
+                    domainResult.retainedObservationId
+                ),
                 candidateCreated
             )
         }

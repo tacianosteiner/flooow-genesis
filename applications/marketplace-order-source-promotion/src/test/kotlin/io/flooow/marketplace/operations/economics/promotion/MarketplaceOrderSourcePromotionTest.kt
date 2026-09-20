@@ -355,7 +355,9 @@ private class ScriptedEvidenceRepository(
 
             ApplyStep.Duplicate ->
                 MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(
-                    versioned(update.subject, MarketplaceEconomicEvidenceVersion.ZERO)
+                    versioned(update.subject, MarketplaceEconomicEvidenceVersion.ZERO),
+                    (update as MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact)
+                        .fact.id
                 )
 
             ApplyStep.Stale ->

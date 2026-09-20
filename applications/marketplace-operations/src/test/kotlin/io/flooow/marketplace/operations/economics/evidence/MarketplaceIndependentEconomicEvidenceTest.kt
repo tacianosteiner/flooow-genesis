@@ -269,6 +269,7 @@ class MarketplaceIndependentEconomicEvidenceTest {
                 MarketplaceIndependentEconomicEvidenceMerger.apply(current, observe(duplicateFact))
             )
             assertSame(current, duplicate.evidence)
+            assertEquals(original.id, duplicate.retainedObservationId)
 
             val changedTime = orderOccurrenceFact(
                 82 + index * 10,
@@ -782,7 +783,11 @@ class MarketplaceIndependentEconomicEvidenceTest {
         val correction = correction(3, componentFact(4, componentId = 4), fact.id)
         val evidence = applied(empty(), observe(fact))
         val applied = MarketplaceIndependentEconomicEvidenceResult.Applied(evidence)
-        val duplicate = MarketplaceIndependentEconomicEvidenceResult.Duplicate(evidence)
+        val duplicate =
+            MarketplaceIndependentEconomicEvidenceResult.Duplicate(
+                evidence,
+                fact.id
+            )
         val renderings = listOf(
             subject,
             MarketplaceEconomicEvidenceFamily.MARKETPLACE_SHIPPING,

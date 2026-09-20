@@ -103,10 +103,19 @@ class MarketplaceIndependentEconomicEvidencePersistenceTest {
                 .mapTo(mutableSetOf()) { it.simpleName }
         )
         val applied = MarketplaceIndependentEconomicEvidencePersistResult.Applied(versionedEvidence)
-        val duplicate = MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(versionedEvidence)
+        val retainedObservationId =
+            MarketplaceEconomicEvidenceObservationId.parse(
+                "30000000-0000-0000-0000-000000000002"
+            )
+        val duplicate =
+            MarketplaceIndependentEconomicEvidencePersistResult.Duplicate(
+                versionedEvidence,
+                retainedObservationId
+            )
         val stale = MarketplaceIndependentEconomicEvidencePersistResult.StaleVersion(version)
         assertSame(versionedEvidence, applied.versionedEvidence)
         assertSame(versionedEvidence, duplicate.versionedEvidence)
+        assertEquals(retainedObservationId, duplicate.retainedObservationId)
         assertEquals(version, stale.currentVersion)
 
         assertRedacted(
