@@ -471,6 +471,9 @@ interface MarketplaceOrderRevenuePromotionRepository {
     fun markRevenueTerminal(
         candidate: MarketplaceOrderRevenuePromotionCandidate,
         outcome: MarketplaceOrderRevenuePromotionOutcome,
+        economicObservationId:
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceObservationId?,
         promotedAt: java.time.Instant
     ): MarketplaceOrderRevenuePromotionWriteResult
 }
@@ -559,7 +562,8 @@ class MarketplaceOrderRevenuePromotionService(
             if (candidate.sourceCurrency != candidate.identityCurrency) {
                 terminalBlock(
                     candidate,
-                    MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT
+                    MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT,
+                    null
                 )?.let {
                     return MarketplaceOrderRevenuePromotionBatchResult.Blocked(completed, it)
                 }
@@ -570,7 +574,11 @@ class MarketplaceOrderRevenuePromotionService(
 
             when (val evidence = promoteRevenue(candidate)) {
                 is RevenueEvidencePromotion.Terminal -> {
-                    terminalBlock(candidate, evidence.outcome)?.let {
+                    terminalBlock(
+                        candidate,
+                        evidence.outcome,
+                        evidence.economicObservationId
+                    )?.let {
                         return MarketplaceOrderRevenuePromotionBatchResult.Blocked(completed, it)
                     }
                     completed += 1
@@ -677,7 +685,7 @@ class MarketplaceOrderRevenuePromotionService(
             }
 
             when (
-                evidenceRepository.apply(
+                val persistResult = evidenceRepository.apply(
                     expectedVersion,
                     io.flooow.marketplace.operations.economics.evidence
                         .MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(fact)
@@ -686,19 +694,22 @@ class MarketplaceOrderRevenuePromotionService(
                 is io.flooow.marketplace.operations.economics.evidence
                     .MarketplaceIndependentEconomicEvidencePersistResult.Applied ->
                     return RevenueEvidencePromotion.Terminal(
-                        MarketplaceOrderRevenuePromotionOutcome.PROMOTED
+                        MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+                        fact.id
                     )
 
                 is io.flooow.marketplace.operations.economics.evidence
                     .MarketplaceIndependentEconomicEvidencePersistResult.Duplicate ->
                     return RevenueEvidencePromotion.Terminal(
-                        MarketplaceOrderRevenuePromotionOutcome.DUPLICATE
+                        MarketplaceOrderRevenuePromotionOutcome.DUPLICATE,
+                        persistResult.retainedObservationId
                     )
 
                 io.flooow.marketplace.operations.economics.evidence
                     .MarketplaceIndependentEconomicEvidencePersistResult.SourceFactConflict ->
                     return RevenueEvidencePromotion.Terminal(
-                        MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT
+                        MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT,
+                        null
                     )
 
                 is io.flooow.marketplace.operations.economics.evidence
@@ -741,12 +752,16 @@ class MarketplaceOrderRevenuePromotionService(
 
     private fun terminalBlock(
         candidate: MarketplaceOrderRevenuePromotionCandidate,
-        outcome: MarketplaceOrderRevenuePromotionOutcome
+        outcome: MarketplaceOrderRevenuePromotionOutcome,
+        economicObservationId:
+            io.flooow.marketplace.operations.economics.evidence
+                .MarketplaceEconomicEvidenceObservationId?
     ): MarketplaceOrderRevenuePromotionBlockReason? =
         when (
             sourceRepository.markRevenueTerminal(
                 candidate,
                 outcome,
+                economicObservationId,
                 clock.instant().truncatedTo(java.time.temporal.ChronoUnit.MICROS)
             )
         ) {
@@ -762,8 +777,23 @@ class MarketplaceOrderRevenuePromotionService(
 
     private sealed interface RevenueEvidencePromotion {
         data class Terminal(
-            val outcome: MarketplaceOrderRevenuePromotionOutcome
-        ) : RevenueEvidencePromotion
+            val outcome: MarketplaceOrderRevenuePromotionOutcome,
+            val economicObservationId:
+                io.flooow.marketplace.operations.economics.evidence
+                    .MarketplaceEconomicEvidenceObservationId?
+        ) : RevenueEvidencePromotion {
+            init {
+                when (outcome) {
+                    MarketplaceOrderRevenuePromotionOutcome.PROMOTED,
+                    MarketplaceOrderRevenuePromotionOutcome.DUPLICATE ->
+                        require(economicObservationId != null)
+
+                    MarketplaceOrderRevenuePromotionOutcome.IDENTITY_CONFLICT,
+                    MarketplaceOrderRevenuePromotionOutcome.EVIDENCE_CONFLICT ->
+                        require(economicObservationId == null)
+                }
+            }
+        }
 
         data class Blocked(
             val reason: MarketplaceOrderRevenuePromotionBlockReason
