@@ -124,7 +124,13 @@ class PostgresDurableReconciliationCaseRepository(
         val currency = MarketplaceCurrency(getString("currency"))
         val stageValues = Json.parseToJsonElement(getString("stage_details")).jsonArray.map { it.jsonObject }
         fun money(value: JsonObject): MarketplaceMoney = MarketplaceMoney.parse(currency, value.string("amount"))
-        fun optionalMoney(element: JsonElement?): MarketplaceMoney? = element?.jsonObject?.let(::money)
+        fun optionalMoney(element: JsonElement?): MarketplaceMoney? = when (element) {
+            null, JsonNull -> null
+            is kotlinx.serialization.json.JsonObject -> money(element)
+            else -> throw IllegalArgumentException(
+                "Expected optional money to be a JSON object or null",
+            )
+        }
         val stages = stageValues.map { value ->
             ReconciliationCaseStageDifference(
                 FinancialLedgerStage.valueOf(value.string("stage")),
