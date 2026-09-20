@@ -1,8 +1,32 @@
 # ADR-0081: Mercado Livre Closed-Order Revenue Financial Basis Authority
 
-Status: Proposed
+Status: Accepted; domain authority implemented, production durable source adapter pending
 
 Date: 2026-09-17
+
+## Current implementation state - 2026-09-20
+
+This section records current repository reality and has normative precedence
+over historical implementation assumptions later in this ADR.
+
+The bounded Mercado Livre closed-order REVENUE financial-basis authority has
+been implemented for SALE / ACTUAL under semantic version
+mercado-livre.closed-order-revenue/1.
+
+The original design identified a limitation because V023 did not persist the
+canonical economic observation UUID. V038 has since closed that limitation by
+persisting economic_observation_id on marketplace_order_revenue_source_promotion
+and binding successful new terminal rows to the exact canonical economic fact.
+
+Historical successful rows remain nullable and are not backfilled.
+
+The production PostgresMercadoLivreClosedOrderRevenueAuthoritySource,
+live-pipeline authority wiring, automatic reconciliation, settlement/payment-
+account/bank authority, recovery, financial action, and AI decisions remain
+separately governed and are not authorized by this status update.
+
+Historical text below saying V023 lacks observation UUID records the constraint
+that existed when this ADR was written; V038 supersedes that specific limitation.
 
 ## Context
 

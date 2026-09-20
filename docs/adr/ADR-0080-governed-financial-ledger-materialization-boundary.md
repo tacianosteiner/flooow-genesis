@@ -1,8 +1,30 @@
 # ADR-0080: Governed Financial Ledger Materialization Boundary
 
-Status: Proposed
+Status: Accepted; implementation delivered within bounded scope
 
 Date: 2026-09-13
+
+## Current implementation state - 2026-09-20
+
+This section records current repository reality and has normative precedence
+over historical implementation-authorization wording later in this ADR.
+
+The governed Financial Ledger Materialization Boundary has since been
+implemented through separately reviewed slices, including:
+
+- the governed materialization boundary;
+- durable V032 source-to-ledger lineage;
+- atomic PostgreSQL materialization commit;
+- replay/idempotency protection;
+- runtime processing over durable Economic Evidence.
+
+This does not broaden semantic authority. Provider-specific EXPECTED/ACTUAL
+authority, settlement/payment-account/bank authority, automatic reconciliation,
+recovery authority, financial action, and AI execution remain separately governed.
+
+Historical statements below saying this ADR did not itself authorize production
+Kotlin, V032, or implementation describe the original design checkpoint. Those
+implementation gates were subsequently reviewed and completed.
 
 ## Context
 

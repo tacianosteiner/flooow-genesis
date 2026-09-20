@@ -1,10 +1,46 @@
 # ADR-0082 - Governed Omie SALE / EXPECTED Authority
 
-Status: Proposed
+Status: Accepted through Revision 9; zero-authority infrastructure implemented; field activation HOLD
 
 Revision: 9
 
 Date: 2026-09-18
+
+## Current implementation state - 2026-09-20
+
+This section records repository reality after Revision 9 and has normative
+precedence over older implementation-gate wording below.
+
+The following infrastructure has since been implemented and technically proven:
+
+- V033 Omie V3 durable source evidence;
+- V034 dedicated command authorization substrate;
+- V035 explicit governed transaction identity writer;
+- V036 governed transaction identity withdrawal;
+- V037 controlled command authority provisioning infrastructure.
+
+This does not mean real operational authority has been activated.
+
+Current authority state remains:
+
+- real command principals/grants: 0;
+- real governed transaction decisions: 0;
+- real governed confirmed pair corpus: 0;
+- S2A real field proof: HOLD;
+- S2B automatic identity policy: HOLD;
+- ExpectedSaleBasisPolicy: UNFROZEN / RESEARCH ONLY;
+- S3 EXPECTED financial authority: HOLD;
+- C2: HOLD;
+- Decision Room production activation: HOLD.
+
+The zero-grant authorization/provisioning substrate is infrastructure only.
+Evidence never creates command authority automatically, and no real credential,
+grant, identity decision, financial authority, or economic equivalence is created
+by acceptance of this ADR.
+
+Historical wording describing S2A or command authorization as implementation
+candidates records the gate state at that time. Those infrastructure gates were
+subsequently completed while field activation and later semantic gates remain closed.
 
 ## Revision-9 authoritative S2 decomposition
 
