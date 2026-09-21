@@ -87,6 +87,96 @@ The responsibility boundary is:
 These intelligence concepts remain downstream consumers until separately governed
 contracts authorize their implementation.
 
+## External technical review and production-infrastructure guardrail
+
+External experts, benchmark companies, investors, competitors, research,
+frameworks, podcasts, architectural reviews, and industry practices are evidence
+inputs, never architectural authority for Flooow.
+
+Every material external recommendation must be reconciled against repository
+reality, accepted invariants, current product stage, measured evidence, and the
+canonical roadmap using an explicit:
+
+```text
+ADOPT
+ADAPT
+REJECT
+```
+
+decision.
+
+No individual, company, technology trend, framework, or external success pattern
+may silently redefine canonical truth, authority, architecture, sequencing, or
+product scope.
+
+The objective is continuous improvement without cargo-cult adoption.
+
+### Production communication lifecycle
+
+New production hot paths must not silently own physical database-connection
+lifecycle inside domain or persistence adapters.
+
+Preferred direction:
+
+```text
+production composition
+  -> owned DataSource boundary
+  -> bounded persistence adapter
+  -> governed domain behavior
+```
+
+The stable Java platform seam for this path is javax.sql.DataSource.
+A project-specific ConnectionProvider abstraction is not required unless future
+repository evidence demonstrates a capability that DataSource cannot express.
+
+This rule does not authorize a global persistence rewrite.
+
+Existing connection-lifecycle debt is reduced incrementally when a component
+enters or materially changes an active production critical path.
+
+Connection pooling is a separate runtime scaling decision and must be justified
+by measured concurrency, connection-establishment cost, throughput, database
+capacity, latency, and operational limits. DataSource injection does not by
+itself prove or require pooling.
+
+### Current D3 production sequence
+
+The governed Financial Ledger activation sequence is:
+
+```text
+D3A  durable Mercado Livre SALE / ACTUAL authority
+  -> CLOSED / MERGED
+
+D3B-A  production connection-lifecycle governance
+  -> composition owns DataSource
+  -> authority/materializer adapters borrow connections
+  -> no new direct DriverManager lifecycle debt
+  -> no global persistence refactor
+
+D3B-B  production ledger-materialization composition
+  -> durable Economic Evidence
+  -> explicit financial authority
+  -> governed materialization processor
+  -> atomic durable Financial Ledger commit
+
+D3C  controlled real Evidence -> Authority -> Ledger proof
+```
+
+D3B does not authorize Decision Room production authority, automatic
+reconciliation, new financial basis semantics, provider writes, autonomous
+actions, a new migration, or a dependency from Sales Intelligence to the
+Financial Ledger.
+
+The canonical dependency remains:
+
+```text
+                         -> Sales Intelligence projection
+Economic Evidence ------|
+                         -> Governed Financial Ledger materialization
+```
+
+Sales Intelligence is never a source of Financial Ledger authority.
+
 ## Verified baseline
 
 ### MGI v0.7.6

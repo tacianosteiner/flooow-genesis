@@ -44,10 +44,10 @@ import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.SQLException
 import java.util.UUID
+import javax.sql.DataSource
 
 /**
  * B3-B2B durable commit implementation.
@@ -65,19 +65,15 @@ class PostgresGovernedFinancialLedgerMaterializationCommitStore internal constru
 ) : GovernedFinancialLedgerMaterializationCommitStore {
 
     constructor(
+        dataSource: DataSource,
+        ledger: PostgresMarketplaceFinancialLedgerRepository
+    ) : this(ledger, { dataSource.connection })
+
+    constructor(
         configuration: PostgresConfiguration,
         ledger: PostgresMarketplaceFinancialLedgerRepository =
             PostgresMarketplaceFinancialLedgerRepository(configuration)
-    ) : this(
-        ledger,
-        {
-            DriverManager.getConnection(
-                configuration.url,
-                configuration.user,
-                configuration.password
-            )
-        }
-    )
+    ) : this(PostgresDataSources.create(configuration), ledger)
 
     override fun commit(
         plan: VerifiedFinancialLedgerComponentMaterializationPlan
