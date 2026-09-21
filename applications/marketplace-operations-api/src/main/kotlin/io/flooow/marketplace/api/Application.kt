@@ -27,6 +27,9 @@ import io.flooow.marketplace.operations.economics.reconciliation.UnavailableEcon
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderRevenuePromotionService
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderSourcePromotionService
 import io.flooow.marketplace.operations.economics.sales.MarketplaceSalesIntelligenceProjectionProcessor
+import io.flooow.marketplace.operations.economics.ledger.materialization.MarketplaceFinancialLedgerMaterializationProcessor
+import io.flooow.marketplace.operations.economics.ledger.materialization.MarketplaceFinancialLedgerMaterializationRuntime
+import io.flooow.marketplace.operations.economics.ledger.materialization.MercadoLivreClosedOrderRevenueBasisAuthority
 import io.flooow.marketplace.operations.inventory.AssessmentIdentifierFactory
 import io.flooow.marketplace.operations.inventory.InventoryRiskAssessmentJournal
 import io.flooow.marketplace.operations.inventory.InventoryRiskAssessmentRecorder
@@ -36,6 +39,7 @@ import io.flooow.marketplace.operations.inventory.PersistenceUnavailableExceptio
 import io.flooow.marketplace.operations.inventory.RecordedInventoryRiskAssessment
 import io.flooow.marketplace.operations.identity.CrossSystemProductIdentityConfirmationService
 import io.flooow.marketplace.persistence.postgres.PostgresConfiguration
+import io.flooow.marketplace.persistence.postgres.PostgresDataSources
 import io.flooow.marketplace.persistence.postgres.PostgresIntegrationControlPlaneRepository
 import io.flooow.marketplace.persistence.postgres.PostgresInventoryRiskAssessmentJournal
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceEconomicEvidenceChangeFeed
@@ -45,6 +49,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceSalesIntell
 import io.flooow.marketplace.persistence.postgres.PostgresDurableReconciliationCaseRepository
 import io.flooow.marketplace.persistence.postgres.PostgresFinancialReconciliationPolicySource
 import io.flooow.marketplace.persistence.postgres.PostgresGovernedReconciliationCaseRevisionCommitStore
+import io.flooow.marketplace.persistence.postgres.PostgresGovernedFinancialLedgerMaterializationCommitStore
 import io.flooow.marketplace.persistence.postgres.PostgresMarketplaceFinancialLedgerRepository
 import io.flooow.marketplace.persistence.postgres.PostgresSystemicDivergenceSignalRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreOrderSourceCommitter
@@ -55,6 +60,7 @@ import io.flooow.marketplace.persistence.postgres.PostgresOmieIdentityEvidenceRe
 import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCatalogEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresCrossSystemProductIdentityDecisionRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
+import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreClosedOrderRevenueAuthoritySource
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineLimits
@@ -235,6 +241,32 @@ fun main() {
             PostgresMarketplaceOrderSourcePromotionRepository(configuration)
         val evidenceRepository =
             PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
+        val dataSource = PostgresDataSources.create(configuration)
+        val financialLedgerChangeFeed =
+            PostgresMarketplaceEconomicEvidenceChangeFeed(configuration)
+        val mercadoLivreRevenueAuthority =
+            MercadoLivreClosedOrderRevenueBasisAuthority(
+                PostgresMercadoLivreClosedOrderRevenueAuthoritySource(dataSource)
+            )
+        val financialLedgerRepository =
+            PostgresMarketplaceFinancialLedgerRepository(configuration)
+        val financialLedgerCommitStore =
+            PostgresGovernedFinancialLedgerMaterializationCommitStore(
+                dataSource,
+                financialLedgerRepository
+            )
+        val financialLedgerMaterializationProcessor =
+            MarketplaceFinancialLedgerMaterializationProcessor(
+                updateReader = evidenceRepository,
+                changeFeed = financialLedgerChangeFeed,
+                authorityResolver = mercadoLivreRevenueAuthority::resolve,
+                commitStore = financialLedgerCommitStore
+            )
+        val financialLedgerMaterializationRuntime =
+            MarketplaceFinancialLedgerMaterializationRuntime(
+                changeFeed = financialLedgerChangeFeed,
+                processBatch = financialLedgerMaterializationProcessor::processBatch
+            )
         val projection = PostgresMarketplaceSalesIntelligenceProjection(configuration)
         val reconciliationCaseRepository = PostgresDurableReconciliationCaseRepository(configuration)
         val reconciliationCaseCommitStore =
