@@ -26,19 +26,20 @@ import io.flooow.marketplace.operations.economics.ledger.materialization.Mercado
 import io.flooow.marketplace.operations.economics.ledger.materialization.MercadoLivreClosedOrderRevenuePromotionOutcome
 import io.flooow.marketplace.operations.economics.ledger.materialization.MercadoLivreClosedOrderRevenueProviderProof
 import io.flooow.organization.OrganizationId
-import java.sql.DriverManager
 import java.util.UUID
+import javax.sql.DataSource
 
 /** Read-only resolution of already-governed Mercado Livre revenue lineage. */
 class PostgresMercadoLivreClosedOrderRevenueAuthoritySource(
-    private val configuration: PostgresConfiguration
+    private val dataSource: DataSource
 ) : MercadoLivreClosedOrderRevenueAuthoritySource {
+    constructor(configuration: PostgresConfiguration) : this(PostgresDataSources.create(configuration))
     override fun findProofs(
         organizationId: OrganizationId,
         observationId: MarketplaceEconomicEvidenceObservationId,
         marketplaceOrderId: MarketplaceOrderId
     ): MercadoLivreClosedOrderRevenueAuthoritySourceResult = try {
-        DriverManager.getConnection(configuration.url, configuration.user, configuration.password).use { connection ->
+        dataSource.connection.use { connection ->
             connection.prepareStatement(SQL).use { statement ->
                 statement.setObject(1, organizationId.value)
                 statement.setObject(2, marketplaceOrderId.value)

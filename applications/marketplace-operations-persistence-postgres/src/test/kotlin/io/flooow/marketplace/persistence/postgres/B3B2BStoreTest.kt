@@ -348,7 +348,8 @@ class PostgresGovernedFinancialLedgerMaterializationCommitStoreTest {
             val result =
                 assertIs<GovernedFinancialLedgerMaterializationCommitResult.Materialized>(
                     PostgresGovernedFinancialLedgerMaterializationCommitStore(
-                        faultConfiguration
+                        PostgresMarketplaceFinancialLedgerRepository(faultConfiguration),
+                        { DriverManager.getConnection(faultUrl, configuration.user, configuration.password) }
                     ).commit(plan)
                 )
 
@@ -400,8 +401,10 @@ class PostgresGovernedFinancialLedgerMaterializationCommitStoreTest {
                     configuration.user,
                     configuration.password
                 )
-                PostgresGovernedFinancialLedgerMaterializationCommitStore(faultConfiguration)
-                    .commit(plan)
+                PostgresGovernedFinancialLedgerMaterializationCommitStore(
+                    PostgresMarketplaceFinancialLedgerRepository(faultConfiguration),
+                    { DriverManager.getConnection(faultUrl, configuration.user, configuration.password) }
+                ).commit(plan)
             } finally {
                 DriverManager.deregisterDriver(driver)
                 driversBefore.forEach { DriverManager.registerDriver(it) }
