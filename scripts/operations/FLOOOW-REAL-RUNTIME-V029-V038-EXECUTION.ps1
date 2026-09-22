@@ -43,8 +43,17 @@ function Assert-ComposeProvenance {
 }
 function Assert-RuntimeProvenance {
   Assert ((docker inspect -f '{{.Name}}' $RealPostgresContainer).Trim('/') -eq $RealPostgresContainer) 'PostgreSQL container'
-  $mountedVolume = (docker inspect -f '{{range .Mounts}}{{if eq .Destination "/var/lib/postgresql"}}{{.Name}}{{end}}{{end}}' $RealPostgresContainer).Trim()
-  RequireEq $mountedVolume $RealVolume 'PostgreSQL volume at /var/lib/postgresql'
+  $inspectJson = docker inspect $RealPostgresContainer
+  Assert ($LASTEXITCODE -eq 0) 'PostgreSQL docker inspect'
+  $inspect = @($inspectJson | ConvertFrom-Json)
+  Assert ($inspect.Count -eq 1) 'PostgreSQL docker inspect cardinality'
+  $postgresMounts = @(
+    $inspect[0].Mounts |
+      Where-Object { $_.Destination -eq '/var/lib/postgresql' }
+  )
+  Assert ($postgresMounts.Count -eq 1) 'PostgreSQL /var/lib/postgresql mount cardinality'
+  RequireEq ([string]$postgresMounts[0].Name) $RealVolume 'PostgreSQL volume at /var/lib/postgresql'
+  Assert ([bool]$postgresMounts[0].RW) 'PostgreSQL canonical runtime volume unexpectedly read-only'
   RequireEq (Sql 'SHOW server_version') $ExpectedPostgresVersion 'PostgreSQL version'
   RequireEq (Sql 'SHOW data_directory') '/var/lib/postgresql/18/docker' 'PostgreSQL data directory'
 }
