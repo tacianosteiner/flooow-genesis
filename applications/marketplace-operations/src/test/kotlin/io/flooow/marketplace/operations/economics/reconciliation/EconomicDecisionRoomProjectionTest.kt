@@ -9,6 +9,26 @@ import java.util.UUID
 import kotlin.test.*
 
 class EconomicDecisionRoomProjectionTest {
+    @Test fun `assessment integrity failure propagates without authority read`() {
+        var authorityReads = 0
+        val service = EconomicDecisionRoomProjectionService(
+            Repository(case),
+            EconomicDecisionRoomAuthoritySource { _, _ -> authorityReads++; canonicalAuthority() },
+            EconomicDecisionRoomReconciliationAssessmentSource { _, _ -> EconomicDecisionRoomReconciliationAssessmentRead.IntegrityFailure }
+        )
+        assertEquals(EconomicDecisionRoomProjectionReadResult.IntegrityFailure, service.read(organization, caseId))
+        assertEquals(0, authorityReads)
+    }
+
+    @Test fun `authority integrity failure propagates`() {
+        val service = EconomicDecisionRoomProjectionService(
+            Repository(case),
+            EconomicDecisionRoomAuthoritySource { _, _ -> EconomicDecisionRoomAuthorityRead.IntegrityFailure },
+            EconomicDecisionRoomReconciliationAssessmentSource { _, _ -> canonicalAssessment() }
+        )
+        assertEquals(EconomicDecisionRoomProjectionReadResult.IntegrityFailure, service.read(organization, caseId))
+    }
+
     @Test fun `missing authority is explicitly not assembled and blocked`() {
         val projection = project(authority = EconomicDecisionRoomAuthorityRead.Unavailable)
         assertEquals(EconomicDecisionRoomProjectionStatus.BLOCKED, projection.projectionStatus)

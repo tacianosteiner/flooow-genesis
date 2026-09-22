@@ -51,6 +51,7 @@ data class EconomicDecisionRoomAuthorityContext(
 sealed interface EconomicDecisionRoomAuthorityRead {
     data class Available(val context: EconomicDecisionRoomAuthorityContext) : EconomicDecisionRoomAuthorityRead
     data object Unavailable : EconomicDecisionRoomAuthorityRead
+    data object IntegrityFailure : EconomicDecisionRoomAuthorityRead
 }
 
 fun interface EconomicDecisionRoomAuthoritySource {
@@ -66,6 +67,7 @@ data class EconomicDecisionRoomReconciliationAssessmentBinding(
 sealed interface EconomicDecisionRoomReconciliationAssessmentRead {
     data class Available(val binding: EconomicDecisionRoomReconciliationAssessmentBinding) : EconomicDecisionRoomReconciliationAssessmentRead
     data object Unavailable : EconomicDecisionRoomReconciliationAssessmentRead
+    data object IntegrityFailure : EconomicDecisionRoomReconciliationAssessmentRead
 }
 
 fun interface EconomicDecisionRoomReconciliationAssessmentSource {
@@ -137,6 +139,9 @@ class EconomicDecisionRoomProjectionService(
         if (case.caseId != caseId) return EconomicDecisionRoomProjectionReadResult.IntegrityFailure
 
         val assessmentRead = assessments.read(organizationId, case)
+        if (assessmentRead is EconomicDecisionRoomReconciliationAssessmentRead.IntegrityFailure) {
+            return EconomicDecisionRoomProjectionReadResult.IntegrityFailure
+        }
         val assessmentBinding = (assessmentRead as? EconomicDecisionRoomReconciliationAssessmentRead.Available)?.binding
         if (assessmentBinding != null && assessmentBinding.assessment.organizationId != organizationId) {
             return EconomicDecisionRoomProjectionReadResult.NotFound(EconomicDecisionRoomNotFoundDiagnostic.ORGANIZATION_SCOPE_MISMATCH)
@@ -145,6 +150,9 @@ class EconomicDecisionRoomProjectionService(
         val assessment = assessmentBinding?.assessment?.takeIf { assessmentContextMatches }
 
         val authorityRead = authorities.read(organizationId, case)
+        if (authorityRead is EconomicDecisionRoomAuthorityRead.IntegrityFailure) {
+            return EconomicDecisionRoomProjectionReadResult.IntegrityFailure
+        }
         val authorityContext = (authorityRead as? EconomicDecisionRoomAuthorityRead.Available)?.context
         if (authorityContext != null && authorityContext.organizationId != organizationId) {
             return EconomicDecisionRoomProjectionReadResult.NotFound(EconomicDecisionRoomNotFoundDiagnostic.ORGANIZATION_SCOPE_MISMATCH)
