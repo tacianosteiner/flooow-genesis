@@ -5,7 +5,7 @@ param(
   [Parameter(Mandatory=$false)][string]$ExecutionRepositoryHead
 )
 $ErrorActionPreference='Stop'
-$ExpectedPostgresVersion='18.4'; $ExpectedFlywayVersion='13.2.0'
+$ExpectedPostgresVersion='18.4'; $ExpectedPostgresVersionNum='180004'; $ExpectedFlywayVersion='13.2.0'
 $ExpectedPackage='00544f9280bb510b7540d207dfe3562e92424ed69f22e9ae2a4ebd1b16cd3511'
 $RealPostgresContainer='flooow-genesis-postgres-1'; $RealVolume='flooow-genesis_flooow-postgres-data'
 $MigrationLocation='applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration'
@@ -54,7 +54,7 @@ function Assert-RuntimeProvenance {
   Assert ($postgresMounts.Count -eq 1) 'PostgreSQL /var/lib/postgresql mount cardinality'
   RequireEq ([string]$postgresMounts[0].Name) $RealVolume 'PostgreSQL volume at /var/lib/postgresql'
   Assert ([bool]$postgresMounts[0].RW) 'PostgreSQL canonical runtime volume unexpectedly read-only'
-  RequireEq (Sql 'SHOW server_version') $ExpectedPostgresVersion 'PostgreSQL version'
+  RequireEq (Sql 'SHOW server_version_num') $ExpectedPostgresVersionNum 'PostgreSQL version_num'
   RequireEq (Sql 'SHOW data_directory') '/var/lib/postgresql/18/docker' 'PostgreSQL data directory'
 }
 function Assert-PreMigrationDatabase {
