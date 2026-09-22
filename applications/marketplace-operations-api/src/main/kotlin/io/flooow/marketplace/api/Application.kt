@@ -22,8 +22,6 @@ import io.flooow.marketplace.operations.economics.reconciliation.DeterministicSy
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergencePolicies
 import io.flooow.marketplace.operations.economics.reconciliation.SystemicDivergenceAnalysisTrigger
 import io.flooow.marketplace.operations.economics.reconciliation.EconomicDecisionRoomProjectionService
-import io.flooow.marketplace.operations.economics.reconciliation.UnavailableEconomicDecisionRoomAuthoritySource
-import io.flooow.marketplace.operations.economics.reconciliation.UnavailableEconomicDecisionRoomReconciliationAssessmentSource
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderRevenuePromotionService
 import io.flooow.marketplace.operations.economics.promotion.MarketplaceOrderSourcePromotionService
 import io.flooow.marketplace.operations.economics.sales.MarketplaceSalesIntelligenceProjectionProcessor
@@ -61,6 +59,8 @@ import io.flooow.marketplace.persistence.postgres.PostgresOmieProductCatalogEvid
 import io.flooow.marketplace.persistence.postgres.PostgresCrossSystemProductIdentityDecisionRepository
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreIdentityEvidenceReader
 import io.flooow.marketplace.persistence.postgres.PostgresMercadoLivreClosedOrderRevenueAuthoritySource
+import io.flooow.marketplace.persistence.postgres.PostgresEconomicDecisionRoomAuthoritySource
+import io.flooow.marketplace.persistence.postgres.PostgresEconomicDecisionRoomReconciliationAssessmentSource
 import io.flooow.marketplace.operations.live.ConnectorRuntimeMarketplaceLivePipelineSourceRunner
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineService
 import io.flooow.marketplace.operations.live.MarketplaceLivePipelineLimits
@@ -307,8 +307,8 @@ fun main() {
         val economicDecisionRoom = EconomicDecisionRoomApi(
             EconomicDecisionRoomProjectionService(
                 reconciliationCaseRepository,
-                UnavailableEconomicDecisionRoomAuthoritySource,
-                UnavailableEconomicDecisionRoomReconciliationAssessmentSource
+                PostgresEconomicDecisionRoomAuthoritySource(dataSource),
+                PostgresEconomicDecisionRoomReconciliationAssessmentSource(dataSource)
             )
         )
         val systemicDivergences = SystemicDivergencesApi(systemicSignalRepository, systemicDivergenceCursorCodec)
