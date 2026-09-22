@@ -123,7 +123,12 @@ Stage D {
   Assert ($LASTEXITCODE -eq 0) 'snapshot PG_VERSION file'
   $snapshotMajor = (docker run --rm -v "${script:snapshot}:/snapshot:ro" alpine:3.21 cat /snapshot/18/docker/PG_VERSION | Out-String).Trim()
   RequireEq $snapshotMajor '18' 'snapshot PostgreSQL major version'
-  foreach($path in '/snapshot/18/docker/global/pg_control','/snapshot/18/docker/base','/snapshot/18/docker/pg_wal') { docker run --rm -v "${script:snapshot}:/snapshot:ro" alpine:3.21 test $(if($path -like '*.control') {'-f'} else {'-d'}) $path; Assert ($LASTEXITCODE -eq 0) "snapshot structure $path" }
+  docker run --rm -v "${script:snapshot}:/snapshot:ro" alpine:3.21 test -f /snapshot/18/docker/global/pg_control
+  Assert ($LASTEXITCODE -eq 0) 'snapshot pg_control file'
+  docker run --rm -v "${script:snapshot}:/snapshot:ro" alpine:3.21 test -d /snapshot/18/docker/base
+  Assert ($LASTEXITCODE -eq 0) 'snapshot base directory'
+  docker run --rm -v "${script:snapshot}:/snapshot:ro" alpine:3.21 test -d /snapshot/18/docker/pg_wal
+  Assert ($LASTEXITCODE -eq 0) 'snapshot pg_wal directory'
   docker start $RealPostgresContainer | Out-Null
   Require-PostgresReady
 }
@@ -134,40 +139,49 @@ $envLines = docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' $RealP
 $passwordLine = $envLines | Where-Object { $_ -like 'POSTGRES_PASSWORD=*' } | Select-Object -First 1
 Assert ($null -ne $passwordLine) 'database password unavailable'
 $password = $passwordLine.Substring('POSTGRES_PASSWORD='.Length)
-$flywayRun = @('--rm','--network',"container:$RealPostgresContainer",'--env',"FLYWAY_PASSWORD=$password",'--mount',"type=bind,source=$mount,target=/flyway/sql,readonly",'flyway/flyway:13.2.0','-url=jdbc:postgresql://127.0.0.1:5432/flooow','-user=flooow','-locations=filesystem:/flyway/sql','-outOfOrder=false','-validateOnMigrate=true','-target=38')
-Stage F {
-  $flywayVersion = (& docker run --rm flyway/flyway:13.2.0 -v | Out-String)
-  Assert ($LASTEXITCODE -eq 0 -and $flywayVersion -match '(?m)13\.2\.0') 'Flyway binary version'
-  $infoJson = (& docker run @flywayRun info -outputType=json | Out-String)
-  Assert ($LASTEXITCODE -eq 0) 'Flyway info'
-  $info = $infoJson | ConvertFrom-Json
-  $migrations = @($info.migrations)
-  $pending = @($migrations | Where-Object { $_.state -eq 'Pending' } | ForEach-Object { [int]$_.version } | Sort-Object)
-  $expectedPending = @(30,31,32,33,34,35,36,37,38)
-  Assert (($pending -join ',') -eq ($expectedPending -join ',')) 'exact Flyway pending set'
-  $appliedAfter29 = @($migrations | Where-Object { $_.state -eq 'Success' -and [int]$_.version -ge 30 })
-  Assert ($appliedAfter29.Count -eq 0) 'unexpected applied migration >= V030'
-  & docker run @flywayRun validate
-  Assert ($LASTEXITCODE -eq 0) 'Flyway validate'
+$hadFlywayPassword = Test-Path Env:FLYWAY_PASSWORD
+$previousFlywayPassword = $env:FLYWAY_PASSWORD
+$env:FLYWAY_PASSWORD = $password
+Remove-Variable password
+$flywayRun = @('--rm','--network',"container:$RealPostgresContainer",'--env','FLYWAY_PASSWORD','--mount',"type=bind,source=$mount,target=/flyway/sql,readonly",'flyway/flyway:13.2.0','-url=jdbc:postgresql://127.0.0.1:5432/flooow','-user=flooow','-locations=filesystem:/flyway/sql','-outOfOrder=false','-validateOnMigrate=true','-target=38')
+try {
+  Stage F {
+    $flywayVersion = (& docker run --rm flyway/flyway:13.2.0 -v | Out-String)
+    Assert ($LASTEXITCODE -eq 0 -and $flywayVersion -match '(?m)13\.2\.0') 'Flyway binary version'
+    $infoJson = (& docker run @flywayRun info -outputType=json | Out-String)
+    Assert ($LASTEXITCODE -eq 0) 'Flyway info'
+    $info = $infoJson | ConvertFrom-Json
+    $migrations = @($info.migrations)
+    $pending = @($migrations | Where-Object { $_.state -eq 'Pending' } | ForEach-Object { [int]$_.version } | Sort-Object)
+    $expectedPending = @(30,31,32,33,34,35,36,37,38)
+    Assert (($pending -join ',') -eq ($expectedPending -join ',')) 'exact Flyway pending set'
+    $appliedAfter29 = @($migrations | Where-Object { $_.state -eq 'Success' -and [int]$_.version -ge 30 })
+    Assert ($appliedAfter29.Count -eq 0) 'unexpected applied migration >= V030'
+    & docker run @flywayRun validate
+    Assert ($LASTEXITCODE -eq 0) 'Flyway validate'
+  }
+  Stage G { & docker run @flywayRun migrate; Assert ($LASTEXITCODE -eq 0) 'Flyway migrate' }
+  Stage H { Assert-PostMigrationDatabase; $script:H_PASS = $true }
+  Stage I {
+    $env:GRADLE_USER_HOME = "$env:USERPROFILE\.gradle"
+    & .\gradlew.bat :applications:marketplace-operations-persistence-postgres:test --tests 'io.flooow.marketplace.persistence.postgres.PostgresReconciliationCaseRevisionLineageSchemaTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresFinancialReconciliationPolicySourceTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresFinancialLedgerMaterializationLineageSchemaTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresCommandAuthorizationTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresControlledCommandAuthorityIssuerTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresTransactionIdentityWriterTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresMarketplaceOrderRevenueLineageTest' --no-daemon --console=plain
+    Assert ($LASTEXITCODE -eq 0) 'migration regressions'
+    $script:I_PASS = $true
+  }
+  Stage J {
+    Assert ($script:H_PASS -and $script:I_PASS) 'post-migration and regression gates'
+    Assert-PostMigrationDatabase
+    docker start $script:api[0] | Out-Null
+    $apiStabilityObservationSeconds = 20
+    $deadline = (Get-Date).AddSeconds($apiStabilityObservationSeconds)
+    do {
+      $state = docker inspect -f '{{.State.Running}}|{{.State.Restarting}}|{{.State.ExitCode}}' $script:api[0]
+      Assert ($state.Trim() -eq 'true|false|0') 'API stability observation'
+      Start-Sleep -Seconds 2
+    } while ((Get-Date) -lt $deadline)
+    Write-Host "API_STABILITY_GUARD = PASS"
+    Write-Host "SNAPSHOT_VOLUME=$script:snapshot"
+  }
+} finally {
+  if ($hadFlywayPassword) { $env:FLYWAY_PASSWORD = $previousFlywayPassword } else { Remove-Item Env:FLYWAY_PASSWORD -ErrorAction SilentlyContinue }
 }
-Stage G { & docker run @flywayRun migrate; Assert ($LASTEXITCODE -eq 0) 'Flyway migrate' }
-Stage H { Assert-PostMigrationDatabase; $script:H_PASS = $true }
-Stage I {
-  $env:GRADLE_USER_HOME = "$env:USERPROFILE\.gradle"
-  & .\gradlew.bat :applications:marketplace-operations-persistence-postgres:test --tests 'io.flooow.marketplace.persistence.postgres.PostgresReconciliationCaseRevisionLineageSchemaTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresFinancialReconciliationPolicySourceTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresFinancialLedgerMaterializationLineageSchemaTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresCommandAuthorizationTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresControlledCommandAuthorityIssuerTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresTransactionIdentityWriterTest' --tests 'io.flooow.marketplace.persistence.postgres.PostgresMarketplaceOrderRevenueLineageTest' --no-daemon --console=plain
-  Assert ($LASTEXITCODE -eq 0) 'migration regressions'
-  $script:I_PASS = $true
-}
-Stage J {
-  Assert ($script:H_PASS -and $script:I_PASS) 'post-migration and regression gates'
-  Assert-PostMigrationDatabase
-  docker start $script:api[0] | Out-Null
-  $deadline = (Get-Date).AddSeconds(60)
-  do {
-    $state = docker inspect -f '{{.State.Running}}|{{.State.Restarting}}|{{.State.ExitCode}}' $script:api[0]
-    if ($state.Trim() -eq 'true|false|0') { Write-Host "SNAPSHOT_VOLUME=$script:snapshot"; return }
-    Start-Sleep -Seconds 2
-  } while ((Get-Date) -lt $deadline)
-  Fail 'API did not remain running without restart or nonzero exit'
-}
-Remove-Variable password -ErrorAction SilentlyContinue
