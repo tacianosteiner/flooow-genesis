@@ -7,6 +7,7 @@ param(
 $ErrorActionPreference='Stop'
 $ExpectedPostgresVersion='18.4'; $ExpectedPostgresVersionNum='180004'; $ExpectedFlywayVersion='13.2.0'
 $ExpectedPackage='00544f9280bb510b7540d207dfe3562e92424ed69f22e9ae2a4ebd1b16cd3511'
+$CanonicalComposeProject='flooow-genesis'; $CanonicalNetwork='flooow-genesis_default'; $CanonicalApiContainer='flooow-genesis-api-1'
 $RealPostgresContainer='flooow-genesis-postgres-1'; $RealVolume='flooow-genesis_flooow-postgres-data'
 $MigrationLocation='applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration'
 $Expected=@{
@@ -18,6 +19,43 @@ function PackageHash {
  $actualFiles=(Get-ChildItem $MigrationLocation -Filter 'V0*.sql'|Where-Object Name -match '^V03[0-8]__'|Sort-Object Name|ForEach-Object Name); Assert (($actualFiles -join '|') -eq (($Expected.Keys|Sort-Object)-join '|')) 'Migration set mismatch'
  $sha=New-Object Security.Cryptography.SHA256Managed; (($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes(($lines -join "`n")+"`n"))|ForEach-Object {$_.ToString('x2')})-join '')
 }
+function Get-DockerInspectOne([string]$container,[string]$name) {
+  $json = docker inspect $container
+  Assert ($LASTEXITCODE -eq 0) "$name docker inspect"
+  $items = @($json | ConvertFrom-Json)
+  Assert ($items.Count -eq 1) "$name inspect cardinality"
+  return $items[0]
+}
+function Test-PgReady {
+  $previous = $ErrorActionPreference
+  try { $ErrorActionPreference='Continue'; docker exec $RealPostgresContainer pg_isready -U flooow -d flooow 2>$null | Out-Null; $exitCode=$LASTEXITCODE }
+  finally { $ErrorActionPreference=$previous }
+  return ($exitCode -eq 0)
+}
+function Assert-CanonicalApiStopped {
+  $api = Get-DockerInspectOne $script:api[0] 'API'
+  Assert (-not [bool]$api.State.Running) 'canonical API must remain stopped'
+}
+function Recover-PostgresIfNeeded {
+  if (-not $script:PgStoppedByExecutor) { return }
+  try {
+    $postgres = Get-DockerInspectOne $RealPostgresContainer 'PostgreSQL recovery'
+    if (-not [bool]$postgres.State.Running) { docker start $RealPostgresContainer | Out-Null; Assert ($LASTEXITCODE -eq 0) 'PostgreSQL recovery start' }
+    Require-PostgresReady
+    Assert-CanonicalApiStopped
+    $script:PgStoppedByExecutor=$false
+    Write-Host 'POSTGRES_RECOVERY=PASS'
+  }
+  catch { Write-Host 'RECOVERY_REQUIRED=YES'; Write-Host 'API_MUST_REMAIN_STOPPED=YES'; throw }
+}
+function Invoke-ApiCredentialPrecheck {
+  $api=Get-DockerInspectOne $script:api[0] 'API credential precheck'
+  $entry=@($api.Config.Env|Where-Object { $_.StartsWith('DATABASE_PASSWORD=') }); Assert ($entry.Count -eq 1) 'API DATABASE_PASSWORD cardinality'
+  $password=$entry[0].Substring('DATABASE_PASSWORD='.Length)
+  $had=Test-Path Env:PGPASSWORD; $previous=$env:PGPASSWORD; $hadSsl=Test-Path Env:PGSSLMODE; $previousSsl=$env:PGSSLMODE
+  try { $env:PGPASSWORD=$password; $env:PGSSLMODE='disable'; $proof=docker run --rm --network $CanonicalNetwork --env PGPASSWORD --env PGSSLMODE postgres:18.4 psql -h postgres -U flooow -d flooow -At -v ON_ERROR_STOP=1 -c "SELECT current_user || '|' || inet_client_addr() || '|' || inet_server_addr()"; Assert ($LASTEXITCODE -eq 0) 'Stage J credential authentication'; $parts=(($proof|Out-String).Trim()-split '\|',3); Assert ($parts.Count -eq 3 -and $parts[0] -eq 'flooow' -and $parts[1] -notin @('','127.0.0.1','::1') -and $parts[2] -ne '') 'Stage J network identity'; RequireEq (Sql "SELECT count(*) FROM pg_hba_file_rules WHERE type IN ('host','hostnossl') AND error IS NOT NULL") '0' 'host HBA parse errors'; RequireEq (Sql "SELECT count(*) FROM pg_hba_file_rules WHERE type IN ('host','hostnossl') AND error IS NULL AND (database @> ARRAY['all'] OR database @> ARRAY['flooow']) AND (user_name @> ARRAY['all'] OR user_name @> ARRAY['flooow']) AND address <> 'all' AND address !~ '^[0-9A-Fa-f:.]+(/[0-9]+)?$'") '0' 'unsupported HBA address form'; $hba=Sql "SELECT auth_method FROM pg_hba_file_rules WHERE type IN ('host','hostnossl') AND error IS NULL AND (database @> ARRAY['all'] OR database @> ARRAY['flooow']) AND (user_name @> ARRAY['all'] OR user_name @> ARRAY['flooow']) AND CASE WHEN address='all' THEN true WHEN address ~ '^[0-9A-Fa-f:.]+(/[0-9]+)?$' THEN inet '$($parts[1])' <<= address::cidr ELSE false END ORDER BY rule_number LIMIT 1"; RequireEq $hba 'scram-sha-256' 'first applicable host HBA rule'; Write-Host 'STAGE_J_API_CREDENTIAL_PRECHECK=PASS' }
+  finally { Remove-Variable password -ErrorAction SilentlyContinue; if($had){$env:PGPASSWORD=$previous}else{Remove-Item Env:PGPASSWORD -ErrorAction SilentlyContinue}; if($hadSsl){$env:PGSSLMODE=$previousSsl}else{Remove-Item Env:PGSSLMODE -ErrorAction SilentlyContinue} }
+}
 function Sql([string]$q) {
   $value = docker exec $RealPostgresContainer psql -U flooow -d flooow -At -v ON_ERROR_STOP=1 -c $q
   Assert ($LASTEXITCODE -eq 0) 'SQL command failed'
@@ -27,11 +65,7 @@ function Count([string]$table) { return (Sql "SELECT count(*) FROM $table") }
 function RequireEq([string]$actual,[string]$expected,[string]$name) { Assert ($actual -eq $expected) "$name expected $expected actual $actual" }
 function Require-PostgresReady {
   $deadline = (Get-Date).AddSeconds(60)
-  do {
-    docker exec $RealPostgresContainer pg_isready -U flooow -d flooow | Out-Null
-    if ($LASTEXITCODE -eq 0) { return }
-    Start-Sleep -Seconds 2
-  } while ((Get-Date) -lt $deadline)
+  do { if (Test-PgReady) { return }; Start-Sleep -Seconds 2 } while ((Get-Date) -lt $deadline)
   Fail 'PostgreSQL readiness timeout'
 }
 function Assert-ComposeProvenance {
@@ -42,11 +76,8 @@ function Assert-ComposeProvenance {
   Assert ($compose -match 'jdbc:postgresql://postgres:5432/flooow') 'compose DATABASE_URL target'
 }
 function Assert-RuntimeProvenance {
-  Assert ((docker inspect -f '{{.Name}}' $RealPostgresContainer).Trim('/') -eq $RealPostgresContainer) 'PostgreSQL container'
-  $inspectJson = docker inspect $RealPostgresContainer
-  Assert ($LASTEXITCODE -eq 0) 'PostgreSQL docker inspect'
-  $inspect = @($inspectJson | ConvertFrom-Json)
-  Assert ($inspect.Count -eq 1) 'PostgreSQL docker inspect cardinality'
+  $inspect = Get-DockerInspectOne $RealPostgresContainer 'PostgreSQL'
+  Assert (([string]$inspect.Name).Trim('/') -eq $RealPostgresContainer) 'PostgreSQL container'
   $postgresMounts = @(
     $inspect[0].Mounts |
       Where-Object { $_.Destination -eq '/var/lib/postgresql' }
@@ -68,7 +99,8 @@ function Assert-PostMigrationDatabase {
   RequireEq (Sql "SELECT COALESCE(max(version::integer),-1) FROM flyway_schema_history WHERE success=true AND version ~ '^[0-9]+$'") '38' 'Flyway numeric post-state'
   RequireEq (Sql 'SELECT count(*) FROM flyway_schema_history WHERE success=false') '0' 'Flyway failed rows'
   foreach($entry in @(@('integration_mercado_livre_order_source_observation','85'),@('marketplace_order_occurrence_source_promotion','21'),@('marketplace_order_identity_registry','12'),@('integration_omie_transaction_evidence','400'),@('command_principal','0'),@('command_credential_revision','0'),@('command_permission_grant','0'),@('command_authority_operation','0'),@('marketplace_transaction_identity_decision','0'),@('marketplace_transaction_identity_head','0'),@('integration_omie_transaction_evidence_v3','0'),@('integration_omie_transaction_evidence_v3_line','0'))) { RequireEq (Count $entry[0]) $entry[1] $entry[0] }
-  Assert ([bool](docker volume inspect $script:snapshot 2>$null)) 'snapshot volume missing'
+  $volumeNames = @(docker volume ls --format '{{.Name}}')
+  Assert ($LASTEXITCODE -eq 0 -and ($volumeNames -contains $script:snapshot)) 'snapshot volume missing'
 }
 function Assert-NoUnexpectedDatabaseWriterSessions {
   $rows = Sql "SELECT pid || '|' || usename || '|' || coalesce(application_name,'') || '|' || coalesce(client_addr::text,'') || '|' || backend_type || '|' || coalesce(state,'') || '|' || coalesce(xact_start::text,'') || '|' || coalesce(query_start::text,'') FROM pg_stat_activity WHERE datname='flooow' AND pid <> pg_backend_pid() ORDER BY pid"
@@ -106,22 +138,32 @@ $script:H_PASS = $false
 $script:I_PASS = $false
 $script:api = @()
 $script:snapshot = ''
+$script:PgStoppedByExecutor = $false
 
+try {
 Stage A { Preflight; Assert-PreMigrationDatabase }
 Stage B {
-  $script:api = @(docker ps -aq --filter 'label=com.docker.compose.service=api')
-  Assert ($script:api.Count -eq 1) 'API topology'
-  docker stop $script:api[0] | Out-Null
-  Assert ((docker inspect -f '{{.State.Running}}' $script:api[0]).Trim() -eq 'false') 'API stop verification'
+  $apiIds = @(docker compose ps --all -q api)
+  Assert ($LASTEXITCODE -eq 0 -and $apiIds.Count -eq 1) 'canonical Compose API discovery'
+  $script:api = @($apiIds[0])
+  $api = Get-DockerInspectOne $script:api[0] 'API'
+  Assert (([string]$api.Name).Trim('/') -eq $CanonicalApiContainer) 'API container name'
+  Assert ([string]$api.Config.Labels.'com.docker.compose.project' -eq $CanonicalComposeProject) 'API compose project'
+  Assert ([string]$api.Config.Labels.'com.docker.compose.service' -eq 'api') 'API compose service'
+  if ([bool]$api.State.Running) { docker stop $script:api[0] | Out-Null; Assert ($LASTEXITCODE -eq 0) 'API stop' }
+  $api = Get-DockerInspectOne $script:api[0] 'API'
+  Assert (-not [bool]$api.State.Running) 'API stop verification'
   Assert-NoUnexpectedDatabaseWriterSessions
 }
 Stage C {
   Assert-PreMigrationDatabase
   docker stop $RealPostgresContainer | Out-Null
-  Assert ((docker inspect -f '{{.State.Running}}' $RealPostgresContainer).Trim() -eq 'false') 'PostgreSQL stop verification'
+  $script:PgStoppedByExecutor = $true
+  $postgres = Get-DockerInspectOne $RealPostgresContainer 'PostgreSQL'
+  Assert (-not [bool]$postgres.State.Running) 'PostgreSQL stop verification'
   $script:snapshot = "flooow-genesis-real-v029-snapshot-$(Get-Date -Format yyyyMMddHHmmss)"
-  docker volume inspect $script:snapshot 2>$null | Out-Null
-  Assert ($LASTEXITCODE -ne 0) 'snapshot collision'
+  $volumeNames = @(docker volume ls --format '{{.Name}}')
+  Assert ($LASTEXITCODE -eq 0 -and -not ($volumeNames -contains $script:snapshot)) 'snapshot collision'
   docker volume create $script:snapshot | Out-Null
   Assert ($LASTEXITCODE -eq 0) 'snapshot volume creation'
   docker run --rm -v "${RealVolume}:/from:ro" -v "${script:snapshot}:/to" alpine:3.21 sh -ceu 'cp -a /from/. /to/'
@@ -138,16 +180,15 @@ Stage D {
   Assert ($LASTEXITCODE -eq 0) 'snapshot base directory'
   docker run --rm -v "${script:snapshot}:/snapshot:ro" alpine:3.21 test -d /snapshot/18/docker/pg_wal
   Assert ($LASTEXITCODE -eq 0) 'snapshot pg_wal directory'
-  docker start $RealPostgresContainer | Out-Null
-  Require-PostgresReady
+  Recover-PostgresIfNeeded
 }
 Stage E { Assert-PreMigrationDatabase; Assert-NoUnexpectedDatabaseWriterSessions; Assert-NoLongTransactionsOrV036Locks }
 
 $mount = (Resolve-Path $MigrationLocation).Path
-$envLines = docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' $RealPostgresContainer
-$passwordLine = $envLines | Where-Object { $_ -like 'POSTGRES_PASSWORD=*' } | Select-Object -First 1
-Assert ($null -ne $passwordLine) 'database password unavailable'
-$password = $passwordLine.Substring('POSTGRES_PASSWORD='.Length)
+$postgres = Get-DockerInspectOne $RealPostgresContainer 'PostgreSQL'
+$passwordEntries = @($postgres.Config.Env | Where-Object { $_.StartsWith('POSTGRES_PASSWORD=') })
+Assert ($passwordEntries.Count -eq 1) 'database password cardinality'
+$password = $passwordEntries[0].Substring('POSTGRES_PASSWORD='.Length)
 $hadFlywayPassword = Test-Path Env:FLYWAY_PASSWORD
 $previousFlywayPassword = $env:FLYWAY_PASSWORD
 $env:FLYWAY_PASSWORD = $password
@@ -180,12 +221,13 @@ try {
   Stage J {
     Assert ($script:H_PASS -and $script:I_PASS) 'post-migration and regression gates'
     Assert-PostMigrationDatabase
+    Invoke-ApiCredentialPrecheck
     docker start $script:api[0] | Out-Null
     $apiStabilityObservationSeconds = 20
     $deadline = (Get-Date).AddSeconds($apiStabilityObservationSeconds)
     do {
-      $state = docker inspect -f '{{.State.Running}}|{{.State.Restarting}}|{{.State.ExitCode}}' $script:api[0]
-      Assert ($state.Trim() -eq 'true|false|0') 'API stability observation'
+      $api = Get-DockerInspectOne $script:api[0] 'API stability'
+      Assert ([bool]$api.State.Running -and -not [bool]$api.State.Restarting -and [int]$api.State.ExitCode -eq 0) 'API stability observation'
       Start-Sleep -Seconds 2
     } while ((Get-Date) -lt $deadline)
     Write-Host "API_STABILITY_GUARD = PASS"
@@ -194,3 +236,4 @@ try {
 } finally {
   if ($hadFlywayPassword) { $env:FLYWAY_PASSWORD = $previousFlywayPassword } else { Remove-Item Env:FLYWAY_PASSWORD -ErrorAction SilentlyContinue }
 }
+} finally { Recover-PostgresIfNeeded }
