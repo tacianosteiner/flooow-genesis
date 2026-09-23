@@ -20,6 +20,7 @@ import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
+import java.util.logging.Logger
 
 internal const val OMIE_EVIDENCE_REFRESH_PATH = "/v1/commerce-identity/omie/refresh"
 internal const val OMIE_EVIDENCE_REACQUISITION_PATH = "/v1/commerce-identity/omie/reacquire"
@@ -32,6 +33,7 @@ private val REFRESH_DEADLINE = Duration.ofMinutes(2)
 private const val DEFAULT_MAX_PAGES = 10
 private const val MAX_RECORDS_PER_PAGE = 100
 private const val MAX_RESPONSE_BYTES = 2L * 1024L * 1024L
+private val OMIE_EVIDENCE_REFRESH_LOGGER = Logger.getLogger("io.flooow.marketplace.api.omie-evidence-refresh")
 
 /**
  * Read-only, organization-scoped Omie evidence ingestion. This class only
@@ -91,10 +93,17 @@ internal class OmieEvidenceRefreshApi(
                         return completed(invocations, committedPages, alreadyCommittedPages, records)
                     }
                 }
-                is ConnectorExecutionOutcome.Failure ->
+                is ConnectorExecutionOutcome.Failure -> {
+                    OMIE_EVIDENCE_REFRESH_LOGGER.warning(
+                        "omie_evidence_refresh_failure capability=${capability.value} kind=${outcome.kind.name}"
+                    )
                     throw OmieEvidenceRefreshFailureException(outcome.kind)
+                }
             }
         }
+        OMIE_EVIDENCE_REFRESH_LOGGER.warning(
+            "omie_evidence_refresh_failure capability=${capability.value} kind=${ConnectorExecutionFailureKind.BUDGET_EXCEEDED.name}"
+        )
         throw OmieEvidenceRefreshFailureException(ConnectorExecutionFailureKind.BUDGET_EXCEEDED)
     }
 
