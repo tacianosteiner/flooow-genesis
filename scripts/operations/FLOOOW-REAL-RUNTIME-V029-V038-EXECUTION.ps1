@@ -207,7 +207,7 @@ try {
     Assert (($pending -join ',') -eq ($expectedPending -join ',')) 'exact Flyway pending set'
     $appliedAfter29 = @($migrations | Where-Object { $_.state -eq 'Success' -and [int]$_.version -ge 30 })
     Assert ($appliedAfter29.Count -eq 0) 'unexpected applied migration >= V030'
-    & docker run @flywayRun validate
+    & docker run @flywayRun '-ignoreMigrationPatterns=versioned:pending' validate
     Assert ($LASTEXITCODE -eq 0) 'Flyway validate'
   }
   Stage G { & docker run @flywayRun migrate; Assert ($LASTEXITCODE -eq 0) 'Flyway migrate' }
