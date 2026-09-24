@@ -124,6 +124,16 @@ class PostgresTransactionIdentityWriterTest {
         connection().use { c -> c.autoCommit=false; page(c,ml,mlCap,0,2)
             mlSource(c,ml,0,targetA,"ML-A","PROMOTED",true); mlSource(c,ml,1,targetB,"ML-B","PROMOTED",true); c.commit() }
     }
+    private fun runtimeRecord(command: TransactionIdentityCommand): TransactionIdentityWriteResult = connection().use { c ->
+        c.autoCommit=false
+        c.createStatement().execute("SET ROLE flooow_command_runtime")
+        try {
+            val actor=assertNotNull(auth.authenticate(c,token()))
+            val result=writer.record(c,actor,command)
+            if (result is TransactionIdentityWriteResult.Failed) c.rollback() else c.commit()
+            result
+        } catch (e: Throwable) { c.rollback(); throw e }
+    }
     private fun revoke(c: Connection) = update(c,"INSERT INTO command_permission_grant VALUES (?,?,?,'TRANSACTION_IDENTITY_DECISION_WRITE','DISABLED',2,?,'revoked','synthetic',?,now())",
         org,principal,UUID.randomUUID(),grant,UUID.randomUUID())
     private fun awaitLock(queryPrefix: String) {
@@ -149,6 +159,65 @@ class PostgresTransactionIdentityWriterTest {
         authority(otherPrincipal,otherCredential,permission="TRANSACTION_IDENTITY_POLICY_ADMIN")
         failure(TransactionIdentityFailure.AUTHORIZATION_DENIED,record(command(),actor(otherCredential)))
         assertEquals(0,count("marketplace_transaction_identity_decision"))
+    }
+
+    @Test fun `V039 runtime role can confirm exactly once but cannot bypass protected boundaries`() {
+        fixture(); observation(0)
+        val applied=assertIs<TransactionIdentityWriteResult.Applied>(runtimeRecord(command()))
+        assertEquals(1,count("marketplace_transaction_identity_decision"))
+        assertEquals(1,count("marketplace_transaction_identity_head"))
+
+        connection().use { c ->
+            c.autoCommit=false; c.createStatement().execute("SET ROLE flooow_command_runtime")
+            val actor=assertNotNull(auth.authenticate(c,token()))
+            assertEquals(CommandAuthorizationResult.Denied,auth.authorizeForWrite(c,actor,CommandPermission.TRANSACTION_IDENTITY_POLICY_ADMIN))
+            assertFailsWith<SQLException> { update(c,"INSERT INTO command_principal VALUES (?,?,?,?,'test','synthetic',?,now())",org,UUID.randomUUID(),ml,omie,UUID.randomUUID()) }
+            assertFailsWith<SQLException> { update(c,"DELETE FROM marketplace_transaction_identity_decision WHERE decision_id=?",applied.decisionId) }
+            assertFailsWith<SQLException> { update(c,"UPDATE marketplace_transaction_identity_head SET kind='WITHDRAWN'") }
+            assertFailsWith<SQLException> { update(c,"UPDATE integration_omie_transaction_evidence SET currency='USD'") }
+            assertFailsWith<SQLException> {
+                update(
+                    c,
+                    "UPDATE integration_organization SET status='SUSPENDED' WHERE organization_id=?",
+                    org
+                )
+            }
+            assertFailsWith<SQLException> {
+                update(
+                    c,
+                    "UPDATE integration_connector_progress SET completed=true WHERE organization_id=?",
+                    org
+                )
+            }
+            assertFailsWith<SQLException> { c.prepareStatement("SELECT transaction_identity_withdrawal_locks(?,?,?,?,?,?)").use { s ->
+                listOf(org,principal,UUID.randomUUID(),omie,"OMIE-1",targetA).forEachIndexed { index,value -> s.setObject(index+1,value) }; s.executeQuery() } }
+            c.rollback()
+        }
+        connection().use { c ->
+            c.createStatement().execute("CREATE ROLE v039_public_probe NOLOGIN")
+            c.autoCommit=false; c.createStatement().execute("SET ROLE v039_public_probe")
+            assertFailsWith<SQLException> { c.prepareStatement("SELECT transaction_identity_locks(?,?,?,?,?,?)").use { s ->
+                listOf(org,principal,UUID.randomUUID(),omie,"OMIE-1",targetA).forEachIndexed { index,value -> s.setObject(index+1,value) }; s.executeQuery() } }
+            assertFailsWith<SQLException> {
+                c.prepareStatement(
+                    "SELECT command_authorization_organization_lock(?)"
+                ).use { statement ->
+                    statement.setObject(1,org)
+                    statement.executeQuery()
+                }
+            }
+
+            assertFailsWith<SQLException> {
+                c.prepareStatement(
+                    "SELECT transaction_identity_progress_lock(?,?)"
+                ).use { statement ->
+                    statement.setObject(1,org)
+                    statement.setObject(2,omie)
+                    statement.executeQuery()
+                }
+            }
+            c.rollback()
+        }
     }
 
     @Test fun `historical explicit confirmation is exact missing reference neutral and replay immutable`() {
@@ -1004,6 +1073,7 @@ class PostgresTransactionIdentityWriterTest {
                     withdrawal
                 )
             )
+
 
             c.rollback()
         }

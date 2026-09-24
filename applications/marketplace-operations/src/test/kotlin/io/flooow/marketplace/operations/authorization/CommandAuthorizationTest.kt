@@ -5,6 +5,7 @@ import java.util.UUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -34,5 +35,17 @@ class CommandAuthorizationTest {
         assertTrue(restored.matches(credential))
         assertEquals("CommandCredential([REDACTED])", credential.toString())
         assertEquals("CommandCredentialVerifier([REDACTED])", verifier.toString())
+    }
+
+    @Test
+    fun `destroy is idempotent zeroizes material and rejects later credential use`() {
+        val credential = assertNotNull(CommandCredential.parse(token(ByteArray(32) { 7 })))
+        credential.destroy()
+        credential.close()
+
+        assertTrue(credential.isDestroyedAndZeroizedForTest())
+        assertFailsWith<IllegalStateException> { credential.digest() }
+        assertFailsWith<IllegalStateException> { CommandCredentialVerifier.fromCredential(credential) }
+        assertEquals("CommandCredential([REDACTED])", credential.toString())
     }
 }
