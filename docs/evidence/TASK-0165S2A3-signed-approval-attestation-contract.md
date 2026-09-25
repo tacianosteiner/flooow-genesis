@@ -605,3 +605,124 @@ PROVIDER_CALL=NONE
 
 NEXT_GATE=REVISION_4_DOCUMENT_VALIDATION
 ```
+
+## Implementation contract completion revision 5
+
+Revision 4 architecture remains valid. V040 blueprint review discovered two implementation-contract omissions in the versioned documents:
+
+```text
+BLOCKER_1=VERSIONED_PHYSICAL_AUTHORITY_CONTRACT_INCOMPLETE
+BLOCKER_2=LINEAGE_FINGERPRINT_PREIMAGES_UNDEFINED
+```
+
+Revision 5 closes only those omissions. It does not redesign B1-B4, HIGH 1-HIGH 4, MEDIUM 1-MEDIUM 2, the command-authority substrate, or the V040/V041/V042 trust boundaries.
+
+### Blocker 1 closure evidence
+
+The versioned physical contract now freezes:
+
+```text
+SignerAuthorityId = immutable organization-scoped revision-row identity
+PRIMARY KEY = organization_id + signer_authority_id
+SCOPED_REVISION_UNIQUE = organization + subject + key + action + permission + revision
+PREDECESSOR = supersedes_signer_authority_id
+NON_NULL_PREDECESSOR_UNIQUE = YES
+EXACT_PREDECESSOR_FK = YES
+EXACT_SIGNER_KEY_REVISION_FK = YES
+CURRENT_LEAF = unique unsuperseded row
+MUTABLE_CURRENT_TABLE = NONE
+STATE = ENABLED | DISABLED
+```
+
+Every successor receives a new signer-authority ID. The authority scope lock is independent of that per-revision ID.
+
+### Blocker 2 closure evidence
+
+Frozen domains:
+
+```text
+KEY_LINEAGE_DOMAIN=FLOOOW:S2A:SIGNER-KEY-LINEAGE:1
+SIGNER_AUTHORITY_DOMAIN=FLOOOW:S2A:SIGNER-AUTHORITY-LINEAGE:1
+```
+
+Both contracts freeze ordered semantic inputs, Revision 3 canonical framing, nullable predecessor encoding, lowercase hexadecimal SHA-256, predecessor fingerprint chaining, DB recomputation, and independent Kotlin computation.
+
+Audit/trace metadata is explicitly excluded:
+
+```text
+KEY_EXCLUDED=reason,provenance,correlationId,recordedAt
+AUTHORITY_EXCLUDED=reason,provenance,correlationId,decidedAt
+```
+
+Golden-vector evidence:
+
+```text
+KEY_R1_BYTES=383
+KEY_R1_SHA256=9e83dedfa91c44e001cbf4dbbe729436942ca5b6a568865eff3641e45651de65
+
+KEY_R2_BYTES=455
+KEY_R2_SHA256=7910bae04e816d4f94cd2086c7963d66d104eb2e33d9795fa14e4f0ca47e21e4
+
+AUTHORITY_R1_BYTES=551
+AUTHORITY_R1_SHA256=983e222e3e8d9692261db6613c3f0767947c32399493c3ae7de1824aa6371254
+
+AUTHORITY_R2_BYTES=658
+AUTHORITY_R2_SHA256=04cb49bc072d0d5466a767f5bc0424e1e3f7fcd6ae486bd3b6bf4f45328452a6
+```
+
+The exact canonical preimage hexadecimal for all four vectors is versioned in SPEC-0088. Semantic-field and predecessor-fingerprint mutations produce different frozen hashes. Changes limited to excluded audit metadata reproduce the original hash.
+
+### Canonical text closure
+
+```text
+UTF8=REQUIRED
+NFC=REQUIRED_BEFORE_VALIDATION
+NON_NFC=DENY
+LEADING_OR_TRAILING_WHITESPACE=DENY
+PROHIBITED_CONTROL=DENY
+SILENT_NORMALIZATION=FORBIDDEN
+TRIM=FORBIDDEN
+CASE_FOLD=FORBIDDEN
+REPAIR=FORBIDDEN
+```
+
+### Boundary preservation
+
+```text
+V040=APPROVAL_GOVERNANCE
+V041=ACCEPTED_ATTESTATION_EVIDENCE_AND_VERIFIER
+V042=CONSUMPTION_AUTHORITY_LINKAGE_ISSUER_HARDENING_EXECUTION_ELIGIBILITY
+
+COMMAND_AUTHORITY_EFFECT_IN_V041=NO
+APPROVAL_OPERATION_ADDED=NO
+POLICY_ADMIN_INCLUDED=NO
+PROVIDER_CALL=NONE
+REAL_FIELD_PROOF=HOLD
+```
+
+### Revision 5 classification
+
+```text
+REVISION_5_IMPLEMENTATION_CONTRACT_COMPLETION=PASS
+
+BLOCKER_1_VERSIONED_PHYSICAL_AUTHORITY_CONTRACT=CLOSED
+BLOCKER_2_LINEAGE_FINGERPRINT_PREIMAGES=CLOSED
+
+BLOCKER=0
+HIGH=0
+MEDIUM=0
+
+ARCHITECTURAL_REVISION=NO
+IMPLEMENTATION_CONTRACT_ADDENDUM=YES
+
+IMPLEMENTATION_READY=NO
+VERSIONING_READY=NO
+
+IMPLEMENTATION=HOLD
+MIGRATION=HOLD
+REAL_FIELD_PROOF=HOLD
+REAL_AUTHORITY=NONE
+PROVIDER_CALL=NONE
+
+NEXT_GATE=REVISION_5_DOCUMENT_ADVERSARIAL_REVIEW
+```

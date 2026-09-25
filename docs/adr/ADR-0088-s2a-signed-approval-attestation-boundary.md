@@ -1021,3 +1021,83 @@ No implementation or migration is authorized by this ADR.
 - place future principal, credential, or grant IDs inside the human approval;
 - reuse `command_permission_grant` as signer authorization;
 - automatically accept changed provider evidence under an old approval.
+
+
+## Implementation contract completion revision 5
+
+Revision 4 remains the architectural decision. Revision 5 is a bounded implementation-contract addendum discovered during the V040 blueprint review. It changes no B1-B4, HIGH 1-HIGH 4, MEDIUM 1-MEDIUM 2, authority boundary, migration boundary, or real-field-proof hold.
+
+### Signer-authority revision identity
+
+`SignerAuthorityId` identifies one immutable organization-scoped signer-authority revision row. It is not a stable lineage-root identifier. Every successor receives a new `signerAuthorityId` and names its predecessor through `supersedesSignerAuthorityId`.
+
+The physical signer-authority lineage therefore uses:
+
+```text
+PRIMARY KEY (organizationId, signerAuthorityId)
+UNIQUE scoped revision per organization + subject + key + action + permission
+UNIQUE non-null predecessor
+FOREIGN KEY to the exact predecessor authority row
+FOREIGN KEY to the exact signer-key revision and fingerprint
+```
+
+The current authority leaf is the unique row for which no same-organization successor references its `signerAuthorityId`. Eligibility is derived from that immutable leaf. No mutable current-authority table is introduced.
+
+Frozen signer-authority state tokens are `ENABLED` and `DISABLED`. Revision 5 introduces no additional transition policy.
+
+### Lineage fingerprint chaining
+
+V040 key and signer-authority revisions carry domain-separated SHA-256 fingerprints over the frozen Revision 3 canonical codec.
+
+```text
+key domain:
+FLOOOW:S2A:SIGNER-KEY-LINEAGE:1
+
+authority domain:
+FLOOOW:S2A:SIGNER-AUTHORITY-LINEAGE:1
+```
+
+For a successor, the signed semantic preimage includes both the predecessor identifier/revision reference and the exact predecessor fingerprint. Referential lineage is enforced by row identity and foreign keys; semantic cryptographic lineage is enforced by the predecessor fingerprint.
+
+The fingerprints are integrity evidence. They do not create signer authority, command authority, or execution eligibility.
+
+Reason, provenance, correlation, and database recording/decision timestamps remain audit/trace metadata and are excluded from both lineage fingerprints.
+
+### Governance lock identity
+
+Key mutation serializes on:
+
+```text
+s2a-governance/signer-key/1:<organizationId>:<signerKeyId>
+```
+
+Signer-authority mutation cannot lock on per-revision `signerAuthorityId`. It serializes on:
+
+```text
+s2a-governance/signer-authority-scope/1:
+<organizationId>:
+<signerSubjectId>:
+<signerKeyId>:
+<S2A_FIELD_PROOF_APPROVAL>:
+<TRANSACTION_IDENTITY_DECISION_WRITE>
+```
+
+The mutation order is organization row `FOR SHARE`, signer-key advisory lock, signer-authority-scope advisory lock, current key leaf, current authority leaf, validation, append, commit. No provider or network work is permitted inside the transaction.
+
+### Migration boundary preservation
+
+```text
+V040 = approval governance
+V041 = accepted immutable attestation evidence + attestation verifier
+V042 = consumption + command-authority linkage + issuer hardening + execution eligibility
+```
+
+Consumption remains the one-time bridge into a command-principal root and stays in V042 with atomic principal creation. No command-authority effect moves into V041.
+
+```text
+REVISION_5_IMPLEMENTATION_CONTRACT_COMPLETION = PASS
+ARCHITECTURAL_DECISION_CHANGED = NO
+IMPLEMENTATION = HOLD
+MIGRATION = HOLD
+REAL_FIELD_PROOF = HOLD
+```
