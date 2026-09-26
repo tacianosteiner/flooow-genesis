@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit
 import javax.sql.DataSource
 import kotlin.test.*
 import org.flywaydb.core.Flyway
+import org.flywaydb.core.api.MigrationVersion
 import org.postgresql.ds.PGSimpleDataSource
 import org.testcontainers.postgresql.PostgreSQLContainer
 
@@ -34,7 +35,8 @@ class PostgresApprovalGovernanceTest {
     fun start() {
         db = PostgreSQLContainer("postgres:18.4")
         db.start()
-        Flyway.configure().dataSource(db.jdbcUrl, db.username, db.password).load().migrate()
+        Flyway.configure().dataSource(db.jdbcUrl, db.username, db.password)
+            .target(MigrationVersion.fromVersion("040")).load().migrate()
         update("INSERT INTO integration_organization VALUES (?,'ACTIVE',now(),now())", organization)
     }
 
@@ -230,7 +232,8 @@ class PostgresApprovalGovernanceTest {
                 }
             }
             assertFails {
-                Flyway.configure().dataSource(contaminated.jdbcUrl, contaminated.username, contaminated.password).load().migrate()
+                Flyway.configure().dataSource(contaminated.jdbcUrl, contaminated.username, contaminated.password)
+                    .target(MigrationVersion.fromVersion("040")).load().migrate()
             }
             DriverManager.getConnection(contaminated.jdbcUrl, contaminated.username, contaminated.password).use { c ->
                 c.createStatement().use { s ->
@@ -251,7 +254,8 @@ class PostgresApprovalGovernanceTest {
             DriverManager.getConnection(clean.jdbcUrl, clean.username, clean.password).use { c ->
                 c.createStatement().use { s -> s.execute("CREATE ROLE flooow_approval_governance LOGIN INHERIT") }
             }
-            Flyway.configure().dataSource(clean.jdbcUrl, clean.username, clean.password).load().migrate()
+            Flyway.configure().dataSource(clean.jdbcUrl, clean.username, clean.password)
+                .target(MigrationVersion.fromVersion("040")).load().migrate()
             DriverManager.getConnection(clean.jdbcUrl, clean.username, clean.password).use { c ->
                 c.createStatement().use { s ->
                     s.executeQuery("SELECT count(*) FROM pg_roles WHERE rolname='flooow_approval_governance' AND NOT rolcanlogin AND NOT rolinherit").use { r ->
