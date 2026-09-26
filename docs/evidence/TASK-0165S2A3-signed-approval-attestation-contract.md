@@ -726,3 +726,73 @@ PROVIDER_CALL=NONE
 
 NEXT_GATE=REVISION_5_DOCUMENT_ADVERSARIAL_REVIEW
 ```
+
+## V041 implementation contract completion revision 6 evidence
+
+Revision 6 reconciled the prior V041 audit and froze the manifest,
+signature, accepted-proof, persistence, replay, time, locking, trust,
+privilege, SQLSTATE and Kotlin contracts without changing architecture.
+
+MANIFEST_V1_BYTES=793
+MANIFEST_V1_SHA256=209c15498e4da3568d52e44e121515457b4001e478221002c4b4e3c04184a8d0
+
+SIGNATURE_PREIMAGE_V1_BYTES=222
+SIGNATURE_PREIMAGE_V1_SHA256=d011a3dd9a4eca3f07be18bacdb32720effba0babad1b80814156bb20d9bcfa2
+
+ACCEPTED_PROOF_V1_BYTES=1596
+ACCEPTED_PROOF_V1_SHA256=9bf856a724a921d7a63a87c551fdcf82e896fb13b184c785909269ecdbe685b9
+
+SIGNATURE_V1_JAVA_21_JCA_VERIFY=PASS
+INDEPENDENT_VECTOR_REPRODUCTION=PASS
+POSTGRES_ED25519_PRIMITIVE=NONE
+TRUSTED_JVM_VERIFIER_BOUNDARY=EXPLICIT
+COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
+
+BLOCKER=0
+HIGH=0
+MEDIUM=0
+LOW=1
+
+IMPLEMENTATION=HOLD
+V042=HOLD
+REAL_FIELD_PROOF=HOLD
+NEXT_GATE=REVISION_6_IMPLEMENTATION_CONTRACT_ADVERSARIAL_REVIEW
+
+## Revision 6.1 trusted verifier boundary closure evidence
+
+The prior LOW classification was upgraded to HIGH because PostgreSQL cannot prove that Java 21 JCA verification occurred before invocation of the accepted-evidence persistence capability.
+
+Closure freezes:
+
+```text
+V041_VERIFIER_TCB=JAVA_21_JCA+DEDICATED_PROCESS_IDENTITY+DEDICATED_DB_CAPABILITY+SAME_JDBC_TRANSACTION+LOCKED_V040_SNAPSHOT
+POSTGRES_ED25519_AUTHORITY=NO
+JAVA_21_JCA_ED25519_AUTHORITY=YES
+PERSISTENCE_PRIMITIVE=s2a_persist_attestation_verification_result
+PUBLIC_EXECUTE=NO
+ISSUER_EXECUTE=NO
+RUNTIME_EXECUTE=NO
+GOVERNANCE_EXECUTE=NO
+HUMAN_OPERATOR_EXECUTE=NO
+V041_ROLE_MEMBERSHIP_CREATED_BY_MIGRATION=NO
+WRONG_SIGNATURE_PROOF=JVM_TRUSTED_VERIFIER_API
+DB_PROOF=STRUCTURE+GOVERNANCE+CANONICAL_INTEGRITY+SERIALIZATION+IMMUTABILITY+REPLAY+PRIVILEGES
+V042_INDEPENDENT_ED25519_REVERIFICATION=MANDATORY
+V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
+V041_COMMAND_AUTHORITY_EFFECT=ZERO
+```
+
+A compromised dedicated verifier identity is a compromise of the complete V041 verifier TCB and can persist invalid-signature evidence satisfying non-cryptographic database constraints. This is not a supported alternate API.
+
+Such evidence cannot produce V042 consumption or command authority unless V042's separately mandatory independent Ed25519 verification and current-eligibility checks also succeed. Any V042 verification failure requires consumption delta zero and command-authority delta zero.
+
+```
+REVISION_6_1_TRUSTED_VERIFIER_HIGH=CLOSED_BY_DESIGN
+BLOCKER=0
+HIGH=0
+MEDIUM=0
+LOW=0
+IMPLEMENTATION=HOLD
+V042=HOLD
+REAL_FIELD_PROOF=HOLD
+```

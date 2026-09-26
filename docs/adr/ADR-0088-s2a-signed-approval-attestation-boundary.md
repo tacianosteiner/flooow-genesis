@@ -1101,3 +1101,69 @@ IMPLEMENTATION = HOLD
 MIGRATION = HOLD
 REAL_FIELD_PROOF = HOLD
 ```
+
+## V041 implementation contract completion revision 6
+
+Revision 6 completes only the V041 accepted-attestation evidence contract.
+It changes no V040 governance or V042 command-authority boundary.
+
+V041 uses schemaVersion 1, canonicalizationVersion 1, Ed25519, the
+Revision 3 canonical codec, and immutable identity organizationId +
+manifestId.
+
+The accepted proof uses domain
+FLOOOW:S2A:ACCEPTED-ATTESTATION-PROOF:1 and binds, in order:
+artifactVersion, canonicalizationVersion, canonicalManifestBytes,
+manifestDigest, canonicalSignaturePreimageBytes, algorithmId,
+signerKeyId, signerKeyRevision, signerKeyFingerprint,
+signerKeyLineageFingerprint, subjectPublicKeyInfoDer, signatureBytes,
+signerAuthorityId, signerAuthorityRevision, signerAuthorityFingerprint,
+and verifiedAt.
+
+Organization, manifest ID and schema version are derived from the
+canonical manifest and must match the accepted row. They are not a
+second authoritative encoding.
+
+verifiedAt is database-owned transaction time and participates in the
+accepted-proof fingerprint.
+
+Exact replay is a no-write return of the existing immutable receipt.
+Conflicting content under the same identity denies.
+
+V041 lock order is organization, manifest, signer key, signer-authority
+scope, verification, append, commit.
+
+Java 21 JCA is the v1 Ed25519 verification authority. PostgreSQL is the
+governance, currentness, serialization, integrity and immutability
+authority. Both phases execute in one JDBC transaction while the same
+locks remain held. No fake database assertion that JCA ran is introduced.
+
+flooow_attestation_verifier is NOLOGIN NOINHERIT, receives only the two
+narrow V041 capabilities, and may not be combined with approval governance
+or command issuer authority.
+
+V041 creates immutable evidence only. V042 remains the mandatory
+consumption and command-authority enforcement boundary.
+
+## Trusted verifier boundary closure revision 6.1
+
+The V041 cryptographic verifier is a composite trusted computing boundary consisting of the Java 21 JCA Ed25519 verifier, the dedicated verifier process identity, the `flooow_attestation_verifier` PostgreSQL capability, the same JDBC transaction, and the locked V040 governance snapshot.
+
+PostgreSQL is not independently authoritative for Ed25519 validity and cannot prove that Java JCA verification ran. The Java verifier is the Ed25519 verification authority. Possession or compromise of the dedicated verifier database capability is therefore compromise of the V041 verifier TCB.
+
+The private persistence primitive is named `s2a_persist_attestation_verification_result(...)`. It persists a result asserted by the trusted verifier TCB while independently enforcing the frozen non-cryptographic database invariants. It is not a public verification API and is not independently safe against a compromised verifier identity.
+
+`flooow_attestation_verifier` remains a `NOLOGIN NOINHERIT` capability role. The V041 migration creates no login and no role membership. PUBLIC, command issuer, command runtime, approval governance, and human/operator identities receive no execute authority. Only a separately governed dedicated V041 verifier service principal may receive the capability at deployment. Credentials and production login identity are never retained as accepted evidence. Unexpected inbound or outbound role-graph membership fails closed.
+
+The trusted V041 verifier TCB guarantees signature verification. PostgreSQL guarantees governance-snapshot consistency, canonical non-cryptographic integrity, serialization, immutability, and replay. A direct persistence call by a compromised dedicated verifier identity is a verifier-TCB compromise, not a supported alternate API.
+
+Before any V042 consumption or command-authority mutation, V042 must independently reconstruct and verify the complete cryptographic artifact with Java 21 JCA and re-resolve current execution-time key and signer-authority eligibility. Any failure produces zero consumption and zero command-authority mutation.
+
+V041 accepted evidence records that the trusted verifier TCB accepted the artifact at `verifiedAt`. Historical re-verification is an independent mathematical check. Later lifecycle changes do not delete historical evidence. V041 still creates no command authority.
+
+```text
+POSTGRES_ED25519_AUTHORITY=NO
+JAVA_21_JCA_ED25519_AUTHORITY=YES
+V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
+COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
+```

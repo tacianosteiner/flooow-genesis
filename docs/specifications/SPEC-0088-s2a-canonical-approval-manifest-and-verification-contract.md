@@ -1679,3 +1679,763 @@ IMPLEMENTATION = HOLD
 MIGRATION = HOLD
 REAL_FIELD_PROOF = HOLD
 ```
+
+## V041 implementation contract completion revision 6
+
+MANIFEST_V1_EXACT_CONTRACT
+
+```
+schemaVersion = 1
+canonicalizationVersion = 1
+domain = FLOOOW:S2A:APPROVAL-MANIFEST:1
+```
+
+`canonicalizationVersion` identifies the codec but is not a 23rd manifest field.
+
+Exact manifest fields:
+
+| #FieldPrimitiveConstraint |                            |                          |                                                |
+| ------------------------- | -------------------------- | ------------------------ | ---------------------------------------------- |
+| 1                         | schemaVersion              | INTEGER                  | exactly `1`                                    |
+| 2                         | manifestId                 | UUID                     | non-nil                                        |
+| 3                         | organizationId             | UUID                     | non-nil                                        |
+| 4                         | mercadoLivreConnectionId   | UUID                     | non-nil                                        |
+| 5                         | omieConnectionId           | UUID                     | non-nil                                        |
+| 6                         | sourceOrderReference       | TEXT                     | 1–256 UTF-8 bytes                              |
+| 7                         | integrationReference       | TEXT                     | 1–60 UTF-8 bytes                               |
+| 8                         | marketplaceOrderId         | UUID                     | non-nil                                        |
+| 9                         | permission                 | ENUM                     | `TRANSACTION_IDENTITY_DECISION_WRITE`          |
+| 10                        | accountableOperator        | GovernanceSubjectId/UUID | non-nil                                        |
+| 11                        | approvalSource             | GovernanceSourceId/UUID  | non-nil                                        |
+| 12                        | approvalWindowStart        | INSTANT                  | canonical UTC microseconds                     |
+| 13                        | approvalWindowEnd          | INSTANT                  | canonical UTC microseconds; greater than start |
+| 14                        | revocationOwner            | GovernanceSubjectId/UUID | non-nil                                        |
+| 15                        | credentialCustodian        | GovernanceSubjectId/UUID | non-nil                                        |
+| 16                        | credentialDeliveryMethod   | ENUM                     | `PROTECTED_TTY_ONE_TIME`                       |
+| 17                        | credentialRotationOwner    | GovernanceSubjectId/UUID | non-nil                                        |
+| 18                        | immediateRevocationPolicy  | ENUM                     | `SEPARATE_APPROVAL_REQUIRED`                   |
+| 19                        | reason                     | TEXT                     | 1–512 UTF-8 bytes                              |
+| 20                        | provenance                 | TEXT                     | 1–1024 UTF-8 bytes                             |
+| 21                        | correlationId              | UUID                     | non-nil                                        |
+| 22                        | evidenceBindingFingerprint | TEXT                     | `[0-9a-f]{64}`                                 |
+
+All 22 fields are required and non-null. Unknown, missing, duplicate, noncanonical, or extra semantic fields deny.
+
+CANONICAL_PRIMITIVES
+
+```
+frame(bytes) =
+uint32_big_endian(bytes.length) || bytes
+
+TEXT(value) =
+frame(UTF8(value))
+
+BYTES(value) =
+frame(exact bytes)
+
+UUID(value) =
+TEXT(lowercase canonical UUID)
+
+INTEGER(value) =
+TEXT(unsigned base-10 integer)
+no sign
+no leading zero
+zero = "0"
+
+INSTANT(value) =
+TEXT(uuuu-MM-dd'T'HH:mm:ss.SSSSSS'Z')
+
+NULL =
+TEXT("NULL") || frame(empty)
+
+PRESENT(value) =
+TEXT("PRESENT") || canonical(value)
+```
+
+Text must already be NFC and a valid Unicode scalar sequence. Reject leading/trailing whitespace, NUL, C0 controls, DEL, CR, LF, malformed UTF-16, non-NFC, excess bytes, trimming, case folding, normalization, repair, or implicit defaults.
+
+MANIFEST_GOLDEN_VECTOR
+
+Synthetic evidence-binding fixture:
+
+```
+organizationId=11111111-1111-4111-8111-111111111111
+marketplaceOrderId=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+mercadoLivreConnectionId=88888888-8888-4888-8888-888888888888
+mlCapability=marketplace-economic.order-source
+mlInputProgressVersion=1
+mlRecordOrdinal=1
+marketplaceKey=mercado-livre
+marketplaceExternalOrderId=MLB-123456789
+mlCurrency=BRL
+mlPromotionOutcome=PROMOTED
+omieConnectionId=99999999-9999-4999-8999-999999999999
+omieCapability=marketplace-economic.omie-transaction-evidence.reacquisition-v3
+omieInputProgressVersion=1
+omieRecordOrdinal=1
+omieSourceOrderReference=SO-2026-0001
+omieIntegrationReference=PRESENT INT-2026-0001
+omieCurrency=NULL
+omieSemanticFingerprintVersion=1
+omieSemanticFingerprint=abababababababababababababababababababababababababababababababab
+omieProviderRevisionLocal=2026-09-25T11:59:59.123456
+
+evidenceBindingByteCount=529
+evidenceBindingFingerprint=9f61859daa192ae3482ad3dbb28cd7ebb5d2f143cdb6e83092054a80b512e965
+```
+
+Manifest-only fixture additions:
+
+```
+schemaVersion=1
+manifestId=77777777-7777-4777-8777-777777777777
+accountableOperator=33333333-3333-4333-8333-333333333333
+approvalSource=66666666-6666-4666-8666-666666666666
+approvalWindowStart=2026-09-25T12:00:00.000000Z
+approvalWindowEnd=2026-10-25T12:00:00.000000Z
+revocationOwner=bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
+credentialCustodian=cccccccc-cccc-4ccc-8ccc-cccccccccccc
+credentialDeliveryMethod=PROTECTED_TTY_ONE_TIME
+credentialRotationOwner=dddddddd-dddd-4ddd-8ddd-dddddddddddd
+immediateRevocationPolicy=SEPARATE_APPROVAL_REQUIRED
+reason=S2A field proof approval
+provenance=revision-6-golden-vector
+correlationId=eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee
+```
+
+```
+byteCount=793
+sha256=209c15498e4da3568d52e44e121515457b4001e478221002c4b4e3c04184a8d0
+canonicalHex=
+0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553543a3100000001310000002437373737373737372d373737372d343737372d383737372d3737373737373737373737370000002431313131313131312d313131312d343131312d383131312d3131313131313131313131310000002438383838383838382d383838382d343838382d383838382d3838383838383838383838380000002439393939393939392d393939392d343939392d383939392d3939393939393939393939390000000c534f2d323032362d303030310000000d494e542d323032362d303030310000002461616161616161612d616161612d346161612d386161612d616161616161616161616161000000235452414e53414354494f4e5f4944454e544954595f4445434953494f4e5f57524954450000002433333333333333332d333333332d343333332d383333332d3333333333333333333333330000002436363636363636362d363636362d343636362d383636362d3636363636363636363636360000001b323032362d30392d32355431323a30303a30302e3030303030305a0000001b323032362d31302d32355431323a30303a30302e3030303030305a0000002462626262626262622d626262622d346262622d386262622d6262626262626262626262620000002463636363636363632d636363632d346363632d386363632d6363636363636363636363630000001650524f5445435445445f5454595f4f4e455f54494d450000002464646464646464642d646464642d346464642d386464642d6464646464646464646464640000001a53455041524154455f415050524f56414c5f524551554952454400000018533241206669656c642070726f6f6620617070726f76616c000000187265766973696f6e2d362d676f6c64656e2d766563746f720000002465656565656565652d656565652d346565652d386565652d6565656565656565656565650000004039663631383539646161313932616533343832616433646262323863643765626235643266313433636462366538333039323035346138306235313265393635
+```
+
+SIGNATURE_V1_EXACT_CONTRACT
+
+```
+domain=FLOOOW:S2A:APPROVAL-SIGNATURE:1
+
+1 algorithmId            TEXT("Ed25519")
+2 signerKeyId            UUID
+3 signerKeyFingerprint   TEXT(lowercase hexadecimal SHA-256)
+4 manifestDigest         TEXT(64-character lowercase hexadecimal SHA-256)
+```
+
+The signature is detached Ed25519 over the exact canonical preimage.
+
+```
+decoded signature size=64 bytes
+transport=canonical base64url without padding
+private key persisted=NO
+algorithm negotiation=NO
+```
+
+SIGNATURE_GOLDEN_VECTOR
+
+RFC 8032 synthetic test seed was used only during local computation:
+
+```
+seed=9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60
+```
+
+It is test-vector material, not a production secret.
+
+```
+signerKeyId=22222222-2222-4222-8222-222222222222
+SPKI_DER=302a300506032b6570032100d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a
+SPKI_SHA256=06e3fd8fda29bb60ab59557de61edb0aecdb231134be30e75b455f8e1b792fa9
+
+byteCount=222
+sha256=d011a3dd9a4eca3f07be18bacdb32720effba0babad1b80814156bb20d9bcfa2
+canonicalHex=
+0000001f464c4f4f4f573a5332413a415050524f56414c2d5349474e41545552453a3100000007456432353531390000002432323232323232322d323232322d343232322d383232322d32323232323232323232323200000040303665336664386664613239626236306162353935353764653631656462306165636462323331313334626533306537356234353566386531623739326661390000004032303963313534393865346461333536386435326534346531323135313534353762343030316534373832323130303263346234653363303431383461386430
+
+signatureHex=
+82c69683d32ead32254f08516b03c47c2c1bb6ccacac9aeee2ed4d20d8f23112bca4e23b3e880ea4e3e6c8c144214fd04f8cb2f0b4e315e548845f5359480904
+
+signatureBase64url=
+gsaWg9MurTIlTwhRawPEfCwbtsysrJru4u1NINjyMRK8pOI7PogOpOPmyMFEIU_QT4yy8LTjFeVIhF9TWUgJBA
+```
+
+Java 21 JCA and Node/OpenSSL-backed Ed25519 independently produced the same signature and verified it successfully.
+
+ACCEPTED_PROOF_V1_EXACT_CONTRACT
+
+The proposed 19-field order is corrected because Revision 4 states that organization, manifest ID, schema, window, target, permission, source, correlation, provenance, and human declarations already reside in the canonical manifest and must not become a second authoritative representation.
+
+Exact proof record:
+
+```
+domain=FLOOOW:S2A:ACCEPTED-ATTESTATION-PROOF:1
+
+1  artifactVersion                    INTEGER = 1
+2  canonicalizationVersion            INTEGER = 1
+3  canonicalManifestBytes             BYTES
+4  manifestDigest                     TEXT lowerhex64
+5  canonicalSignaturePreimageBytes    BYTES
+6  algorithmId                        TEXT = Ed25519
+7  signerKeyId                        UUID
+8  signerKeyRevision                  INTEGER > 0
+9  signerKeyFingerprint               TEXT lowerhex64
+10 signerKeyLineageFingerprint        TEXT lowerhex64
+11 subjectPublicKeyInfoDer            BYTES
+12 signatureBytes                     BYTES, exactly 64
+13 signerAuthorityId                  UUID
+14 signerAuthorityRevision            INTEGER > 0
+15 signerAuthorityFingerprint         TEXT lowerhex64
+16 verifiedAt                         INSTANT
+```
+
+```
+acceptedProofFingerprint =
+lowercaseHex(SHA-256(canonicalAcceptedProofBytes))
+```
+
+`organizationId`, `manifestId`, and `schemaVersion` remain derived table columns. Their equality to the parsed canonical manifest is mandatory, but they are not independently encoded again in the proof preimage.
+
+Excluded:
+
+- `recorded_at`;
+- derived index columns;
+- physical row metadata;
+- operational logs;
+- metadata not present in the canonical manifest.
+
+ACCEPTED_PROOF_GOLDEN_VECTOR
+
+```
+artifactVersion=1
+canonicalizationVersion=1
+signerKeyRevision=1
+signerKeyLineageFingerprint=9e83dedfa91c44e001cbf4dbbe729436942ca5b6a568865eff3641e45651de65
+signerAuthorityId=44444444-4444-4444-8444-444444444441
+signerAuthorityRevision=1
+signerAuthorityFingerprint=983e222e3e8d9692261db6613c3f0767947c32399493c3ae7de1824aa6371254
+verifiedAt=2026-09-25T12:30:00.000000Z
+```
+
+The fixed `verifiedAt` is test data only.
+
+```
+byteCount=1596
+sha256=9bf856a724a921d7a63a87c551fdcf82e896fb13b184c785909269ecdbe685b9
+canonicalHex=
+00000027464c4f4f4f573a5332413a41434345505445442d4154544553544154494f4e2d50524f4f463a3100000001310000000131000003190000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553543a3100000001310000002437373737373737372d373737372d343737372d383737372d3737373737373737373737370000002431313131313131312d313131312d343131312d383131312d3131313131313131313131310000002438383838383838382d383838382d343838382d383838382d3838383838383838383838380000002439393939393939392d393939392d343939392d383939392d3939393939393939393939390000000c534f2d323032362d303030310000000d494e542d323032362d303030310000002461616161616161612d616161612d346161612d386161612d616161616161616161616161000000235452414e53414354494f4e5f4944454e544954595f4445434953494f4e5f57524954450000002433333333333333332d333333332d343333332d383333332d3333333333333333333333330000002436363636363636362d363636362d343636362d383636362d3636363636363636363636360000001b323032362d30392d32355431323a30303a30302e3030303030305a0000001b323032362d31302d32355431323a30303a30302e3030303030305a0000002462626262626262622d626262622d346262622d386262622d6262626262626262626262620000002463636363636363632d636363632d346363632d386363632d6363636363636363636363630000001650524f5445435445445f5454595f4f4e455f54494d450000002464646464646464642d646464642d346464642d386464642d6464646464646464646464640000001a53455041524154455f415050524f56414c5f524551554952454400000018533241206669656c642070726f6f6620617070726f76616c000000187265766973696f6e2d362d676f6c64656e2d766563746f720000002465656565656565652d656565652d346565652d386565652d65656565656565656565656500000040396636313835396461613139326165333438326164336462623238636437656262356432663134336364623665383330393230353461383062353132653936350000004032303963313534393865346461333536386435326534346531323135313534353762343030316534373832323130303263346234653363303431383461386430000000de0000001f464c4f4f4f573a5332413a415050524f56414c2d5349474e41545552453a3100000007456432353531390000002432323232323232322d323232322d343232322d383232322d3232323232323232323232320000004030366533666438666461323962623630616235393535376465363165646230616563646232333131333462653330653735623435356638653162373932666139000000403230396331353439386534646133353638643532653434653132313531353435376234303031653437383232313030326334623465336330343138346138643000000007456432353531390000002432323232323232322d323232322d343232322d383232322d3232323232323232323232320000000131000000403036653366643866646132396262363061623539353537646536316564623061656364623233313133346265333065373562343535663865316237393266613900000040396538336465646661393163343465303031636266346462626537323934333639343263613562366135363838363565666633363431653435363531646536350000002c302a300506032b6570032100d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a0000004082c69683d32ead32254f08516b03c47c2c1bb6ccacac9aeee2ed4d20d8f23112bca4e23b3e880ea4e3e6c8c144214fd04f8cb2f0b4e315e548845f53594809040000002434343434343434342d343434342d343434342d383434342d343434343434343434343431000000013100000040393833653232326533653864393639323236316462363631336333663037363739343763333233393934393363336165376465313832346161363337313235340000001b323032362d30392d32355431323a33303a30302e3030303030305a
+```
+
+S2A_ACCEPTED_ATTESTATION_EXACT_SCHEMA
+
+Exact 21 columns:
+
+```
+organization_id                    uuid          NOT NULL
+manifest_id                        uuid          NOT NULL
+artifact_version                   integer       NOT NULL
+schema_version                     integer       NOT NULL
+canonicalization_version           integer       NOT NULL
+canonical_manifest_bytes           bytea         NOT NULL
+manifest_digest                    char(64)      NOT NULL
+canonical_signature_preimage_bytes bytea         NOT NULL
+algorithm_id                       text          NOT NULL
+signer_key_id                      uuid          NOT NULL
+signer_key_revision                integer       NOT NULL
+signer_key_fingerprint             char(64)      NOT NULL
+signer_key_lineage_fingerprint     char(64)      NOT NULL
+subject_public_key_info_der        bytea         NOT NULL
+signature_bytes                    bytea         NOT NULL
+signer_authority_id                uuid          NOT NULL
+signer_authority_revision          integer       NOT NULL
+signer_authority_fingerprint       char(64)      NOT NULL
+verified_at                        timestamptz(6) NOT NULL
+accepted_proof_fingerprint         char(64)      NOT NULL
+recorded_at                        timestamptz(6) NOT NULL DEFAULT transaction_timestamp()
+```
+
+Keys:
+
+```
+PRIMARY KEY (organization_id, manifest_id)
+
+FOREIGN KEY (organization_id)
+REFERENCES integration_organization(organization_id)
+
+FOREIGN KEY (
+    organization_id,
+    signer_key_id,
+    signer_key_revision,
+    signer_key_fingerprint
+)
+REFERENCES s2a_signer_key_revision(
+    organization_id,
+    signer_key_id,
+    revision,
+    signer_key_fingerprint
+)
+
+FOREIGN KEY (organization_id, signer_authority_id)
+REFERENCES s2a_signer_authority_revision(
+    organization_id,
+    signer_authority_id
+)
+```
+
+No V040 alteration is needed. Authority revision and fingerprint are independently revalidated by the narrow capability because V040 exposes no matching composite unique key.
+
+Mandatory checks:
+
+```
+artifact_version = 1
+schema_version = 1
+canonicalization_version = 1
+algorithm_id = Ed25519
+all UUIDs non-nil
+signer_key_revision > 0
+signer_authority_revision > 0
+all fingerprints match ^[0-9a-f]{64}$
+octet_length(subject_public_key_info_der) = 44
+SPKI prefix = 302a300506032b6570032100
+octet_length(signature_bytes) = 64
+octet_length(canonical_signature_preimage_bytes) = 222
+octet_length(canonical_manifest_bytes) between 1 and 4096
+manifest_digest = encode(sha256(canonical_manifest_bytes),'hex')
+recorded_at = verified_at for a first append
+```
+
+Database functions reconstruct and compare the signature preimage and accepted-proof fingerprint. A trigger forbids UPDATE/DELETE with `23514`.
+
+There is no verification status, consumed flag, principal, credential, grant, authority-operation ID, or V042 field.
+
+REPLAY_EXACT_CONTRACT
+
+New valid identity:
+
+```
+=> ACCEPTED
+=> one INSERT
+```
+
+Existing `(organization_id, manifest_id)`:
+
+- Compare every stored authoritative field except `recorded_at`.
+- Incoming requests cannot supply `verifiedAt`.
+- For replay comparison, the database reuses the stored `verified_at`, reconstructs the stored proof, and verifies all caller-controlled content and historical governance references.
+- Exact match returns `ALREADY_ACCEPTED` and the existing receipt without a write.
+- Any difference returns `GovernanceConflict` without a write.
+
+Concurrent identical submissions:
+
+```
+one ACCEPTED
+one ALREADY_ACCEPTED
+one row
+```
+
+Concurrent conflicting submissions:
+
+```
+at most one ACCEPTED
+loser = GovernanceConflict
+no overwrite
+```
+
+Current signer eligibility is required for first acceptance. An exact replay of already accepted immutable evidence performs historical re-verification against retained historical rows; it does not create a new acceptance and does not become false merely because a key later retired.
+
+VERIFIED_AT_EXACT_CONTRACT
+
+For first acceptance:
+
+```
+verified_at := transaction_timestamp()::timestamptz(6)
+recorded_at := verified_at
+```
+
+The client cannot submit either value.
+
+The same `verified_at` is used for:
+
+- key temporal eligibility;
+- signer-authority validity;
+- manifest approval window;
+- proof content;
+- proof fingerprint;
+- receipt.
+
+For exact replay, the stored `verified_at` is returned unchanged.
+
+GLOBAL_LOCK_ORDER
+
+Manifest lock:
+
+```
+s2a-attestation/manifest/1:<organizationId>:<manifestId>
+```
+
+V041 order:
+
+```
+organization row FOR SHARE
+-> manifest advisory transaction lock
+-> V040 signer-key advisory transaction lock
+-> V040 signer-authority-scope advisory transaction lock
+-> exact key revision/current leaf
+-> exact authority revision/current leaf
+-> eligibility and evidence validation
+-> JCA verification while transaction remains open
+-> DB revalidation and append/replay
+-> commit
+```
+
+V040 resource strings are reused byte-for-byte.
+
+No cycle exists:
+
+- V040 key append: `organization → key`.
+- V040 authority append: `organization → key → authority`.
+- V041: `organization → manifest → key → authority`.
+- V040 never waits for a manifest lock after holding key/authority.
+- Same-manifest V041 calls serialize before governance locks.
+- Different-manifest V041 calls may wait on key/authority but never reverse the order.
+
+JCA_DATABASE_TRUST_PROTOCOL
+
+Repository audit found:
+
+```
+POSTGRESQL_TEST_VERSION=18.4
+ACCEPTED_POSTGRES_ED25519_PRIMITIVE=NONE
+PGSODIUM=ABSENT
+PLJAVA=ABSENT
+CUSTOM_NATIVE_CRYPTO=ABSENT
+EXTERNAL_CRYPTO_PROVIDER=ABSENT
+JAVA_21_JCA_ED25519=PRESENT
+```
+
+Frozen hybrid:
+
+1. One JVM verifier operation owns one JDBC transaction.
+2. `s2a_begin_attestation_verification` acquires the complete lock chain.
+3. The database reconstructs canonical non-cryptographic values, derives durable evidence binding, resolves V040 governance, assigns `verifiedAt`, and returns the immutable snapshot.
+4. Java 21 JCA verifies Ed25519 using only the returned SPKI and the exact canonical signature preimage.
+5. In the same transaction, `s2a_persist_attestation_verification_result` reacquires/rechecks the same resource identities, revalidates the exact snapshot, recomputes every digest and fingerprint, and appends or replays.
+6. Commit occurs only after a receipt.
+7. Any exception rolls back.
+
+Trust classification:
+
+```
+JVM verifier boundary = Ed25519 verification authority
+database = governance/currentness/serialization/integrity/immutability authority
+flooow_attestation_verifier = security-sensitive cryptographic-verifier capability
+```
+
+PostgreSQL cannot securely prove that an external JCA call occurred without itself verifying Ed25519. No nonce, temporary table, boolean, or session variable can change that fact. Revision 6 therefore introduces no fake “signature verified” token.
+
+This does not violate the launcher-only rejection:
+
+- V041 creates evidence, not command authority.
+- Issuer/runtime roles cannot create accepted evidence.
+- V042 must require accepted evidence and independently reverify the artifact and execution-time eligibility before authority effects.
+- The verifier role and issuer role cannot be combined.
+
+VERIFIER_CAPABILITIES
+
+Exactly two public capability names:
+
+```
+s2a_begin_attestation_verification(...)
+s2a_persist_attestation_verification_result(...)
+```
+
+Both are `SECURITY DEFINER`, use `SET search_path=pg_catalog,pg_temp`, schema-qualified objects, fixed SQL, and no dynamic SQL.
+
+`begin` accepts the typed 22 manifest values, supplied canonical bytes/digest, algorithm/key envelope, and detached signature. It returns:
+
+```
+outcome
+verified_at
+canonical_manifest_bytes
+manifest_digest
+canonical_signature_preimage_bytes
+exact signer-key snapshot
+exact signer-authority snapshot
+existing receipt when exact replay is detected
+```
+
+`accept` accepts the canonical proof inputs and expected snapshot identities. It independently:
+
+- reacquires/revalidates locks and governance;
+- reconstructs manifest bytes from typed fields;
+- derives durable evidence binding;
+- reconstructs signature preimage;
+- recomputes proof fingerprint;
+- performs exact replay/conflict handling;
+- inserts or returns the receipt.
+
+Neither function accepts `signature_verified`, `verified_at`, `recorded_at`, or a caller-generated nonce.
+
+ROLE_PRIVILEGE_MATRIX
+
+| Capability/objectVerifierGovernanceIssuerRuntimePUBLIC |         |               |                        |                        |    |
+| ------------------------------------------------------ | ------- | ------------- | ---------------------- | ---------------------- | -- |
+| V040 table DML                                         | No      | No direct DML | No                     | No                     | No |
+| V040 append functions                                  | No      | Execute       | No                     | No                     | No |
+| Accepted table direct DML                              | No      | No            | No                     | No                     | No |
+| Begin verification                                     | Execute | No            | No                     | No                     | No |
+| Persist verification result                            | Execute | No            | No                     | No                     | No |
+| Command-authority DML                                  | No      | No            | existing pre-V042 only | No                     | No |
+| Transaction-identity DML                               | No      | No            | No                     | existing governed path | No |
+| Consumption capability                                 | No      | No            | No until V042          | No                     | No |
+
+```
+flooow_attestation_verifier=NOLOGIN NOINHERIT
+ROLE_MEMBERSHIPS_CREATED=0
+PUBLIC_EXECUTE=REVOKED
+```
+
+Migration checks both `roleid` and `member` edges for governance, verifier, and issuer roles. Any cross-membership fails closed without automatic cleanup.
+
+SQLSTATE_EXACT_CONTRACT
+
+HEAD audit:
+
+```
+P0010=USED
+P0011=USED
+P0012=USED
+P0013=USED
+P0014=USED
+P0015=UNUSED
+P0016=UNUSED
+P0017=UNUSED
+P0018=UNUSED
+```
+
+Revision 6 allocation:
+
+```
+P0015 = ATTESTATION_GOVERNANCE_UNAVAILABLE
+P0016 = ATTESTATION_GOVERNANCE_CONFLICT
+P0017 = ATTESTATION_SCOPE_OR_TEMPORAL_DENIED
+P0018 = ATTESTATION_CANONICAL_OR_INTEGRITY_REJECTED
+```
+
+Expected denials also return bounded outcome tokens. For P0017/P0018 exceptions, fixed nonsecret diagnostic tags preserve typed mapping:
+
+```
+P0017 + SCOPE_MISMATCH
+    -> ScopeMismatch
+
+P0017 + EXPIRED_OR_NOT_YET_VALID
+    -> ExpiredOrNotYetValid
+
+P0018 + UNSUPPORTED_CANONICAL_FORM
+    -> UnsupportedCanonicalForm
+
+P0018 + INTEGRITY_FAILURE
+    -> IntegrityFailure
+```
+
+Additional mapping:
+
+```
+InvalidSignature = JVM-native result; never inferred from SQLSTATE
+23502/23503/23514 -> IntegrityFailure
+23505 -> GovernanceConflict only after bounded manifest-lock replay classification
+42501 -> GovernanceUnavailable
+P0010-P0014 -> rethrow unchanged
+unknown SQLSTATE -> rethrow unchanged
+unknown diagnostic tag -> rethrow unchanged
+```
+
+KOTLIN_EXACT_SURFACE
+
+No new Gradle module.
+
+Domain module:
+
+```
+applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalManifest.kt
+
+Applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalAttestationCanonicalCodec.kt
+
+applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/AcceptedAttestationVerifier.kt
+```
+
+The first path above must use the existing lowercase `applications` directory; capitalization is illustrative only and is not a separate path.
+
+Exact types:
+
+```
+ApprovalManifest
+SignedApprovalAttestation
+AcceptedAttestationProof
+AcceptedAttestationReceipt
+AcceptedAttestationResult
+AcceptedAttestationVerifier
+
+ApprovalManifestCanonicalCodec
+ApprovalEvidenceBindingCodec
+AcceptedAttestationFingerprintCodec
+Ed25519ApprovalSignatureVerifier
+```
+
+Persistence:
+
+```
+applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresAcceptedAttestationVerifier.kt
+```
+
+Tests:
+
+```
+ApprovalManifestCanonicalCodecTest.kt
+AcceptedAttestationFingerprintCodecTest.kt
+PostgresAcceptedAttestationVerifierTest.kt
+```
+
+`AcceptedAttestationResult` is exactly:
+
+```
+Accepted(receipt)
+AlreadyAccepted(receipt)
+GovernanceUnavailable
+InvalidSignature
+GovernanceConflict
+IntegrityFailure
+ScopeMismatch
+ExpiredOrNotYetValid
+UnsupportedCanonicalForm
+```
+
+Existing V040 ID, fingerprint, SPKI, canonical-text, and canonical-instant types are reused.
+
+ADVERSARIAL_TEST_MATRIX
+
+Required tests cover:
+
+- all three golden vectors and independent JVM/database parity;
+- every manifest field mutation;
+- nullable evidence framing;
+- NFC and invalid scalar rejection;
+- canonical timestamps and UUIDs;
+- unknown, duplicate, missing, or extra fields;
+- padded or noncanonical base64url;
+- wrong signature, key, revision, SPKI, and fingerprint;
+- unsupported algorithm/version;
+- missing, forked, stale, terminal, or ambiguous key lineage;
+- missing, superseded, DISABLED, future, expired, or ambiguous authority;
+- subject, key, organization, source, role, action, permission, window, target, and evidence mismatches;
+- first append, exact replay, conflicting replay;
+- immutable UPDATE/DELETE;
+- key, authority, organization, and acceptance races;
+- identical and conflicting concurrent submissions;
+- bounded no-deadlock behavior;
+- `verifiedAt` cannot be supplied or changed;
+- database digest/preimage/proof recomputation;
+- `PUBLIC`, runtime, issuer, governance, and direct-table denial;
+- contaminated role graph rejection;
+- failed verification creates no evidence;
+- no V042 or command-authority effect.
+
+ZERO_EFFECT_PROOF
+
+Every success, denial, replay, conflict, and concurrent execution must preserve counts for:
+
+```
+command_principal
+command_credential_revision
+command_permission_grant
+command_authority_operation
+marketplace_transaction_identity_decision
+```
+
+V041 must not create:
+
+```
+s2a_attestation_consumption
+command_authority_operation.attestation_manifest_id
+execution eligibility state
+issuer replacement capability
+credential material
+private key material
+```
+
+```
+PROVIDER_CALLS=ZERO
+NETWORK_CALLS_UNDER_LOCKS=ZERO
+COMMAND_AUTHORITY_EFFECT=ZERO
+```
+
+V041_V042_HARD_WALL
+
+V041 may canonicalize, derive evidence binding, lock/read V040 governance, verify Ed25519, persist immutable evidence, and return a receipt.
+
+V041 may not consume an attestation, create a principal/credential/grant, mutate authority operations, link a manifest to authority, authorize execution, write transaction identity, harden the issuer, or call providers.
+
+V042 remains the first boundary allowed to perform those command-authority effects.
+
+```text
+REVISION_6_IMPLEMENTATION_CONTRACT_COMPLETION=PASS
+BLOCKER=0
+HIGH=0
+MEDIUM=0
+V041_IMPLEMENTATION=HOLD
+V042=HOLD
+REAL_FIELD_PROOF=HOLD
+```
+
+## Revision 6.1 trusted verifier TCB contract
+
+### Composite boundary
+
+The V041 verification operation is one JDBC transaction spanning:
+
+1. organization and manifest serialization;
+2. locked V040 signer-key and signer-authority snapshot resolution;
+3. canonical manifest and signature-preimage construction;
+4. Java 21 JCA Ed25519 verification;
+5. `s2a_persist_attestation_verification_result(...)`;
+6. commit of immutable accepted evidence.
+
+A failed JCA verification must not invoke the persistence primitive and must produce an accepted-row delta of zero.
+
+PostgreSQL performs no Ed25519 verification and must not claim an `InvalidSignature` decision. It validates structural shape, frozen governance identity, canonical bytes, hashes, fingerprints, replay, tenancy, serialization, and immutability.
+
+### Capability identity
+
+`flooow_attestation_verifier` is `NOLOGIN NOINHERIT`. V041 creates no production login, credential, or membership. The capability has no direct table DML. Among ordinary non-owner/non-superuser operational principals, EXECUTE on `s2a_begin_attestation_verification(...)` and `s2a_persist_attestation_verification_result(...)` is revoked from PUBLIC, command issuer, command runtime, and approval governance and granted only to `flooow_attestation_verifier`. Database owner, migration/security owner, and superuser remain privileged administrative trust and are not modeled as ordinary operational callers.
+
+Only a separately governed dedicated V041 verifier service principal may be the capability's inbound member at deployment. No human/operator assignment and no outbound membership are permitted. Cross-membership with issuer, runtime, or approval governance fails closed. The principal name and credentials are deployment secrets and never accepted-evidence fields.
+
+### Wrong-signature tests
+
+The JVM verifier tests must prove:
+
+- valid signature: persistence called once and evidence accepted;
+- one-bit signature mutation: `InvalidSignature`, persistence never called, row delta zero;
+- wrong public key: `InvalidSignature`, persistence never called, row delta zero;
+- wrong signature: `InvalidSignature`, persistence never called, row delta zero.
+
+Database tests must not claim wrong-signature detection. They test only non-cryptographic persistence invariants and privilege isolation.
+
+### V042 hard prerequisite
+
+Before every consumption or command-authority effect, V042 must load the immutable artifact, recompute the canonical-manifest digest, reconstruct the signature preimage, recompute the SPKI fingerprint, independently verify Ed25519 with Java 21 JCA, re-resolve current key eligibility, re-resolve current signer-authority eligibility, validate the approval window, and validate target and evidence binding.
+
+Failure at any step requires:
+
+`command authority delta = 0`
+`attestation consumption delta = 0`
+
+V041 row existence or prior acceptance is never sufficient command authority.
+
+### Historical meaning
+
+An accepted V041 artifact means that the trusted verifier TCB accepted the signature at `verifiedAt`. It does not mean PostgreSQL independently verified Ed25519. Historical re-verification remains independently possible from retained evidence. Later key or authority lifecycle changes do not delete the historical artifact.
+
+```text
+POSTGRES_ED25519_AUTHORITY=NO
+JAVA_21_JCA_ED25519_AUTHORITY=YES
+V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
+COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
+```
