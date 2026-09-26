@@ -796,3 +796,63 @@ IMPLEMENTATION=HOLD
 V042=HOLD
 REAL_FIELD_PROOF=HOLD
 ```
+
+## Consolidated documentary closure evidence — Revisions 7-7.3
+
+The canonical ADR and specification now contain a self-contained implementation-exact V041 contract. This evidence entry records documentary closure only; no Kotlin, SQL migration, Gradle, test, role, V040, V042 or real-field-proof implementation was performed.
+
+The consolidated contract freezes:
+
+- the single Kotlin domain surface, including `SignerApprovalPermission` isolation;
+- canonical unpadded base64url signed-envelope parsing and defensive byte ownership;
+- exact accepted-proof DER storage and byte-content equality;
+- the sole manifest/signature, evidence, accepted-proof and typed-JCA codec surfaces;
+- both complete PostgreSQL capability signatures;
+- the exact 21-column append-only accepted-attestation relation and PK-only index policy;
+- Java 21 JCA as the Ed25519 authority and PostgreSQL as the governance/integrity/serialization authority;
+- one `READ_COMMITTED` JDBC transaction and the complete lock order;
+- server-owned first-acceptance timestamps and stored replay timestamps;
+- V040 signer-key temporal resolution and exact authority/effective-key binding;
+- complete Mercado Livre and Omie scope/integrity/selection procedures;
+- the 22-field durable evidence binding plus its domain frame;
+- `DETAIL`-only SQLSTATE result mapping;
+- organization lifecycle and historical replay behavior;
+- verifier-role contamination and privilege denial;
+- the full adversarial test matrix and zero command-authority-effect proof;
+- mandatory independent V042 cryptographic and execution-time reverification.
+
+The pre-existing canonical hexadecimal fixtures in SPEC-0088 were not edited. Their preserved anchors are:
+
+```text
+MANIFEST_V1_BYTES=793
+MANIFEST_V1_SHA256=209c15498e4da3568d52e44e121515457b4001e478221002c4b4e3c04184a8d0
+SIGNATURE_PREIMAGE_V1_BYTES=222
+SIGNATURE_PREIMAGE_V1_SHA256=d011a3dd9a4eca3f07be18bacdb32720effba0babad1b80814156bb20d9bcfa2
+ACCEPTED_PROOF_V1_BYTES=1596
+ACCEPTED_PROOF_V1_SHA256=9bf856a724a921d7a63a87c551fdcf82e896fb13b184c785909269ecdbe685b9
+EVIDENCE_BINDING_V1_BYTES=529
+EVIDENCE_BINDING_V1_SHA256=9f61859daa192ae3482ad3dbb28cd7ebb5d2f143cdb6e83092054a80b512e965
+```
+
+```text
+REVISION_7_IMPLEMENTATION_EXACT_CONTRACT=CLOSED
+REVISION_7_1_SQL_EVIDENCE_CLOSURE=CLOSED
+REVISION_7_2_KOTLIN_RECONCILIATION=CLOSED
+REVISION_7_3_CODEC_RECONCILIATION=CLOSED
+
+BLOCKER=0
+HIGH=0
+MEDIUM=0
+LOW=0
+TECHNICAL_CONTRACT_OPEN_DECISIONS=0
+
+V040_CHANGE_REQUIRED=NO
+POSTGRES_ED25519_AUTHORITY=NO
+JAVA_21_JCA_ED25519_AUTHORITY=YES
+COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
+
+V041_IMPLEMENTATION=HOLD
+V042=HOLD
+REAL_FIELD_PROOF=HOLD
+NEXT_GATE=CONSOLIDATED_DOCUMENT_DIFF_AUDIT
+```

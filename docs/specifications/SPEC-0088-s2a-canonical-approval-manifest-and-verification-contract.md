@@ -2439,3 +2439,943 @@ JAVA_21_JCA_ED25519_AUTHORITY=YES
 V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
 COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
 ```
+
+## Consolidated V041 implementation contract (Revisions 7-7.3)
+
+This section is the sole controlling implementation contract for V041. Earlier revision sections are retained as historical design evidence. Where an earlier declaration or rule conflicts with this section, this section supersedes only that conflicting surface. No external transcript, handoff or unpublished revision is required to implement this contract.
+
+### Kotlin domain surface
+
+```kotlin
+enum class CredentialDeliveryMethod {
+    PROTECTED_TTY_ONE_TIME
+}
+
+enum class ImmediateRevocationPolicy {
+    SEPARATE_APPROVAL_REQUIRED
+}
+
+data class ApprovalManifest(
+    val schemaVersion: Int,
+    val manifestId: UUID,
+    val organizationId: OrganizationId,
+    val mercadoLivreConnectionId: UUID,
+    val omieConnectionId: UUID,
+    val sourceOrderReference: String,
+    val integrationReference: String,
+    val marketplaceOrderId: MarketplaceOrderId,
+    val permission: SignerApprovalPermission,
+    val accountableOperator: GovernanceSubjectId,
+    val approvalSource: GovernanceSourceId,
+    val approvalWindowStart: Instant,
+    val approvalWindowEnd: Instant,
+    val revocationOwner: GovernanceSubjectId,
+    val credentialCustodian: GovernanceSubjectId,
+    val credentialDeliveryMethod: CredentialDeliveryMethod,
+    val credentialRotationOwner: GovernanceSubjectId,
+    val immediateRevocationPolicy: ImmediateRevocationPolicy,
+    val reason: String,
+    val provenance: String,
+    val correlationId: UUID,
+    val evidenceBindingFingerprint: String
+)
+```
+
+`ApprovalManifest.permission` is `SignerApprovalPermission`. Its sole legal v1 value is `SignerApprovalPermission.TRANSACTION_IDENTITY_DECISION_WRITE`. `CommandPermission` is not the manifest permission type.
+
+```kotlin
+class SignedApprovalAttestation private constructor(
+    val manifest: ApprovalManifest,
+    val algorithmId: String,
+    val signerKeyId: SignerKeyId,
+    val signerKeyFingerprint: SignerKeyFingerprint,
+    signatureBytes: ByteArray
+) {
+    private val signature: ByteArray = signatureBytes.copyOf()
+
+    fun signatureBytes(): ByteArray = signature.copyOf()
+
+    companion object {
+        fun parse(
+            manifest: ApprovalManifest,
+            algorithmId: String,
+            signerKeyId: SignerKeyId,
+            signerKeyFingerprint: SignerKeyFingerprint,
+            signatureBase64Url: String
+        ): SignedApprovalAttestation
+    }
+
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
+}
+```
+
+`parse` requires `algorithmId == "Ed25519"`; a non-empty URL-safe base64 alphabet; no `=` padding; successful decoding; exactly 64 decoded bytes; and exact equality between the supplied string and re-encoding with `Base64.getUrlEncoder().withoutPadding()`. There is no public raw-`ByteArray` constructor. Construction copies the bytes, the accessor returns a copy, and equality/hash code use byte content.
+
+```kotlin
+class AcceptedAttestationProof private constructor(
+    val artifactVersion: Int,
+    val canonicalizationVersion: Int,
+    canonicalManifestBytes: ByteArray,
+    val manifestDigest: String,
+    canonicalSignaturePreimageBytes: ByteArray,
+    val algorithmId: String,
+    val signerKeyId: SignerKeyId,
+    val signerKeyRevision: Int,
+    val signerKeyFingerprint: SignerKeyFingerprint,
+    val signerKeyLineageFingerprint: SignerKeyLineageFingerprint,
+    subjectPublicKeyInfoDer: ByteArray,
+    signatureBytes: ByteArray,
+    val signerAuthorityId: SignerAuthorityId,
+    val signerAuthorityRevision: Int,
+    val signerAuthorityFingerprint: SignerAuthorityFingerprint,
+    val verifiedAt: Instant
+) {
+    fun canonicalManifestBytes(): ByteArray
+    fun canonicalSignaturePreimageBytes(): ByteArray
+    fun subjectPublicKeyInfoDer(): ByteArray
+    fun signatureBytes(): ByteArray
+
+    companion object {
+        fun create(
+            artifactVersion: Int,
+            canonicalizationVersion: Int,
+            canonicalManifestBytes: ByteArray,
+            manifestDigest: String,
+            canonicalSignaturePreimageBytes: ByteArray,
+            algorithmId: String,
+            signerKeyId: SignerKeyId,
+            signerKeyRevision: Int,
+            signerKeyFingerprint: SignerKeyFingerprint,
+            signerKeyLineageFingerprint: SignerKeyLineageFingerprint,
+            subjectPublicKeyInfoDer: ByteArray,
+            signatureBytes: ByteArray,
+            signerAuthorityId: SignerAuthorityId,
+            signerAuthorityRevision: Int,
+            signerAuthorityFingerprint: SignerAuthorityFingerprint,
+            verifiedAt: Instant
+        ): AcceptedAttestationProof
+    }
+
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
+}
+```
+
+The proof owns defensive copies of `canonicalManifestBytes`, `canonicalSignaturePreimageBytes`, `subjectPublicKeyInfoDer` and `signatureBytes`; every accessor returns a copy; equality/hash code use byte content. `create` requires artifact/canonicalization version 1, canonical microsecond `verifiedAt`, canonical 44-byte Ed25519 SPKI DER validated through `SignerPublicKeyInfo.parse`, a 64-byte signature, a 222-byte signature preimage, positive key/authority revisions, and all frozen digest/fingerprint forms. Exact DER bytes remain the proof representation.
+
+```kotlin
+data class AcceptedAttestationReceipt(
+    val organizationId: OrganizationId,
+    val manifestId: UUID,
+    val manifestDigest: String,
+    val acceptedProofFingerprint: String,
+    val verifiedAt: Instant,
+    val recordedAt: Instant
+)
+
+sealed interface AcceptedAttestationResult {
+    data class Accepted(val receipt: AcceptedAttestationReceipt) : AcceptedAttestationResult
+    data class AlreadyAccepted(val receipt: AcceptedAttestationReceipt) : AcceptedAttestationResult
+    data object GovernanceUnavailable : AcceptedAttestationResult
+    data object InvalidSignature : AcceptedAttestationResult
+    data object GovernanceConflict : AcceptedAttestationResult
+    data object IntegrityFailure : AcceptedAttestationResult
+    data object ScopeMismatch : AcceptedAttestationResult
+    data object ExpiredOrNotYetValid : AcceptedAttestationResult
+    data object UnsupportedCanonicalForm : AcceptedAttestationResult
+}
+
+fun interface AcceptedAttestationVerifier {
+    fun verify(attestation: SignedApprovalAttestation): AcceptedAttestationResult
+}
+```
+
+### Canonical codec surfaces
+
+```kotlin
+object ApprovalManifestCanonicalCodec {
+    const val SCHEMA_VERSION: Int = 1
+    const val CANONICALIZATION_VERSION: Int = 1
+    const val MANIFEST_DOMAIN: String = "FLOOOW:S2A:APPROVAL-MANIFEST:1"
+    const val SIGNATURE_DOMAIN: String = "FLOOOW:S2A:APPROVAL-SIGNATURE:1"
+
+    fun canonicalManifestBytes(manifest: ApprovalManifest): ByteArray
+    fun manifestDigest(canonicalManifestBytes: ByteArray): String
+    fun canonicalSignaturePreimageBytes(
+        algorithmId: String,
+        signerKeyId: SignerKeyId,
+        signerKeyFingerprint: SignerKeyFingerprint,
+        manifestDigest: String
+    ): ByteArray
+}
+```
+
+No competing `DOMAIN`, `canonicalBytes(manifest)` or `digest(manifest)` manifest-codec API is authoritative.
+
+```kotlin
+object ApprovalEvidenceBindingCodec {
+    const val DOMAIN: String = "FLOOOW:S2A:EVIDENCE-BINDING:1"
+
+    data class Evidence(
+        val organizationId: OrganizationId,
+        val marketplaceOrderId: MarketplaceOrderId,
+        val mercadoLivreConnectionId: UUID,
+        val mlCapability: String,
+        val mlInputProgressVersion: Long,
+        val mlRecordOrdinal: Int,
+        val marketplaceKey: String,
+        val marketplaceExternalOrderId: String,
+        val mlCurrency: String,
+        val mlPromotionOutcome: String,
+        val omieConnectionId: UUID,
+        val omieCapability: String,
+        val omieInputProgressVersion: Long,
+        val omieRecordOrdinal: Int,
+        val omieSourceOrderReference: String,
+        val omieIntegrationReference: String?,
+        val omieCurrency: String?,
+        val omieSemanticFingerprintVersion: Int,
+        val omieSemanticFingerprint: String,
+        val omieProviderRevisionLocal: LocalDateTime
+    )
+
+    fun canonicalBytes(evidence: Evidence): ByteArray
+    fun fingerprint(evidence: Evidence): String
+}
+
+object AcceptedAttestationFingerprintCodec {
+    const val DOMAIN: String = "FLOOOW:S2A:ACCEPTED-ATTESTATION-PROOF:1"
+    const val ARTIFACT_VERSION: Int = 1
+
+    fun canonicalBytes(proof: AcceptedAttestationProof): ByteArray
+    fun fingerprint(proof: AcceptedAttestationProof): String
+}
+
+object Ed25519ApprovalSignatureVerifier {
+    fun verify(
+        subjectPublicKeyInfo: SignerPublicKeyInfo,
+        canonicalSignaturePreimageBytes: ByteArray,
+        signatureBytes: ByteArray
+    ): Boolean
+}
+```
+
+The JDBC adapter must call `SignerPublicKeyInfo.parse(subjectPublicKeyInfoDer)` before the verifier. The verifier obtains an owned copy through `subjectPublicKeyInfo.bytes()` and uses only `KeyFactory.getInstance("Ed25519")` and `Signature.getInstance("Ed25519")`. There is no public raw-SPKI `ByteArray` verifier overload and no 20-parameter evidence-codec overload.
+
+Every UUID wrapper is encoded from its underlying canonical value. In particular, evidence encoding uses `organizationId.value.toString()` and `marketplaceOrderId.value.toString()`, never wrapper debug/redacted `toString()` output.
+
+The evidence domain is one frame followed by these 22 semantic fields:
+
+1. organizationId
+2. marketplaceOrderId
+3. mercadoLivreConnectionId
+4. mlCapability
+5. mlInputProgressVersion
+6. mlRecordOrdinal
+7. marketplaceKey
+8. marketplaceExternalOrderId
+9. mlCurrency
+10. mlPromotionOutcome
+11. omieConnectionId
+12. omieCapability
+13. omieInputProgressVersion
+14. omieRecordOrdinal
+15. omieSourceOrderReference
+16. omieIntegrationReference presence
+17. omieIntegrationReference value
+18. omieCurrency presence
+19. omieCurrency value
+20. omieSemanticFingerprintVersion
+21. omieSemanticFingerprint
+22. omieProviderRevisionLocal
+
+The two nullable logical properties each encode the frozen presence/value pair. The fixture therefore has one domain frame, 22 semantic fields and 23 total frames.
+
+### PostgreSQL capability signatures
+
+The exact begin signature is:
+
+```sql
+public.s2a_begin_attestation_verification(
+    p_schema_version integer,
+    p_manifest_id uuid,
+    p_organization_id uuid,
+    p_mercado_livre_connection_id uuid,
+    p_omie_connection_id uuid,
+    p_source_order_reference text,
+    p_integration_reference text,
+    p_marketplace_order_id uuid,
+    p_permission text,
+    p_accountable_operator uuid,
+    p_approval_source uuid,
+    p_approval_window_start timestamptz,
+    p_approval_window_end timestamptz,
+    p_revocation_owner uuid,
+    p_credential_custodian uuid,
+    p_credential_delivery_method text,
+    p_credential_rotation_owner uuid,
+    p_immediate_revocation_policy text,
+    p_reason text,
+    p_provenance text,
+    p_correlation_id uuid,
+    p_evidence_binding_fingerprint text,
+    p_canonicalization_version integer,
+    p_canonical_manifest_bytes bytea,
+    p_manifest_digest text,
+    p_algorithm_id text,
+    p_signer_key_id uuid,
+    p_signer_key_fingerprint text,
+    p_signature_bytes bytea
+)
+RETURNS TABLE (
+    outcome text,
+    result_verified_at timestamptz,
+    result_recorded_at timestamptz,
+    result_canonical_manifest_bytes bytea,
+    result_manifest_digest text,
+    result_canonical_signature_preimage_bytes bytea,
+    result_signer_subject_id uuid,
+    result_signer_key_id uuid,
+    result_signer_key_revision integer,
+    result_signer_key_fingerprint text,
+    result_signer_key_lineage_fingerprint text,
+    result_subject_public_key_info_der bytea,
+    result_signer_authority_id uuid,
+    result_signer_authority_revision integer,
+    result_signer_authority_fingerprint text,
+    result_accepted_proof_fingerprint text
+)
+```
+
+Its outcomes are exactly `VERIFY_NEW` and `VERIFY_REPLAY`.
+
+The exact persistence signature is:
+
+```sql
+public.s2a_persist_attestation_verification_result(
+    p_schema_version integer,
+    p_manifest_id uuid,
+    p_organization_id uuid,
+    p_mercado_livre_connection_id uuid,
+    p_omie_connection_id uuid,
+    p_source_order_reference text,
+    p_integration_reference text,
+    p_marketplace_order_id uuid,
+    p_permission text,
+    p_accountable_operator uuid,
+    p_approval_source uuid,
+    p_approval_window_start timestamptz,
+    p_approval_window_end timestamptz,
+    p_revocation_owner uuid,
+    p_credential_custodian uuid,
+    p_credential_delivery_method text,
+    p_credential_rotation_owner uuid,
+    p_immediate_revocation_policy text,
+    p_reason text,
+    p_provenance text,
+    p_correlation_id uuid,
+    p_evidence_binding_fingerprint text,
+    p_canonicalization_version integer,
+    p_canonical_manifest_bytes bytea,
+    p_manifest_digest text,
+    p_algorithm_id text,
+    p_signer_key_id uuid,
+    p_signer_key_fingerprint text,
+    p_signature_bytes bytea,
+    p_expected_canonical_signature_preimage_bytes bytea,
+    p_expected_signer_subject_id uuid,
+    p_expected_signer_key_revision integer,
+    p_expected_signer_key_lineage_fingerprint text,
+    p_expected_subject_public_key_info_der bytea,
+    p_expected_signer_authority_id uuid,
+    p_expected_signer_authority_revision integer,
+    p_expected_signer_authority_fingerprint text,
+    p_expected_accepted_proof_fingerprint text
+)
+RETURNS TABLE (
+    outcome text,
+    result_organization_id uuid,
+    result_manifest_id uuid,
+    result_manifest_digest text,
+    result_accepted_proof_fingerprint text,
+    result_verified_at timestamptz,
+    result_recorded_at timestamptz
+)
+```
+
+Its outcomes are exactly `ACCEPTED` and `ALREADY_ACCEPTED`. Both functions are `SECURITY DEFINER`, set `search_path=pg_catalog,pg_temp`, schema-qualify every object, use fixed SQL, and contain no dynamic SQL. Neither function accepts `signature_verified`, `verified_at`, `recorded_at` or a caller nonce. The forbidden compatibility alias `s2a_accept_verified_attestation(...)` is not created.
+
+### Accepted-attestation relation
+
+```sql
+CREATE TABLE public.s2a_accepted_attestation (
+    organization_id uuid NOT NULL,
+    manifest_id uuid NOT NULL,
+    artifact_version integer NOT NULL,
+    schema_version integer NOT NULL,
+    canonicalization_version integer NOT NULL,
+    canonical_manifest_bytes bytea NOT NULL,
+    manifest_digest char(64) NOT NULL,
+    canonical_signature_preimage_bytes bytea NOT NULL,
+    algorithm_id text NOT NULL,
+    signer_key_id uuid NOT NULL,
+    signer_key_revision integer NOT NULL,
+    signer_key_fingerprint char(64) NOT NULL,
+    signer_key_lineage_fingerprint char(64) NOT NULL,
+    subject_public_key_info_der bytea NOT NULL,
+    signature_bytes bytea NOT NULL,
+    signer_authority_id uuid NOT NULL,
+    signer_authority_revision integer NOT NULL,
+    signer_authority_fingerprint char(64) NOT NULL,
+    verified_at timestamptz(6) NOT NULL,
+    accepted_proof_fingerprint char(64) NOT NULL,
+    recorded_at timestamptz(6) NOT NULL DEFAULT transaction_timestamp(),
+
+    PRIMARY KEY (organization_id, manifest_id),
+
+    FOREIGN KEY (organization_id)
+        REFERENCES public.integration_organization (organization_id),
+
+    FOREIGN KEY (
+        organization_id,
+        signer_key_id,
+        signer_key_revision,
+        signer_key_fingerprint
+    ) REFERENCES public.s2a_signer_key_revision (
+        organization_id,
+        signer_key_id,
+        revision,
+        signer_key_fingerprint
+    ),
+
+    FOREIGN KEY (
+        organization_id,
+        signer_authority_id
+    ) REFERENCES public.s2a_signer_authority_revision (
+        organization_id,
+        signer_authority_id
+    ),
+
+    CHECK (artifact_version = 1),
+    CHECK (schema_version = 1),
+    CHECK (canonicalization_version = 1),
+    CHECK (algorithm_id = 'Ed25519'),
+    CHECK (organization_id <> '00000000-0000-0000-0000-000000000000'::uuid),
+    CHECK (manifest_id <> '00000000-0000-0000-0000-000000000000'::uuid),
+    CHECK (signer_key_id <> '00000000-0000-0000-0000-000000000000'::uuid),
+    CHECK (signer_authority_id <> '00000000-0000-0000-0000-000000000000'::uuid),
+    CHECK (signer_key_revision > 0),
+    CHECK (signer_authority_revision > 0),
+    CHECK (manifest_digest ~ '^[0-9a-f]{64}$'),
+    CHECK (signer_key_fingerprint ~ '^[0-9a-f]{64}$'),
+    CHECK (signer_key_lineage_fingerprint ~ '^[0-9a-f]{64}$'),
+    CHECK (signer_authority_fingerprint ~ '^[0-9a-f]{64}$'),
+    CHECK (accepted_proof_fingerprint ~ '^[0-9a-f]{64}$'),
+    CHECK (octet_length(canonical_manifest_bytes) BETWEEN 1 AND 4096),
+    CHECK (octet_length(canonical_signature_preimage_bytes) = 222),
+    CHECK (octet_length(subject_public_key_info_der) = 44),
+    CHECK (
+        substring(subject_public_key_info_der FROM 1 FOR 12) =
+        decode('302a300506032b6570032100', 'hex')
+    ),
+    CHECK (octet_length(signature_bytes) = 64),
+    CHECK (
+        manifest_digest =
+        encode(sha256(canonical_manifest_bytes), 'hex')
+    ),
+    CHECK (recorded_at = verified_at)
+);
+
+CREATE FUNCTION public.s2a_reject_accepted_attestation_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, pg_temp
+AS $function$
+BEGIN
+    RAISE EXCEPTION 'Accepted attestations are immutable'
+        USING ERRCODE = '23514';
+END;
+$function$;
+
+CREATE TRIGGER s2a_accepted_attestation_immutable
+BEFORE UPDATE OR DELETE ON public.s2a_accepted_attestation
+FOR EACH ROW
+EXECUTE FUNCTION public.s2a_reject_accepted_attestation_mutation();
+```
+
+No secondary index is created: `SECONDARY_INDEX_COUNT=0`. A `BEFORE UPDATE OR DELETE` trigger raises SQLSTATE `23514`; the relation is append-only. Authority revision and fingerprint are independently revalidated because V040 exposes no matching composite unique key.
+
+For `VERIFY_NEW`, the begin capability assigns:
+
+```sql
+result_verified_at := transaction_timestamp()::timestamptz(6);
+result_recorded_at := result_verified_at;
+```
+
+Persistence writes those exact values. For `VERIFY_REPLAY`, both values come from the stored row. Stored inequality is `P0018` with `DETAIL='INTEGRITY_FAILURE'`. Clients cannot submit either timestamp.
+
+### Mercado Livre evidence resolution
+
+Both capabilities use this exact classification and selection logic. In the function body, input parameter names are distinct from PL/pgSQL variable names as shown.
+
+```sql
+DECLARE
+    v_ml_scope_count bigint;
+    v_ml_integrity_count bigint;
+    v_ml_selected record;
+BEGIN
+    SELECT count(*)
+      INTO v_ml_scope_count
+      FROM public.marketplace_order_occurrence_source_promotion AS promotion
+     WHERE promotion.organization_id = p_organization_id
+       AND promotion.marketplace_order_id = p_marketplace_order_id
+       AND promotion.source_connection_id = p_mercado_livre_connection_id
+       AND promotion.source_capability = 'marketplace-economic.order-source'
+       AND promotion.outcome IN ('PROMOTED', 'DUPLICATE');
+
+    IF v_ml_scope_count = 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0017',
+            MESSAGE = 'Mercado Livre evidence is outside the approved scope',
+            DETAIL = 'SCOPE_MISMATCH';
+    END IF;
+
+    SELECT count(*)
+      INTO v_ml_integrity_count
+      FROM public.marketplace_order_occurrence_source_promotion AS promotion
+      LEFT JOIN public.marketplace_order_identity_registry AS identity
+        ON identity.organization_id = promotion.organization_id
+       AND identity.marketplace_order_id = promotion.marketplace_order_id
+      LEFT JOIN public.integration_mercado_livre_order_source_observation AS source
+        ON source.organization_id = promotion.organization_id
+       AND source.connection_id = promotion.source_connection_id
+       AND source.capability = promotion.source_capability
+       AND source.input_progress_version = promotion.source_input_progress_version
+       AND source.record_ordinal = promotion.source_record_ordinal
+     WHERE promotion.organization_id = p_organization_id
+       AND promotion.marketplace_order_id = p_marketplace_order_id
+       AND promotion.source_connection_id = p_mercado_livre_connection_id
+       AND promotion.source_capability = 'marketplace-economic.order-source'
+       AND promotion.outcome IN ('PROMOTED', 'DUPLICATE')
+       AND (
+            identity.organization_id IS NULL
+         OR source.organization_id IS NULL
+         OR identity.marketplace_key IS DISTINCT FROM 'mercado-livre'
+         OR source.external_order_ref IS DISTINCT FROM identity.external_order_id
+         OR source.currency IS DISTINCT FROM identity.currency
+       );
+
+    IF v_ml_integrity_count <> 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0018',
+            MESSAGE = 'Mercado Livre evidence integrity failure',
+            DETAIL = 'INTEGRITY_FAILURE';
+    END IF;
+
+    SELECT
+        promotion.source_input_progress_version,
+        promotion.source_record_ordinal,
+        identity.marketplace_key,
+        identity.external_order_id,
+        identity.currency,
+        promotion.outcome
+      INTO STRICT v_ml_selected
+      FROM public.marketplace_order_occurrence_source_promotion AS promotion
+      JOIN public.marketplace_order_identity_registry AS identity
+        ON identity.organization_id = promotion.organization_id
+       AND identity.marketplace_order_id = promotion.marketplace_order_id
+      JOIN public.integration_mercado_livre_order_source_observation AS source
+        ON source.organization_id = promotion.organization_id
+       AND source.connection_id = promotion.source_connection_id
+       AND source.capability = promotion.source_capability
+       AND source.input_progress_version = promotion.source_input_progress_version
+       AND source.record_ordinal = promotion.source_record_ordinal
+     WHERE promotion.organization_id = p_organization_id
+       AND promotion.marketplace_order_id = p_marketplace_order_id
+       AND promotion.source_connection_id = p_mercado_livre_connection_id
+       AND promotion.source_capability = 'marketplace-economic.order-source'
+       AND promotion.outcome IN ('PROMOTED', 'DUPLICATE')
+     ORDER BY
+        promotion.source_input_progress_version ASC,
+        promotion.source_record_ordinal ASC
+     LIMIT 1;
+END;
+```
+
+The integrity probe covers every scoped eligible promotion before `LIMIT 1`; a corrupt unselected occurrence cannot hide behind deterministic selection.
+
+### Omie evidence resolution
+
+The base-scope probe contains no join. Only after scope classification does the capability inspect every scoped base row using left joins.
+
+```sql
+DECLARE
+    v_omie_base_count bigint;
+    v_omie_integrity_count bigint;
+    v_omie_max_revision timestamp without time zone;
+    v_omie_selected record;
+BEGIN
+    SELECT count(*)
+      INTO v_omie_base_count
+      FROM public.integration_omie_transaction_evidence AS base
+     WHERE base.organization_id = p_organization_id
+       AND base.connection_id = p_omie_connection_id
+       AND base.capability =
+           'marketplace-economic.omie-transaction-evidence.reacquisition-v3'
+       AND base.source_order_ref = p_source_order_reference;
+
+    IF v_omie_base_count = 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0017',
+            MESSAGE = 'Omie evidence is outside the approved scope',
+            DETAIL = 'SCOPE_MISMATCH';
+    END IF;
+
+    SELECT count(*)
+      INTO v_omie_integrity_count
+      FROM public.integration_omie_transaction_evidence AS base
+      LEFT JOIN public.integration_omie_transaction_evidence_v3 AS sidecar
+        ON sidecar.organization_id = base.organization_id
+       AND sidecar.connection_id = base.connection_id
+       AND sidecar.capability = base.capability
+       AND sidecar.input_progress_version = base.input_progress_version
+       AND sidecar.record_ordinal = base.record_ordinal
+      LEFT JOIN public.integration_connector_page_commit AS page_commit
+        ON page_commit.organization_id = base.organization_id
+       AND page_commit.connection_id = base.connection_id
+       AND page_commit.capability = base.capability
+       AND page_commit.input_progress_version = base.input_progress_version
+      LEFT JOIN public.integration_connector_progress AS connector_progress
+        ON connector_progress.organization_id = base.organization_id
+       AND connector_progress.connection_id = base.connection_id
+       AND connector_progress.capability = base.capability
+     WHERE base.organization_id = p_organization_id
+       AND base.connection_id = p_omie_connection_id
+       AND base.capability =
+           'marketplace-economic.omie-transaction-evidence.reacquisition-v3'
+       AND base.source_order_ref = p_source_order_reference
+       AND (
+            sidecar.organization_id IS NULL
+         OR page_commit.organization_id IS NULL
+         OR connector_progress.organization_id IS NULL
+         OR sidecar.semantic_fingerprint_version <> 1
+         OR sidecar.source_evidence_semantic_fingerprint !~ '^[0-9a-f]{64}$'
+         OR base.record_ordinal < 0
+         OR base.record_ordinal >= page_commit.record_count
+         OR base.input_progress_version >= connector_progress.progress_version
+         OR (
+                sidecar.provider_created_local IS NULL
+            AND sidecar.provider_modified_local IS NULL
+         )
+         OR (
+                sidecar.provider_created_local IS NOT NULL
+            AND sidecar.provider_modified_local IS NOT NULL
+            AND sidecar.provider_modified_local < sidecar.provider_created_local
+         )
+         OR page_commit.record_count <> (
+                SELECT count(*)
+                  FROM public.integration_omie_transaction_evidence AS base_page
+                 WHERE base_page.organization_id = base.organization_id
+                   AND base_page.connection_id = base.connection_id
+                   AND base_page.capability = base.capability
+                   AND base_page.input_progress_version = base.input_progress_version
+            )
+         OR page_commit.record_count <> (
+                SELECT count(*)
+                  FROM public.integration_omie_transaction_evidence_v3 AS sidecar_page
+                 WHERE sidecar_page.organization_id = base.organization_id
+                   AND sidecar_page.connection_id = base.connection_id
+                   AND sidecar_page.capability = base.capability
+                   AND sidecar_page.input_progress_version = base.input_progress_version
+            )
+       );
+
+    IF v_omie_integrity_count <> 0 THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0018',
+            MESSAGE = 'Omie evidence integrity failure',
+            DETAIL = 'INTEGRITY_FAILURE';
+    END IF;
+
+    SELECT max(
+               coalesce(
+                   sidecar.provider_modified_local,
+                   sidecar.provider_created_local
+               )
+           )
+      INTO v_omie_max_revision
+      FROM public.integration_omie_transaction_evidence AS base
+      JOIN public.integration_omie_transaction_evidence_v3 AS sidecar
+        ON sidecar.organization_id = base.organization_id
+       AND sidecar.connection_id = base.connection_id
+       AND sidecar.capability = base.capability
+       AND sidecar.input_progress_version = base.input_progress_version
+       AND sidecar.record_ordinal = base.record_ordinal
+     WHERE base.organization_id = p_organization_id
+       AND base.connection_id = p_omie_connection_id
+       AND base.capability =
+           'marketplace-economic.omie-transaction-evidence.reacquisition-v3'
+       AND base.source_order_ref = p_source_order_reference;
+
+    IF v_omie_max_revision IS NULL THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0018',
+            MESSAGE = 'Omie provider revision is unavailable',
+            DETAIL = 'INTEGRITY_FAILURE';
+    END IF;
+
+    SELECT
+        base.input_progress_version,
+        base.record_ordinal,
+        base.source_order_ref,
+        base.source_integration_ref,
+        base.currency,
+        sidecar.semantic_fingerprint_version,
+        sidecar.source_evidence_semantic_fingerprint,
+        coalesce(
+            sidecar.provider_modified_local,
+            sidecar.provider_created_local
+        ) AS provider_revision_local
+      INTO STRICT v_omie_selected
+      FROM public.integration_omie_transaction_evidence AS base
+      JOIN public.integration_omie_transaction_evidence_v3 AS sidecar
+        ON sidecar.organization_id = base.organization_id
+       AND sidecar.connection_id = base.connection_id
+       AND sidecar.capability = base.capability
+       AND sidecar.input_progress_version = base.input_progress_version
+       AND sidecar.record_ordinal = base.record_ordinal
+     WHERE base.organization_id = p_organization_id
+       AND base.connection_id = p_omie_connection_id
+       AND base.capability =
+           'marketplace-economic.omie-transaction-evidence.reacquisition-v3'
+       AND base.source_order_ref = p_source_order_reference
+       AND coalesce(
+               sidecar.provider_modified_local,
+               sidecar.provider_created_local
+           ) = v_omie_max_revision
+     ORDER BY base.input_progress_version ASC, base.record_ordinal ASC
+     LIMIT 1;
+
+    IF EXISTS (
+        SELECT 1
+          FROM public.integration_omie_transaction_evidence AS base
+          JOIN public.integration_omie_transaction_evidence_v3 AS sidecar
+            ON sidecar.organization_id = base.organization_id
+           AND sidecar.connection_id = base.connection_id
+           AND sidecar.capability = base.capability
+           AND sidecar.input_progress_version = base.input_progress_version
+           AND sidecar.record_ordinal = base.record_ordinal
+         WHERE base.organization_id = p_organization_id
+           AND base.connection_id = p_omie_connection_id
+           AND base.capability =
+               'marketplace-economic.omie-transaction-evidence.reacquisition-v3'
+           AND base.source_order_ref = p_source_order_reference
+           AND coalesce(
+                   sidecar.provider_modified_local,
+                   sidecar.provider_created_local
+               ) = v_omie_max_revision
+           AND (
+                base.source_integration_ref
+                    IS DISTINCT FROM v_omie_selected.source_integration_ref
+             OR base.currency IS DISTINCT FROM v_omie_selected.currency
+             OR sidecar.semantic_fingerprint_version
+                    IS DISTINCT FROM v_omie_selected.semantic_fingerprint_version
+             OR sidecar.source_evidence_semantic_fingerprint
+                    IS DISTINCT FROM v_omie_selected.source_evidence_semantic_fingerprint
+           )
+    ) THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0016',
+            MESSAGE = 'Conflicting maximum-revision Omie evidence';
+    END IF;
+
+    IF v_omie_selected.source_integration_ref
+           IS DISTINCT FROM p_integration_reference
+    THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0017',
+            MESSAGE = 'Omie integration reference is outside scope',
+            DETAIL = 'SCOPE_MISMATCH';
+    END IF;
+
+    IF v_omie_selected.currency IS NOT NULL
+       AND v_omie_selected.currency IS DISTINCT FROM (
+            SELECT identity.currency
+              FROM public.marketplace_order_identity_registry AS identity
+             WHERE identity.organization_id = p_organization_id
+               AND identity.marketplace_order_id = p_marketplace_order_id
+       )
+    THEN
+        RAISE EXCEPTION USING
+            ERRCODE = 'P0016',
+            MESSAGE = 'Mercado Livre and Omie currency conflict';
+    END IF;
+END;
+```
+
+Null Omie currency is encoded as absent and is never inferred as BRL. All maximum-revision rows must agree on semantic version/fingerprint and the presence/value of integration reference and currency before deterministic selection.
+
+### Signer-key temporal and authority eligibility
+
+Under the exact V040 key advisory transaction lock, both capabilities validate the complete structural lineage, require exactly one structural leaf, require revisions to form the exact predecessor chain, recompute every lineage fingerprint, and require `effective_at` to increase strictly across successors.
+
+At `verifiedAt`, the effective key is the highest revision for which `effective_at <= verifiedAt`. A future structural successor does not prematurely deactivate its effective predecessor. No effective revision raises `P0017` with `DETAIL='EXPIRED_OR_NOT_YET_VALID'`. An effective revision in `RETIRED`, `REVOKED` or `COMPROMISED` state raises the same denial. V040 is unchanged.
+
+Under the V040 authority-scope advisory lock, V041 resolves exactly one structural-current signer-authority leaf for organization, signer subject, signer key, `S2A_FIELD_PROOF_APPROVAL` and `TRANSACTION_IDENTITY_DECISION_WRITE`. It requires `ENABLED`, `valid_from <= verifiedAt < valid_until`, and exact approval source, role, action and permission.
+
+If that otherwise well-formed authority has a `signer_key_revision` or `signer_key_fingerprint` different from the effective key, V041 raises `P0017` with `DETAIL='SCOPE_MISMATCH'`. This maps to `ScopeMismatch`. Only a forked, ambiguous or internally contradictory authority lineage maps to `P0016`/`GovernanceConflict`. An active successor key can authorize V041 only when it is the effective revision and current authority binds that exact revision and fingerprint.
+
+### Evidence binding and SQLSTATE mapping
+
+Evidence binding is derived only from the durable selected rows produced by the frozen Mercado Livre and Omie procedures. Request-supplied evidence lineage or fingerprints cannot substitute for repository derivation. A manifest evidence-binding fingerprint different from the derived fingerprint raises `P0017` with `DETAIL='SCOPE_MISMATCH'`.
+
+PostgreSQL `DETAIL` is the only diagnostic subtag carrier. Clients must not parse `MESSAGE` or `HINT`.
+
+```text
+P0015 -> GovernanceUnavailable
+P0016 -> GovernanceConflict
+P0017 + DETAIL=SCOPE_MISMATCH -> ScopeMismatch
+P0017 + DETAIL=EXPIRED_OR_NOT_YET_VALID -> ExpiredOrNotYetValid
+P0018 + DETAIL=UNSUPPORTED_CANONICAL_FORM -> UnsupportedCanonicalForm
+P0018 + DETAIL=INTEGRITY_FAILURE -> IntegrityFailure
+23502/23503/23514 -> IntegrityFailure
+23505 -> GovernanceConflict only after manifest-lock replay classification
+42501 -> GovernanceUnavailable
+P0010-P0014 -> rethrow unchanged
+unknown SQLSTATE or unknown DETAIL -> rethrow unchanged
+InvalidSignature -> JVM-only result
+```
+
+### Transaction, locks, organization and replay
+
+`PostgresAcceptedAttestationVerifier` owns one JDBC connection and one transaction at `Connection.TRANSACTION_READ_COMMITTED`, with auto-commit disabled. No provider or network call occurs inside the transaction.
+
+The mandatory order is:
+
+```text
+organization row FOR SHARE
+-> s2a-attestation/manifest/1:<organizationId>:<manifestId>
+-> s2a-governance/signer-key/1:<organizationId>:<signerKeyId>
+-> s2a-governance/signer-authority-scope/1:<organizationId>:<signerSubjectId>:<signerKeyId>:S2A_FIELD_PROOF_APPROVAL:TRANSACTION_IDENTITY_DECISION_WRITE
+-> key lineage/current state
+-> authority lineage/current state
+-> durable evidence validation
+-> Java 21 JCA Ed25519 verification
+-> persistence revalidation
+-> insert or replay
+-> commit
+```
+
+New acceptance requires the organization to exist and be `ACTIVE` under `FOR SHARE`. A disable committed before V041 acquires that lock denies new acceptance. If V041 first obtains the shared lock while the organization is active, V041 may complete and disable waits.
+
+Historical exact replay requires the organization identity still to exist, but does not require current `ACTIVE` status. It reuses stored `verified_at` and `recorded_at`, revalidates retained historical governance references and canonical artifacts, reruns Java JCA, returns `ALREADY_ACCEPTED`, and writes nothing. Any authoritative incoming difference raises `P0016`/`GovernanceConflict` and writes nothing. Identical concurrent submissions yield one `ACCEPTED`, one `ALREADY_ACCEPTED`, and one row. Conflicting submissions yield at most one accepted row and no overwrite. Every exception rolls the transaction back.
+
+### Verifier role and privilege isolation
+
+V041 creates `flooow_attestation_verifier` as `NOLOGIN NOINHERIT` and creates no production login, credential or membership. The migration must fail, without cleanup, if the protected role graph is contaminated:
+
+```sql
+IF EXISTS (
+    SELECT 1
+      FROM pg_catalog.pg_auth_members AS membership
+      JOIN pg_catalog.pg_roles AS granted_role
+        ON granted_role.oid = membership.roleid
+      JOIN pg_catalog.pg_roles AS member_role
+        ON member_role.oid = membership.member
+     WHERE granted_role.rolname::text = 'flooow_attestation_verifier'
+        OR member_role.rolname::text = 'flooow_attestation_verifier'
+        OR (
+            granted_role.rolname::text = ANY (ARRAY[
+                'flooow_attestation_verifier',
+                'flooow_approval_governance',
+                'flooow_command_issuer',
+                'flooow_command_runtime'
+            ]::text[])
+            AND member_role.rolname::text = ANY (ARRAY[
+                'flooow_attestation_verifier',
+                'flooow_approval_governance',
+                'flooow_command_issuer',
+                'flooow_command_runtime'
+            ]::text[])
+        )
+) THEN
+    RAISE EXCEPTION 'Protected S2A role graph is contaminated';
+END IF;
+```
+
+PUBLIC, command runtime, command issuer and approval governance receive no execution privilege on either verifier capability and no direct DML on `s2a_accepted_attestation`. Only the verifier capability receives function execution. Administrative database ownership/superuser trust is outside the ordinary operational-role model.
+
+### V041/V042 hard wall
+
+V041 may canonicalize, resolve durable evidence, lock/read V040 governance, verify Ed25519 through Java 21 JCA, append immutable accepted evidence, or return an exact replay receipt. It may not create or mutate:
+
+```text
+s2a_attestation_consumption
+command_principal
+command_credential_revision
+command_permission_grant
+command_authority_operation
+marketplace_transaction_identity_decision
+marketplace_transaction_identity_head
+command_authority_operation.attestation_manifest_id
+execution eligibility
+issuer replacement capability
+credential or private-key material
+```
+
+Before any V042 consumption or command-authority effect, V042 must independently reconstruct the immutable artifact, recompute manifest and SPKI fingerprints, reconstruct the signature preimage, verify Ed25519 using Java 21 JCA, and re-resolve execution-time key, authority, approval-window, target and evidence eligibility. Any failure leaves consumption and command-authority deltas at zero.
+
+```text
+POSTGRES_ED25519_AUTHORITY=NO
+JAVA_21_JCA_ED25519_AUTHORITY=YES
+COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
+V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
+```
+
+### Preserved golden vectors
+
+The complete canonical hexadecimal fixtures earlier in this specification remain normative and byte-for-byte unchanged. They must be copied into tests verbatim, never reconstructed or regenerated as expected data.
+
+```text
+MANIFEST_V1_BYTES=793
+MANIFEST_V1_SHA256=209c15498e4da3568d52e44e121515457b4001e478221002c4b4e3c04184a8d0
+
+SIGNATURE_PREIMAGE_V1_BYTES=222
+SIGNATURE_PREIMAGE_V1_SHA256=d011a3dd9a4eca3f07be18bacdb32720effba0babad1b80814156bb20d9bcfa2
+
+ACCEPTED_PROOF_V1_BYTES=1596
+ACCEPTED_PROOF_V1_SHA256=9bf856a724a921d7a63a87c551fdcf82e896fb13b184c785909269ecdbe685b9
+
+EVIDENCE_BINDING_V1_BYTES=529
+EVIDENCE_BINDING_V1_SHA256=9f61859daa192ae3482ad3dbb28cd7ebb5d2f143cdb6e83092054a80b512e965
+```
+
+### Consolidated adversarial test contract
+
+The implementation must test:
+
+- all frozen golden vectors and JVM/database non-cryptographic parity;
+- every manifest and evidence semantic-field mutation;
+- null/present framing and boundary-collision attempts;
+- malformed Unicode, NFC, UUID, enum, timestamp and base64url forms;
+- valid signature, wrong signature, wrong public key and one-bit signature mutation;
+- persistence invocation count zero and accepted-row delta zero after JCA failure;
+- manifest digest, signature-preimage, SPKI fingerprint and accepted-proof recomputation;
+- first acceptance, exact replay, conflicting replay and rollback;
+- identical and conflicting concurrent submissions with bounded no-deadlock behavior;
+- future effective key, the exact `effective_at` transition, non-monotonic `effective_at`, missing effective key and terminal effective key;
+- missing, forked, discontinuous or ambiguous key and authority lineages;
+- authority/effective-key revision and fingerprint mismatch as scope denial;
+- organization-disable races in both serialization orders and historical replay after disable;
+- missing and unknown SQLSTATE `DETAIL` values, which must be rethrown;
+- multiple eligible Mercado Livre occurrences, deterministic selection, and a corrupt non-selected occurrence;
+- missing Omie sidecar/page commit/progress, incomplete pages, malformed provider times, maximum-revision conflict and deterministic equivalent selection;
+- null Omie currency as absence and non-null cross-source currency conflict;
+- evidence-binding mismatch before acceptance;
+- verifier role graph contamination, PUBLIC/runtime/issuer/governance execution denial and direct-table DML denial;
+- accepted-table update/delete immutability;
+- zero row and semantic deltas in every forbidden command-authority table for success, denial, replay, conflict, rollback and concurrency.
+
+Database tests cover non-cryptographic structure, governance, serialization, canonical integrity, replay, privileges and immutability. They must not claim that PostgreSQL verifies Ed25519.

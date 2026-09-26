@@ -1167,3 +1167,26 @@ JAVA_21_JCA_ED25519_AUTHORITY=YES
 V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
 COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
 ```
+
+## Consolidated V041 implementation-exact closure (Revisions 7-7.3)
+
+This section is the controlling V041 decision. Earlier revision sections remain historical evidence; where wording conflicts, this consolidated contract governs.
+
+V040 owns append-only approval governance. V041 verifies and retains immutable accepted-attestation evidence. V042 is the first boundary permitted to consume an attestation or link it to command authority.
+
+The V041 trusted computing boundary is the dedicated verifier process, Java 21 JCA Ed25519 verification, the `flooow_attestation_verifier` database capability, one `READ_COMMITTED` JDBC transaction, and the locked V040 governance snapshot. PostgreSQL governs serialization, currentness, canonical non-cryptographic integrity, replay and immutability; it does not verify Ed25519.
+
+Within the one transaction V041 locks the organization `FOR SHARE`, the manifest advisory resource, the V040 signer-key resource and the V040 authority-scope resource. It validates durable Mercado Livre and Omie evidence, resolves the highest signer-key revision with `effective_at <= verifiedAt`, requires that effective revision to be `ACTIVE`, and requires the unique current enabled signer authority to bind that exact key revision and fingerprint. An otherwise valid authority/key mismatch is a scope denial, not an authority-lineage conflict.
+
+First acceptance requires an existing `ACTIVE` organization. A disable committed before the organization lock denies a new acceptance; if V041 first holds the shared lock while the organization is active, the acceptance may complete and the disable waits. Exact historical replay requires the organization identity to remain present but does not require current active status. Replay reuses stored timestamps, revalidates retained governance and evidence, reruns Java JCA, and performs no write.
+
+`flooow_attestation_verifier` is an isolated `NOLOGIN NOINHERIT` capability. V041 creates no production login, credential or role membership, and grants neither verifier capability to PUBLIC, governance, issuer or runtime roles. No provider or network call occurs while locks are held.
+
+V041 cannot consume an attestation, create or mutate command principals, credentials, grants, authority operations or transaction-identity decisions, establish execution eligibility, or install issuer replacement authority. Before any such V042 effect, V042 must independently reconstruct the artifact, verify Ed25519 with Java 21 JCA, and revalidate execution-time governance, scope, evidence and approval-window eligibility. Failure leaves both consumption and command-authority deltas at zero.
+
+```text
+POSTGRES_ED25519_AUTHORITY=NO
+JAVA_21_JCA_ED25519_AUTHORITY=YES
+COMMAND_AUTHORITY_EFFECT_IN_V041=ZERO
+V042_MUST_DENY_UNLESS_INDEPENDENT_REVERIFICATION_PASSES=YES
+```
