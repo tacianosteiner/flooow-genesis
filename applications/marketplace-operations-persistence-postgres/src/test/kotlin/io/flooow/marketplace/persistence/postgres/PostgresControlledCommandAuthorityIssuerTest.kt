@@ -24,7 +24,9 @@ class PostgresControlledCommandAuthorityIssuerTest {
     private fun token(id: UUID=credential, byte: Byte=1) = "fc1.$id." + Base64.getUrlEncoder().withoutPadding().encodeToString(ByteArray(32){byte})
     private fun credential(id: UUID=credential, byte: Byte=1) = assertNotNull(CommandCredential.parse(token(id,byte)))
     private fun orgId() = OrganizationId.parse(org.toString())
-    private fun issuer() = PostgresControlledCommandAuthorityIssuer(roleDataSource("flooow_command_issuer"))
+    private fun deployedIssuer() = PostgresControlledCommandAuthorityIssuer(roleDataSource("flooow_command_issuer"))
+    /** Historical/synthetic substrate only. Owner execution is not deployment-equivalent post-V042. */
+    private fun historicalIssuer() = PostgresControlledCommandAuthorityIssuer(ownerDataSource())
     private fun update(sql:String,vararg values:Any?) = connection().use { c -> c.prepareStatement(sql).use { s -> values.forEachIndexed{i,v->s.setObject(i+1,v)};s.executeUpdate() } }
 
     @BeforeTest fun start() { db=PostgreSQLContainer("postgres:18.4");db.start();Flyway.configure().dataSource(db.jdbcUrl,db.username,db.password).load().migrate() }
@@ -38,8 +40,8 @@ class PostgresControlledCommandAuthorityIssuerTest {
     private fun bind(operation:UUID=UUID.randomUUID(), byte:Byte=1) = InitialCredentialBinding(operation,orgId(),CommandPrincipalId(principal),credential(credential,byte),"approved","synthetic",UUID.randomUUID())
     private fun grant(operation:UUID=UUID.randomUUID()) = PermissionGrant(operation,orgId(),CommandPrincipalId(principal),grant,CommandPermission.TRANSACTION_IDENTITY_DECISION_WRITE,"approved","synthetic",UUID.randomUUID())
 
-    @Test fun `issuer provisions synthetic lineage and authorization interoperates without exposing secret`() {
-        fixture(); val issuer=issuer()
+    @Test fun `historical owner seam provisions synthetic lineage without exposing secret`() {
+        fixture(); val issuer=historicalIssuer()
         assertIs<ControlledAuthorityResult.Applied>(issuer.issuePrincipal(principalRequest()))
         val bound=assertIs<ControlledAuthorityResult.Applied>(issuer.bindInitialCredential(bind()))
         val enabled=assertIs<ControlledAuthorityResult.Applied>(issuer.grantPermission(grant()))
@@ -53,8 +55,8 @@ class PostgresControlledCommandAuthorityIssuerTest {
         assertEquals(0, count("marketplace_transaction_identity_decision"))
     }
 
-    @Test fun `operation replay rotation revocation and changed intent fail closed`() {
-        fixture(); val issuer=issuer(); val principalOp=UUID.randomUUID(); val request=principalRequest(principalOp)
+    @Test fun `historical owner seam preserves operation replay rotation and revocation semantics`() {
+        fixture(); val issuer=historicalIssuer(); val principalOp=UUID.randomUUID(); val request=principalRequest(principalOp)
         assertIs<ControlledAuthorityResult.Applied>(issuer.issuePrincipal(request))
         assertIs<ControlledAuthorityResult.AlreadyApplied>(issuer.issuePrincipal(request))
         assertEquals(ControlledAuthorityResult.IntegrityFailure,issuer.issuePrincipal(request.copy(reason="different")))
@@ -74,34 +76,46 @@ class PostgresControlledCommandAuthorityIssuerTest {
             assertFailsWith<SQLException> { c.createStatement().executeUpdate("INSERT INTO command_principal VALUES ('$org','$principal','$ml','$omie','x','x','${UUID.randomUUID()}',now())") }
         }
         roleDataSource("flooow_command_issuer").connection.use { c ->
+            assertFailsWith<SQLException> { c.createStatement().executeUpdate("INSERT INTO command_principal VALUES ('$org','$principal','$ml','$omie','x','x','${UUID.randomUUID()}',now())") }
             assertFailsWith<SQLException> { c.createStatement().executeUpdate("INSERT INTO marketplace_transaction_identity_head VALUES ('$org','$omie','x','${UUID.randomUUID()}','${UUID.randomUUID()}','CONFIRMED')") }
         }
     }
 
-    @Test fun `concurrent principal attempts serialize to one immutable root`() {
+    @Test fun `post V042 deployed legacy issuer fails closed without partial authority`() {
+        fixture()
+        val before = authorityCounts()
+        assertEquals(ControlledAuthorityResult.AuthorityUnavailable, deployedIssuer().issuePrincipal(principalRequest()))
+        assertEquals(before, authorityCounts())
+        assertEquals(0, count("command_principal"))
+        assertEquals(0, count("command_credential_revision"))
+        assertEquals(0, count("command_permission_grant"))
+        assertEquals(0, count("command_authority_operation"))
+    }
+
+    @Test fun `historical owner concurrent principal attempts serialize to one immutable root`() {
         fixture();val executor=Executors.newFixedThreadPool(2)
-        try { val a=executor.submit<ControlledAuthorityResult>{issuer().issuePrincipal(principalRequest())};val b=executor.submit<ControlledAuthorityResult>{issuer().issuePrincipal(principalRequest())}
+        try { val a=executor.submit<ControlledAuthorityResult>{historicalIssuer().issuePrincipal(principalRequest())};val b=executor.submit<ControlledAuthorityResult>{historicalIssuer().issuePrincipal(principalRequest())}
             val results=listOf(a.get(),b.get());assertEquals(1,results.count{it is ControlledAuthorityResult.Applied});assertEquals(1,results.count{it is ControlledAuthorityResult.IntegrityFailure});assertEquals(1,count("command_principal"))
         } finally {executor.shutdownNow()}
     }
 
-    @Test fun `concurrent initial bindings serialize to one credential lineage`() {
-        fixture(); val service=issuer(); assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest()))
+    @Test fun `historical owner concurrent initial bindings serialize to one credential lineage`() {
+        fixture(); val service=historicalIssuer(); assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest()))
         val executor=Executors.newFixedThreadPool(2)
         try { val a=executor.submit<ControlledAuthorityResult>{service.bindInitialCredential(bind(UUID.randomUUID(),1))};val b=executor.submit<ControlledAuthorityResult>{service.bindInitialCredential(InitialCredentialBinding(UUID.randomUUID(),orgId(),CommandPrincipalId(principal),credential(UUID.randomUUID(),2),"approved","synthetic",UUID.randomUUID()))}
             val results=listOf(a.get(),b.get());assertEquals(1,results.count{it is ControlledAuthorityResult.Applied});assertEquals(1,results.count{it is ControlledAuthorityResult.IntegrityFailure});assertEquals(1,count("command_credential_revision"))
         } finally {executor.shutdownNow()}
     }
 
-    @Test fun `concurrent rotations are linearized on one credential lineage and replay is nonsecret`() {
-        fixture(); val service=issuer(); val initial=bind()
+    @Test fun `historical owner concurrent rotations remain linearized and replay is nonsecret`() {
+        fixture(); val service=historicalIssuer(); val initial=bind()
         assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest()))
         assertIs<ControlledAuthorityResult.Applied>(service.bindInitialCredential(initial))
         val first=CredentialRotation(UUID.randomUUID(),orgId(),CommandPrincipalId(principal),credential(credential,2),"rotate-a","synthetic",UUID.randomUUID())
         val second=CredentialRotation(UUID.randomUUID(),orgId(),CommandPrincipalId(principal),credential(credential,3),"rotate-b","synthetic",UUID.randomUUID())
         val executor=Executors.newFixedThreadPool(2)
         try {
-            val a=executor.submit<ControlledAuthorityResult>{issuer().rotateCredential(first)}; val b=executor.submit<ControlledAuthorityResult>{issuer().rotateCredential(second)}
+            val a=executor.submit<ControlledAuthorityResult>{historicalIssuer().rotateCredential(first)}; val b=executor.submit<ControlledAuthorityResult>{historicalIssuer().rotateCredential(second)}
             val results=listOf(a.get(),b.get())
             assertEquals(2,results.count { it is ControlledAuthorityResult.Applied })
             assertIs<ControlledAuthorityResult.AlreadyApplied>(service.rotateCredential(first))
@@ -112,13 +126,13 @@ class PostgresControlledCommandAuthorityIssuerTest {
         } finally { executor.shutdownNow() }
     }
 
-    @Test fun `grant enable versus revoke serializes with one current disabled leaf`() {
-        fixture(); val service=issuer(); assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest())); assertIs<ControlledAuthorityResult.Applied>(service.grantPermission(grant()))
+    @Test fun `historical owner grant versus revoke serializes with one disabled leaf`() {
+        fixture(); val service=historicalIssuer(); assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest())); assertIs<ControlledAuthorityResult.Applied>(service.grantPermission(grant()))
         val revoke=PermissionRevocation(UUID.randomUUID(),orgId(),CommandPrincipalId(principal),UUID.randomUUID(),grant,CommandPermission.TRANSACTION_IDENTITY_DECISION_WRITE,"revoke","synthetic",UUID.randomUUID())
         val conflicting=PermissionGrant(UUID.randomUUID(),orgId(),CommandPrincipalId(principal),UUID.randomUUID(),CommandPermission.TRANSACTION_IDENTITY_DECISION_WRITE,"grant-again","synthetic",UUID.randomUUID())
         val executor=Executors.newFixedThreadPool(2)
         try {
-            val a=executor.submit<ControlledAuthorityResult>{issuer().revokePermission(revoke)}; val b=executor.submit<ControlledAuthorityResult>{issuer().grantPermission(conflicting)}
+            val a=executor.submit<ControlledAuthorityResult>{historicalIssuer().revokePermission(revoke)}; val b=executor.submit<ControlledAuthorityResult>{historicalIssuer().grantPermission(conflicting)}
             val results=listOf(a.get(),b.get())
             assertEquals(1,results.count { it is ControlledAuthorityResult.Applied }); assertEquals(1,results.count { it is ControlledAuthorityResult.IntegrityFailure })
             assertIs<ControlledAuthorityResult.AlreadyApplied>(service.revokePermission(revoke))
@@ -128,21 +142,21 @@ class PostgresControlledCommandAuthorityIssuerTest {
         } finally { executor.shutdownNow() }
     }
 
-    @Test fun `operation ledger rejects cross tenant and malformed shape without partial authority`() {
-        fixture(); val service=issuer(); val issued=assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest()))
+    @Test fun `historical owner ledger rejects cross tenant and malformed shape without partial authority`() {
+        fixture(); val service=historicalIssuer(); val issued=assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest()))
         val otherOrg=UUID.randomUUID(); val otherMl=UUID.randomUUID(); val otherOmie=UUID.randomUUID()
         update("INSERT INTO integration_organization VALUES (?,'ACTIVE',now(),now())",otherOrg)
         update("INSERT INTO integration_connection VALUES (?,?,'br.com.mercadolivre','OAUTH2_AUTHORIZATION_CODE','REVOKED',1,now(),now())",otherOrg,otherMl)
         update("INSERT INTO integration_connection VALUES (?,?,'omie','STATIC_API_CREDENTIAL','SUSPENDED',1,now(),now())",otherOrg,otherOmie)
         val cross=PrincipalIssuance(issued.receipt.operationId,OrganizationId.parse(otherOrg.toString()),CommandPrincipalId(principal),otherMl,otherOmie,"x","synthetic",UUID.randomUUID())
-        assertEquals(ControlledAuthorityResult.IntegrityFailure,issuer().issuePrincipal(cross))
+        assertEquals(ControlledAuthorityResult.IntegrityFailure,historicalIssuer().issuePrincipal(cross))
         assertEquals(1,count("command_principal")); assertEquals(0,connection().use { c -> c.createStatement().executeQuery("SELECT count(*) FROM command_authority_operation WHERE organization_id='$otherOrg'").use { r -> r.next();r.getInt(1) } })
         assertFailsWith<SQLException> { update("INSERT INTO command_authority_operation (organization_id,operation_id,operation,principal_id,credential_revision,intent_fingerprint,receipt_fingerprint,correlation_id) VALUES (?,?,?,?,?,?,?,?)",org,UUID.randomUUID(),"PRINCIPAL",principal,1,"${"a".repeat(64)}","${"b".repeat(64)}",UUID.randomUUID()) }
         assertEquals(1,count("command_authority_operation"))
     }
 
-    @Test fun `ledger operation shapes are exclusive under direct SQL including null and hybrid attacks`() {
-        fixture(); val service=issuer(); assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest())); assertIs<ControlledAuthorityResult.Applied>(service.bindInitialCredential(bind())); assertIs<ControlledAuthorityResult.Applied>(service.grantPermission(grant()))
+    @Test fun `historical owner ledger shapes remain exclusive including null and hybrid attacks`() {
+        fixture(); val service=historicalIssuer(); assertIs<ControlledAuthorityResult.Applied>(service.issuePrincipal(principalRequest())); assertIs<ControlledAuthorityResult.Applied>(service.bindInitialCredential(bind())); assertIs<ControlledAuthorityResult.Applied>(service.grantPermission(grant()))
         fun rejected(operation:String, credentialId:UUID?=null, credentialRevision:Int?=null, grantId:UUID?=null, grantRevision:Int?=null, permission:String?=null, state:String?=null) {
             val failure=assertFailsWith<SQLException> { update("INSERT INTO command_authority_operation (organization_id,operation_id,operation,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,state,intent_fingerprint,receipt_fingerprint,correlation_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",org,UUID.randomUUID(),operation,principal,credentialId,credentialRevision,grantId,grantRevision,permission,state,"${"a".repeat(64)}","${"b".repeat(64)}",UUID.randomUUID()) }
             assertEquals("23514",failure.sqlState)
@@ -157,6 +171,8 @@ class PostgresControlledCommandAuthorityIssuerTest {
     }
 
     private fun count(table:String)=connection().use{c->c.createStatement().use{s->s.executeQuery("SELECT count(*) FROM $table").use{r->r.next();r.getInt(1)}}}
+    private fun authorityCounts() = listOf("command_principal", "command_credential_revision", "command_permission_grant", "command_authority_operation").map(::count)
+    private fun ownerDataSource():DataSource { val base=PGSimpleDataSource();base.setURL(db.jdbcUrl);base.user=db.username;base.password=db.password;return base }
     private fun roleDataSource(role:String):DataSource { val base=PGSimpleDataSource();base.setURL(db.jdbcUrl);base.user=db.username;base.password=db.password
         return object:DataSource {
             override fun getConnection():Connection=base.connection.also{it.createStatement().use{s->s.execute("SET ROLE $role")}}

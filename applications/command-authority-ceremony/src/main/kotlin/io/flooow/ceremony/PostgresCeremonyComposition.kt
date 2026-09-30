@@ -1,22 +1,26 @@
 ﻿package io.flooow.ceremony
 
+import io.flooow.marketplace.operations.authorization.ApprovalManifest
 import io.flooow.marketplace.operations.authorization.AuthenticatedCommand
 import io.flooow.marketplace.operations.identity.TransactionIdentityCommand
 import io.flooow.marketplace.operations.identity.TransactionIdentityWriteResult
+import io.flooow.marketplace.persistence.postgres.PostgresAcceptedAttestationVerifier
+import io.flooow.marketplace.persistence.postgres.PostgresAttestedCommandAuthorityIssuer
 import io.flooow.marketplace.persistence.postgres.PostgresCommandAuthorization
-import io.flooow.marketplace.persistence.postgres.PostgresControlledCommandAuthorityIssuer
 import io.flooow.marketplace.persistence.postgres.PostgresTransactionIdentityWriter
 import javax.sql.DataSource
 
 /** Explicitly keeps issuer and runtime connection ownership separate. */
 class PostgresCeremonyComposition(
+    verifierDataSource: DataSource,
     issuerDataSource: DataSource,
     runtimeDataSource: DataSource,
-    private val writeRecord: (java.sql.Connection, AuthenticatedCommand, TransactionIdentityCommand) -> TransactionIdentityWriteResult =
-        { connection, actor, command -> PostgresTransactionIdentityWriter().record(connection, actor, command) }
+    private val writeRecord: (java.sql.Connection, AuthenticatedCommand, TransactionIdentityCommand, ApprovalManifest) -> TransactionIdentityWriteResult =
+        { connection, actor, command, manifest -> PostgresTransactionIdentityWriter().recordAttested(connection, actor, command, manifest) }
 ) {
-    val issuer = PostgresControlledCommandAuthorityIssuer(issuerDataSource)
-    val runtime: RuntimeBoundary = object : RuntimeBoundary {
+    val verifier = PostgresAcceptedAttestationVerifier(verifierDataSource)
+    val issuer = PostgresAttestedCommandAuthorityIssuer(issuerDataSource)
+    val runtime: AttestedRuntimeBoundary = object : AttestedRuntimeBoundary {
         private val authorization = PostgresCommandAuthorization()
         override fun matchesTarget(target: FieldProofTarget): Boolean = runtimeDataSource.connection.use { connection ->
             connection.prepareStatement(
@@ -59,9 +63,12 @@ class PostgresCeremonyComposition(
         }
         override fun authenticate(token: String): AuthenticatedCommand? = runtimeDataSource.connection.use { authorization.authenticate(it, token) }
         override fun write(actor: AuthenticatedCommand, command: TransactionIdentityCommand): TransactionIdentityWriteResult = runtimeDataSource.connection.use { connection ->
+            PostgresTransactionIdentityWriter().record(connection, actor, command)
+        }
+        override fun writeAttested(actor: AuthenticatedCommand, command: TransactionIdentityCommand, manifest: ApprovalManifest): TransactionIdentityWriteResult = runtimeDataSource.connection.use { connection ->
             connection.autoCommit = false
             try {
-                val result = writeRecord(connection, actor, command)
+                val result = writeRecord(connection, actor, command, manifest)
                 if (result is TransactionIdentityWriteResult.Applied || result is TransactionIdentityWriteResult.AlreadyApplied) connection.commit() else connection.rollback()
                 result
             } catch (failure: Throwable) { connection.rollback(); throw failure }

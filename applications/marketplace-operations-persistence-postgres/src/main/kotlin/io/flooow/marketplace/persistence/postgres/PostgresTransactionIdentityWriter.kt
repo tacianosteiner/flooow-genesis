@@ -5,6 +5,7 @@ import io.flooow.marketplace.operations.identity.*
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -15,7 +16,22 @@ private const val OMIE_V3 = "marketplace-economic.omie-transaction-evidence.reac
 class PostgresTransactionIdentityWriter {
     private val authorization = PostgresCommandAuthorization()
 
-    fun record(c: Connection, actor: AuthenticatedCommand, command: TransactionIdentityCommand): TransactionIdentityWriteResult {
+    fun record(c: Connection, actor: AuthenticatedCommand, command: TransactionIdentityCommand): TransactionIdentityWriteResult =
+        record(c, actor, command, null)
+
+    fun recordAttested(
+        c: Connection,
+        actor: AuthenticatedCommand,
+        command: TransactionIdentityCommand,
+        manifest: ApprovalManifest
+    ): TransactionIdentityWriteResult = record(c, actor, command, manifest)
+
+    private fun record(
+        c: Connection,
+        actor: AuthenticatedCommand,
+        command: TransactionIdentityCommand,
+        manifest: ApprovalManifest?
+    ): TransactionIdentityWriteResult {
         val permission = CommandPermission.TRANSACTION_IDENTITY_DECISION_WRITE
         val first = authorization.authorizeForWrite(c, actor, permission)
         if (first is CommandAuthorizationResult.Denied) return failed(TransactionIdentityFailure.AUTHORIZATION_DENIED)
@@ -87,13 +103,20 @@ class PostgresTransactionIdentityWriter {
                 OMIE_V3, omie.progress, omie.ordinal, omie.semantic, max, actor.principalId.value, actor.credentialId,
                 actor.credentialRevision, lineage.grantId, lineage.grantRevision, lineage.permission.name, lineage.semanticVersion,
                 lineage.semanticFingerprint, intent, semantic, command.provenance, command.correlationId)
-            return applyLegacyUnlinkedDecision(c, values)
+            return if (manifest == null) applyLegacyUnlinkedDecision(c, values) else applyAttestedDecision(c, values, manifest, final.lineage)
         } catch (e: SQLException) {
             return when (e.sqlState) {
                 "P0002" -> failed(TransactionIdentityFailure.EVIDENCE_UNAVAILABLE)
                 "P0010" -> failed(TransactionIdentityFailure.CURRENTNESS_UNPROVEN)
                 "P0011", "23505" -> failed(TransactionIdentityFailure.CONFLICT)
                 "P0012" -> failed(TransactionIdentityFailure.AUTHORIZATION_DENIED)
+                "P0015" -> failed(TransactionIdentityFailure.GOVERNANCE_UNAVAILABLE)
+                "P0016" -> failed(TransactionIdentityFailure.GOVERNANCE_CONFLICT)
+                "P0017" -> when ((e as? org.postgresql.util.PSQLException)?.serverErrorMessage?.detail) {
+                    "SCOPE_MISMATCH" -> failed(TransactionIdentityFailure.SCOPE_MISMATCH)
+                    "EXPIRED_OR_NOT_YET_VALID" -> failed(TransactionIdentityFailure.EXPIRED_OR_NOT_YET_VALID)
+                    else -> failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
+                }
                 "P0018", "23514", "23503", "23502" -> failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
                 else -> throw e // Infrastructure/deadlock/serialization is not an ordinary identity result.
             }
@@ -251,6 +274,84 @@ class PostgresTransactionIdentityWriter {
         return applyLegacyUnlinkedDecision(c, values)
     }
 
+    private fun applyAttestedDecision(
+        connection: Connection,
+        decisionValues: List<Any?>,
+        manifest: ApprovalManifest,
+        lineage: CommandAuthorizationLineage
+    ): TransactionIdentityWriteResult {
+        require(decisionValues.size == LEGACY_DECISION_INPUT_COUNT)
+        val beginValues = buildList {
+            add(decisionValues[0]); add(decisionValues[20]); add(lineage.grantId); add(lineage.grantRevision)
+            add(decisionValues[1]); add(decisionValues[2]); add(decisionValues[3]); add(decisionValues[4])
+            addManifest(manifest)
+        }
+        check(beginValues.size == ATTESTED_BEGIN_INPUT_COUNT)
+        val snapshot = connection.prepareStatement(ATTESTED_BEGIN_SQL).use { statement ->
+            beginValues.forEachIndexed { index, value -> statement.setObject(index + 1, value) }
+            statement.executeQuery().use { rows ->
+                check(rows.next()) { "Attested decision BEGIN returned no snapshot" }
+                val value = ImmutableAcceptedAttestationSnapshot.fromV042(rows)
+                check(!rows.next()) { "Attested decision BEGIN returned multiple snapshots" }
+                value
+            }
+        }
+        ImmutableAcceptedAttestationVerifier.verify(manifest, snapshot)?.let { failure ->
+            return failed(failure.toTransactionIdentityFailure())
+        }
+        val applyValues = buildList {
+            addAll(decisionValues)
+            addManifest(manifest)
+            add(snapshot.artifactVersion); add(snapshot.canonicalizationVersion)
+            add(snapshot.canonicalManifestBytes()); add(snapshot.manifestDigest)
+            add(snapshot.canonicalSignaturePreimageBytes()); add(snapshot.algorithmId)
+            add(snapshot.signerSubjectId); add(snapshot.signerKeyId); add(snapshot.signerKeyRevision)
+            add(snapshot.signerKeyFingerprint); add(snapshot.signerKeyLineageFingerprint)
+            add(snapshot.subjectPublicKeyInfoDer()); add(snapshot.signatureBytes())
+            add(snapshot.signerAuthorityId); add(snapshot.signerAuthorityRevision)
+            add(snapshot.signerAuthorityFingerprint); add(Timestamp.from(snapshot.verifiedAt))
+            add(snapshot.acceptedProofFingerprint); add(snapshot.signedEvidenceBindingFingerprint)
+        }
+        check(applyValues.size == ATTESTED_APPLY_INPUT_COUNT)
+        return connection.prepareStatement(ATTESTED_APPLY_SQL).use { statement ->
+            applyValues.forEachIndexed { index, value -> statement.setObject(index + 1, value) }
+            statement.executeQuery().use { rows ->
+                check(rows.next()) { "Attested decision APPLY returned no result" }
+                val decisionId = rows.getObject("result_decision_id", UUID::class.java)
+                val semanticFingerprint = rows.getString("result_decision_semantic_fingerprint")
+                val result = when (rows.getString("outcome")) {
+                    "APPLIED" -> TransactionIdentityWriteResult.Applied(decisionId, semanticFingerprint)
+                    "ALREADY_APPLIED" -> TransactionIdentityWriteResult.AlreadyApplied(decisionId, semanticFingerprint)
+                    else -> failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
+                }
+                check(!rows.next()) { "Attested decision APPLY returned multiple results" }
+                result
+            }
+        }
+    }
+
+    private fun MutableList<Any?>.addManifest(manifest: ApprovalManifest) {
+        add(manifest.schemaVersion); add(manifest.manifestId); add(manifest.organizationId.value)
+        add(manifest.mercadoLivreConnectionId); add(manifest.omieConnectionId)
+        add(manifest.sourceOrderReference); add(manifest.integrationReference); add(manifest.marketplaceOrderId.value)
+        add(manifest.permission.name); add(manifest.accountableOperator.value); add(manifest.approvalSource.value)
+        add(Timestamp.from(manifest.approvalWindowStart)); add(Timestamp.from(manifest.approvalWindowEnd))
+        add(manifest.revocationOwner.value); add(manifest.credentialCustodian.value)
+        add(manifest.credentialDeliveryMethod.name); add(manifest.credentialRotationOwner.value)
+        add(manifest.immediateRevocationPolicy.name); add(manifest.reason); add(manifest.provenance)
+        add(manifest.correlationId); add(manifest.evidenceBindingFingerprint)
+    }
+
+    private fun AttestedAuthorityFailure.toTransactionIdentityFailure() = when (this) {
+        AttestedAuthorityFailure.INVALID_SIGNATURE -> TransactionIdentityFailure.INVALID_SIGNATURE
+        AttestedAuthorityFailure.UNSUPPORTED_CANONICAL_FORM -> TransactionIdentityFailure.UNSUPPORTED_CANONICAL_FORM
+        AttestedAuthorityFailure.SCOPE_MISMATCH -> TransactionIdentityFailure.SCOPE_MISMATCH
+        AttestedAuthorityFailure.EXPIRED_OR_NOT_YET_VALID -> TransactionIdentityFailure.EXPIRED_OR_NOT_YET_VALID
+        AttestedAuthorityFailure.GOVERNANCE_UNAVAILABLE -> TransactionIdentityFailure.GOVERNANCE_UNAVAILABLE
+        AttestedAuthorityFailure.GOVERNANCE_CONFLICT -> TransactionIdentityFailure.GOVERNANCE_CONFLICT
+        AttestedAuthorityFailure.INTEGRITY_FAILURE -> TransactionIdentityFailure.INTEGRITY_FAILURE
+    }
+
     private fun applyLegacyUnlinkedDecision(
         connection: Connection,
         values: List<Any?>
@@ -335,7 +436,13 @@ class PostgresTransactionIdentityWriter {
 
     private companion object {
         const val LEGACY_DECISION_INPUT_COUNT = 32
+        const val ATTESTED_BEGIN_INPUT_COUNT = 30
+        const val ATTESTED_APPLY_INPUT_COUNT = 73
         val LEGACY_DECISION_SQL =
             "SELECT * FROM public.s2a_v042_apply_legacy_unlinked_decision(${"?,".repeat(LEGACY_DECISION_INPUT_COUNT - 1)}?)"
+        val ATTESTED_BEGIN_SQL =
+            "SELECT * FROM public.s2a_v042_begin_attested_decision_verification(${"?,".repeat(ATTESTED_BEGIN_INPUT_COUNT - 1)}?)"
+        val ATTESTED_APPLY_SQL =
+            "SELECT * FROM public.s2a_v042_apply_attested_decision(${"?,".repeat(ATTESTED_APPLY_INPUT_COUNT - 1)}?)"
     }
 }

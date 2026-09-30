@@ -5,10 +5,8 @@ import io.flooow.organization.OrganizationId
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.sql.PreparedStatement
-import java.sql.ResultSet
 import java.sql.SQLException
 import java.sql.Timestamp
-import java.time.Instant
 import java.util.UUID
 import javax.sql.DataSource
 
@@ -25,58 +23,40 @@ class PostgresAcceptedAttestationVerifier(private val dataSource: DataSource) : 
                     bindEnvelope(statement, attestation, canonicalManifest, manifestDigest)
                     statement.executeQuery().use { rows ->
                         check(rows.next()) { "V041 begin returned no snapshot" }
-                        BeginSnapshot.from(rows)
+                        ImmutableAcceptedAttestationSnapshot.fromV041(
+                            rows,
+                            attestation.manifest,
+                            attestation.algorithmId,
+                            attestation.signatureBytes()
+                        )
                     }
                 }
 
-                val decodedManifest = ApprovalManifestCanonicalCodec.decodeCanonicalManifest(begin.canonicalManifest)
-                val signaturePreimage = ApprovalManifestCanonicalCodec.canonicalSignaturePreimageBytes(
-                    attestation.algorithmId,
-                    attestation.signerKeyId,
-                    attestation.signerKeyFingerprint,
-                    manifestDigest
-                )
-                if (
-                    decodedManifest != attestation.manifest ||
-                    !begin.canonicalManifest.contentEquals(canonicalManifest) ||
-                    begin.manifestDigest != manifestDigest ||
-                    !begin.signaturePreimage.contentEquals(signaturePreimage)
-                ) {
+                val snapshot = begin
+                val verificationFailure =
+                    if (
+                        snapshot.signerKeyId != attestation.signerKeyId.value ||
+                        snapshot.signerKeyFingerprint != attestation.signerKeyFingerprint.value
+                    ) {
+                        AttestedAuthorityFailure.INTEGRITY_FAILURE
+                    } else {
+                        ImmutableAcceptedAttestationVerifier.verify(attestation.manifest, snapshot)
+                    }
+                if (verificationFailure != null) {
                     connection.rollback()
-                    return AcceptedAttestationResult.IntegrityFailure
-                }
-                val publicKey = SignerPublicKeyInfo.parse(begin.subjectPublicKeyInfoDer)
-                if (publicKey.fingerprint() != attestation.signerKeyFingerprint) {
-                    connection.rollback()
-                    return AcceptedAttestationResult.IntegrityFailure
-                }
-                if (!Ed25519ApprovalSignatureVerifier.verify(publicKey, signaturePreimage, attestation.signatureBytes())) {
-                    connection.rollback()
-                    return AcceptedAttestationResult.InvalidSignature
-                }
-                val proof = AcceptedAttestationProof.create(
-                    1, ApprovalManifestCanonicalCodec.CANONICALIZATION_VERSION, canonicalManifest,
-                    manifestDigest, signaturePreimage, attestation.algorithmId, attestation.signerKeyId,
-                    begin.signerKeyRevision, attestation.signerKeyFingerprint,
-                    SignerKeyLineageFingerprint(begin.signerKeyLineageFingerprint), publicKey.bytes(),
-                    attestation.signatureBytes(), SignerAuthorityId(begin.signerAuthorityId), begin.signerAuthorityRevision,
-                    SignerAuthorityFingerprint(begin.signerAuthorityFingerprint), begin.verifiedAt
-                )
-                if (AcceptedAttestationFingerprintCodec.fingerprint(proof) != begin.acceptedProofFingerprint) {
-                    connection.rollback()
-                    return AcceptedAttestationResult.IntegrityFailure
+                    return verificationFailure.toAcceptedResult()
                 }
                 val result = connection.prepareStatement(PERSIST_SQL).use { statement ->
                     var index = bindEnvelope(statement, attestation, canonicalManifest, manifestDigest)
-                    statement.setBytes(index++, begin.signaturePreimage)
-                    statement.setObject(index++, begin.signerSubjectId)
-                    statement.setInt(index++, begin.signerKeyRevision)
-                    statement.setString(index++, begin.signerKeyLineageFingerprint)
-                    statement.setBytes(index++, begin.subjectPublicKeyInfoDer)
-                    statement.setObject(index++, begin.signerAuthorityId)
-                    statement.setInt(index++, begin.signerAuthorityRevision)
-                    statement.setString(index++, begin.signerAuthorityFingerprint)
-                    statement.setString(index, begin.acceptedProofFingerprint)
+                    statement.setBytes(index++, snapshot.canonicalSignaturePreimageBytes())
+                    statement.setObject(index++, snapshot.signerSubjectId)
+                    statement.setInt(index++, snapshot.signerKeyRevision)
+                    statement.setString(index++, snapshot.signerKeyLineageFingerprint)
+                    statement.setBytes(index++, snapshot.subjectPublicKeyInfoDer())
+                    statement.setObject(index++, snapshot.signerAuthorityId)
+                    statement.setInt(index++, snapshot.signerAuthorityRevision)
+                    statement.setString(index++, snapshot.signerAuthorityFingerprint)
+                    statement.setString(index, snapshot.acceptedProofFingerprint)
                     statement.executeQuery().use { rows ->
                         check(rows.next()) { "V041 persistence returned no receipt" }
                         val receipt = AcceptedAttestationReceipt(
@@ -152,22 +132,14 @@ class PostgresAcceptedAttestationVerifier(private val dataSource: DataSource) : 
         }
     }
 
-    private data class BeginSnapshot(
-        val verifiedAt: Instant, val recordedAt: Instant, val canonicalManifest: ByteArray, val manifestDigest: String,
-        val signaturePreimage: ByteArray, val signerSubjectId: UUID, val signerKeyRevision: Int,
-        val signerKeyLineageFingerprint: String, val subjectPublicKeyInfoDer: ByteArray, val signerAuthorityId: UUID,
-        val signerAuthorityRevision: Int, val signerAuthorityFingerprint: String, val acceptedProofFingerprint: String
-    ) {
-        companion object {
-            fun from(r: ResultSet) = BeginSnapshot(
-                r.getTimestamp("result_verified_at").toInstant(), r.getTimestamp("result_recorded_at").toInstant(), r.getBytes("result_canonical_manifest_bytes"),
-                r.getString("result_manifest_digest"), r.getBytes("result_canonical_signature_preimage_bytes"),
-                r.getObject("result_signer_subject_id", UUID::class.java), r.getInt("result_signer_key_revision"),
-                r.getString("result_signer_key_lineage_fingerprint"), r.getBytes("result_subject_public_key_info_der"),
-                r.getObject("result_signer_authority_id", UUID::class.java), r.getInt("result_signer_authority_revision"),
-                r.getString("result_signer_authority_fingerprint"), r.getString("result_accepted_proof_fingerprint")
-            )
-        }
+    private fun AttestedAuthorityFailure.toAcceptedResult(): AcceptedAttestationResult = when (this) {
+        AttestedAuthorityFailure.INVALID_SIGNATURE -> AcceptedAttestationResult.InvalidSignature
+        AttestedAuthorityFailure.UNSUPPORTED_CANONICAL_FORM -> AcceptedAttestationResult.UnsupportedCanonicalForm
+        AttestedAuthorityFailure.SCOPE_MISMATCH -> AcceptedAttestationResult.ScopeMismatch
+        AttestedAuthorityFailure.EXPIRED_OR_NOT_YET_VALID -> AcceptedAttestationResult.ExpiredOrNotYetValid
+        AttestedAuthorityFailure.GOVERNANCE_UNAVAILABLE -> AcceptedAttestationResult.GovernanceUnavailable
+        AttestedAuthorityFailure.GOVERNANCE_CONFLICT -> AcceptedAttestationResult.GovernanceConflict
+        AttestedAuthorityFailure.INTEGRITY_FAILURE -> AcceptedAttestationResult.IntegrityFailure
     }
 
     private companion object {
