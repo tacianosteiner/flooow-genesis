@@ -46,7 +46,7 @@ class PostgresAcceptedAttestationVerifierTest {
         assertEquals(21, columnCount("s2a_signer_authority_revision"))
         assertEquals(21, columnCount("s2a_accepted_attestation"))
         assertEquals(EXPECTED_COLUMNS, columnNames("s2a_accepted_attestation"))
-        assertEquals(0, scalar("SELECT count(*) FROM pg_class WHERE relname='s2a_attestation_consumption'"))
+        assertEquals(1, scalar("SELECT count(*) FROM pg_class WHERE relname='s2a_attestation_consumption'"))
         assertEquals(1, scalar("SELECT count(*) FROM pg_roles WHERE rolname='flooow_attestation_verifier' AND NOT rolcanlogin AND NOT rolinherit"))
         assertEquals(0, scalar("SELECT count(*) FROM pg_auth_members WHERE roleid='flooow_attestation_verifier'::regrole OR member='flooow_attestation_verifier'::regrole"))
         assertEquals(0, scalar("SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND tablename='s2a_accepted_attestation' AND indexname NOT IN (SELECT indexrelid::regclass::text FROM pg_index WHERE indrelid='public.s2a_accepted_attestation'::regclass AND indisprimary)"))
@@ -1421,8 +1421,8 @@ class PostgresAcceptedAttestationVerifierTest {
     fun `V041 invalid JCA verification never reaches persistence`() {
         installFixture()
 
-        val forbiddenBefore =
-            forbiddenCounts()
+        val durableBefore =
+            cryptoEffectCounts()
 
         update(
             "REVOKE EXECUTE ON FUNCTION $PERSIST_SIGNATURE FROM flooow_attestation_verifier"
@@ -1470,6 +1470,25 @@ class PostgresAcceptedAttestationVerifierTest {
             )
         )
 
+        val originalPreimage =
+            signed(
+                manifest().copy(
+                    manifestId = syntheticUuid(1082)
+                )
+            )
+        val changedPreimage =
+            SignedApprovalAttestation.parse(
+                originalPreimage.manifest.copy(reason = "changed canonical preimage"),
+                originalPreimage.algorithmId,
+                originalPreimage.signerKeyId,
+                originalPreimage.signerKeyFingerprint,
+                Base64.getUrlEncoder().withoutPadding().encodeToString(originalPreimage.signatureBytes())
+            )
+
+        assertEquals(
+            AcceptedAttestationResult.InvalidSignature,
+            verifier().verify(changedPreimage)
+        )
         assertEquals(
             0,
             tableCount(
@@ -1478,8 +1497,8 @@ class PostgresAcceptedAttestationVerifierTest {
         )
 
         assertEquals(
-            forbiddenBefore,
-            forbiddenCounts()
+            durableBefore,
+            cryptoEffectCounts()
         )
     }
 
@@ -1915,6 +1934,17 @@ class PostgresAcceptedAttestationVerifierTest {
             "marketplace_transaction_identity_head"
         ).associateWith(::tableCount)
 
+    private fun cryptoEffectCounts() =
+        listOf(
+            "s2a_accepted_attestation",
+            "s2a_attestation_consumption",
+            "command_principal",
+            "command_credential_revision",
+            "command_permission_grant",
+            "command_authority_operation",
+            "marketplace_transaction_identity_decision",
+            "marketplace_transaction_identity_head"
+        ).associateWith(::tableCount)
     private fun functionDefinition(name: String): String =
         connection().use { c ->
             c.prepareStatement(

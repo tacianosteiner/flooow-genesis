@@ -28,16 +28,37 @@ class PostgresAcceptedAttestationVerifier(private val dataSource: DataSource) : 
                         BeginSnapshot.from(rows)
                     }
                 }
+
+                val decodedManifest = ApprovalManifestCanonicalCodec.decodeCanonicalManifest(begin.canonicalManifest)
+                val signaturePreimage = ApprovalManifestCanonicalCodec.canonicalSignaturePreimageBytes(
+                    attestation.algorithmId,
+                    attestation.signerKeyId,
+                    attestation.signerKeyFingerprint,
+                    manifestDigest
+                )
+                if (
+                    decodedManifest != attestation.manifest ||
+                    !begin.canonicalManifest.contentEquals(canonicalManifest) ||
+                    begin.manifestDigest != manifestDigest ||
+                    !begin.signaturePreimage.contentEquals(signaturePreimage)
+                ) {
+                    connection.rollback()
+                    return AcceptedAttestationResult.IntegrityFailure
+                }
                 val publicKey = SignerPublicKeyInfo.parse(begin.subjectPublicKeyInfoDer)
-                if (!Ed25519ApprovalSignatureVerifier.verify(publicKey, begin.signaturePreimage, attestation.signatureBytes())) {
+                if (publicKey.fingerprint() != attestation.signerKeyFingerprint) {
+                    connection.rollback()
+                    return AcceptedAttestationResult.IntegrityFailure
+                }
+                if (!Ed25519ApprovalSignatureVerifier.verify(publicKey, signaturePreimage, attestation.signatureBytes())) {
                     connection.rollback()
                     return AcceptedAttestationResult.InvalidSignature
                 }
                 val proof = AcceptedAttestationProof.create(
-                    1, ApprovalManifestCanonicalCodec.CANONICALIZATION_VERSION, begin.canonicalManifest,
-                    begin.manifestDigest, begin.signaturePreimage, attestation.algorithmId, attestation.signerKeyId,
+                    1, ApprovalManifestCanonicalCodec.CANONICALIZATION_VERSION, canonicalManifest,
+                    manifestDigest, signaturePreimage, attestation.algorithmId, attestation.signerKeyId,
                     begin.signerKeyRevision, attestation.signerKeyFingerprint,
-                    SignerKeyLineageFingerprint(begin.signerKeyLineageFingerprint), begin.subjectPublicKeyInfoDer,
+                    SignerKeyLineageFingerprint(begin.signerKeyLineageFingerprint), publicKey.bytes(),
                     attestation.signatureBytes(), SignerAuthorityId(begin.signerAuthorityId), begin.signerAuthorityRevision,
                     SignerAuthorityFingerprint(begin.signerAuthorityFingerprint), begin.verifiedAt
                 )

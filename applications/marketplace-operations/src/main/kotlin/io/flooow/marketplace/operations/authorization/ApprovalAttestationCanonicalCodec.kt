@@ -36,6 +36,39 @@ object ApprovalManifestCanonicalCodec {
 
     fun manifestDigest(canonicalManifestBytes: ByteArray): String = sha256(canonicalManifestBytes)
 
+    /** Strict inverse of [canonicalManifestBytes].  It accepts no alternate wire form. */
+    fun decodeCanonicalManifest(bytes: ByteArray): ApprovalManifest {
+        val reader = CanonicalReader(bytes)
+        require(reader.text() == MANIFEST_DOMAIN)
+        val manifest = ApprovalManifest(
+            schemaVersion = reader.integer(),
+            manifestId = reader.uuid(),
+            organizationId = OrganizationId(reader.uuid()),
+            mercadoLivreConnectionId = reader.uuid(),
+            omieConnectionId = reader.uuid(),
+            sourceOrderReference = reader.text(),
+            integrationReference = reader.text(),
+            marketplaceOrderId = MarketplaceOrderId(reader.uuid()),
+            permission = SignerApprovalPermission.valueOf(reader.text()),
+            accountableOperator = GovernanceSubjectId(reader.uuid()),
+            approvalSource = GovernanceSourceId(reader.uuid()),
+            approvalWindowStart = reader.instant(),
+            approvalWindowEnd = reader.instant(),
+            revocationOwner = GovernanceSubjectId(reader.uuid()),
+            credentialCustodian = GovernanceSubjectId(reader.uuid()),
+            credentialDeliveryMethod = CredentialDeliveryMethod.valueOf(reader.text()),
+            credentialRotationOwner = GovernanceSubjectId(reader.uuid()),
+            immediateRevocationPolicy = ImmediateRevocationPolicy.valueOf(reader.text()),
+            reason = reader.text(),
+            provenance = reader.text(),
+            correlationId = reader.uuid(),
+            evidenceBindingFingerprint = reader.text()
+        )
+        require(reader.exhausted()) { "Canonical manifest has trailing bytes" }
+        require(canonicalManifestBytes(manifest).contentEquals(bytes)) { "Canonical manifest does not round-trip" }
+        return manifest
+    }
+
     fun canonicalSignaturePreimageBytes(
         algorithmId: String,
         signerKeyId: SignerKeyId,
@@ -161,5 +194,58 @@ private class CanonicalWriter {
         private val INSTANT = DateTimeFormatterBuilder().appendInstant(6).toFormatter()
         private val LOCAL = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSSSS")
         fun record(domain: String, fields: CanonicalWriter.() -> Unit): ByteArray = CanonicalWriter().apply { text(domain); fields() }.output.toByteArray()
+    }
+}
+
+private class CanonicalReader(private val source: ByteArray) {
+    private var position = 0
+
+    fun exhausted() = position == source.size
+
+    fun text(): String {
+        require(position + Int.SIZE_BYTES <= source.size) { "Truncated canonical frame" }
+        val length = ByteBuffer.wrap(source, position, Int.SIZE_BYTES).int
+        position += Int.SIZE_BYTES
+        require(length >= 0 && length <= source.size - position) { "Invalid canonical frame length" }
+        val value = source.copyOfRange(position, position + length)
+        position += length
+        val decoded = try {
+            StandardCharsets.UTF_8.newDecoder()
+                .onMalformedInput(CodingErrorAction.REPORT)
+                .onUnmappableCharacter(CodingErrorAction.REPORT)
+                .decode(ByteBuffer.wrap(value)).toString()
+        } catch (failure: java.nio.charset.CharacterCodingException) {
+            throw IllegalArgumentException("Malformed canonical UTF-8", failure)
+        }
+        require(decoded.toByteArray(StandardCharsets.UTF_8).contentEquals(value)) { "Noncanonical UTF-8" }
+        require(decoded.isNotEmpty()) { "Canonical text must not be empty" }
+        require(!decoded.first().isWhitespace() && !decoded.last().isWhitespace()) { "Canonical text has boundary whitespace" }
+        require(decoded.none { it.code <= 0x1f || it.code == 0x7f }) { "Canonical text has controls" }
+        require(Normalizer.isNormalized(decoded, Normalizer.Form.NFC)) { "Canonical text is not NFC" }
+        return decoded
+    }
+
+    fun uuid(): UUID {
+        val value = text()
+        val parsed = UUID.fromString(value)
+        require(parsed.toString() == value) { "Noncanonical UUID" }
+        return parsed
+    }
+
+    fun integer(): Int {
+        val value = text()
+        require(value == "0" || value.matches(Regex("[1-9][0-9]*"))) { "Noncanonical integer" }
+        return value.toIntOrNull() ?: throw IllegalArgumentException("Integer out of range")
+    }
+
+    fun instant(): Instant {
+        val value = text()
+        val parsed = try { Instant.parse(value) } catch (failure: Exception) {
+            throw IllegalArgumentException("Noncanonical instant", failure)
+        }
+        requireCanonicalInstant(parsed, "canonical instant")
+        val canonical = DateTimeFormatterBuilder().appendInstant(6).toFormatter().format(parsed)
+        require(value == canonical) { "Noncanonical instant" }
+        return parsed
     }
 }

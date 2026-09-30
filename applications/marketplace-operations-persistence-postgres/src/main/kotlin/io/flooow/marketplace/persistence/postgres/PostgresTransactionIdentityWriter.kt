@@ -81,29 +81,20 @@ class PostgresTransactionIdentityWriter {
             if (final !is CommandAuthorizationResult.Authorized) return failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
             val lineage = final.lineage
             val semantic = evidence.decisionFingerprint(intent, actor, lineage)
-            val columns = """organization_id,decision_id,omie_connection_id,source_order_reference,marketplace_order_id,
-                kind,reason,revision,supersedes_decision_id,ml_connection_id,ml_capability,ml_progress_version,ml_record_ordinal,
-                external_order_id,currency,omie_capability,omie_progress_version,omie_record_ordinal,omie_semantic_fingerprint,
-                provider_revision_local,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,
-                authorization_semantic_version,authorization_fingerprint,intent_fingerprint,decision_semantic_fingerprint,
-                provenance,correlation_id"""
             val values = listOf(actor.organizationId.value, command.decisionId, actor.omieConnectionId, command.sourceOrderReference,
                 command.marketplaceOrderId, command.kind.name, command.reason.name, revision, command.supersedesDecisionId,
                 actor.mercadoLivreConnectionId, ML_SOURCE, target.progress, target.ordinal, target.external, target.currency,
                 OMIE_V3, omie.progress, omie.ordinal, omie.semantic, max, actor.principalId.value, actor.credentialId,
                 actor.credentialRevision, lineage.grantId, lineage.grantRevision, lineage.permission.name, lineage.semanticVersion,
                 lineage.semanticFingerprint, intent, semantic, command.provenance, command.correlationId)
-            c.prepareStatement("INSERT INTO marketplace_transaction_identity_decision ($columns) VALUES (${values.joinToString(",") { "?" }})").use { s ->
-                values.forEachIndexed { i, v -> s.setObject(i + 1, v) }; s.executeUpdate()
-            }
-            return TransactionIdentityWriteResult.Applied(command.decisionId, semantic)
+            return applyLegacyUnlinkedDecision(c, values)
         } catch (e: SQLException) {
             return when (e.sqlState) {
                 "P0002" -> failed(TransactionIdentityFailure.EVIDENCE_UNAVAILABLE)
                 "P0010" -> failed(TransactionIdentityFailure.CURRENTNESS_UNPROVEN)
                 "P0011", "23505" -> failed(TransactionIdentityFailure.CONFLICT)
                 "P0012" -> failed(TransactionIdentityFailure.AUTHORIZATION_DENIED)
-                "23514", "23503", "23502" -> failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
+                "P0018", "23514", "23503", "23502" -> failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
                 else -> throw e // Infrastructure/deadlock/serialization is not an ordinary identity result.
             }
         }
@@ -222,13 +213,6 @@ class PostgresTransactionIdentityWriter {
             1
         )
 
-        val columns = """organization_id,decision_id,omie_connection_id,source_order_reference,marketplace_order_id,
-            kind,reason,revision,supersedes_decision_id,ml_connection_id,ml_capability,ml_progress_version,ml_record_ordinal,
-            external_order_id,currency,omie_capability,omie_progress_version,omie_record_ordinal,omie_semantic_fingerprint,
-            provider_revision_local,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,
-            authorization_semantic_version,authorization_fingerprint,intent_fingerprint,decision_semantic_fingerprint,
-            provenance,correlation_id"""
-
         val values = listOf(
             actor.organizationId.value,
             command.decisionId,
@@ -264,19 +248,30 @@ class PostgresTransactionIdentityWriter {
             command.correlationId
         )
 
-        c.prepareStatement(
-            "INSERT INTO marketplace_transaction_identity_decision ($columns) VALUES (${values.joinToString(",") { "?" }})"
-        ).use { s ->
-            values.forEachIndexed { i, v ->
-                s.setObject(i + 1, v)
-            }
-            s.executeUpdate()
-        }
+        return applyLegacyUnlinkedDecision(c, values)
+    }
 
-        return TransactionIdentityWriteResult.Applied(
-            command.decisionId,
-            semantic
-        )
+    private fun applyLegacyUnlinkedDecision(
+        connection: Connection,
+        values: List<Any?>
+    ): TransactionIdentityWriteResult {
+        require(values.size == LEGACY_DECISION_INPUT_COUNT)
+
+        return connection.prepareStatement(LEGACY_DECISION_SQL).use { statement ->
+            values.forEachIndexed { index, value -> statement.setObject(index + 1, value) }
+            statement.executeQuery().use { rows ->
+                check(rows.next()) { "Controlled legacy decision writer returned no result" }
+                val decisionId = rows.getObject("result_decision_id", UUID::class.java)
+                val semanticFingerprint = rows.getString("result_decision_semantic_fingerprint")
+                val result = when (rows.getString("outcome")) {
+                    "APPLIED" -> TransactionIdentityWriteResult.Applied(decisionId, semanticFingerprint)
+                    "ALREADY_APPLIED" -> TransactionIdentityWriteResult.AlreadyApplied(decisionId, semanticFingerprint)
+                    else -> failed(TransactionIdentityFailure.INTEGRITY_FAILURE)
+                }
+                check(!rows.next()) { "Controlled legacy decision writer returned multiple results" }
+                result
+            }
+        }
     }
 
     private data class WithdrawalParent(
@@ -337,4 +332,10 @@ class PostgresTransactionIdentityWriter {
         val created: LocalDateTime?,val modified: LocalDateTime?,val semantic: String,val valid: Boolean)
     private fun ResultSet.civil(column: String): LocalDateTime? = getObject(column,LocalDateTime::class.java)
     private fun failed(f: TransactionIdentityFailure) = TransactionIdentityWriteResult.Failed(f)
+
+    private companion object {
+        const val LEGACY_DECISION_INPUT_COUNT = 32
+        val LEGACY_DECISION_SQL =
+            "SELECT * FROM public.s2a_v042_apply_legacy_unlinked_decision(${"?,".repeat(LEGACY_DECISION_INPUT_COUNT - 1)}?)"
+    }
 }
