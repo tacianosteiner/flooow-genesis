@@ -1,4 +1,11 @@
-plugins { id("flooow.kotlin-conventions") }
+plugins {
+    id("flooow.kotlin-conventions")
+    application
+}
+
+application {
+    mainClass = "io.flooow.ceremony.PostgresCeremonyCompositionKt"
+}
 dependencies {
     implementation(project(":platform:foundation:organization-context"))
     implementation(project(":applications:marketplace-operations"))

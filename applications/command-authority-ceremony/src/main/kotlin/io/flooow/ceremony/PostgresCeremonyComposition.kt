@@ -8,6 +8,9 @@ import io.flooow.marketplace.persistence.postgres.PostgresAcceptedAttestationVer
 import io.flooow.marketplace.persistence.postgres.PostgresAttestedCommandAuthorityIssuer
 import io.flooow.marketplace.persistence.postgres.PostgresCommandAuthorization
 import io.flooow.marketplace.persistence.postgres.PostgresTransactionIdentityWriter
+import java.nio.file.Path
+import java.security.SecureRandom
+import java.time.Clock
 import javax.sql.DataSource
 
 /** Explicitly keeps issuer and runtime connection ownership separate. */
@@ -89,5 +92,44 @@ class SystemConsoleProtectedTty : ProtectedTty {
 fun main(args: Array<String>) {
     require(args.contentEquals(arrayOf("execute-field-proof"))) { "Only execute-field-proof is supported" }
     require(System.console() != null) { "SECURE_TTY=UNAVAILABLE" }
-    error("Human-approved manifest and explicit two-DataSource configuration are required; real execution remains disabled")
+    require(Runtime.version().feature() == 21) { "JAVA_21_REQUIRED" }
+
+    val environment = System.getenv()
+    val inputPath = environment["FLOOOW_FIELD_PROOF_INPUT_PATH"]
+        ?: error("FLOOOW_FIELD_PROOF_INPUT_PATH is required")
+    val input = OfflineFieldProofInputLoader.load(Path.of(inputPath))
+    val databaseConfiguration = OfflineDatabaseConfiguration.fromEnvironment(environment)
+    val dataSources = OfflineDataSources.create(databaseConfiguration)
+    val composition = PostgresCeremonyComposition(dataSources.verifier, dataSources.issuer, dataSources.runtime)
+    val tty = SystemConsoleProtectedTty()
+    val launcher = OfflineFieldProofLauncher(
+        verifier = composition.verifier,
+        issuer = composition.issuer,
+        runtime = composition.runtime,
+        tty = tty,
+        boundaryVerifier = PostgresOfflineFieldProofBoundaryVerifier(databaseConfiguration, dataSources),
+        reconciler = PostgresOfflineFieldProofReconciler(
+            dataSources.runtime
+        ),
+        operatorConfirmation = SystemConsoleOperatorConfirmation(),
+        clock = Clock.systemUTC(),
+        random = SecureRandom()
+    )
+    val result = launcher.execute(input)
+    println("OUTCOME=${result.outcome}")
+    println("PLAN_FINGERPRINT=${result.planFingerprint}")
+    println("LAST_STAGE=${result.lastStage}")
+    println("RUN_ID=${input.plan.runId}")
+    println("MANIFEST_ID=${input.attestation.manifest.manifestId}")
+    println("PRINCIPAL_ID=${input.plan.principalId}")
+    println("CREDENTIAL_ID=${input.plan.credentialId}")
+    println("GRANT_ID=${input.plan.grantId}")
+    println("DECISION_ID=${input.plan.decisionId}")
+    println("PROVIDER_CALL=NO")
+    println("ROTATE_CREDENTIAL=HOLD")
+    println("REVOKE=HOLD")
+    check(result.outcome == OfflineFieldProofOutcome.SUCCESS_RECONCILED ||
+        result.outcome == OfflineFieldProofOutcome.ALREADY_APPLIED_RECONCILED) {
+        "Field-proof launcher stopped fail-closed: ${result.outcome}"
+    }
 }
