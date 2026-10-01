@@ -4,6 +4,7 @@ import io.flooow.marketplace.operations.authorization.*
 import io.flooow.marketplace.operations.economics.MarketplaceOrderId
 import io.flooow.marketplace.operations.identity.*
 import io.flooow.marketplace.persistence.postgres.PostgresApprovalGovernance
+import io.flooow.marketplace.persistence.postgres.PostgresConfiguration
 import io.flooow.organization.OrganizationId
 import org.flywaydb.core.Flyway
 import org.postgresql.ds.PGSimpleDataSource
@@ -22,15 +23,16 @@ import kotlin.test.*
 
 class CommandAuthorityCeremonyPostgresTest {
     private lateinit var db: PostgreSQLContainer
-    @BeforeTest fun start(){db=PostgreSQLContainer("postgres:18.4").also{it.start()};Flyway.configure().dataSource(db.jdbcUrl,db.username,db.password).load().migrate();seed()}
+    @BeforeTest fun start(){db=PostgreSQLContainer("postgres:18.4").also{it.start()};Flyway.configure().dataSource(db.jdbcUrl,db.username,db.password).load().migrate();auditReadGrants();seed()}
     @AfterTest fun stop(){if(::db.isInitialized)db.stop()}
 
     @Test fun `real attested ceremony links authority applies decision destroys secret and replays authority exactly`() {
         val tty=RecordingTty();val lifecycle=Lifecycle();val composition=composition();val before=snapshot();val manifest=manifest()
-        val applied=assertIs<CeremonyResult.Applied>(ceremony(composition,tty,lifecycle).execute(sign(manifest),target(manifest),command(manifest)))
+        val plan=plan();val signed=sign(manifest);val input=OfflineFieldProofInput(signed,target(manifest),command(manifest),plan)
+        val applied=assertIs<AttestedCeremonyResult.Applied>(ceremony(composition,tty,lifecycle).execute(signed,input.target,input.command,plan))
         assertEquals(Delta(1,1,1,1,1,3,1,1),snapshot()-before)
         assertEquals(1,tty.calls);assertEquals(1,lifecycle.created);assertEquals(1,lifecycle.destroyed);assertTrue(lifecycle.verifierCreationRejected)
-        assertEquals(applied.decisionId,uuidValue("SELECT decision_id FROM marketplace_transaction_identity_head"))
+        assertEquals(applied.plan.decisionId,uuidValue("SELECT decision_id FROM marketplace_transaction_identity_head"))
         assertEquals(manifestId,uuidValue("SELECT attestation_manifest_id FROM command_authority_operation WHERE operation='GRANT'"))
         assertEquals(0,rawSecretOccurrences(tty.token))
         val principal=CommandPrincipalId(uuidValue("SELECT principal_id FROM command_principal"));val credential=uuidValue("SELECT credential_id FROM command_credential_revision");val grant=uuidValue("SELECT grant_id FROM command_permission_grant");val verifier=bytes("SELECT secret_verifier FROM command_credential_revision")
@@ -38,22 +40,24 @@ class CommandAuthorityCeremonyPostgresTest {
         assertIs<AttestedAuthorityResult.AlreadyApplied>(composition.issuer.issuePrincipal(AttestedPrincipalRequest(orgId,manifestId,manifest,operations.getValue("PRINCIPAL"),principal)))
         assertIs<AttestedAuthorityResult.AlreadyApplied>(composition.issuer.bindInitialCredential(AttestedInitialCredentialRequest(orgId,manifestId,manifest,operations.getValue("INITIAL_CREDENTIAL"),principal,credential,verifier)))
         assertIs<AttestedAuthorityResult.AlreadyApplied>(composition.issuer.grantPermission(AttestedGrantRequest(orgId,manifestId,manifest,operations.getValue("GRANT"),principal,grant)))
+        val reconciliation=PostgresOfflineFieldProofReconciler(runtimeDs()).reconcile(input)
+        assertTrue(reconciliation.acceptedAttestationProven);assertTrue(reconciliation.consumptionLineageProven);assertTrue(reconciliation.exact)
         assertEquals(Delta(1,1,1,1,1,3,1,1),snapshot()-before)
     }
 
     @Test fun `mismatched target expired claim and invalid signature deny with zero effect`() {
         val before=snapshot();val manifest=manifest()
         listOf(target(manifest).copy(integrationReference="WRONG"),target(manifest).copy(organizationId=OrganizationId.parse(id(90).toString())),target(manifest).copy(reason="override")).forEach{candidate->
-            val tty=RecordingTty();val lifecycle=Lifecycle();assertEquals(CeremonyResult.Denied,ceremony(composition(),tty,lifecycle).execute(sign(manifest),candidate,command(manifest)));assertEquals(before,snapshot());assertEquals(0,tty.calls);assertEquals(0,lifecycle.created)
+            val tty=RecordingTty();val lifecycle=Lifecycle();assertIs<AttestedCeremonyResult.Denied>(ceremony(composition(),tty,lifecycle).execute(sign(manifest),candidate,command(manifest),plan()));assertEquals(before,snapshot());assertEquals(0,tty.calls);assertEquals(0,lifecycle.created)
         }
-        val expired=manifest.copy(approvalWindowStart=validFrom.minusSeconds(120),approvalWindowEnd=validFrom.minusSeconds(60));assertEquals(CeremonyResult.Denied,ceremony(composition(),RecordingTty(),Lifecycle()).execute(sign(expired),target(expired),command(expired)));assertEquals(before,snapshot())
+        val expired=manifest.copy(approvalWindowStart=validFrom.minusSeconds(120),approvalWindowEnd=validFrom.minusSeconds(60));assertIs<AttestedCeremonyResult.Denied>(ceremony(composition(),RecordingTty(),Lifecycle()).execute(sign(expired),target(expired),command(expired),plan()));assertEquals(before,snapshot())
         val valid=sign(manifest);val changed=valid.signatureBytes().also{it[0]=(it[0].toInt() xor 1).toByte()};val invalid=SignedApprovalAttestation.parse(manifest,"Ed25519",valid.signerKeyId,valid.signerKeyFingerprint,Base64.getUrlEncoder().withoutPadding().encodeToString(changed))
-        assertEquals(CeremonyResult.Denied,ceremony(composition(),RecordingTty(),Lifecycle()).execute(invalid,target(manifest),command(manifest)));assertEquals(before,snapshot())
+        assertIs<AttestedCeremonyResult.Denied>(ceremony(composition(),RecordingTty(),Lifecycle()).execute(invalid,target(manifest),command(manifest),plan()));assertEquals(before,snapshot())
     }
 
     @Test fun `writer failure keeps committed authority history and no decision`() {
         val tty=RecordingTty();val lifecycle=Lifecycle();val composition=PostgresCeremonyComposition(verifierDs(),issuerDs(),runtimeDs()){_,_,_,_->assertEquals(1,lifecycle.destroyed);throw WriterFailure()}
-        val failure=assertFailsWith<WriterFailure>{ceremony(composition,tty,lifecycle).execute(sign(manifest()),target(),command())}
+        val failure=assertFailsWith<WriterFailure>{ceremony(composition,tty,lifecycle).execute(sign(manifest()),target(),command(),plan())}
         assertEquals("controlled writer failure without secret",failure.message);assertEquals(Delta(1,1,1,1,1,3,0,0),snapshot());assertEquals(1,lifecycle.destroyed);assertTrue(lifecycle.verifierCreationRejected)
     }
 
@@ -62,12 +66,164 @@ class CommandAuthorityCeremonyPostgresTest {
         assertEquals("42501",failure.sqlState);assertEquals(0,count("command_principal"));assertTrue(composition().issuer is AttestedCommandAuthorityIssuer)
     }
 
+    @Test fun `read only reconciliation never repairs missing accepted artifact`() {
+        val input=appliedInput()
+        corrupt("DELETE FROM s2a_accepted_attestation")
+        mismatchWithoutEffects(input, accepted=false)
+    }
+
+    @Test fun `read only reconciliation never repairs missing consumption`() {
+        val input=appliedInput()
+        corrupt("DELETE FROM s2a_attestation_consumption")
+        mismatchWithoutEffects(input, consumed=false)
+    }
+
+    @Test fun `wrong consumption principal digest and correlation fail closed`() {
+        val input=appliedInput()
+        for (mutation in listOf("principal_id='${id(91)}'", "manifest_digest='${"0".repeat(64)}'", "correlation_id='${id(92)}'", "consumed_at=consumed_at + interval '1 second'")) {
+            corrupt("UPDATE s2a_attestation_consumption SET $mutation")
+            mismatchWithoutEffects(input, consumed=false)
+            corrupt("UPDATE s2a_attestation_consumption SET principal_id='${input.plan.principalId.value}',manifest_digest='${ApprovalManifestCanonicalCodec.manifestDigest(ApprovalManifestCanonicalCodec.canonicalManifestBytes(input.attestation.manifest))}',correlation_id='${input.attestation.manifest.correlationId}',consumed_at=(SELECT decided_at FROM command_authority_operation WHERE operation='PRINCIPAL')")
+        }
+    }
+
+    @Test fun `incomplete decision and head mismatched lineage and fingerprints fail closed`() {
+        val input=appliedInput()
+        corrupt("UPDATE marketplace_transaction_identity_head SET kind='REJECTED'")
+        mismatchWithoutEffects(input)
+        corrupt("DELETE FROM marketplace_transaction_identity_head")
+        mismatchWithoutEffects(input)
+    }
+
+    @Test fun `corrupt accepted fingerprint and signer lineage fail closed without repair`() {
+        val input=appliedInput()
+        val original=value("SELECT accepted_proof_fingerprint FROM s2a_accepted_attestation")
+        corrupt("UPDATE s2a_accepted_attestation SET accepted_proof_fingerprint='${"0".repeat(64)}'")
+        mismatchWithoutEffects(input,accepted=false)
+        corrupt("UPDATE s2a_accepted_attestation SET accepted_proof_fingerprint='$original',signer_key_lineage_fingerprint='${"0".repeat(64)}'")
+        mismatchWithoutEffects(input,accepted=false)
+    }
+
+    @Test fun `duplicate accepted lineage fails closed`() {
+        val input=appliedInput()
+        update("ALTER TABLE s2a_accepted_attestation DROP CONSTRAINT s2a_accepted_attestation_pkey CASCADE")
+        corrupt("INSERT INTO s2a_accepted_attestation SELECT * FROM s2a_accepted_attestation")
+        mismatchWithoutEffects(input, accepted=false)
+    }
+
+    @Test fun `migration history rejects missing failed duplicated or inconsistent V042 despite capabilities`() {
+        connection().use { assertTrue(PostgresOfflineMigrationHistory.provesV042(it)) }
+        assertEquals(2,value("SELECT count(*) FROM pg_proc WHERE proname IN ('s2a_v042_begin_attested_decision_verification','s2a_v042_apply_attested_decision')").toInt())
+        for (mutation in listOf("DELETE FROM flyway_schema_history WHERE version='042'",
+            "UPDATE flyway_schema_history SET success=false WHERE version='042'",
+            "UPDATE flyway_schema_history SET checksum=0 WHERE version='042'",
+            "UPDATE flyway_schema_history SET version='041' WHERE version='042'")) {
+            connection().use { c ->
+                c.autoCommit=false
+                c.createStatement().use { it.executeUpdate(mutation) }
+                assertFalse(PostgresOfflineMigrationHistory.provesV042(c))
+                c.rollback()
+            }
+        }
+    }
+
+    @Test fun `preflight rejects invalid history before authority despite existing capabilities`() {
+        for ((login,role) in listOf("offline_verifier" to "flooow_attestation_verifier","offline_issuer" to "flooow_command_issuer","offline_runtime" to "flooow_command_runtime")) {
+            update("CREATE ROLE $login LOGIN PASSWORD 'synthetic-only' INHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
+            update("GRANT $role TO $login")
+        }
+        fun config(login:String)=PostgresConfiguration(db.jdbcUrl,login,"synthetic-only")
+        val configuration=OfflineDatabaseConfiguration(config("offline_verifier"),config("offline_issuer"),config("offline_runtime"))
+        val boundary=PostgresOfflineFieldProofBoundaryVerifier(configuration,OfflineDataSources.create(configuration))
+        val m=manifest();val input=OfflineFieldProofInput(sign(m),target(m),command(m),plan())
+        assertTrue(boundary.verify(input))
+        val before=snapshot()
+        connection().use { c ->
+            c.createStatement().use { it.execute("CREATE TEMP TABLE history_baseline AS TABLE flyway_schema_history") }
+            for (mutation in listOf("DELETE FROM flyway_schema_history WHERE version='042'",
+                "UPDATE flyway_schema_history SET success=false WHERE version='042'",
+                "UPDATE flyway_schema_history SET checksum=0 WHERE version='042'")) {
+                c.createStatement().use { it.executeUpdate(mutation) }
+                assertFalse(boundary.verify(input))
+                c.createStatement().use { it.executeUpdate("DELETE FROM flyway_schema_history");it.executeUpdate("INSERT INTO flyway_schema_history SELECT * FROM history_baseline") }
+            }
+        }
+        assertEquals(before,snapshot())
+    }
+
+    @Test fun `wrong durable authority receipt and decision intent fail closed`() {
+        val input=appliedInput()
+        corrupt("UPDATE command_authority_operation SET receipt_fingerprint='${"0".repeat(64)}' WHERE operation='GRANT'")
+        mismatchWithoutEffects(input)
+        corrupt("UPDATE marketplace_transaction_identity_decision SET provenance='wrong-provenance'")
+        mismatchWithoutEffects(input)
+    }
+
+    @Test fun `audit transaction is enforced read only by PostgreSQL`() {
+        runtimeDs().connection.use { c ->
+            c.isReadOnly=true;c.autoCommit=false
+            assertEquals("on",c.createStatement().use { it.executeQuery("SHOW transaction_read_only").use { r -> r.next();r.getString(1) } })
+            val failure=assertFailsWith<PSQLException> { c.createStatement().executeUpdate("INSERT INTO marketplace_transaction_identity_head SELECT * FROM marketplace_transaction_identity_head") }
+            assertEquals("25006",failure.sqlState)
+            c.rollback()
+        }
+    }
+
+    @Test fun `durable principal prefix continues exact plan then complete restart creates no authority`() {
+        val m=manifest();val input=OfflineFieldProofInput(sign(m),target(m),command(m),plan());val c=composition()
+        assertIs<AcceptedAttestationResult.Accepted>(c.verifier.verify(input.attestation))
+        assertIs<AttestedAuthorityResult.Applied>(c.issuer.issuePrincipal(AttestedPrincipalRequest(orgId,manifestId,m,input.plan.principalOperationId,input.plan.principalId)))
+        val reconciler=PostgresOfflineFieldProofReconciler(runtimeDs())
+        val prefix=reconciler.inspect(input)
+        assertEquals(1,prefix.principalCount);assertEquals(1,prefix.authorityOperationCount)
+        assertTrue(prefix.lineageMatches);assertFalse(prefix.hasCredentialEffect)
+        val tty=RecordingTty();val lifecycle=Lifecycle()
+        fun launcher(verifier:AcceptedAttestationVerifier)=OfflineFieldProofLauncher(verifier,c.issuer,c.runtime,tty,
+            OfflineFieldProofBoundaryVerifier { true },reconciler,OfflineFieldProofOperatorConfirmation { true },
+            Clock.fixed(validFrom,ZoneOffset.UTC),java.security.SecureRandom(),lifecycle)
+        assertEquals(OfflineFieldProofOutcome.SUCCESS_RECONCILED,launcher(c.verifier).execute(input).outcome)
+        val before=snapshot();val deliveries=tty.calls;val created=lifecycle.created
+        assertEquals(OfflineFieldProofOutcome.ALREADY_APPLIED_RECONCILED,
+            launcher(AcceptedAttestationVerifier { error("Replay must never call command verifier") }).execute(input).outcome)
+        assertEquals(before,snapshot());assertEquals(deliveries,tty.calls);assertEquals(created,lifecycle.created)
+    }
+
+    private fun appliedInput(): OfflineFieldProofInput {
+        val m=manifest();val input=OfflineFieldProofInput(sign(m),target(m),command(m),plan())
+        assertIs<AttestedCeremonyResult.Applied>(ceremony(composition(),RecordingTty(),Lifecycle()).execute(input.attestation,input.target,input.command,input.plan))
+        return input
+    }
+
+    private fun mismatchWithoutEffects(input:OfflineFieldProofInput,accepted:Boolean?=null,consumed:Boolean?=null) {
+        val before=snapshot()
+        val result=PostgresOfflineFieldProofReconciler(runtimeDs()).reconcile(input)
+        assertFalse(result.exact)
+        accepted?.let { assertEquals(it,result.acceptedAttestationProven) }
+        consumed?.let { assertEquals(it,result.consumptionLineageProven) }
+        assertEquals(before,snapshot())
+    }
+
+    // Corruption is injected exclusively into disposable synthetic fixtures by the test owner.
+    private fun corrupt(sql:String)=connection().use { c ->
+        c.createStatement().use { it.execute("SET session_replication_role=replica");it.executeUpdate(sql) }
+    }
+
     private fun ceremony(c:PostgresCeremonyComposition,t:RecordingTty,l:Lifecycle)=ExecuteAttestedFieldProof(c.verifier,c.issuer,c.runtime,t,Clock.fixed(validFrom,ZoneOffset.UTC),java.security.SecureRandom(),l)
     private fun composition()=PostgresCeremonyComposition(verifierDs(),issuerDs(),runtimeDs())
     private fun verifierDs()=roleDs("flooow_attestation_verifier");private fun issuerDs()=roleDs("flooow_command_issuer");private fun runtimeDs()=roleDs("flooow_command_runtime")
     private fun target(m:ApprovalManifest=manifest())=FieldProofTarget(m.organizationId,m.mercadoLivreConnectionId,m.omieConnectionId,m.sourceOrderReference,m.integrationReference,m.marketplaceOrderId.value,m.reason,m.provenance,m.correlationId,CommandPermission.TRANSACTION_IDENTITY_DECISION_WRITE)
     private fun command(m:ApprovalManifest=manifest())=TransactionIdentityCommand(decision,m.sourceOrderReference,m.marketplaceOrderId.value,TransactionIdentityKind.CONFIRMED,ExplicitTransactionIdentityReason.EXPLICIT_CONFIRMATION,m.provenance,m.correlationId)
+    private fun plan()=OfflineFieldProofExecutionPlan(
+        1,id(20),CommandPrincipalId(id(21)),id(22),id(23),id(24),id(25),id(26),decision
+    )
 
+    private fun auditReadGrants() {
+        update("GRANT SELECT ON public.flyway_schema_history,public.s2a_accepted_attestation,public.s2a_attestation_consumption,public.s2a_signer_key_revision,public.s2a_signer_authority_revision,public.command_authority_operation TO flooow_command_runtime")
+        for (identity in listOf(
+            "public.s2a_v042_authority_intent(text,uuid,uuid,uuid,uuid,uuid,uuid,bytea,uuid,text,text,uuid,uuid,text,text)",
+            "public.s2a_v042_authority_receipt(text,text,uuid,uuid,integer,uuid,integer,text,text)",
+            "public.s2a_v042_text(text)","public.s2a_v042_frame(bytea)")) update("GRANT EXECUTE ON FUNCTION $identity TO flooow_command_runtime")
+    }
     private fun seed(){val now=Timestamp.from(validFrom);update("INSERT INTO integration_organization VALUES (?,'ACTIVE',?,?)",org,now,now);update("INSERT INTO integration_connection VALUES (?,?,?,'OAUTH2_AUTHORIZATION_CODE','REVOKED',1,?,?)",org,ml,"br.com.mercadolivre",now,now);update("INSERT INTO integration_connection VALUES (?,?,?,'STATIC_API_CREDENTIAL','SUSPENDED',1,?,?)",org,omie,"omie",now,now)
         connection().use{c->c.autoCommit=false;page(c,ml,mlCap,1,2,1);execute(c,"INSERT INTO integration_mercado_livre_order_source_observation (organization_id,connection_id,capability,input_progress_version,record_ordinal,external_order_ref,provider_status,date_created,date_last_updated,currency,total_amount,observed_at) VALUES (?,?,?,1,1,'MLB-123456789','paid',?,?,'BRL',58.28,?)",org,ml,mlCap,now,now,now);execute(c,"INSERT INTO marketplace_order_identity_registry VALUES (?,'mercado-livre','MLB-123456789',?,'BRL',?,?,?,?,1)",org,order,now,ml,mlCap,1L);execute(c,"INSERT INTO marketplace_order_occurrence_source_promotion VALUES (?,?,?,1,1,?,'PROMOTED',?)",org,ml,mlCap,order,now);page(c,omie,omieCap,1,2,2);omie(c,0,"OTHER-SYNTHETIC",null,"BRL",LocalDateTime.parse("2026-09-24T10:00:00.000000"),"cd".repeat(32),now);omie(c,1,"SO-2026-0001","MLB-123456789",null,LocalDateTime.parse("2026-09-25T11:59:59.123456"),"ab".repeat(32),now);c.commit()}
         val kd=SignerKeyRevision(orgId,SignerKeyId(key),1,GovernanceSubjectId(subject),SignerPublicKeyInfo.parse(spki.hex()),keyFp,SignerKeyState.ACTIVE,validFrom,validFrom,null,null,SignerKeyLineageFingerprint("0".repeat(64)),"Synthetic V041 key","ceremony-test",id(81));val k=kd.copy(lineageFingerprint=ApprovalGovernanceFingerprintCodec.signerKeyFingerprint(kd));val governance=PostgresApprovalGovernance(roleDs("flooow_approval_governance"));assertIs<GovernanceAppendResult.Applied>(governance.appendSignerKeyRevision(k));val ad=SignerAuthorityRevision(orgId,SignerAuthorityId(authority),1,k.signerSubjectId,GovernanceInstitutionId(institution),SignerRole.S2A_FIELD_PROOF_APPROVER,k.signerKeyId,1,k.signerKeyFingerprint,ApprovalAction.S2A_FIELD_PROOF_APPROVAL,SignerApprovalPermission.TRANSACTION_IDENTITY_DECISION_WRITE,validFrom,validUntil,SignerAuthorityState.ENABLED,null,null,SignerAuthorityFingerprint("0".repeat(64)),"Synthetic V041 authority","ceremony-test",GovernanceSourceId(source),id(82));assertIs<GovernanceAppendResult.Applied>(governance.appendSignerAuthorityRevision(ad.copy(signerAuthorityFingerprint=ApprovalGovernanceFingerprintCodec.signerAuthorityFingerprint(ad))))}
