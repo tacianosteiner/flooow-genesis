@@ -42,10 +42,31 @@ class AuthenticatedCommand internal constructor(
 }
 
 /** A parsed secret never exposes its material through object rendering. */
-class CommandCredential private constructor(val id: UUID, private val secret: ByteArray) {
-    internal fun digest(): ByteArray = MessageDigest.getInstance("SHA-256").digest(
-        "flooow-command-credential/1\u0000".toByteArray(Charsets.UTF_8) + secret
-    )
+class CommandCredential private constructor(val id: UUID, private val secret: ByteArray) : AutoCloseable {
+    @Volatile
+    private var destroyed = false
+
+    internal fun digest(): ByteArray = synchronized(this) {
+        check(!destroyed) { "Command credential has been destroyed" }
+        MessageDigest.getInstance("SHA-256").digest(
+            "flooow-command-credential/1\u0000".toByteArray(Charsets.UTF_8) + secret
+        )
+    }
+
+    /** Idempotently invalidates this credential and overwrites its secret material. */
+    fun destroy() = synchronized(this) {
+        if (!destroyed) {
+            secret.fill(0)
+            destroyed = true
+        }
+    }
+
+    override fun close() = destroy()
+
+    /** Narrow test-only observation: it never exposes or copies secret material. */
+    internal fun isDestroyedAndZeroizedForTest(): Boolean = synchronized(this) {
+        destroyed && secret.all { it == 0.toByte() }
+    }
 
     override fun toString(): String = "CommandCredential([REDACTED])"
 

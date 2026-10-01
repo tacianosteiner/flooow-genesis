@@ -92,6 +92,28 @@ class PostgresCommandAuthorizationTest {
     }
 
     @Test
+    fun `authenticate destroys parsed credential after both successful and denied paths`() {
+        fixture()
+        var successful: CommandCredential? = null
+        val successAdapter = PostgresCommandAuthorization { value ->
+            CommandCredential.parse(value)?.also { successful = it }
+        }
+        connection().use { assertNotNull(successAdapter.authenticate(it, token())) }
+        assertFailsWith<IllegalStateException> {
+            CommandCredentialVerifier.fromCredential(assertNotNull(successful))
+        }
+
+        var denied: CommandCredential? = null
+        val deniedAdapter = PostgresCommandAuthorization { value ->
+            CommandCredential.parse(value)?.also { denied = it }
+        }
+        connection().use { assertNull(deniedAdapter.authenticate(it, token(2))) }
+        assertFailsWith<IllegalStateException> {
+            CommandCredentialVerifier.fromCredential(assertNotNull(denied))
+        }
+    }
+
+    @Test
     fun `rotation preserves actor but invalidates old admission and token`() {
         fixture(); enable()
         val old = actor()

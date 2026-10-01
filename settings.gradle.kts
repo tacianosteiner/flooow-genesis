@@ -96,3 +96,5 @@ project(":applications:inventory-source-authority").projectDir =
 
 project(":research:experiments:exp-0003-harness").projectDir =
     file("research/experiments/exp-0003-harness")
+include(":applications:command-authority-ceremony")
+project(":applications:command-authority-ceremony").projectDir = file("applications/command-authority-ceremony")

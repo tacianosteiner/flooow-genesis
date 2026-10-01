@@ -8,34 +8,43 @@ import java.sql.ResultSet
 import java.util.UUID
 
 /** No provisioning or connection ownership: authorization belongs to the writer transaction. */
-class PostgresCommandAuthorization {
+class PostgresCommandAuthorization() {
+    private var credentialParser: (String) -> CommandCredential? = CommandCredential::parse
+
+    internal constructor(credentialParser: (String) -> CommandCredential?) : this() {
+        this.credentialParser = credentialParser
+    }
     fun authenticate(connection: Connection, token: String): AuthenticatedCommand? {
-        val credential = CommandCredential.parse(token) ?: return null
-        connection.prepareStatement(
-            """SELECT c.*, p.mercado_livre_connection_id, p.omie_connection_id, o.status AS organization_status
+        val credential = credentialParser(token) ?: return null
+        try {
+            connection.prepareStatement(
+                """SELECT c.*, p.mercado_livre_connection_id, p.omie_connection_id, o.status AS organization_status
                 FROM command_credential_revision c
                 JOIN command_principal p USING (organization_id, principal_id)
                 JOIN integration_organization o USING (organization_id)
                 WHERE credential_id=? ORDER BY revision DESC LIMIT 1"""
-        ).use { statement ->
-            statement.setObject(1, credential.id)
-            statement.executeQuery().use { rows ->
-                if (!rows.next()) {
-                    CommandCredentialVerifier.fromPersistence(ByteArray(32)).matches(credential)
-                    return null
-                }
-                val verified = AuthenticatedCommand.verify(
-                    credential,
-                    CommandCredentialVerifier.fromPersistence(rows.getBytes("secret_verifier")),
-                    OrganizationId.parse(rows.uuid("organization_id").toString()),
-                    CommandPrincipalId(rows.uuid("principal_id")),
-                    rows.uuid("mercado_livre_connection_id"), rows.uuid("omie_connection_id"),
-                    rows.getInt("revision")
-                )
-                return verified?.takeIf {
-                    rows.getString("state") == "ENABLED" && rows.getString("organization_status") == "ACTIVE"
+            ).use { statement ->
+                statement.setObject(1, credential.id)
+                statement.executeQuery().use { rows ->
+                    if (!rows.next()) {
+                        CommandCredentialVerifier.fromPersistence(ByteArray(32)).matches(credential)
+                        return null
+                    }
+                    val verified = AuthenticatedCommand.verify(
+                        credential,
+                        CommandCredentialVerifier.fromPersistence(rows.getBytes("secret_verifier")),
+                        OrganizationId.parse(rows.uuid("organization_id").toString()),
+                        CommandPrincipalId(rows.uuid("principal_id")),
+                        rows.uuid("mercado_livre_connection_id"), rows.uuid("omie_connection_id"),
+                        rows.getInt("revision")
+                    )
+                    return verified?.takeIf {
+                        rows.getString("state") == "ENABLED" && rows.getString("organization_status") == "ACTIVE"
+                    }
                 }
             }
+        } finally {
+            credential.destroy()
         }
     }
 
@@ -49,11 +58,11 @@ class PostgresCommandAuthorization {
             "Command authorization requires READ COMMITTED"
         }
         connection.prepareStatement(
-            "SELECT status FROM integration_organization WHERE organization_id=? FOR SHARE"
+            "SELECT command_authorization_organization_lock(?)"
         ).use { statement ->
             statement.setObject(1, actor.organizationId.value)
             statement.executeQuery().use { rows ->
-                if (!rows.next() || rows.getString(1) != "ACTIVE") return CommandAuthorizationResult.Denied
+                if (!rows.next() || !rows.getBoolean(1)) return CommandAuthorizationResult.Denied
             }
         }
         connection.prepareStatement(
