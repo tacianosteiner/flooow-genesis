@@ -191,7 +191,15 @@ def closure_gaps(source, spec):
         missing.append("Canonical codecs and independently agreeing complete golden evidence are absent")
     if not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
         missing.append("Exact frozen/internal capability EXECUTE ACL closure is absent")
-    if "they require an explicitly approved fixture TTL/maximum" in spec:
+    approval = ('FIXTURE_ID=PACKAGE-0090-G3F-3B-FIXTURE-001',
+                'POLICY_VERSION=fixture-1',
+                'TAG28_PREFLIGHT_RECEIPT_TTL_US=1000000',
+                'TAG29_PREFLIGHT_RECEIPT_TTL_APPROVED_MAX_US=2000000',
+                'SCOPE=TEST_GOLDEN_REHEARSAL_ONLY',
+                'PRODUCTION_POLICY_APPROVAL=NO', 'PRODUCTION_POLICY_PROVISIONING=NO',
+                'APPROVAL_PROVENANCE=FLOOOW_TECHNICAL_FIXTURE_APPROVAL_2026-10-03')
+    section = spec.split('## Independent technical test-fixture approval', 1)[-1]
+    if not all(re.search(r'(?m)^' + re.escape(line) + r'\s*$', section) for line in approval):
         missing.append("Replacement normative fixture TTL/maximum approval is not supplied by the contract")
     return missing
 

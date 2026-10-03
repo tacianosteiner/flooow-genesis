@@ -2252,3 +2252,25 @@ V043_IMPLEMENTATION_READY=YES
 NEXT_GATE=G3F.3B_V043_IMPLEMENTATION_AND_CONTRACT_CLOSURE
 
 UNRESOLVED_BLOCKER_COUNT=0 applies to this bootstrap contract closure only. These are normative contract consistency results, not implementation/static SQL proof, numeric production policy approval, installed/catalog evidence, migration execution, administrative provisioning execution, runtime activation or field-proof authorization. REAL_FIELD_PROOF=HOLD. The next bounded task is G3F.3B V043 implementation using this corrected sequence and effective_from schema/read dependencies.
+
+## Independent technical test-fixture approval — 2026-10-03
+
+FIXTURE_ID=PACKAGE-0090-G3F-3B-FIXTURE-001
+POLICY_VERSION=fixture-1
+TAG28_PREFLIGHT_RECEIPT_TTL_US=1000000
+TAG29_PREFLIGHT_RECEIPT_TTL_APPROVED_MAX_US=2000000
+SCOPE=TEST_GOLDEN_REHEARSAL_ONLY
+PRODUCTION_POLICY_APPROVAL=NO
+PRODUCTION_POLICY_PROVISIONING=NO
+APPROVAL_PROVENANCE=FLOOOW_TECHNICAL_FIXTURE_APPROVAL_2026-10-03
+
+This explicit independent technical approval supplies only the missing synthetic
+tag28/tag29 pair for the section21.2 fixture. It uses the existing VECTOR_1 timing
+scale, preserves policy_version=fixture-1 and requires both positive finite int8
+microseconds with actual <= approved maximum. Bind both into the exact29-field
+canonical policy and recompute its bytes/digest and all dependent golden evidence.
+No historical27-field bytes/digests are adopted. This approval supersedes the
+fixture TTL/maximum approval hold only; it does not certify generated goldens,
+implementation freeze, production defaults, production policy provisioning,
+database execution, roles, G3G or field proof. No session/GUC source, hidden
+fallback or caller-supplied TTL is permitted.

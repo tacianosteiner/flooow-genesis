@@ -2,6 +2,19 @@
 
 Date: 2026-10-03 (America/Sao_Paulo). This records source work only.
 
+## Superseding fixture checkpoint
+
+The independent TTL approval is now recorded; the test-only29-field policy
+golden agrees byte-for-byte and digest-for-digest between Python and JVM.
+The following earlier execution report is retained as historical evidence.
+Current status is recorded in
+[fixture closure evidence](PACKAGE-0090-G3F-3B-FIXTURE-CLOSURE.md).
+Four implementation categories remain unresolved. A newly identified missing
+normative ML/Omie evidence fixture prevents uniquely deriving the full frozen
+manifest/binding goldens; no authority to amend those SPEC fixture semantics is
+inferred from the TTL-only ADR/SPEC edit authorization. V043 remains interlocked.
+NEXT_GATE=G3F.3B_COMPLETE_NORMATIVE_EVIDENCE_FIXTURE.
+
 ## Status and authority
 
 Repository baseline: tacianosteiner/flooow-genesis.

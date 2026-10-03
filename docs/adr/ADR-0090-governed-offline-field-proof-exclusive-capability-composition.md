@@ -277,3 +277,24 @@ V043_IMPLEMENTATION_READY=YES
 NEXT_GATE=G3F.3B_V043_IMPLEMENTATION_AND_CONTRACT_CLOSURE
 
 These results close only the bootstrap contract gap. They authorize the next bounded V043 implementation task, not migration execution, provisioning execution, installed/catalog proof, runtime activation or field proof. REAL_FIELD_PROOF=HOLD.
+
+## Independent technical test-fixture approval — 2026-10-03
+
+FIXTURE_ID=PACKAGE-0090-G3F-3B-FIXTURE-001
+POLICY_VERSION=fixture-1
+TAG28_PREFLIGHT_RECEIPT_TTL_US=1000000
+TAG29_PREFLIGHT_RECEIPT_TTL_APPROVED_MAX_US=2000000
+SCOPE=TEST_GOLDEN_REHEARSAL_ONLY
+PRODUCTION_POLICY_APPROVAL=NO
+PRODUCTION_POLICY_PROVISIONING=NO
+APPROVAL_PROVENANCE=FLOOOW_TECHNICAL_FIXTURE_APPROVAL_2026-10-03
+
+Record the independently approved synthetic actual/maximum pair using the
+existing VECTOR_1 timing scale. Both are positive finite int8 microseconds,
+actual <= maximum; policy_version remains fixture-1. Canonical policy field count
+is29, with both values bound and all policy/dependent golden bytes/digests
+recomputed and independently verified before closure. This is TEST/REHEARSAL
+ONLY: no production default, policy provisioning, live role, database execution,
+G3G or field-proof authority is granted. No session/GUC, hidden fallback or
+caller-supplied TTL is permitted. Only the prior fixture TTL/maximum approval
+dependency is superseded; other implementation/evidence gates remain.
