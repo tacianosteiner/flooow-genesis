@@ -2274,3 +2274,54 @@ fixture TTL/maximum approval hold only; it does not certify generated goldens,
 implementation freeze, production defaults, production policy provisioning,
 database execution, roles, G3G or field proof. No session/GUC source, hidden
 fallback or caller-supplied TTL is permitted.
+
+## Complete normative retained TEST evidence fixture — 2026-10-03
+
+The authorized retained fixture resolves VECTOR_1's evidence-binding input gap.
+SCOPE=TEST_GOLDEN_REHEARSAL_ONLY;PRODUCTION_DATA=NO;PROTECTED_DATA=NO;
+LIVE_DATA_RETRIEVAL=NO. It is not an opaque approved fingerprint. The complete
+column-explicit retained rows are
+[`PACKAGE-0090-G3F-3B-EVIDENCE-FIXTURE-001.json`](../evidence/PACKAGE-0090-G3F-3B-EVIDENCE-FIXTURE-001.json).
+The independently constructed reference/JVM bytes are
+[`PACKAGE-0090-G3F-3B-CODEC-GOLDENS.json`](../evidence/PACKAGE-0090-G3F-3B-CODEC-GOLDENS.json).
+
+Preserve organization UUID6,manifest UUID7,ML UUID8,Omie UUID9,order UUID10,
+source order-1,integration integration-1,policy_version fixture-1 and the existing
+header/governance UUIDs. Exactly one ML promotion/registry/source row: capability
+marketplace-economic.order-source,input progress1,ordinal0,marketplace key
+mercado-livre,external order order-1,currency BRL,outcome PROMOTED. The three rows
+agree on keys/identity/currency, including the registry's first-source FK.
+
+Exactly one Omie base/V3 row: capability
+marketplace-economic.omie-transaction-evidence.reacquisition-v3,input progress1,
+ordinal0,source order-1,integration integration-1,currency BRL,semantic version1,
+semantic fingerprint hex0000000000000000000000000000000000000000000000000000000000000001,
+provider_created_local 1970-01-01T00:00:00.000001,provider_modified_local NULL.
+The selected provider revision is the created civil timestamp; no conflicting or
+competing row exists. The hex token is explicitly synthetic, not proof of a real
+provider semantic hash. V041 consumes its exact text without recomputing source
+semantics; this codec fixture never certifies domain/provider acceptance.
+
+For each connection/capability, one page-commit row has input progress1,ordinal
+coverage count1 and a corresponding connector progress row at version2. The
+ML page key is integer8 encoded as32 bytes,Omie key integer9 encoded as32 bytes;
+both exhausted=true,progress_envelope NULL,last_observed_at/updated_at/page
+observed_at/committed_at epoch+1us. Auxiliary prerequisite organization ACTIVE
+and connections ACTIVE/binding_version1 are retained without credential material.
+Provider keys mercado-livre/omie and kinds OAUTH2_AUTHORIZATION_CODE/
+STATIC_API_CREDENTIAL match their respective connections. ML provider_status
+paid,dates created/updated/observed epoch+1us,total_amount1.000000; all nullable
+ML monetary/reference/close fields NULL. Registry allocation and promotion time
+epoch+1us. Omie product_refs=[],source_fingerprint fixture-source-1,observed_at
+epoch+1us; its other nullable base fields NULL. V3 additional_order_totals={},
+all other nullable V3 fields NULL. These auxiliary values complete physical rows
+and satisfy frozen constraints; they add no canonical preimage field.
+
+Use frozen V041 framing exactly, including PRESENT+value as two frames for each
+nullable present text and the civil timestamp with six fractional digits and no
+timezone suffix. VECTOR_2 substitutes NFC café only for the header/Omie source
+reference and rederives evidence/manifest/binding; ML external order stays order-1.
+VECTOR_3 records both encoder-only tag25 UUID999 with unchanged manifest (semantic
+rejection) and the coherent alternate re-encoded manifest/binding with correlation
+UUID999. No signer/signature is invented and no signature acceptance is claimed.
+No V041/V042 change or SQL execution is authorized by this fixture amendment.

@@ -298,3 +298,24 @@ ONLY: no production default, policy provisioning, live role, database execution,
 G3G or field-proof authority is granted. No session/GUC, hidden fallback or
 caller-supplied TTL is permitted. Only the prior fixture TTL/maximum approval
 dependency is superseded; other implementation/evidence gates remain.
+
+## Complete normative retained TEST evidence fixture — 2026-10-03
+
+Decision: retain complete synthetic rows for VECTOR_1, not an opaque approved
+evidence-binding digest. SPEC's complete retained TEST fixture amendment fixes
+the one-row ML promotion/registry/source and one-row Omie base/V3/page/progress
+inputs, with exact auxiliary physical columns and prerequisite FKs. Organization
+UUID6,manifest UUID7,ML UUID8,Omie UUID9,order UUID10,order-1,integration-1 and
+fixture-1 are preserved. Source evidence values and test-only provenance are
+retained in the evidence JSON; full preimage/manifest/binding goldens for all
+three vectors accompany it. Python and JVM independently construct the bytes.
+VECTOR_3 encoder-only mutation remains distinct from the coherent alternate.
+
+SCOPE=TEST_GOLDEN_REHEARSAL_ONLY;PRODUCTION_DATA=NO;PROTECTED_DATA=NO;
+LIVE_DATA_RETRIEVAL=NO. Synthetic source semantic fingerprint000...001 is a codec
+token, never provider/domain acceptance proof. SQL selection/framing execution
+parity remains a later separately authorized isolated rehearsal. No frozen
+migration,production policy,live role,protected database,G3G or field-proof
+authority changes. This closes the normative evidence-input gap and permits
+the already authorized V043 source implementation to continue; it does not
+declare complete ACL/history/HMAC/private-dataflow goldens or wrapper closure.
