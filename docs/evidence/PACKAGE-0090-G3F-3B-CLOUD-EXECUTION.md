@@ -2,18 +2,27 @@
 
 Date: 2026-10-03 (America/Sao_Paulo). This records source work only.
 
-## Superseding fixture checkpoint
+## Superseding retained-evidence and internal-P checkpoints
 
-The independent TTL approval is now recorded; the test-only29-field policy
-golden agrees byte-for-byte and digest-for-digest between Python and JVM.
-The following earlier execution report is retained as historical evidence.
-Current status is recorded in
-[fixture closure evidence](PACKAGE-0090-G3F-3B-FIXTURE-CLOSURE.md).
-Four implementation categories remain unresolved. A newly identified missing
-normative ML/Omie evidence fixture prevents uniquely deriving the full frozen
-manifest/binding goldens; no authority to amend those SPEC fixture semantics is
-inferred from the TTL-only ADR/SPEC edit authorization. V043 remains interlocked.
-NEXT_GATE=G3F.3B_COMPLETE_NORMATIVE_EVIDENCE_FIXTURE.
+The independent TTL approval and complete retained test-only evidence fixture
+are recorded. Python/JVM agree on full policy/evidence/manifest/binding/slot,
+history/eight conceptual ACL/preflight/HMAC bytes and digests. The missing
+ML/Omie normative fixture boundary is resolved by the later explicit authority;
+it is no longer a blocker or approval request. The report below is historical.
+
+Current source adds only the exact internal P signature and its two EXECUTE
+grants; bounded source/security/column/lock review passes.58 offline tests pass.
+All42 frozen migrations remain unchanged. The four implementation categories
+remain incomplete: public wrappers/Q/Z, full operational guards, wrapper/private
+decision transport goldens and full transitive EXECUTE closure. No new authority
+boundary is asserted for this ordinary remaining implementation work. V043's
+first unconditional interlock is retained. No database/production mutation,
+G3G,merge or main push occurred.
+
+Evidence: [normative retained fixture](PACKAGE-0090-G3F-3B-NORMATIVE-EVIDENCE-CLOSURE.md),
+[catalog/receipt goldens](PACKAGE-0090-G3F-3B-CATALOG-GOLDEN-CLOSURE.md),
+[internal P source review](PACKAGE-0090-G3F-3B-INTERNAL-P-SOURCE-REVIEW.md).
+NEXT_GATE=G3F.3B_REMAINING_Q_Z_AND_PUBLIC_WRAPPERS.
 
 ## Status and authority
 

@@ -2,14 +2,16 @@
 
 Date: 2026-10-03 (America/Sao_Paulo).
 
-Superseding fixture status: independent TTL approval and exact29-field policy
-Python/JVM golden agreement are recorded in
-[fixture closure evidence](PACKAGE-0090-G3F-3B-FIXTURE-CLOSURE.md).
-Entry condition1 below is satisfied for the test policy. Complete dependent
-manifest/binding goldens still require the missing normative evidence fixture;
-the immediate gate is G3F.3B_COMPLETE_NORMATIVE_EVIDENCE_FIXTURE. The earlier
-TTL-approval hold wording below is historical. No rehearsal execution authority
-or complete implementation is inferred from this update.
+Superseding fixture status: independent TTL approval, complete retained normative
+ML/Omie evidence and policy/manifest/binding/catalog/preflight Python/JVM golden
+agreement are recorded in
+[normative fixture closure](PACKAGE-0090-G3F-3B-NORMATIVE-EVIDENCE-CLOSURE.md) and
+[catalog golden closure](PACKAGE-0090-G3F-3B-CATALOG-GOLDEN-CLOSURE.md).
+Entry condition1 below is satisfied. Internal P has bounded source review;
+Q/Z/public wrappers/private decision transport/full EXECUTE closure remain
+incomplete. The immediate gate is G3F.3B_REMAINING_Q_Z_AND_PUBLIC_WRAPPERS.
+The earlier fixture-approval hold wording below is historical. No rehearsal
+execution authority or complete implementation is inferred from this update.
 
 REHEARSAL_PREPARED=YES. REHEARSAL_EXECUTION_AUTHORIZED=NO_BY_THIS_ARTIFACT.
 REAL_FIELD_PROOF=HOLD. G3G_AUTHORIZED=NO.

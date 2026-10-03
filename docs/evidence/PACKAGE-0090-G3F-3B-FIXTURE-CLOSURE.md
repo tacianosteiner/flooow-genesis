@@ -3,6 +3,12 @@
 Date: 2026-10-03 (America/Sao_Paulo).
 Branch: checkpoint/package-0090-cloud-handoff.
 
+Historical policy-only checkpoint. The subsequently authorized complete retained
+normative evidence fixture resolves the information gap below; see
+[normative evidence closure](PACKAGE-0090-G3F-3B-NORMATIVE-EVIDENCE-CLOSURE.md).
+It is no longer an approval boundary. Remaining source work is recorded in
+[internal P review](PACKAGE-0090-G3F-3B-INTERNAL-P-SOURCE-REVIEW.md).
+
 FIXTURE_APPROVAL_RECORDED=YES
 FIXTURE_POLICY_CLOSED=YES_TEST_ONLY
 POLICY_VERSION=fixture-1
