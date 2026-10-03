@@ -100,6 +100,9 @@ def actual_column_grants(statements):
         grant = statement.get("GrantStmt")
         if not grant or not grant.get("is_grant"):
             continue
+        if grant["objtype"] == "OBJECT_FUNCTION":
+            # Reviewed separately against the exact internal-P manifest, never ignored.
+            continue
         if grant["objtype"] != "OBJECT_TABLE":
             raise ValueError("Prerequisite candidate contains an unexpected non-column grant")
         if grant.get("grant_option"):
@@ -127,7 +130,14 @@ def actual_column_grants(statements):
 
 def prerequisite_checks(source, spec):
     statements, blocks = parse(source)
-    inspect_precondition_bodies(blocks)
+    import pglast
+    preconditions = []
+    for statement in statements:
+        if 'DoStmt' in statement:
+            body = next(a['DefElem']['arg']['String']['sval'] for a in statement['DoStmt']['args']
+                        if a['DefElem']['defname'] == 'as')
+            preconditions.extend(pglast.parse_plpgsql('DO $precondition$' + body + '$precondition$;'))
+    inspect_precondition_bodies(preconditions)
     expected = expected_column_grants(spec)
     actual = actual_column_grants(statements)
     if expected != actual:
@@ -141,7 +151,7 @@ def prerequisite_checks(source, spec):
                         r"MESSAGE = 'Package 0090 V043 implementation closure is incomplete; execution denied';\s*END;\s*", body):
         raise ValueError("Incomplete-candidate execution interlock is absent or conditional")
     for statement in statements:
-        if not set(statement) <= {"DoStmt", "VariableSetStmt", "CreateStmt", "AlterTableStmt", "IndexStmt", "GrantStmt"}:
+        if not set(statement) <= {"DoStmt", "VariableSetStmt", "CreateStmt", "AlterTableStmt", "IndexStmt", "GrantStmt", "CreateFunctionStmt", "AlterOwnerStmt"}:
             raise ValueError("Unapproved top-level SQL statement")
     admin = source.split("-- ADMIN: SPEC 24", 1)[1].split("-- T01", 1)[0]
     if re.search(r"\b(?:CREATE|ALTER) ROLE\b", admin, re.IGNORECASE):
@@ -176,20 +186,22 @@ def prerequisite_checks(source, spec):
         raise ValueError("Activation must be explicit NOT NULL without DEFAULT")
     if len([g for g in actual if g[1:3] == ("public.offline_deadline_policy", "effective_from")]) != 7:
         raise ValueError("Activation column must have exactly seven approved grants")
+    import package_0090_capability_source
+    capability = package_0090_capability_source.check(statements, expected)
     return {"sql_statements": len(statements), "plpgsql_blocks": len(blocks),
-            "exact_column_grants": len(actual), "control_tables": len(creates)}
+            "exact_column_grants": len(actual), "control_tables": len(creates), **capability}
 
 
 def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21:
-        missing.append("18 public wrappers and P/Q/Z internal capabilities are not implemented")
+        missing.append("18 public wrappers and remaining Q/Z capabilities are not fully implemented")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_internal_readiness\(", source):
-        missing.append("Operational bound-policy/activation/29-field validation guards are not implemented")
+        missing.append("Operational wrapper/Q/Z guards are incomplete; internal-P guards have bounded static review only")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_preflight\(", source):
-        missing.append("Canonical codecs and independently agreeing complete golden evidence are absent")
-    if not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
+        missing.append("Wrapper transport and private decision commitment codecs/goldens are incomplete; fixture binding/catalog goldens do not close them")
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21 or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
         missing.append("Exact frozen/internal capability EXECUTE ACL closure is absent")
     approval = ('FIXTURE_ID=PACKAGE-0090-G3F-3B-FIXTURE-001',
                 'POLICY_VERSION=fixture-1',

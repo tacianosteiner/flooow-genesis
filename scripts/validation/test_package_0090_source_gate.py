@@ -93,6 +93,49 @@ class SourceGateTests(unittest.TestCase):
                        'PRODUCTION_POLICY_PROVISIONING=NO'):
             self.assertEqual(len(gate.closure_gaps(self.source, self.spec.replace(marker, 'INVALID'))), 5)
 
+    def test_internal_p_signature_and_acl_static_manifest(self):
+        result=gate.prerequisite_checks(self.source,self.spec)
+        self.assertEqual(result['internal_p_read_columns'],60)
+        self.assertEqual(result['internal_p_execute_grants'],2)
+
+    def test_internal_p_security_options_denied(self):
+        for before,after in (('LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT',
+                              'LANGUAGE plpgsql STABLE SECURITY DEFINER CALLED ON NULL INPUT'),
+                             ('LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT',
+                              'LANGUAGE plpgsql VOLATILE SECURITY INVOKER CALLED ON NULL INPUT'),
+                             ('LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT',
+                              'LANGUAGE plpgsql VOLATILE SECURITY DEFINER STRICT'),
+                             ('possession_secret pg_catalog.bytea\n)', 'possession_secret pg_catalog.bytea DEFAULT NULL\n)')):
+            with self.subTest(after=after):self.reject(self.source.replace(before,after,1))
+
+    def test_internal_p_extra_privileged_call_denied(self):
+        self.reject(self.source.replace('    RETURN TRUE;',
+                    '    PERFORM public.transaction_identity_progress_lock(header_record.organization_id,header_record.omie_connection_id);\n    RETURN TRUE;',1))
+        self.reject(self.source.replace('    RETURN TRUE;',
+                    "    PERFORM pg_catalog.set_config('statement_timeout','0',false);\n    RETURN TRUE;",1))
+
+    def test_internal_p_dynamic_sql_and_dml_denied(self):
+        self.reject(self.source.replace('    RETURN TRUE;',"    EXECUTE 'SELECT 1';\n    RETURN TRUE;",1))
+        self.reject(self.source.replace('    RETURN TRUE;',
+                    '    UPDATE public.offline_binding_lifecycle SET state=\'ACTIVE\' WHERE binding_id=$1;\n    RETURN TRUE;',1))
+
+    def test_internal_p_raw_read_and_wildcard_denied(self):
+        self.reject(self.source.replace('SELECT p.principal_id INTO principal_found',
+                                       'SELECT p.reason INTO principal_found',1))
+        self.reject(self.source.replace('SELECT p.principal_id INTO principal_found',
+                                       'SELECT p.* INTO principal_found',1))
+
+    def test_internal_p_public_and_service_execute_denied(self):
+        signature='public.offline_lock_bound_principal(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea)'
+        for recipient in ('PUBLIC','flooow_offline_audit_owner','unapproved_service'):
+            self.reject(self.source+'\nGRANT EXECUTE ON FUNCTION '+signature+' TO '+recipient+';')
+
+    def test_internal_p_owner_and_namespace_denied(self):
+        self.reject(self.source.replace(') OWNER TO flooow_offline_principal_lock_owner;',
+                                       ') OWNER TO flooow_offline_execution_owner;',1))
+        self.reject(self.source.replace('ALTER FUNCTION public.offline_lock_bound_principal(',
+                                       'ALTER FUNCTION public.other_capability(',1))
+
 
 if __name__ == "__main__":
     unittest.main()
