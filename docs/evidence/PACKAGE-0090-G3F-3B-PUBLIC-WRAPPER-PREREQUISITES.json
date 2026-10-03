@@ -1,0 +1,51 @@
+{
+  "gate": "G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS",
+  "status": "HOLD_NEW_READ_AUTHORITY_REQUIRED",
+  "blocker": "S01 live connection readiness requirement has no permitted A read path",
+  "missing_minimum_select": [
+    [
+      "flooow_offline_audit_owner",
+      "public.integration_connection",
+      "binding_version",
+      "select"
+    ],
+    [
+      "flooow_offline_audit_owner",
+      "public.integration_connection",
+      "connection_id",
+      "select"
+    ],
+    [
+      "flooow_offline_audit_owner",
+      "public.integration_connection",
+      "credential_kind",
+      "select"
+    ],
+    [
+      "flooow_offline_audit_owner",
+      "public.integration_connection",
+      "organization_id",
+      "select"
+    ],
+    [
+      "flooow_offline_audit_owner",
+      "public.integration_connection",
+      "provider_key",
+      "select"
+    ],
+    [
+      "flooow_offline_audit_owner",
+      "public.integration_connection",
+      "status",
+      "select"
+    ]
+  ],
+  "existing_live_predicate": "SELECT status='ACTIVE' FROM public.integration_organization WHERE organization_id=?",
+  "approved_a_fixture_projection_unchanged_after_connection_suspension": true,
+  "observation_scope": "retained offline fixture row projections, not SQL/function runtime proof",
+  "required_a_integration_connection_grants": [],
+  "unresolved_authority_blocker_count": 1,
+  "spec_amended": false,
+  "grants_widened": false,
+  "database_connection_attempted": false
+}
