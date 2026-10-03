@@ -1,0 +1,89 @@
+"""Negative source tests; no database or runtime integration is used."""
+
+import unittest
+
+import package_0090_source_gate as gate
+
+
+class SourceGateTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.source = (gate.ROOT / gate.V043).read_text(encoding="utf-8-sig")
+        cls.spec = (gate.ROOT / gate.SPEC).read_text(encoding="utf-8-sig")
+
+    def reject(self, source):
+        with self.assertRaises(ValueError):
+            gate.prerequisite_checks(source, self.spec)
+
+    def test_current_column_acl_matches_independent_normative_matrix(self):
+        self.assertEqual(gate.prerequisite_checks(self.source, self.spec)["exact_column_grants"], 1020)
+
+    def test_public_grant_denied(self):
+        self.reject(self.source + "\nGRANT SELECT (effective_from) ON public.offline_deadline_policy TO PUBLIC;")
+
+    def test_whole_table_grant_denied(self):
+        self.reject(self.source + "\nGRANT SELECT ON public.offline_deadline_policy TO flooow_offline_audit_owner;")
+
+    def test_grant_option_denied(self):
+        self.reject(self.source + "\nGRANT SELECT (effective_from) ON public.offline_deadline_policy TO flooow_offline_audit_owner WITH GRANT OPTION;")
+
+    def test_auditor_possession_digest_read_denied(self):
+        self.reject(self.source + "\nGRANT SELECT (possession_digest) ON public.offline_execution TO flooow_offline_audit_owner;")
+
+    def test_auditor_activation_write_denied(self):
+        self.reject(self.source + "\nGRANT UPDATE (effective_from) ON public.offline_deadline_policy TO flooow_offline_audit_owner;")
+
+    def test_missing_activation_read_denied(self):
+        self.reject(self.source.replace(
+            "GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_intent_audit_owner;", ""))
+
+    def test_duplicate_physical_grant_denied(self):
+        self.reject(self.source + "\nGRANT SELECT (effective_from) ON public.offline_deadline_policy TO flooow_offline_audit_owner;")
+
+    def test_missing_interlock_denied(self):
+        self.reject(self.source.replace("RAISE EXCEPTION USING ERRCODE = '55000',", "RAISE NOTICE USING ERRCODE = '55000',", 1))
+
+    def test_admin_creation_denied(self):
+        self.reject(self.source.replace(
+            "-- V043 never creates, alters or repairs this identity.",
+            "CREATE ROLE flooow_offline_control_owner NOLOGIN INHERIT;"))
+
+    def test_admin_noinherit_denied(self):
+        self.reject(self.source.replace("OR NOT owner_role.rolinherit", "OR owner_role.rolinherit", 1))
+
+    def test_activation_default_denied(self):
+        self.reject(self.source.replace("effective_from pg_catalog.timestamptz(6) NOT NULL,",
+                                       "effective_from pg_catalog.timestamptz(6) NOT NULL DEFAULT now(),"))
+
+    def test_activation_precision_denied(self):
+        self.reject(self.source.replace("effective_from pg_catalog.timestamptz(6) NOT NULL,",
+                                       "effective_from pg_catalog.timestamptz(3) NOT NULL,"))
+
+    def test_policy_seed_denied(self):
+        self.reject(self.source + "\nINSERT INTO public.offline_deadline_policy VALUES ('unapproved');")
+
+    def test_unapproved_control_table_denied(self):
+        self.reject(self.source.replace("CREATE TABLE public.offline_diagnostic_evidence (",
+                                       "CREATE TABLE public.offline_extra_control ("))
+
+    def test_crypto_installation_denied(self):
+        self.reject(self.source + "\nCREATE EXTENSION pgcrypto;")
+
+    def test_live_role_hidden_in_do_denied(self):
+        self.reject(self.source + "\nDO $$ BEGIN CREATE ROLE unapproved_login LOGIN; END; $$;")
+
+    def test_domain_write_hidden_in_do_denied(self):
+        self.reject(self.source + "\nDO $$ BEGIN DELETE FROM public.command_principal; END; $$;")
+
+    def test_dynamic_sql_denied(self):
+        self.reject(self.source + "\nDO $$ BEGIN EXECUTE 'SELECT 1'; END; $$;")
+
+    def test_frozen_table_ddl_denied(self):
+        self.reject(self.source + "\nALTER TABLE public.command_principal ADD COLUMN forbidden int4;")
+
+    def test_incomplete_source_never_reports_full_closure(self):
+        self.assertEqual(len(gate.closure_gaps(self.source, self.spec)), 5)
+
+
+if __name__ == "__main__":
+    unittest.main()

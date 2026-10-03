@@ -1,14 +1,100 @@
--- FLOOOW PACKAGE 0090 -- G3A STRUCTURAL SOURCE DRAFT ONLY.
+-- FLOOOW PACKAGE 0090 -- G3F.3B INCOMPLETE SOURCE CANDIDATE.
 -- MIGRATION_COMPLETE=NO; MIGRATION_EXECUTABLE=NO; MIGRATION_VALIDATED=NO.
 -- Do not execute or run Flyway against this incomplete candidate.
--- Frozen SPEC-0090: 508eeb7cd5d9db81721633e14dfa52dd3e013da5374c66adb4d2e6bb3f299bb1.
--- G3B dependency approval and independent source review are required before completion.
+-- Normative contract: SPEC-0090 sections 21-25, including the approved amendments.
+-- Complete guards/wrappers and independently approved golden evidence remain pending.
 -- No wrappers, internal functions, crypto objects, service logins or deployment data.
 -- NEW_CANONICAL_DOMAIN_AUTHORITY=NO. Future guards/admin governance enforce
 -- cross-table transitions, immutability, permanent slot allocation and tombstones.
 -- This draft changes no global schema/default privilege or existing ownership/security.
 -- Future execution requires the approved administrative migration identity and
 -- a transactional Flyway migration; no transaction/COMMIT is issued by this source.
+
+-- Source-only safety interlock. Remove only at recorded implementation closure.
+-- A comment is not an execution fence: an incomplete candidate must fail before DDL.
+DO $$
+BEGIN
+    RAISE EXCEPTION USING ERRCODE = '55000',
+        MESSAGE = 'Package 0090 V043 implementation closure is incomplete; execution denied';
+END;
+$$;
+
+-- Trusted migration transaction only; do not depend on the caller's search path.
+SET LOCAL search_path = pg_catalog, pg_temp;
+
+-- SPEC 23.3/24.3: actual creator and ADMIN defaults are separate prerequisites.
+-- Missing global defaults mean PostgreSQL hard-wired defaults, not an empty ACL.
+-- Schema defaults add privileges; they cannot cancel unsafe global defaults.
+-- This block inspects only; it neither provisions identities nor repairs defaults.
+DO $$
+DECLARE
+    creator_oid pg_catalog.oid;
+    creator_name pg_catalog.text;
+    default_kind pg_catalog."char";
+BEGIN
+    IF SESSION_USER <> 'postgres' OR CURRENT_USER <> 'postgres'
+       OR pg_catalog.current_setting('server_version_num')::pg_catalog.int4 < 180000
+       OR pg_catalog.current_setting('server_version_num')::pg_catalog.int4 >= 190000
+       OR pg_catalog.current_setting('server_encoding') <> 'UTF8' THEN
+        RAISE EXCEPTION 'Package 0090 requires the approved direct postgres deployment identity and PostgreSQL 18 UTF8';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_roles r
+                   WHERE r.rolname = 'postgres' AND r.rolsuper AND r.rolcanlogin) THEN
+        RAISE EXCEPTION 'Approved postgres deployment superuser prerequisite is missing';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_namespace n WHERE n.nspname = 'public')
+       OR EXISTS (
+        SELECT 1 FROM pg_catalog.pg_namespace n
+        CROSS JOIN LATERAL pg_catalog.aclexplode(COALESCE(n.nspacl, pg_catalog.acldefault('n', n.nspowner))) a
+        WHERE n.nspname = 'public' AND a.grantee = 0 AND a.privilege_type = 'CREATE'
+    ) THEN
+        RAISE EXCEPTION 'Missing or PUBLIC-writable Package 0090 public schema prerequisite';
+    END IF;
+    FOREACH creator_name IN ARRAY ARRAY[
+        'postgres', 'flooow_offline_control_owner',
+        'flooow_offline_verification_owner', 'flooow_offline_issuance_owner',
+        'flooow_offline_execution_owner', 'flooow_offline_audit_owner',
+        'flooow_offline_principal_lock_owner', 'flooow_offline_readiness_owner',
+        'flooow_offline_intent_audit_owner'
+    ]::pg_catalog.text[] LOOP
+        SELECT r.oid INTO creator_oid FROM pg_catalog.pg_roles r
+        WHERE r.rolname = creator_name;
+        IF NOT FOUND THEN
+            IF creator_name IN ('postgres', 'flooow_offline_control_owner') THEN
+                RAISE EXCEPTION 'Required separately provisioned Package 0090 administrative identity is missing';
+            END IF;
+            -- An absent wrapper owner creates no objects as that identity here.
+            -- Its separately closed defaults remain required before operational use.
+            CONTINUE;
+        END IF;
+        FOREACH default_kind IN ARRAY ARRAY['r','S','f','T','n','L']::pg_catalog."char"[] LOOP
+            IF EXISTS (
+                SELECT 1 FROM pg_catalog.aclexplode(COALESCE(
+                    (SELECT d.defaclacl FROM pg_catalog.pg_default_acl d
+                     WHERE d.defaclrole = creator_oid AND d.defaclnamespace = 0
+                       AND d.defaclobjtype = default_kind),
+                    pg_catalog.acldefault(
+                        CASE WHEN default_kind = 'S' THEN 's'::pg_catalog."char"
+                             ELSE default_kind END, creator_oid)
+                )) a WHERE a.grantee <> creator_oid
+            ) THEN
+                RAISE EXCEPTION 'Unsafe Package 0090 global creator defaults; separate governed provisioning required';
+            END IF;
+        END LOOP;
+        IF EXISTS (
+            SELECT 1 FROM pg_catalog.pg_default_acl d
+            CROSS JOIN LATERAL pg_catalog.aclexplode(d.defaclacl) a
+            WHERE d.defaclrole = creator_oid AND a.grantee <> creator_oid
+        ) OR EXISTS (
+            SELECT 1 FROM pg_catalog.pg_default_acl d
+            WHERE d.defaclrole = creator_oid
+              AND d.defaclobjtype NOT IN ('r','S','f','T','n','L')
+        ) THEN
+            RAISE EXCEPTION 'Unsafe Package 0090 scoped or unsupported creator defaults';
+        END IF;
+    END LOOP;
+END;
+$$;
 
 -- V: restricted NOLOGIN owner; adopt no unsafe pre-existing authority.
 DO $$
@@ -32,7 +118,10 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_verification_owner ownership or ACL authority is forbidden';
     END IF;
 END;
@@ -60,7 +149,10 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_issuance_owner ownership or ACL authority is forbidden';
     END IF;
 END;
@@ -88,7 +180,10 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_execution_owner ownership or ACL authority is forbidden';
     END IF;
 END;
@@ -116,7 +211,10 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_audit_owner ownership or ACL authority is forbidden';
     END IF;
 END;
@@ -144,7 +242,10 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_principal_lock_owner ownership or ACL authority is forbidden';
     END IF;
 END;
@@ -172,8 +273,133 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))
+                 AND NOT (d.deptype = 'a'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database())
+                          AND ((d.classid = 'pg_catalog.pg_namespace'::pg_catalog.regclass
+                                AND d.objid = (SELECT n.oid FROM pg_catalog.pg_namespace n WHERE n.nspname = 'offline_crypto'))
+                            OR (d.classid = 'pg_catalog.pg_proc'::pg_catalog.regclass
+                                AND d.objid IN (
+                                    pg_catalog.to_regprocedure('offline_crypto.hmac(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.text)'),
+                                    pg_catalog.to_regprocedure('offline_crypto.timing_safe_equal32(pg_catalog.bytea,pg_catalog.bytea)')
+                                ))))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_readiness_owner ownership or ACL authority is forbidden';
+    END IF;
+    -- SPEC 23: preinstalled crypto grants are required, not unsafe adoption.
+    -- Permit only the exact non-owner/non-grantable grants; verify objects below.
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_catalog.pg_namespace n
+        CROSS JOIN LATERAL pg_catalog.aclexplode(n.nspacl) a
+        WHERE n.nspname = 'offline_crypto' AND a.grantee = owner_role.oid
+          AND a.privilege_type = 'USAGE' AND NOT a.is_grantable
+    ) OR EXISTS (
+        SELECT 1 FROM pg_catalog.pg_namespace n
+        CROSS JOIN LATERAL pg_catalog.aclexplode(n.nspacl) a
+        WHERE n.nspname = 'offline_crypto' AND a.grantee = owner_role.oid
+          AND (a.privilege_type <> 'USAGE' OR a.is_grantable)
+    ) THEN
+        RAISE EXCEPTION 'Required exact Q crypto schema USAGE is missing or unsafe';
+    END IF;
+    IF (SELECT pg_catalog.count(*) FROM pg_catalog.pg_proc p
+        CROSS JOIN LATERAL pg_catalog.aclexplode(p.proacl) a
+        WHERE p.oid IN (
+            pg_catalog.to_regprocedure('offline_crypto.hmac(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.text)'),
+            pg_catalog.to_regprocedure('offline_crypto.timing_safe_equal32(pg_catalog.bytea,pg_catalog.bytea)')
+        ) AND a.grantee = owner_role.oid AND a.privilege_type = 'EXECUTE'
+          AND NOT a.is_grantable) <> 2
+       OR EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        CROSS JOIN LATERAL pg_catalog.aclexplode(p.proacl) a
+        WHERE p.oid IN (
+            pg_catalog.to_regprocedure('offline_crypto.hmac(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.text)'),
+            pg_catalog.to_regprocedure('offline_crypto.timing_safe_equal32(pg_catalog.bytea,pg_catalog.bytea)')
+        ) AND a.grantee = owner_role.oid
+          AND (a.privilege_type <> 'EXECUTE' OR a.is_grantable)
+    ) THEN
+        RAISE EXCEPTION 'Required exact Q crypto EXECUTE grants are missing or unsafe';
+    END IF;
+END;
+$$;
+
+-- SPEC 23 dependency inspection, never installation or crypto ACL repair.
+-- Binary provenance and complete independently approved member inventory remain
+-- separate deployment evidence, not inferred from these catalog properties.
+DO $$
+DECLARE
+    deployment_oid pg_catalog.oid;
+    readiness_oid pg_catalog.oid;
+    crypto_namespace pg_catalog.oid;
+    crypto_function record;
+BEGIN
+    SELECT r.oid INTO deployment_oid FROM pg_catalog.pg_roles r WHERE r.rolname = 'postgres';
+    SELECT r.oid INTO readiness_oid FROM pg_catalog.pg_roles r WHERE r.rolname = 'flooow_offline_readiness_owner';
+    SELECT n.oid INTO crypto_namespace FROM pg_catalog.pg_namespace n
+    WHERE n.nspname = 'offline_crypto' AND n.nspowner = deployment_oid;
+    IF crypto_namespace IS NULL OR readiness_oid IS NULL THEN
+        RAISE EXCEPTION 'Approved Package 0090 crypto schema/identity prerequisite is missing';
+    END IF;
+    IF (SELECT pg_catalog.count(*) FROM pg_catalog.pg_extension e
+        WHERE e.extowner = deployment_oid AND e.extnamespace = crypto_namespace
+          AND ((e.extname = 'pgcrypto' AND e.extversion = '1.4')
+            OR (e.extname = 'flooow_offline_mac32' AND e.extversion = '1.0'))) <> 2 THEN
+        RAISE EXCEPTION 'Approved version-pinned crypto dependencies are missing or mismatched';
+    END IF;
+    IF EXISTS (
+        SELECT 1 FROM pg_catalog.pg_namespace n
+        CROSS JOIN LATERAL pg_catalog.aclexplode(COALESCE(n.nspacl, pg_catalog.acldefault('n', n.nspowner))) a
+        WHERE n.oid = crypto_namespace AND a.grantee <> deployment_oid
+          AND (a.grantee <> readiness_oid OR a.privilege_type <> 'USAGE' OR a.is_grantable)
+    ) THEN
+        RAISE EXCEPTION 'Unapproved crypto schema privilege';
+    END IF;
+    FOR crypto_function IN
+        SELECT p.*, l.lanname, e.extname FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_language l ON l.oid = p.prolang
+        JOIN pg_catalog.pg_depend d ON d.classid = 'pg_catalog.pg_proc'::pg_catalog.regclass
+             AND d.objid = p.oid AND d.deptype = 'e'
+             AND d.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+        JOIN pg_catalog.pg_extension e ON e.oid = d.refobjid
+        WHERE e.extname IN ('pgcrypto', 'flooow_offline_mac32')
+    LOOP
+        IF crypto_function.proowner <> deployment_oid OR crypto_function.pronamespace <> crypto_namespace THEN
+            RAISE EXCEPTION 'Unapproved crypto member owner or schema';
+        END IF;
+        IF EXISTS (
+            SELECT 1 FROM pg_catalog.aclexplode(COALESCE(crypto_function.proacl,
+                pg_catalog.acldefault('f', crypto_function.proowner))) a
+            WHERE a.grantee <> deployment_oid
+              AND (a.grantee <> readiness_oid OR a.privilege_type <> 'EXECUTE' OR a.is_grantable
+                OR crypto_function.oid NOT IN (
+                    pg_catalog.to_regprocedure('offline_crypto.hmac(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.text)'),
+                    pg_catalog.to_regprocedure('offline_crypto.timing_safe_equal32(pg_catalog.bytea,pg_catalog.bytea)')
+                ))
+        ) THEN
+            RAISE EXCEPTION 'Unapproved crypto member privilege';
+        END IF;
+    END LOOP;
+    IF (SELECT pg_catalog.count(*) FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_language l ON l.oid = p.prolang
+        JOIN pg_catalog.pg_depend d ON d.classid = 'pg_catalog.pg_proc'::pg_catalog.regclass
+             AND d.objid = p.oid AND d.deptype = 'e'
+             AND d.refclassid = 'pg_catalog.pg_extension'::pg_catalog.regclass
+        JOIN pg_catalog.pg_extension e ON e.oid = d.refobjid
+        WHERE p.proowner = deployment_oid AND p.pronamespace = crypto_namespace
+          AND l.lanname = 'c' AND p.prokind = 'f' AND p.provolatile = 'i'
+          AND p.proisstrict AND NOT p.prosecdef AND NOT p.proretset
+          AND p.pronargdefaults = 0 AND p.provariadic = 0
+          AND p.proargnames IS NULL AND p.proallargtypes IS NULL
+          AND p.proargmodes IS NULL AND p.proconfig IS NULL
+          AND ((p.oid = pg_catalog.to_regprocedure('offline_crypto.hmac(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.text)')
+                AND p.prorettype = 'pg_catalog.bytea'::pg_catalog.regtype
+                AND e.extname = 'pgcrypto' AND p.prosrc = 'pg_hmac' AND p.probin = '$libdir/pgcrypto')
+            OR (p.oid = pg_catalog.to_regprocedure('offline_crypto.timing_safe_equal32(pg_catalog.bytea,pg_catalog.bytea)')
+                AND p.prorettype = 'pg_catalog.bool'::pg_catalog.regtype AND p.proparallel = 's'
+                AND e.extname = 'flooow_offline_mac32' AND p.prosrc = 'timing_safe_equal32'
+                AND p.probin = '$libdir/flooow_offline_mac32'))) <> 2 THEN
+        RAISE EXCEPTION 'Approved exact crypto function contract is missing or mismatched';
     END IF;
 END;
 $$;
@@ -200,24 +426,26 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass
+                          AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_intent_audit_owner ownership or ACL authority is forbidden';
     END IF;
 END;
 $$;
 
--- ADMIN: restricted NOLOGIN owner; adopt no unsafe pre-existing authority.
+-- ADMIN: SPEC 24 separately provisioned NOLOGIN INHERIT control owner.
+-- V043 never creates, alters or repairs this identity.
 DO $$
 DECLARE
     owner_role record;
 BEGIN
     SELECT * INTO owner_role FROM pg_catalog.pg_roles WHERE rolname = 'flooow_offline_control_owner';
     IF NOT FOUND THEN
-        CREATE ROLE flooow_offline_control_owner
-            NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
-        SELECT * INTO owner_role FROM pg_catalog.pg_roles WHERE rolname = 'flooow_offline_control_owner';
+        RAISE EXCEPTION 'Required separately provisioned flooow_offline_control_owner is missing';
     END IF;
-    IF owner_role.rolcanlogin OR owner_role.rolinherit OR owner_role.rolsuper
+    IF owner_role.rolcanlogin OR NOT owner_role.rolinherit OR owner_role.rolsuper
        OR owner_role.rolcreatedb OR owner_role.rolcreaterole
        OR owner_role.rolreplication OR owner_role.rolbypassrls THEN
         RAISE EXCEPTION 'Unsafe pre-existing flooow_offline_control_owner attributes';
@@ -228,8 +456,22 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_catalog.pg_shdepend d
                WHERE d.refclassid = 'pg_catalog.pg_authid'::pg_catalog.regclass
-                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')) THEN
+                 AND d.refobjid = owner_role.oid AND d.deptype IN ('o','a')
+                 AND NOT (d.classid = 'pg_catalog.pg_default_acl'::pg_catalog.regclass AND d.deptype = 'o'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database()))
+                 AND NOT (d.classid = 'pg_catalog.pg_namespace'::pg_catalog.regclass
+                          AND d.deptype = 'a'
+                          AND d.dbid = (SELECT b.oid FROM pg_catalog.pg_database b WHERE b.datname = pg_catalog.current_database())
+                          AND d.objid = (SELECT n.oid FROM pg_catalog.pg_namespace n WHERE n.nspname = 'public'))) THEN
         RAISE EXCEPTION 'Pre-existing flooow_offline_control_owner ownership or ACL authority is forbidden';
+    END IF;
+    IF EXISTS (
+        SELECT 1 FROM pg_catalog.pg_namespace n
+        CROSS JOIN LATERAL pg_catalog.aclexplode(n.nspacl) a
+        WHERE n.nspname = 'public' AND a.grantee = owner_role.oid
+          AND (a.privilege_type <> 'USAGE' OR a.is_grantable)
+    ) THEN
+        RAISE EXCEPTION 'Only non-grantable public schema USAGE is approved for ADMIN';
     END IF;
 END;
 $$;
@@ -719,17 +961,22 @@ CREATE TABLE public.offline_preflight_key (
 );
 
 -- T13; SPEC 21.7 / approved G1-G2 structural design.
--- FENCE. Immutable policy versions; no operational INSERT/UPDATE. Full 27-tag numeric/maxima validation remains future activation/readiness logic.
+-- FENCE. Immutable policy versions; no operational INSERT/UPDATE or seeded values.
+-- Full 29-tag numeric/maxima validation remains future activation/readiness logic.
 CREATE TABLE public.offline_deadline_policy (
     policy_version pg_catalog.text NOT NULL,
     policy_digest pg_catalog.bytea NOT NULL,
     canonical_policy pg_catalog.bytea NOT NULL,
+    effective_from pg_catalog.timestamptz(6) NOT NULL,
     CONSTRAINT offline_deadline_policy_pk PRIMARY KEY (policy_version),
     CONSTRAINT offline_deadline_policy_ck1 CHECK (
         (policy_version <> '' AND policy_version IS NFC NORMALIZED AND policy_version !~ '[[:cntrl:]]')
     ),
     CONSTRAINT offline_deadline_policy_ck2 CHECK (
         pg_catalog.octet_length(policy_digest) = 32 AND pg_catalog.octet_length(canonical_policy) > 0 AND policy_digest = pg_catalog.sha256(canonical_policy)
+    ),
+    CONSTRAINT offline_deadline_policy_ck3 CHECK (
+        pg_catalog.isfinite(effective_from)
     )
 );
 
@@ -3932,5 +4179,14 @@ GRANT UPDATE (state) ON TABLE public.offline_execution TO flooow_offline_executi
 -- Required: Atomic EFFECTS_COMPLETE/RELEASED/REQUIRED with decision; no result write
 GRANT UPDATE (state) ON TABLE public.offline_reconciliation TO flooow_offline_execution_owner;
 
--- END G3A draft. Independent G3A review and G3B dependency decision next.
+-- SPEC 25.3 / 22.4: exactly seven read-only activation dependencies.
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_verification_owner;
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_issuance_owner;
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_execution_owner;
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_audit_owner;
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_principal_lock_owner;
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_readiness_owner;
+GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_intent_audit_owner;
+
+-- END incomplete G3F.3B candidate. No migration/activation authorization.
 -- Never infer authority/READY/implementation proof from this source inventory.
