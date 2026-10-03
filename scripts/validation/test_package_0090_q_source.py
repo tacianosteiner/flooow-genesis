@@ -111,6 +111,21 @@ class QSourceTests(unittest.TestCase):
         import package_0090_q_source as q
         self.assertEqual(q.check(self.fn,self.expected)['internal_q_source'],'BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF')
 
+    def test_deployment_missing_connection_column(self):
+        self.reject("('flooow_offline_audit_owner','integration_connection','status','SELECT'),",'')
+
+    def test_deployment_extra_connection_column(self):
+        self.reject("('flooow_offline_audit_owner','integration_connection','status','SELECT'),",
+                    "('flooow_offline_audit_owner','integration_connection','status','SELECT'),('flooow_offline_audit_owner','integration_connection','secret_ref','SELECT'),")
+
+    def test_deployment_duplicate_connection_column(self):
+        row="('flooow_offline_audit_owner','integration_connection','status','SELECT'),"
+        self.reject(row,row+row)
+
+    def test_deployment_wrong_connection_privilege(self):
+        self.reject("('flooow_offline_audit_owner','integration_connection','status','SELECT')",
+                    "('flooow_offline_audit_owner','integration_connection','status','UPDATE')")
+
     def test_sentinel_only_auditor(self):self.reject('IF pg_catalog.octet_length($8)<>0','IF false')
     def test_executor_cannot_use_sentinel(self):self.reject('IF pg_catalog.octet_length($8)=0','IF false')
     def test_authenticated_route(self):self.reject('IF SESSION_USER=slot_names[4] THEN','IF CURRENT_USER=slot_names[4] THEN')

@@ -4,28 +4,31 @@ Date: 2026-10-03 (America/Sao_Paulo). This records source work only.
 
 ## Current state — supersedes every historical status below
 
-CURRENT_GATE=G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS
-CURRENT_GATE_STATUS=HOLD_NEW_READ_AUTHORITY_REQUIRED
+CURRENT_GATE=G3F.3B_S01_TARGET_CONSUMER_AUTHORITY
+CURRENT_GATE_STATUS=HOLD_TARGET_READ_AUTHORITY_REQUIRED
 UNRESOLVED_AUTHORITY_BLOCKER_COUNT=1
 INTERNAL_P=PASS_BOUNDED_STATIC
 INTERNAL_Z=PASS_BOUNDED_STATIC
 INTERNAL_Q=PASS_BOUNDED_STATIC
-TESTS=96_OFFLINE_PASS
+TESTS=118_OFFLINE_PASS
 PRIMARY_GATE_UNRESOLVED_BLOCKER_COUNT=0
 FULL_V043_REMAINING_IMPLEMENTATION_CATEGORY_COUNT=3
 V043_EXECUTED=NO
 DATABASE_CONNECTION_ATTEMPTED=NO
 PROTECTED_DATABASE_MUTATION=NO
 G3G_AUTHORIZED=NO
-NEXT_GATE=G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS
+NEXT_GATE=G3F.3B_S01_TARGET_CONSUMER_AUTHORITY
 
 Q source/security/ACL/frame evidence is recorded in the
 [internal Q review](PACKAGE-0090-G3F-3B-INTERNAL-Q-SOURCE-REVIEW.md).
 Q checkpoint 3aa393795a32c3b964a86d6a016cb55be041cb7e was pushed/fetched with
 local and remote HEAD equal. Work automatically entered the public-wrapper
-gate and found the [S01 connection-read contract conflict](PACKAGE-0090-G3F-3B-PUBLIC-WRAPPERS-CONTRACT-HOLD.md).
-Its exact narrow amendment is proposed for technical governance; no read
-authority is widened and no S01 success is claimed.
+gate and found the historical [S01 connection-read contract conflict](PACKAGE-0090-G3F-3B-PUBLIC-WRAPPERS-CONTRACT-HOLD.md).
+The 2026-10-03 approval now amends ADR/SPEC and adds exactly six A connection
+SELECT grants (actual inventory 1026, exact normative/source/deployment sets).
+S01 remains unimplemented at the newly proven
+[target-read authority boundary](PACKAGE-0090-G3F-3B-S01-TARGET-AUTHORITY-HOLD.md).
+No target authority is inferred or widened and no S01 success is claimed.
 The normative fixture and policy/evidence/manifest/binding/catalog/HMAC goldens
 remain closed for their test-only scope. Full operational wrappers, remaining
 wrapper/private transport goldens and full transitive EXECUTE closure remain

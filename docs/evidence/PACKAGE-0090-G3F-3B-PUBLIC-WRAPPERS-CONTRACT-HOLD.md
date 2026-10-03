@@ -1,5 +1,10 @@
 # Package 0090 public-wrapper prerequisite authority hold
 
+Historical connection hold, superseded by the 2026-10-03 technical governance
+approval and [target authority boundary](PACKAGE-0090-G3F-3B-S01-TARGET-AUTHORITY-HOLD.md).
+The six proposed connection reads below are now approved and physically granted
+in the interlocked V043 source; this document retains the earlier finding.
+
 Date: 2026-10-03 (America/Sao_Paulo).
 Gate entered automatically: G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS.
 Status: HOLD_NEW_READ_AUTHORITY_REQUIRED. One new authority/contract blocker.

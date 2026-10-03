@@ -31,14 +31,18 @@ def audit():
         raise ValueError('Existing live organization predicate changed; audit must be re-reviewed')
     if 'Controls/catalog/history/org/connections/target reads; A/no locks' not in spec:
         raise ValueError('S01 contract changed; audit must be re-reviewed')
-    return {'gate':'G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS','status':'HOLD_NEW_READ_AUTHORITY_REQUIRED' if missing else 'REQUIRES_REVIEW',
-        'blocker':'S01 live connection readiness requirement has no permitted A read path',
+    from package_0090_s01_readiness import audit as readiness_audit
+    readiness=readiness_audit() if not missing else None
+    return {'gate':'G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS','status':'HOLD_NEW_READ_AUTHORITY_REQUIRED' if missing else 'HOLD_TARGET_READ_AUTHORITY_REQUIRED',
+        'blocker':'S01 live connection readiness requirement has no permitted A read path' if missing else readiness['blocker'],
         'missing_minimum_select':missing,'existing_live_predicate':organization_query,
         'approved_a_fixture_projection_unchanged_after_connection_suspension':project(tables)==project(suspended),
         'observation_scope':'retained offline fixture row projections, not SQL/function runtime proof',
         'required_a_integration_connection_grants':sorted(g for g in grants if g[0]==OWNER and g[1]=='public.integration_connection'),
-        'unresolved_authority_blocker_count':1 if missing else 0,
-        'spec_amended':False,'grants_widened':False,'database_connection_attempted':False}
+        'unresolved_authority_blocker_count':1,
+        'spec_amended':not missing,'grants_widened':not missing,'database_connection_attempted':False,
+        'next_gate':'G3F.3B_S01_TARGET_CONSUMER_AUTHORITY' if not missing else 'G3F.3B_S01_CONNECTION_READ_AUTHORITY',
+        'target_readiness_authority':readiness}
 
 
 if __name__=='__main__':

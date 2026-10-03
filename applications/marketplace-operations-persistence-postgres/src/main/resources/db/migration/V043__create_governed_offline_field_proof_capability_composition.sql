@@ -1872,10 +1872,10 @@ GRANT SELECT (semantic_fingerprint_version) ON TABLE public.integration_omie_tra
 -- SPEC:1161 A READ_PRIVILEGE; consumer=RECON.evidence; entrypoint=S03; transitive=NONE.
 -- Required: Canonical V3 version/fingerprint and coalesce civil revision
 GRANT SELECT (source_evidence_semantic_fingerprint) ON TABLE public.integration_omie_transaction_evidence_v3 TO flooow_offline_audit_owner;
--- SPEC:1162 A READ_PRIVILEGE; consumer=INSPECT.admissionValidity; entrypoint=S02; transitive=NONE.
+-- SPEC:1162 A READ_PRIVILEGE; consumer=INSPECT.admissionValidity; S01.organizationActive; entrypoint=S01-S02; transitive=NONE.
 -- Required: Current ACTIVE organization needed for effective admission predicate
 GRANT SELECT (organization_id) ON TABLE public.integration_organization TO flooow_offline_audit_owner;
--- SPEC:1163 A READ_PRIVILEGE; consumer=INSPECT.admissionValidity; entrypoint=S02; transitive=NONE.
+-- SPEC:1163 A READ_PRIVILEGE; consumer=INSPECT.admissionValidity; S01.organizationActive; entrypoint=S01-S02; transitive=NONE.
 -- Required: Current ACTIVE organization needed for effective admission predicate
 GRANT SELECT (status) ON TABLE public.integration_organization TO flooow_offline_audit_owner;
 -- SPEC:1164 P READ_PRIVILEGE; consumer=P.boundPrincipal; entrypoint=internal P; transitive=NONE.
@@ -4189,6 +4189,14 @@ GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_
 GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_readiness_owner;
 GRANT SELECT (effective_from) ON TABLE public.offline_deadline_policy TO flooow_offline_intent_audit_owner;
 
+-- Approved S01_ONLY / PRIVATE_PREDICATES_ONLY connection reads.
+GRANT SELECT (organization_id) ON TABLE public.integration_connection TO flooow_offline_audit_owner;
+GRANT SELECT (connection_id) ON TABLE public.integration_connection TO flooow_offline_audit_owner;
+GRANT SELECT (provider_key) ON TABLE public.integration_connection TO flooow_offline_audit_owner;
+GRANT SELECT (credential_kind) ON TABLE public.integration_connection TO flooow_offline_audit_owner;
+GRANT SELECT (status) ON TABLE public.integration_connection TO flooow_offline_audit_owner;
+GRANT SELECT (binding_version) ON TABLE public.integration_connection TO flooow_offline_audit_owner;
+
 -- Internal P: independently guarded, scope-derived principal lock; no semantic DML.
 -- No new operational entrypoint or policy default. This candidate remains interlocked.
 CREATE FUNCTION public.offline_lock_bound_principal(
@@ -5059,8 +5067,8 @@ BEGIN
                    WHERE pg_catalog.has_function_privilege(q.oid,p.oid,'EXECUTE')));
     SELECT pg_catalog.array_agg(c.oid ORDER BY c.oid) INTO relation_oids
       FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
-     WHERE n.nspname='public' AND c.relname=ANY(ARRAY['command_authority_operation','command_credential_revision','command_permission_grant','command_principal','flyway_schema_history','integration_connector_page_commit','integration_connector_progress','integration_mercado_livre_order_source_observation','integration_omie_transaction_evidence','integration_omie_transaction_evidence_v3','integration_organization','marketplace_order_identity_registry','marketplace_order_occurrence_source_promotion','marketplace_transaction_identity_decision','marketplace_transaction_identity_head','offline_admission','offline_attempt','offline_attempt_pointer','offline_binding_header','offline_binding_lifecycle','offline_ceremony_result','offline_deadline_policy','offline_delivery','offline_execution','offline_preflight_key','offline_readiness','offline_reconciliation','offline_stage_receipt','s2a_accepted_attestation','s2a_attestation_consumption','s2a_signer_authority_revision','s2a_signer_key_revision']::pg_catalog.text[]);
-    IF pg_catalog.cardinality(relation_oids)<>32 THEN
+     WHERE n.nspname='public' AND c.relname=ANY(ARRAY['command_authority_operation','command_credential_revision','command_permission_grant','command_principal','flyway_schema_history','integration_connection','integration_connector_page_commit','integration_connector_progress','integration_mercado_livre_order_source_observation','integration_omie_transaction_evidence','integration_omie_transaction_evidence_v3','integration_organization','marketplace_order_identity_registry','marketplace_order_occurrence_source_promotion','marketplace_transaction_identity_decision','marketplace_transaction_identity_head','offline_admission','offline_attempt','offline_attempt_pointer','offline_binding_header','offline_binding_lifecycle','offline_ceremony_result','offline_deadline_policy','offline_delivery','offline_execution','offline_preflight_key','offline_readiness','offline_reconciliation','offline_stage_receipt','s2a_accepted_attestation','s2a_attestation_consumption','s2a_signer_authority_revision','s2a_signer_key_revision']::pg_catalog.text[]);
+    IF pg_catalog.cardinality(relation_oids)<>33 THEN
         RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
     END IF;
     SELECT pg_catalog.array_agg(DISTINCT x.oid ORDER BY x.oid) INTO creator_oids FROM (
@@ -5164,6 +5172,12 @@ BEGIN
 ('flooow_offline_audit_owner','flyway_schema_history','success','SELECT'),
 ('flooow_offline_audit_owner','flyway_schema_history','type','SELECT'),
 ('flooow_offline_audit_owner','flyway_schema_history','version','SELECT'),
+('flooow_offline_audit_owner','integration_connection','binding_version','SELECT'),
+('flooow_offline_audit_owner','integration_connection','connection_id','SELECT'),
+('flooow_offline_audit_owner','integration_connection','credential_kind','SELECT'),
+('flooow_offline_audit_owner','integration_connection','organization_id','SELECT'),
+('flooow_offline_audit_owner','integration_connection','provider_key','SELECT'),
+('flooow_offline_audit_owner','integration_connection','status','SELECT'),
 ('flooow_offline_audit_owner','integration_omie_transaction_evidence','capability','SELECT'),
 ('flooow_offline_audit_owner','integration_omie_transaction_evidence','connection_id','SELECT'),
 ('flooow_offline_audit_owner','integration_omie_transaction_evidence','currency','SELECT'),
@@ -6257,6 +6271,12 @@ BEGIN
 ('flyway_schema_history','success'),
 ('flyway_schema_history','type'),
 ('flyway_schema_history','version'),
+('integration_connection','binding_version'),
+('integration_connection','connection_id'),
+('integration_connection','credential_kind'),
+('integration_connection','organization_id'),
+('integration_connection','provider_key'),
+('integration_connection','status'),
 ('integration_connector_page_commit','capability'),
 ('integration_connector_page_commit','connection_id'),
 ('integration_connector_page_commit','input_progress_version'),

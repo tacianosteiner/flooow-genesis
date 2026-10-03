@@ -319,3 +319,25 @@ migration,production policy,live role,protected database,G3G or field-proof
 authority changes. This closes the normative evidence-input gap and permits
 the already authorized V043 source implementation to continue; it does not
 declare complete ACL/history/HMAC/private-dataflow goldens or wrapper closure.
+
+## Technical governance approval — S01 connection read authority (2026-10-03)
+
+S01_CONNECTION_READ_AUTHORITY_APPROVED=YES. Owner A may read only
+public.integration_connection.organization_id,connection_id,provider_key,
+credential_kind,status,binding_version for S01_ONLY/BOUND_CONNECTION_READINESS.
+Projection is PRIVATE_PREDICATES_ONLY. Derive both connection IDs and the
+organization exclusively from the authenticated binding/header. Each exact
+predicate requires bound organization, bound connection, frozen expected provider,
+frozen expected credential kind, status ACTIVE and frozen expected binding version.
+Require exactly one match for each connection; missing or ambiguous matches deny.
+The already authorized integration_organization.organization_id/status pair is
+also consumed by S01's private bound ACTIVE predicate; no organization column added.
+
+Whole-table SELECT, credential_binding/secret_ref reads, returned raw connection
+rows, service-login SELECT, write/lock privilege, caller-selected connection IDs,
+dynamic selectors and metadata projection beyond private predicates are forbidden.
+Expected physical per-column grant count is 1026; count alone is never proof.
+Recompute the exact normative/source/deployment inventory and reject extras/missing
+privileges. Q retains sentinel issuance, with no connection reads added to Q.
+This approval changes no V001-V042, execution interlock, protected deployment,
+production policy/crypto/roles, G3G or main publication authority.

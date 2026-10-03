@@ -1,8 +1,12 @@
 {
   "gate": "G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS",
-  "status": "HOLD_NEW_READ_AUTHORITY_REQUIRED",
-  "blocker": "S01 live connection readiness requirement has no permitted A read path",
-  "missing_minimum_select": [
+  "status": "HOLD_TARGET_READ_AUTHORITY_REQUIRED",
+  "blocker": "SPEC8/16 requires S01 target proof; SPEC22.4 limits existing A target reads to S03/RECON.evidence and grants no A ML-source reads required by the frozen matchesTarget producer. Current approval extends only connections and organization, not target consumers or ML-source reads.",
+  "missing_minimum_select": [],
+  "existing_live_predicate": "SELECT status='ACTIVE' FROM public.integration_organization WHERE organization_id=?",
+  "approved_a_fixture_projection_unchanged_after_connection_suspension": false,
+  "observation_scope": "retained offline fixture row projections, not SQL/function runtime proof",
+  "required_a_integration_connection_grants": [
     [
       "flooow_offline_audit_owner",
       "public.integration_connection",
@@ -40,12 +44,411 @@
       "select"
     ]
   ],
-  "existing_live_predicate": "SELECT status='ACTIVE' FROM public.integration_organization WHERE organization_id=?",
-  "approved_a_fixture_projection_unchanged_after_connection_suspension": true,
-  "observation_scope": "retained offline fixture row projections, not SQL/function runtime proof",
-  "required_a_integration_connection_grants": [],
   "unresolved_authority_blocker_count": 1,
-  "spec_amended": false,
-  "grants_widened": false,
-  "database_connection_attempted": false
+  "spec_amended": true,
+  "grants_widened": true,
+  "database_connection_attempted": false,
+  "next_gate": "G3F.3B_S01_TARGET_CONSUMER_AUTHORITY",
+  "target_readiness_authority": {
+    "s01_connection_read_authority_approved": true,
+    "spec_amended": true,
+    "physical_grant_count": 1026,
+    "exact_actual_equals_normative": true,
+    "a_connection_column_grants": [
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_connection",
+        "binding_version",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_connection",
+        "connection_id",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_connection",
+        "credential_kind",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_connection",
+        "organization_id",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_connection",
+        "provider_key",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_connection",
+        "status",
+        "select"
+      ]
+    ],
+    "organization_predicate_candidate": "SELECT pg_catalog.count(*)=1 AND pg_catalog.bool_and(o.status='ACTIVE') IS TRUE\nFROM public.integration_organization o\nWHERE o.organization_id=header_record.organization_id",
+    "connection_predicate_candidates": [
+      "SELECT pg_catalog.count(*)=1 AND pg_catalog.bool_and(\n    c.provider_key='br.com.mercadolivre' AND c.credential_kind='OAUTH2_AUTHORIZATION_CODE'\n    AND c.status='ACTIVE' AND c.binding_version=1) IS TRUE\nFROM public.integration_connection c\nWHERE c.organization_id=header_record.organization_id\n  AND c.connection_id=header_record.mercado_livre_connection_id",
+      "SELECT pg_catalog.count(*)=1 AND pg_catalog.bool_and(\n    c.provider_key='omie' AND c.credential_kind='STATIC_API_CREDENTIAL'\n    AND c.status='ACTIVE' AND c.binding_version=1) IS TRUE\nFROM public.integration_connection c\nWHERE c.organization_id=header_record.organization_id\n  AND c.connection_id=header_record.omie_connection_id"
+    ],
+    "q_sentinel_delegation_candidate": "public.offline_internal_readiness(\n    $1::pg_catalog.uuid,$2::pg_catalog.bytea,$3::pg_catalog.uuid,$4::pg_catalog.text,\n    $5::pg_catalog.bytea,$6::pg_catalog.bytea,$7::pg_catalog.bytea,'\\x'::pg_catalog.bytea)",
+    "candidate_scope": "OFFLINE_INLINE_PREDICATES_ONLY_NOT_CALLABLE_S01_IMPLEMENTATION",
+    "s01_implemented": false,
+    "s01_receipt_issuance_enabled": false,
+    "next_gate": "G3F.3B_S01_TARGET_CONSUMER_AUTHORITY",
+    "unresolved_authority_blocker_count": 1,
+    "blocker": "SPEC8/16 requires S01 target proof; SPEC22.4 limits existing A target reads to S03/RECON.evidence and grants no A ML-source reads required by the frozen matchesTarget producer. Current approval extends only connections and organization, not target consumers or ML-source reads.",
+    "target_consumer_inventory": [
+      {
+        "relation": "public.marketplace_order_identity_registry",
+        "column": "organization_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_identity_registry",
+        "column": "marketplace_key",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_identity_registry",
+        "column": "external_order_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_identity_registry",
+        "column": "marketplace_order_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_identity_registry",
+        "column": "currency",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "organization_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "source_connection_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "source_capability",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "source_input_progress_version",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "source_record_ordinal",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "marketplace_order_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.marketplace_order_occurrence_source_promotion",
+        "column": "outcome",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "organization_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "connection_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "capability",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "input_progress_version",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "record_ordinal",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "source_order_ref",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "source_integration_ref",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence",
+        "column": "currency",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "organization_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "connection_id",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "capability",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "input_progress_version",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "record_ordinal",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "provider_created_local",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "provider_modified_local",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "semantic_fingerprint_version",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      },
+      {
+        "relation": "public.integration_omie_transaction_evidence_v3",
+        "column": "source_evidence_semantic_fingerprint",
+        "consumer": "RECON.evidence",
+        "entrypoint": "S03"
+      }
+    ],
+    "a_ml_source_read_columns": [],
+    "target_producer": "PostgresCeremonyComposition.runtime.matchesTarget",
+    "target_producer_columns": [
+      [
+        "public.integration_mercado_livre_order_source_observation",
+        "capability"
+      ],
+      [
+        "public.integration_mercado_livre_order_source_observation",
+        "connection_id"
+      ],
+      [
+        "public.integration_mercado_livre_order_source_observation",
+        "external_order_ref"
+      ],
+      [
+        "public.integration_mercado_livre_order_source_observation",
+        "input_progress_version"
+      ],
+      [
+        "public.integration_mercado_livre_order_source_observation",
+        "organization_id"
+      ],
+      [
+        "public.integration_mercado_livre_order_source_observation",
+        "record_ordinal"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "capability"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "connection_id"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "input_progress_version"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "organization_id"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "record_ordinal"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "source_integration_ref"
+      ],
+      [
+        "public.integration_omie_transaction_evidence",
+        "source_order_ref"
+      ],
+      [
+        "public.integration_omie_transaction_evidence_v3",
+        "capability"
+      ],
+      [
+        "public.integration_omie_transaction_evidence_v3",
+        "connection_id"
+      ],
+      [
+        "public.integration_omie_transaction_evidence_v3",
+        "input_progress_version"
+      ],
+      [
+        "public.integration_omie_transaction_evidence_v3",
+        "organization_id"
+      ],
+      [
+        "public.integration_omie_transaction_evidence_v3",
+        "record_ordinal"
+      ],
+      [
+        "public.marketplace_order_identity_registry",
+        "external_order_id"
+      ],
+      [
+        "public.marketplace_order_identity_registry",
+        "marketplace_key"
+      ],
+      [
+        "public.marketplace_order_identity_registry",
+        "marketplace_order_id"
+      ],
+      [
+        "public.marketplace_order_identity_registry",
+        "organization_id"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "marketplace_order_id"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "organization_id"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "outcome"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "source_capability"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "source_connection_id"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "source_input_progress_version"
+      ],
+      [
+        "public.marketplace_order_occurrence_source_promotion",
+        "source_record_ordinal"
+      ]
+    ],
+    "target_missing_select": [
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_mercado_livre_order_source_observation",
+        "capability",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_mercado_livre_order_source_observation",
+        "connection_id",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_mercado_livre_order_source_observation",
+        "external_order_ref",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_mercado_livre_order_source_observation",
+        "input_progress_version",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_mercado_livre_order_source_observation",
+        "organization_id",
+        "select"
+      ],
+      [
+        "flooow_offline_audit_owner",
+        "public.integration_mercado_livre_order_source_observation",
+        "record_ordinal",
+        "select"
+      ]
+    ],
+    "target_witness": {
+      "scope": "SYNTHETIC_DIFFERENTIAL_WITNESS_NOT_APPROVED_RUNTIME_FIXTURE",
+      "positive_target_result": true,
+      "negative_target_result": false,
+      "a_authorized_projection_identical": true,
+      "retained_fixture_target_result": false
+    },
+    "retained_fixture_ml_provider": "mercado-livre",
+    "frozen_producer_ml_provider": "br.com.mercadolivre",
+    "retained_fixture_modified": false,
+    "database_connection_attempted": false,
+    "runtime_proof": false
+  }
 }

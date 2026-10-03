@@ -60,13 +60,30 @@ def check(fn, expected_columns):
     # Only original receipt and nine-field frame+MAC may leave Q.
     if sorted(r['expr']['PLpgSQL_expr']['query'] for r in returns if 'expr' in r)!=['$8','receipt_frame||receipt_mac']:
         raise ValueError('Q exact original/issued receipt return paths')
-    calls=set(); relations=set(); observed=set()
+    calls=set(); relations=set(); observed=set(); deployment_privileges=[]; deployment_columns=[]
     allowed={(r,c) for o,r,c,p in expected_columns if o==OWNER and p=='select'}
     def review(node, inherited=None):
         if isinstance(node,list):
             for child in node: review(child,inherited)
         elif isinstance(node,dict):
             aliases=dict(inherited or {})
+            if 'RangeSubselect' in node:
+                sub=node['RangeSubselect']; alias=sub.get('alias',{})
+                names=strings(alias.get('colnames',[]))
+                inventory = None
+                if alias.get('aliasname')=='approved' and names==('role_name','relation','column_name','privilege'):
+                    inventory=deployment_privileges
+                elif alias.get('aliasname')=='inventory' and names==('relation','column_name'):
+                    inventory=deployment_columns
+                if inventory is not None:
+                    values=sub['subquery']['SelectStmt'].get('valuesLists')
+                    if values is None: raise ValueError('Q deployment inventory must be static VALUES')
+                    for row in values:
+                        items=row['List']['items']
+                        if any(set(v)!={'A_Const'} or 'sval' not in v['A_Const'] or
+                               set(v['A_Const'])-{'sval','location'} for v in items):
+                            raise ValueError('Q dynamic deployment ACL inventory')
+                        inventory.append(tuple(v['A_Const']['sval']['sval'] for v in items))
             if 'SelectStmt' in node:
                 s=node['SelectStmt']
                 if s.get('lockingClause') or s.get('intoClause'):
@@ -112,6 +129,12 @@ def check(fn, expected_columns):
         for raw in json.loads(parse_sql_json(query))['stmts']:
             if set(raw['stmt'])!={'SelectStmt'}: raise ValueError('Q non-read SQL expression')
             review(raw['stmt'])
+    expected_deployment={(o,r.split('.',1)[1],c,p.upper()) for o,r,c,p in expected_columns if r.startswith('public.')}
+    expected_inventory={(r.split('.',1)[1],c) for o,r,c,p in expected_columns if r.startswith('public.')}
+    if len(deployment_privileges)!=len(set(deployment_privileges)) or set(deployment_privileges)!=expected_deployment:
+        raise ValueError('Q exact deployment column privilege inventory mismatch')
+    if len(deployment_columns)!=len(set(deployment_columns)) or set(deployment_columns)!=expected_inventory:
+        raise ValueError('Q exact deployment column projection inventory mismatch')
     required=(
         'IF SESSION_USER=slot_names[4] THEN','ELSIF SESSION_USER=slot_names[3] THEN',
         'IF pg_catalog.octet_length($8)<>0','IF pg_catalog.octet_length($8)=0',
@@ -147,4 +170,5 @@ def check(fn, expected_columns):
     return {'internal_q_source':'BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF',
         'internal_q_read_columns':len(observed),'internal_q_execute_grants':2,
         'internal_q_no_write_locks':True,'internal_q_receipt_renewal':False,
-        'internal_q_key_projection':False,'internal_q_acl_collections':6}
+        'internal_q_key_projection':False,'internal_q_acl_collections':6,
+        'internal_q_exact_deployment_column_grants':len(deployment_privileges)}

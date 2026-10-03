@@ -1241,8 +1241,14 @@ Every retained SELECT has a field use: predicate/join/order/cardinality, a decla
 | A | public.integration_omie_transaction_evidence_v3 | provider_modified_local | READ_PRIVILEGE | RECON.evidence | S03 | Canonical V3 version/fingerprint and coalesce civil revision | NO | NONE |
 | A | public.integration_omie_transaction_evidence_v3 | semantic_fingerprint_version | READ_PRIVILEGE | RECON.evidence | S03 | Canonical V3 version/fingerprint and coalesce civil revision | NO | NONE |
 | A | public.integration_omie_transaction_evidence_v3 | source_evidence_semantic_fingerprint | READ_PRIVILEGE | RECON.evidence | S03 | Canonical V3 version/fingerprint and coalesce civil revision | NO | NONE |
-| A | public.integration_organization | organization_id | READ_PRIVILEGE | INSPECT.admissionValidity | S02 | Current ACTIVE organization needed for effective admission predicate | NO | NONE |
-| A | public.integration_organization | status | READ_PRIVILEGE | INSPECT.admissionValidity | S02 | Current ACTIVE organization needed for effective admission predicate | NO | NONE |
+| A | public.integration_connection | organization_id | READ_PRIVILEGE | BOUND_CONNECTION_READINESS | S01_ONLY | PRIVATE_PREDICATES_ONLY: exact authenticated bound organization/connection, frozen provider/kind/version and ACTIVE; no raw rows | NO | NONE |
+| A | public.integration_connection | connection_id | READ_PRIVILEGE | BOUND_CONNECTION_READINESS | S01_ONLY | PRIVATE_PREDICATES_ONLY: exact authenticated bound organization/connection, frozen provider/kind/version and ACTIVE; no raw rows | NO | NONE |
+| A | public.integration_connection | provider_key | READ_PRIVILEGE | BOUND_CONNECTION_READINESS | S01_ONLY | PRIVATE_PREDICATES_ONLY: exact authenticated bound organization/connection, frozen provider/kind/version and ACTIVE; no raw rows | NO | NONE |
+| A | public.integration_connection | credential_kind | READ_PRIVILEGE | BOUND_CONNECTION_READINESS | S01_ONLY | PRIVATE_PREDICATES_ONLY: exact authenticated bound organization/connection, frozen provider/kind/version and ACTIVE; no raw rows | NO | NONE |
+| A | public.integration_connection | status | READ_PRIVILEGE | BOUND_CONNECTION_READINESS | S01_ONLY | PRIVATE_PREDICATES_ONLY: exact authenticated bound organization/connection, frozen provider/kind/version and ACTIVE; no raw rows | NO | NONE |
+| A | public.integration_connection | binding_version | READ_PRIVILEGE | BOUND_CONNECTION_READINESS | S01_ONLY | PRIVATE_PREDICATES_ONLY: exact authenticated bound organization/connection, frozen provider/kind/version and ACTIVE; no raw rows | NO | NONE |
+| A | public.integration_organization | organization_id | READ_PRIVILEGE | INSPECT.admissionValidity; S01.organizationActive | S01-S02 | Private bound ACTIVE organization predicate; effective admission predicate | NO | NONE |
+| A | public.integration_organization | status | READ_PRIVILEGE | INSPECT.admissionValidity; S01.organizationActive | S01-S02 | Private bound ACTIVE organization predicate; effective admission predicate | NO | NONE |
 | P | public.command_principal | organization_id | READ_PRIVILEGE | P.boundPrincipal | internal P | Bound exact principal/connections before FOR UPDATE | NO | NONE |
 | P | public.command_principal | principal_id | READ_PRIVILEGE | P.boundPrincipal | internal P | Bound exact principal/connections before FOR UPDATE | NO | NONE |
 | P | public.command_principal | mercado_livre_connection_id | READ_PRIVILEGE | P.boundPrincipal | internal P | Bound exact principal/connections before FOR UPDATE | NO | NONE |
@@ -2325,3 +2331,25 @@ VECTOR_3 records both encoder-only tag25 UUID999 with unchanged manifest (semant
 rejection) and the coherent alternate re-encoded manifest/binding with correlation
 UUID999. No signer/signature is invented and no signature acceptance is claimed.
 No V041/V042 change or SQL execution is authorized by this fixture amendment.
+
+## Technical governance approval — S01 connection read authority (2026-10-03)
+
+S01_CONNECTION_READ_AUTHORITY_APPROVED=YES. Owner A may read only
+public.integration_connection.organization_id,connection_id,provider_key,
+credential_kind,status,binding_version for S01_ONLY/BOUND_CONNECTION_READINESS.
+Projection is PRIVATE_PREDICATES_ONLY. Derive both connection IDs and the
+organization exclusively from the authenticated binding/header. Each exact
+predicate requires bound organization, bound connection, frozen expected provider,
+frozen expected credential kind, status ACTIVE and frozen expected binding version.
+Require exactly one match for each connection; missing or ambiguous matches deny.
+The already authorized integration_organization.organization_id/status pair is
+also consumed by S01's private bound ACTIVE predicate; no organization column added.
+
+Whole-table SELECT, credential_binding/secret_ref reads, returned raw connection
+rows, service-login SELECT, write/lock privilege, caller-selected connection IDs,
+dynamic selectors and metadata projection beyond private predicates are forbidden.
+Expected physical per-column grant count is 1026; count alone is never proof.
+Recompute the exact normative/source/deployment inventory and reject extras/missing
+privileges. Q retains sentinel issuance, with no connection reads added to Q.
+This approval changes no V001-V042, execution interlock, protected deployment,
+production policy/crypto/roles, G3G or main publication authority.
