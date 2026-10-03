@@ -200,7 +200,7 @@ def prerequisite_checks(source, spec):
     if len([g for g in actual if g[1:3] == ("public.offline_deadline_policy", "effective_from")]) != 7:
         raise ValueError("Activation column must have exactly seven approved grants")
     import package_0090_capability_source
-    capability = package_0090_capability_source.check(statements, expected)
+    capability = package_0090_capability_source.check(statements, expected, source)
     return {"sql_statements": len(statements), "plpgsql_blocks": len(blocks),
             "exact_column_grants": len(actual), "control_tables": len(creates), **capability}
 
@@ -209,10 +209,10 @@ def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21:
-        missing.append("18 public wrappers are not fully implemented; P/Q/Z have bounded static review only")
+        missing.append("Public wrappers remain incomplete; P/Q/Z/S01 have bounded static review only")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_internal_readiness\(", source):
         missing.append("Internal Q is absent; operational wrappers/guards remain incomplete")
-    if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_preflight\(", source):
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21:
         missing.append("Wrapper transport and private decision commitment codecs/goldens are incomplete; fixture binding/catalog goldens do not close them")
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21 or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
         missing.append("Exact frozen/internal capability EXECUTE ACL closure is absent")

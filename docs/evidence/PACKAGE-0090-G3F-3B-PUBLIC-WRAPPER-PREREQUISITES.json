@@ -1,7 +1,7 @@
 {
   "gate": "G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS",
-  "status": "HOLD_TARGET_READ_AUTHORITY_REQUIRED",
-  "blocker": "SPEC8/16 requires S01 target proof; SPEC22.4 limits existing A target reads to S03/RECON.evidence and grants no A ML-source reads required by the frozen matchesTarget producer. Current approval extends only connections and organization, not target consumers or ML-source reads.",
+  "status": "SOURCE_AUTHORITY_CLOSED_RUNTIME_NOT_PROVEN",
+  "blocker": null,
   "missing_minimum_select": [],
   "existing_live_predicate": "SELECT status='ACTIVE' FROM public.integration_organization WHERE organization_id=?",
   "approved_a_fixture_projection_unchanged_after_connection_suspension": false,
@@ -44,15 +44,15 @@
       "select"
     ]
   ],
-  "unresolved_authority_blocker_count": 1,
+  "unresolved_authority_blocker_count": 0,
   "spec_amended": true,
   "grants_widened": true,
   "database_connection_attempted": false,
-  "next_gate": "G3F.3B_S01_TARGET_CONSUMER_AUTHORITY",
+  "next_gate": "G3F.3B_REMAINING_PUBLIC_WRAPPERS_AND_GUARDS",
   "target_readiness_authority": {
     "s01_connection_read_authority_approved": true,
     "spec_amended": true,
-    "physical_grant_count": 1026,
+    "physical_grant_count": 1032,
     "exact_actual_equals_normative": true,
     "a_connection_column_grants": [
       [
@@ -98,36 +98,44 @@
       "SELECT pg_catalog.count(*)=1 AND pg_catalog.bool_and(\n    c.provider_key='omie' AND c.credential_kind='STATIC_API_CREDENTIAL'\n    AND c.status='ACTIVE' AND c.binding_version=1) IS TRUE\nFROM public.integration_connection c\nWHERE c.organization_id=header_record.organization_id\n  AND c.connection_id=header_record.omie_connection_id"
     ],
     "q_sentinel_delegation_candidate": "public.offline_internal_readiness(\n    $1::pg_catalog.uuid,$2::pg_catalog.bytea,$3::pg_catalog.uuid,$4::pg_catalog.text,\n    $5::pg_catalog.bytea,$6::pg_catalog.bytea,$7::pg_catalog.bytea,'\\x'::pg_catalog.bytea)",
-    "candidate_scope": "OFFLINE_INLINE_PREDICATES_ONLY_NOT_CALLABLE_S01_IMPLEMENTATION",
-    "s01_implemented": false,
+    "candidate_scope": "IMPLEMENTED_SOURCE_NOT_POSTGRES_RUNTIME_PROOF",
+    "s01_implemented": true,
+    "s01_target_authority_approved": true,
+    "s01_source_review": {
+      "s01_source": "BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF",
+      "s01_target_predicate": "EXACT_FROZEN_JOIN",
+      "s01_read_columns": 73,
+      "s01_q_sentinel_delegation": true,
+      "s01_no_write_locks": true
+    },
     "s01_receipt_issuance_enabled": false,
-    "next_gate": "G3F.3B_S01_TARGET_CONSUMER_AUTHORITY",
-    "unresolved_authority_blocker_count": 1,
-    "blocker": "SPEC8/16 requires S01 target proof; SPEC22.4 limits existing A target reads to S03/RECON.evidence and grants no A ML-source reads required by the frozen matchesTarget producer. Current approval extends only connections and organization, not target consumers or ML-source reads.",
+    "next_gate": "G3F.3B_REMAINING_PUBLIC_WRAPPERS_AND_GUARDS",
+    "unresolved_authority_blocker_count": 0,
+    "blocker": null,
     "target_consumer_inventory": [
       {
         "relation": "public.marketplace_order_identity_registry",
         "column": "organization_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_identity_registry",
         "column": "marketplace_key",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_identity_registry",
         "column": "external_order_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_identity_registry",
         "column": "marketplace_order_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_identity_registry",
@@ -138,86 +146,86 @@
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "organization_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "source_connection_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "source_capability",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "source_input_progress_version",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "source_record_ordinal",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "marketplace_order_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.marketplace_order_occurrence_source_promotion",
         "column": "outcome",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "organization_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "connection_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "capability",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "input_progress_version",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "record_ordinal",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "source_order_ref",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
         "column": "source_integration_ref",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence",
@@ -228,32 +236,32 @@
       {
         "relation": "public.integration_omie_transaction_evidence_v3",
         "column": "organization_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence_v3",
         "column": "connection_id",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence_v3",
         "column": "capability",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence_v3",
         "column": "input_progress_version",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence_v3",
         "column": "record_ordinal",
-        "consumer": "RECON.evidence",
-        "entrypoint": "S03"
+        "consumer": "RECON.evidence/PREFLIGHT.matchesTarget",
+        "entrypoint": "S01/S03"
       },
       {
         "relation": "public.integration_omie_transaction_evidence_v3",
@@ -280,7 +288,14 @@
         "entrypoint": "S03"
       }
     ],
-    "a_ml_source_read_columns": [],
+    "a_ml_source_read_columns": [
+      "capability",
+      "connection_id",
+      "external_order_ref",
+      "input_progress_version",
+      "organization_id",
+      "record_ordinal"
+    ],
     "target_producer": "PostgresCeremonyComposition.runtime.matchesTarget",
     "target_producer_columns": [
       [
@@ -400,49 +415,12 @@
         "source_record_ordinal"
       ]
     ],
-    "target_missing_select": [
-      [
-        "flooow_offline_audit_owner",
-        "public.integration_mercado_livre_order_source_observation",
-        "capability",
-        "select"
-      ],
-      [
-        "flooow_offline_audit_owner",
-        "public.integration_mercado_livre_order_source_observation",
-        "connection_id",
-        "select"
-      ],
-      [
-        "flooow_offline_audit_owner",
-        "public.integration_mercado_livre_order_source_observation",
-        "external_order_ref",
-        "select"
-      ],
-      [
-        "flooow_offline_audit_owner",
-        "public.integration_mercado_livre_order_source_observation",
-        "input_progress_version",
-        "select"
-      ],
-      [
-        "flooow_offline_audit_owner",
-        "public.integration_mercado_livre_order_source_observation",
-        "organization_id",
-        "select"
-      ],
-      [
-        "flooow_offline_audit_owner",
-        "public.integration_mercado_livre_order_source_observation",
-        "record_ordinal",
-        "select"
-      ]
-    ],
+    "target_missing_select": [],
     "target_witness": {
       "scope": "SYNTHETIC_DIFFERENTIAL_WITNESS_NOT_APPROVED_RUNTIME_FIXTURE",
       "positive_target_result": true,
       "negative_target_result": false,
-      "a_authorized_projection_identical": true,
+      "a_authorized_projection_identical": false,
       "retained_fixture_target_result": false
     },
     "retained_fixture_ml_provider": "mercado-livre",

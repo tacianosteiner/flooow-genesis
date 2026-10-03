@@ -1,7 +1,7 @@
 """Offline S01 predicate/authority evidence. No DB connection or callable stub.
 
-These are inline SQL candidates, not an authorized complete S01 entrypoint.
-Target consumer authority must close before any readiness receipt is returned.
+S01 is implemented under the exact approved target authority. Static/in-memory
+evidence never certifies PostgreSQL runtime readiness.
 """
 import json
 import copy
@@ -131,7 +131,7 @@ def audit():
         cells = [c.strip() for c in line.split('|')]
         if len(cells)>7 and cells[1]=='A' and cells[2] in target_relations:
             target_rows.append(dict(relation=cells[2],column=cells[3],consumer=cells[5],entrypoint=cells[6]))
-    if not target_rows or any(row['entrypoint'] != 'S03' for row in target_rows):
+    if not target_rows or any(row['entrypoint'] != ('S01/S03' if (row['relation'],row['column']) in target_columns() else 'S03') for row in target_rows):
         raise ValueError('Target boundary changed; independent review required')
     fixture = json.loads((gate.ROOT/'docs/evidence/PACKAGE-0090-G3F-3B-EVIDENCE-FIXTURE-001.json').read_text(encoding='utf-8-sig'))
     return {
@@ -143,12 +143,14 @@ def audit():
         'organization_predicate_candidate': ORGANIZATION_SQL,
         'connection_predicate_candidates': CONNECTION_SQL,
         'q_sentinel_delegation_candidate': Q_SENTINEL_SQL,
-        'candidate_scope': 'OFFLINE_INLINE_PREDICATES_ONLY_NOT_CALLABLE_S01_IMPLEMENTATION',
-        's01_implemented': False,
+        'candidate_scope': 'IMPLEMENTED_SOURCE_NOT_POSTGRES_RUNTIME_PROOF',
+        's01_implemented': True,
+        's01_target_authority_approved': True,
+        's01_source_review': __import__('package_0090_s01_source').check(next(s['CreateFunctionStmt'] for s in statements if s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_preflight'}}]),grants,source),
         's01_receipt_issuance_enabled': False,
-        'next_gate': 'G3F.3B_S01_TARGET_CONSUMER_AUTHORITY',
-        'unresolved_authority_blocker_count': 1,
-        'blocker': 'SPEC8/16 requires S01 target proof; SPEC22.4 limits existing A target reads to S03/RECON.evidence and grants no A ML-source reads required by the frozen matchesTarget producer. Current approval extends only connections and organization, not target consumers or ML-source reads.',
+        'next_gate': 'G3F.3B_REMAINING_PUBLIC_WRAPPERS_AND_GUARDS',
+        'unresolved_authority_blocker_count': 0,
+        'blocker': None,
         'target_consumer_inventory': target_rows,
         'a_ml_source_read_columns': sorted(c for o,r,c,p in actual if o==OWNER and r=='public.integration_mercado_livre_order_source_observation' and p=='select'),
         'target_producer': 'PostgresCeremonyComposition.runtime.matchesTarget',
@@ -169,4 +171,4 @@ if __name__ == '__main__':
     report = audit()
     target = gate.ROOT/'docs/evidence/PACKAGE-0090-G3F-3B-S01-READINESS-AUTHORITY.json'
     target.write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
-    print('S01_CONNECTION_ACL=PASS_EXACT; S01_FULL_READINESS=HOLD_TARGET_CONSUMER_AUTHORITY')
+    print('S01_SOURCE=PASS_EXACT; RUNTIME_READINESS=NOT_PROVEN; RETAINED_PROVIDER_ALIGNMENT=HOLD')

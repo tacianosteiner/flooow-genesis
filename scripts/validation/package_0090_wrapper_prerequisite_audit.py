@@ -33,15 +33,15 @@ def audit():
         raise ValueError('S01 contract changed; audit must be re-reviewed')
     from package_0090_s01_readiness import audit as readiness_audit
     readiness=readiness_audit() if not missing else None
-    return {'gate':'G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS','status':'HOLD_NEW_READ_AUTHORITY_REQUIRED' if missing else 'HOLD_TARGET_READ_AUTHORITY_REQUIRED',
+    return {'gate':'G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS','status':'HOLD_NEW_READ_AUTHORITY_REQUIRED' if missing else 'SOURCE_AUTHORITY_CLOSED_RUNTIME_NOT_PROVEN',
         'blocker':'S01 live connection readiness requirement has no permitted A read path' if missing else readiness['blocker'],
         'missing_minimum_select':missing,'existing_live_predicate':organization_query,
         'approved_a_fixture_projection_unchanged_after_connection_suspension':project(tables)==project(suspended),
         'observation_scope':'retained offline fixture row projections, not SQL/function runtime proof',
         'required_a_integration_connection_grants':sorted(g for g in grants if g[0]==OWNER and g[1]=='public.integration_connection'),
-        'unresolved_authority_blocker_count':1,
+        'unresolved_authority_blocker_count':1 if missing else 0,
         'spec_amended':not missing,'grants_widened':not missing,'database_connection_attempted':False,
-        'next_gate':'G3F.3B_S01_TARGET_CONSUMER_AUTHORITY' if not missing else 'G3F.3B_S01_CONNECTION_READ_AUTHORITY',
+        'next_gate':'G3F.3B_REMAINING_PUBLIC_WRAPPERS_AND_GUARDS' if not missing else 'G3F.3B_S01_CONNECTION_READ_AUTHORITY',
         'target_readiness_authority':readiness}
 
 

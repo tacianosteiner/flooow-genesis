@@ -16,7 +16,7 @@ class SourceGateTests(unittest.TestCase):
             gate.prerequisite_checks(source, self.spec)
 
     def test_current_column_acl_matches_independent_normative_matrix(self):
-        self.assertEqual(gate.prerequisite_checks(self.source, self.spec)["exact_column_grants"], 1026)
+        self.assertEqual(gate.prerequisite_checks(self.source, self.spec)["exact_column_grants"], 1032)
 
     def test_public_grant_denied(self):
         self.reject(self.source + "\nGRANT SELECT (effective_from) ON public.offline_deadline_policy TO PUBLIC;")

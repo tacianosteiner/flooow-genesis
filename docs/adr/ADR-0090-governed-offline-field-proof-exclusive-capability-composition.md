@@ -341,3 +341,11 @@ Recompute the exact normative/source/deployment inventory and reject extras/miss
 privileges. Q retains sentinel issuance, with no connection reads added to Q.
 This approval changes no V001-V042, execution interlock, protected deployment,
 production policy/crypto/roles, G3G or main publication authority.
+
+## S01 target consumer authority amendment ? 2026-10-03
+
+Owner A receives only the six READ_PRIVILEGE columns below on public.integration_mercado_livre_order_source_observation. CONSUMER=S01_ONLY; PURPOSE=FROZEN_MATCHES_TARGET_BOUND_JOIN; PROJECTION=PRIVATE_PREDICATES_ONLY. Existing registry/promotion/Omie base/Omie V3 authority expands only the exact matchesTarget predicate's S03 consumer traceability to S01; no additional columns there. No whole-table/service-login SELECT, raw observation return, write/lock privilege, dynamic selectors, caller target IDs or unrelated ML metadata reads.
+
+The S01 target predicate preserves every join and filter of PostgresCeremonyComposition.runtime.matchesTarget; its six placeholders are replaced only by authenticated binding header fields in producer order. The unchanged EXISTS establishes the frozen target match. A separate readiness cardinality check over that identical join requires one eligible row and rejects ambiguous/multiple rows. No provider normalization: retained mercado-livre differs from frozen br.com.mercadolivre. Synthetic target-only tests cannot prove retained runtime-positive readiness. Organization and both connection predicates, R binding/slot/policy/readiness guards and target readiness all precede Q sentinel issuance. S01 stays STABLE/read-only/no-lock; all-state R reads ignore mutation expiry.
+
+The normative ACL inventory in SPEC-0090 records the exact six added A reads: organization_id, connection_id, capability, input_progress_version, record_ordinal, external_order_ref. Physical grant inventory increases from 1026 to 1032 only upon complete actual/normative set equality. Deployment Q expectations must be regenerated from that complete inventory. V043 interlock remains until full source closure; protected PostgreSQL, production policy/crypto/roles and G3G remain excluded.

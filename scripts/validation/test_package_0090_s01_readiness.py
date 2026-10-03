@@ -151,14 +151,14 @@ class S01ReadinessTests(unittest.TestCase):
 
     def test_exact_acl_and_target_boundary(self):
         report=s01.audit()
-        self.assertEqual(report['physical_grant_count'],1026)
-        self.assertEqual(report['unresolved_authority_blocker_count'],1)
-        self.assertEqual(report['a_ml_source_read_columns'],[])
-        self.assertFalse(report['s01_implemented'])
-        self.assertEqual(len(report['target_missing_select']),6)
+        self.assertEqual(report['physical_grant_count'],1032)
+        self.assertEqual(report['unresolved_authority_blocker_count'],0)
+        self.assertEqual(report['a_ml_source_read_columns'],sorted(('organization_id','connection_id','capability','input_progress_version','record_ordinal','external_order_ref')))
+        self.assertTrue(report['s01_implemented'])
+        self.assertEqual(len(report['target_missing_select']),0)
         self.assertEqual(report['target_witness']['positive_target_result'],True)
         self.assertEqual(report['target_witness']['negative_target_result'],False)
-        self.assertTrue(report['target_witness']['a_authorized_projection_identical'])
+        self.assertFalse(report['target_witness']['a_authorized_projection_identical'])
 
     def test_each_missing_or_extra_connection_privilege_rejected(self):
         source=(gate.ROOT/gate.V043).read_text(encoding='utf-8-sig')
