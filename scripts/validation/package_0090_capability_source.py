@@ -15,6 +15,64 @@ BUILTINS = {'octet_length','current_setting','substring','get_byte','convert_fro
             'transaction_timestamp','extract','is_normalized'}
 
 
+def check(statements, expected_columns):
+    import package_0090_z_source as z
+    definitions = [s['CreateFunctionStmt'] for s in statements if 'CreateFunctionStmt' in s]
+    by_name = {strings(f['funcname']): f for f in definitions}
+    if len(by_name) != len(definitions) or set(by_name) - {('public',P_NAME), ('public',z.NAME)}:
+        raise ValueError('Unreviewed or duplicate capability definition')
+    expected_execute = EXECUTE | (z.GRANTS if ('public',z.NAME) in by_name else set())
+    grants = set(); revokes = set(); owners = {}
+    p_statements = []
+    for statement in statements:
+        if 'CreateFunctionStmt' in statement:
+            if strings(statement['CreateFunctionStmt']['funcname']) == ('public',P_NAME):
+                p_statements.append(statement)
+        elif 'AlterOwnerStmt' in statement:
+            owner = statement['AlterOwnerStmt']
+            obj = owner.get('object',{}).get('ObjectWithArgs',{})
+            name = strings(obj.get('objname',[]))
+            vector = tuple(strings(t['TypeName']['names']) for t in obj.get('objargs',[]))
+            if owner['objectType']!='OBJECT_FUNCTION' or name not in by_name or name in owners:
+                raise ValueError('Unapproved or duplicate ownership change')
+            expected_types = P_TYPES if name==('public',P_NAME) else z.TYPES
+            expected_owner = P_OWNER if name==('public',P_NAME) else z.OWNER
+            if vector!=tuple(('pg_catalog',t) for t in expected_types) or owner['newowner'].get('rolename')!=expected_owner:
+                raise ValueError('Capability ownership/signature mismatch')
+            owners[name] = expected_owner
+            if name==('public',P_NAME): p_statements.append(statement)
+        elif 'GrantStmt' in statement and statement['GrantStmt']['objtype']=='OBJECT_FUNCTION':
+            grant = statement['GrantStmt']
+            if grant.get('grant_option') or (grant.get('is_grant') and not grant.get('privileges')) or any(
+                    p['AccessPriv']['priv_name']!='execute' for p in grant.get('privileges',[])):
+                raise ValueError('Unapproved function grant privilege')
+            p_only = True
+            for obj in grant['objects']:
+                fn = obj['ObjectWithArgs']; name = strings(fn['objname'])
+                types = tuple(strings(t['TypeName']['names']) for t in fn.get('objargs',[]))
+                if any(len(t)!=2 or t[0]!='pg_catalog' for t in types):
+                    raise ValueError('Unqualified function grant type')
+                vector = tuple(t[1] for t in types)
+                for recipient in grant['grantees']:
+                    role = recipient['RoleSpec']; item = (*name,vector,role.get('rolename'))
+                    if grant.get('is_grant'):
+                        if item in grants: raise ValueError('Duplicate capability grant')
+                        grants.add(item); p_only &= item in EXECUTE
+                    else:
+                        key = (*name,vector)
+                        if role['roletype']!='ROLESPEC_PUBLIC' or key in revokes:
+                            raise ValueError('Unapproved/duplicate function revoke')
+                        revokes.add(key); p_only &= key==('public',P_NAME,P_TYPES)
+            if p_only: p_statements.append(statement)
+    expected_revokes = {('public',P_NAME,P_TYPES)} if ('public',P_NAME) in by_name else set()
+    if ('public',z.NAME) in by_name: expected_revokes.add(('public',z.NAME,z.TYPES))
+    if grants!=expected_execute or revokes!=expected_revokes or set(owners)!=set(by_name):
+        raise ValueError('Exact capability EXECUTE/ownership closure mismatch')
+    result = check_p(p_statements,expected_columns)
+    if ('public',z.NAME) in by_name: result.update(z.check(by_name[('public',z.NAME)],expected_columns))
+    return result
+
+
 def strings(names): return tuple(n['String']['sval'] for n in names)
 
 
@@ -47,7 +105,7 @@ def function_grants(statements):
         raise ValueError('P exact function EXECUTE manifest mismatch')
 
 
-def check(statements, expected_columns):
+def check_p(statements, expected_columns):
     from pglast.parser import parse_sql_json
     definitions=[s['CreateFunctionStmt'] for s in statements if 'CreateFunctionStmt' in s]
     if not definitions:return {'internal_p_source':'NOT_IMPLEMENTED'}
