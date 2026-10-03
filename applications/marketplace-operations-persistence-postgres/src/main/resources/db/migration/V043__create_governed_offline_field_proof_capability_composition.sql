@@ -3,7 +3,8 @@
 -- Do not execute or run Flyway against this incomplete candidate.
 -- Normative contract: SPEC-0090 sections 21-25, including the approved amendments.
 -- Complete guards/wrappers and independently approved golden evidence remain pending.
--- No wrappers, internal functions, crypto objects, service logins or deployment data.
+-- P/Q/Z source only; public wrapper closure remains incomplete.
+-- No crypto objects, service logins or deployment data are provisioned.
 -- NEW_CANONICAL_DOMAIN_AUTHORITY=NO. Future guards/admin governance enforce
 -- cross-table transitions, immutability, permanent slot allocation and tombstones.
 -- This draft changes no global schema/default privilege or existing ownership/security.
@@ -4683,3 +4684,1901 @@ GRANT EXECUTE ON FUNCTION public.s2a_v042_instant(pg_catalog.timestamptz) TO flo
 
 -- END incomplete G3F.3B candidate. No migration/activation authorization.
 -- Never infer authority/READY/implementation proof from this source inventory.
+
+-- Internal Q: bound readiness/receipt issuance and validation only; no writes/locks.
+CREATE FUNCTION public.offline_internal_readiness(
+    binding_id pg_catalog.uuid,plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,surface_version pg_catalog.text,
+    expected_history_digest pg_catalog.bytea,expected_acl_digest pg_catalog.bytea,
+    expected_policy_digest pg_catalog.bytea,preflight_receipt pg_catalog.bytea
+) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql STABLE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_q$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    auditor_route pg_catalog.bool;
+    key_record record;
+    history_record record;
+    live_history pg_catalog.bytea;
+    history_elements pg_catalog.bytea := '\x'::pg_catalog.bytea;
+    history_count pg_catalog.int8 := 0;
+    last_rank pg_catalog.int4 := 0;
+    receipt_frame pg_catalog.bytea;
+    receipt_mac pg_catalog.bytea;
+    receipt_fields pg_catalog.bytea[] := ARRAY[]::pg_catalog.bytea[];
+    issued_us pg_catalog.numeric;
+    expires_us pg_catalog.numeric;
+    now_us pg_catalog.numeric;
+    decoded_value pg_catalog.numeric;
+    mac_version pg_catalog.int8;
+    payload pg_catalog.bytea;
+    role_oids pg_catalog.oid[];
+    role_names pg_catalog.text[];
+    protected_oids pg_catalog.oid[];
+    type_oids pg_catalog.oid[];
+    type_names pg_catalog.text[];
+    acl_collections pg_catalog.bytea[] := ARRAY[]::pg_catalog.bytea[];
+    live_acl pg_catalog.bytea;
+    catalog_record record;
+    function_oids pg_catalog.oid[];
+    relation_oids pg_catalog.oid[];
+    creator_oids pg_catalog.oid[];
+    universe_oids pg_catalog.oid[];
+    all_types pg_catalog.oid[];
+    all_modes pg_catalog.text[];
+    all_names pg_catalog.text[];
+    input_names pg_catalog.text[];
+    argument_names pg_catalog.text[];
+    argument_modes pg_catalog.bytea[];
+    output_elements pg_catalog.bytea[];
+    function_elements pg_catalog.bytea[] := ARRAY[]::pg_catalog.bytea[];
+    input_index pg_catalog.int4;
+    return_shape pg_catalog.int4;
+    config_names pg_catalog.text[];
+    config_entry pg_catalog.text;
+    config_name pg_catalog.text;
+    canonical_type pg_catalog.text;
+BEGIN
+    IF $1 IS NULL OR $2 IS NULL OR $3 IS NULL OR $4 IS NULL OR $5 IS NULL
+       OR $6 IS NULL OR $7 IS NULL OR $8 IS NULL
+       OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid
+       OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid
+       OR pg_catalog.octet_length($2)<>32 OR pg_catalog.octet_length($5)<>32
+       OR pg_catalog.octet_length($6)<>32 OR pg_catalog.octet_length($7)<>32 OR $4<>'0090-v1' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.identity_slots,
+           h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,
+           h.plan_fingerprint,h.valid_from,h.expires_at
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF SESSION_USER=slot_names[4] THEN
+        auditor_route := true;
+        IF pg_catalog.octet_length($8)<>0
+           OR pg_catalog.current_setting('transaction_isolation')<>'repeatable read'
+           OR pg_catalog.current_setting('transaction_read_only')<>'on' THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    ELSIF SESSION_USER=slot_names[3] THEN
+        auditor_route := false;
+        IF pg_catalog.octet_length($8)=0
+           OR pg_catalog.current_setting('transaction_isolation')<>'read committed'
+           OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    ELSE
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy,r.active_key_version,r.history_manifest,r.acl_manifest INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF policy_record.policy_digest<>$7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(policy_record.effective_from)
+       OR database_now<policy_record.effective_from
+       OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at)
+       OR database_now<ready_record.watchdog_checked_at
+       OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23]
+       OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>
+          (CASE WHEN auditor_route THEN policy_values[19] ELSE policy_values[1] END) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT auditor_route AND (
+       NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE')
+       OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer a WHERE a.binding_id=$1 AND a.claim_permitted)
+       OR NOT EXISTS(SELECT 1 FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE')
+       OR NOT pg_catalog.isfinite(header_record.valid_from) OR NOT pg_catalog.isfinite(header_record.expires_at)
+       OR database_now<header_record.valid_from OR database_now>=header_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT k.incarnation_id,k.lineage_id,k.key_version,k.key_state,k.key_material INTO STRICT key_record
+      FROM public.offline_preflight_key k WHERE k.incarnation_id=$3 AND k.key_state='ACTIVE';
+    IF key_record.key_version<>ready_record.active_key_version
+       OR key_record.key_version<=0 OR key_record.key_version>4294967295
+       OR key_record.lineage_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid
+       OR key_record.key_material IS NULL OR pg_catalog.octet_length(key_record.key_material)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT auditor_route THEN
+        -- Exact frame boundary; nine required fields followed by exactly32 MAC bytes.
+        domain_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            domain_length := domain_length*256+pg_catalog.get_byte($8,byte_number);
+        END LOOP;
+        IF domain_length<>pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/PREFLIGHT/V1','UTF8'))
+           OR pg_catalog.substring($8,5,domain_length::pg_catalog.int4)<>
+              pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/PREFLIGHT/V1','UTF8') THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        cursor_position := domain_length::pg_catalog.int4+4;
+        IF pg_catalog.get_byte($8,cursor_position)<>0 OR pg_catalog.get_byte($8,cursor_position+1)<>9 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        cursor_position := cursor_position+2;
+        FOR field_tag IN 1..9 LOOP
+            IF pg_catalog.get_byte($8,cursor_position)<>0
+               OR pg_catalog.get_byte($8,cursor_position+1)<>field_tag THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            payload_length := 0;
+            FOR byte_number IN 0..3 LOOP
+                payload_length := payload_length*256+pg_catalog.get_byte($8,cursor_position+2+byte_number);
+            END LOOP;
+            IF payload_length<=1 OR payload_length>pg_catalog.octet_length($8)-cursor_position-6-32
+               OR pg_catalog.get_byte($8,cursor_position+6)<>1 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            payload := pg_catalog.substring($8,cursor_position+8,(payload_length-1)::pg_catalog.int4);
+            IF pg_catalog.octet_length(payload)<>(CASE field_tag WHEN 1 THEN 16 WHEN 2 THEN 32
+               WHEN 3 THEN pg_catalog.octet_length(pg_catalog.convert_to($4,'UTF8'))
+               WHEN 4 THEN 32 WHEN 5 THEN 32 WHEN 6 THEN 32 WHEN 7 THEN 8 WHEN 8 THEN 8 WHEN 9 THEN 4 END) THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            receipt_fields := pg_catalog.array_append(receipt_fields,payload);
+            cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+        END LOOP;
+        IF cursor_position<>pg_catalog.octet_length($8)-32 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        mac_version := 0;
+        FOR byte_number IN 0..3 LOOP
+            mac_version := mac_version*256+pg_catalog.get_byte(receipt_fields[9],byte_number);
+        END LOOP;
+        IF mac_version<>key_record.key_version THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        receipt_frame := pg_catalog.substring($8,1,cursor_position);
+        receipt_mac := offline_crypto.hmac(receipt_frame::pg_catalog.bytea,key_record.key_material::pg_catalog.bytea,'sha256'::pg_catalog.text);
+        IF pg_catalog.octet_length(receipt_mac)<>32 OR offline_crypto.timing_safe_equal32(
+            receipt_mac::pg_catalog.bytea,pg_catalog.substring($8,cursor_position+1,32)::pg_catalog.bytea) IS NOT TRUE THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF receipt_fields[1]<>pg_catalog.uuid_send($3) OR receipt_fields[2]<>$2
+           OR receipt_fields[3]<>pg_catalog.convert_to($4,'UTF8') OR receipt_fields[4]<>$5
+           OR receipt_fields[5]<>$6 OR receipt_fields[6]<>$7 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        FOR field_tag IN 7..8 LOOP
+            decoded_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                decoded_value := decoded_value*256+pg_catalog.get_byte(receipt_fields[field_tag],byte_number);
+            END LOOP;
+            IF decoded_value>=9223372036854775808 THEN decoded_value := decoded_value-18446744073709551616; END IF;
+            IF field_tag=7 THEN issued_us := decoded_value; ELSE expires_us := decoded_value; END IF;
+        END LOOP;
+        now_us := EXTRACT(EPOCH FROM pg_catalog.clock_timestamp())*1000000;
+        IF issued_us+policy_values[27]<>expires_us OR expires_us<=issued_us
+           OR issued_us<-210866803200000000 OR expires_us>9223372036854775807
+           OR issued_us>now_us OR now_us>=expires_us THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END IF;
+    -- Full history, without a version cap or adoption of unexpected rows.
+    FOR history_record IN SELECT h.installed_rank,h.version,h.type,h.script,h.checksum,h.success
+        FROM public.flyway_schema_history h ORDER BY h.installed_rank LOOP
+        IF history_record.installed_rank<=last_rank OR history_record.version IS NULL
+           OR history_record.checksum IS NULL OR NOT history_record.success
+           OR history_record.version IS NOT NFC NORMALIZED OR history_record.type IS NOT NFC NORMALIZED
+           OR history_record.script IS NOT NFC NORMALIZED THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/HISTORY-ROW/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/HISTORY-ROW/V1','UTF8')||'\x0006'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(history_record.installed_rank)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(history_record.installed_rank))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(history_record.installed_rank)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(history_record.installed_rank))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(history_record.version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(history_record.version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(history_record.version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(history_record.version,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(history_record.type,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(history_record.type,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(history_record.type,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(history_record.type,'UTF8'))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(history_record.script,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(history_record.script,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(history_record.script,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(history_record.script,'UTF8'))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(history_record.checksum)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(history_record.checksum))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(history_record.checksum)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(history_record.checksum))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (history_record.success) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (history_record.success) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (history_record.success) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (history_record.success) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END));
+        history_elements := history_elements||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(payload))::pg_catalog.int8),5,4)||payload;
+        history_count := history_count+1; last_rank := history_record.installed_rank;
+    END LOOP;
+    live_history := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/HISTORY/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/HISTORY/V1','UTF8')||'\x0001'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int8send((history_count)::pg_catalog.int8),5,4)||history_elements) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((history_count)::pg_catalog.int8),5,4)||history_elements)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int8send((history_count)::pg_catalog.int8),5,4)||history_elements) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((history_count)::pg_catalog.int8),5,4)||history_elements)) END));
+    IF history_count=0 OR live_history<>ready_record.history_manifest OR pg_catalog.sha256(live_history)<>$5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Live roles, not caller/GUC role selectors. Every protected identity is exact.
+    SELECT pg_catalog.array_agg(r.oid ORDER BY r.oid),pg_catalog.array_agg(r.rolname::pg_catalog.text ORDER BY r.oid)
+      INTO role_oids,role_names FROM pg_catalog.pg_roles r;
+    SELECT pg_catalog.array_agg(r.oid ORDER BY x.purpose) INTO protected_oids
+      FROM pg_catalog.unnest(slot_names||ARRAY['flooow_offline_verification_owner','flooow_offline_issuance_owner','flooow_offline_execution_owner','flooow_offline_audit_owner','flooow_offline_principal_lock_owner','flooow_offline_readiness_owner','flooow_offline_intent_audit_owner','flooow_offline_control_owner']::pg_catalog.text[]) WITH ORDINALITY x(name,purpose)
+      JOIN pg_catalog.pg_roles r ON r.rolname=x.name;
+    IF pg_catalog.cardinality(protected_oids)<>12 OR
+       EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m WHERE m.member=ANY(protected_oids) OR m.roleid=ANY(protected_oids))
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_roles r WHERE r.oid=ANY(protected_oids) AND (
+          r.rolsuper OR r.rolcreaterole OR r.rolcreatedb OR r.rolreplication OR r.rolbypassrls
+          OR r.rolcanlogin IS DISTINCT FROM (pg_catalog.array_position(protected_oids,r.oid)<=4)
+          OR r.rolinherit IS DISTINCT FROM (pg_catalog.array_position(protected_oids,r.oid)=12))) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Fixed named inventories; reachable application extras are included, never hidden.
+    SELECT pg_catalog.array_agg(p.oid ORDER BY p.oid) INTO function_oids
+      FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+     WHERE (n.nspname='public' AND p.proname=ANY(ARRAY['command_authorization_organization_lock','offline_apply_attested_decision','offline_apply_grant','offline_apply_initial_credential','offline_apply_principal','offline_authenticate_command','offline_begin_grant','offline_begin_initial_credential','offline_begin_principal','offline_begin_verification','offline_claim_attempt','offline_inspect','offline_internal_readiness','offline_internal_verify_authority_intent','offline_lock_bound_principal','offline_persist_verification','offline_preflight','offline_prepare_attested_decision','offline_read_history','offline_reconcile','s2a_begin_attestation_verification','s2a_persist_attestation_verification_result','s2a_v042_apply_attested_decision','s2a_v042_apply_attested_grant','s2a_v042_apply_attested_initial_credential','s2a_v042_apply_attested_principal','s2a_v042_authority_intent','s2a_v042_authority_receipt','s2a_v042_begin_attested_decision_verification','s2a_v042_begin_attested_grant_verification','s2a_v042_begin_attested_initial_credential_verification','s2a_v042_begin_attested_principal_verification','s2a_v042_frame','s2a_v042_instant','s2a_v042_text','transaction_identity_fingerprint','transaction_identity_grant_fingerprint','transaction_identity_hash','transaction_identity_intent','transaction_identity_progress_lock']::pg_catalog.text[]))
+        OR (n.nspname='offline_crypto' AND p.proname IN ('hmac','timing_safe_equal32'))
+        OR (n.nspname!~'^pg_' AND n.nspname<>'information_schema' AND
+            EXISTS(SELECT 1 FROM pg_catalog.unnest(protected_oids[1:11]) q(oid)
+                   WHERE pg_catalog.has_function_privilege(q.oid,p.oid,'EXECUTE')));
+    SELECT pg_catalog.array_agg(c.oid ORDER BY c.oid) INTO relation_oids
+      FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+     WHERE n.nspname='public' AND c.relname=ANY(ARRAY['command_authority_operation','command_credential_revision','command_permission_grant','command_principal','flyway_schema_history','integration_connector_page_commit','integration_connector_progress','integration_mercado_livre_order_source_observation','integration_omie_transaction_evidence','integration_omie_transaction_evidence_v3','integration_organization','marketplace_order_identity_registry','marketplace_order_occurrence_source_promotion','marketplace_transaction_identity_decision','marketplace_transaction_identity_head','offline_admission','offline_attempt','offline_attempt_pointer','offline_binding_header','offline_binding_lifecycle','offline_ceremony_result','offline_deadline_policy','offline_delivery','offline_execution','offline_preflight_key','offline_readiness','offline_reconciliation','offline_stage_receipt','s2a_accepted_attestation','s2a_attestation_consumption','s2a_signer_authority_revision','s2a_signer_key_revision']::pg_catalog.text[]);
+    IF pg_catalog.cardinality(relation_oids)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT pg_catalog.array_agg(DISTINCT x.oid ORDER BY x.oid) INTO creator_oids FROM (
+        SELECT p.proowner AS oid FROM pg_catalog.pg_proc p WHERE p.oid=ANY(function_oids)
+        UNION SELECT c.relowner FROM pg_catalog.pg_class c WHERE c.oid=ANY(relation_oids)
+        UNION SELECT r.oid FROM pg_catalog.pg_roles r WHERE r.rolname='postgres'
+        UNION SELECT q.oid FROM pg_catalog.unnest(protected_oids[5:12]) q(oid)) x;
+    WITH RECURSIVE seed(oid) AS (
+        SELECT q.oid FROM pg_catalog.unnest(protected_oids||creator_oids) q(oid)
+        UNION SELECT a.grantee FROM pg_catalog.pg_proc p CROSS JOIN LATERAL
+            pg_catalog.aclexplode(COALESCE(p.proacl,pg_catalog.acldefault('f',p.proowner))) a WHERE p.oid=ANY(function_oids)
+        UNION SELECT c.relowner FROM pg_catalog.pg_class c WHERE c.oid=ANY(relation_oids)
+        UNION SELECT a.grantee FROM pg_catalog.pg_class c CROSS JOIN LATERAL
+            pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE c.oid=ANY(relation_oids)
+        UNION SELECT a.grantee FROM pg_catalog.pg_attribute t CROSS JOIN LATERAL pg_catalog.aclexplode(t.attacl) a
+            WHERE t.attrelid=ANY(relation_oids) AND t.attnum>0 AND NOT t.attisdropped
+        UNION SELECT n.nspowner FROM pg_catalog.pg_namespace n WHERE n.nspname!~'^pg_' AND n.nspname<>'information_schema'
+        UNION SELECT a.grantee FROM pg_catalog.pg_namespace n CROSS JOIN LATERAL
+            pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a
+            WHERE n.nspname!~'^pg_' AND n.nspname<>'information_schema'
+        UNION SELECT d.datdba FROM pg_catalog.pg_database d WHERE d.datname=pg_catalog.current_database()
+        UNION SELECT a.grantee FROM pg_catalog.pg_database d CROSS JOIN LATERAL
+            pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a
+            WHERE d.datname=pg_catalog.current_database()
+        UNION SELECT a.grantee FROM pg_catalog.pg_default_acl d CROSS JOIN LATERAL pg_catalog.aclexplode(d.defaclacl) a
+            WHERE d.defaclrole=ANY(creator_oids)
+        UNION SELECT 0::pg_catalog.oid), reachable(oid) AS (
+        SELECT s.oid FROM seed s UNION SELECT m.roleid FROM pg_catalog.pg_auth_members m JOIN reachable r ON m.member=r.oid)
+    SELECT pg_catalog.array_agg(r.oid ORDER BY r.oid) INTO universe_oids FROM reachable r;
+    IF EXISTS(SELECT 1 FROM pg_catalog.unnest(universe_oids) u(oid)
+               WHERE u.oid<>0 AND NOT u.oid=ANY(role_oids)) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF EXISTS(SELECT 1 FROM pg_catalog.pg_roles r WHERE r.oid=ANY(universe_oids) AND r.rolname IS NOT NFC NORMALIZED)
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_namespace n WHERE n.nspname!~'^pg_' AND n.nspname<>'information_schema'
+          AND n.nspname IS NOT NFC NORMALIZED)
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_class c WHERE c.oid=ANY(relation_oids) AND c.relname IS NOT NFC NORMALIZED)
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_attribute a WHERE a.attrelid=ANY(relation_oids)
+          AND a.attnum>0 AND NOT a.attisdropped AND a.attname IS NOT NFC NORMALIZED)
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_database d WHERE d.datname=pg_catalog.current_database()
+          AND d.datname IS NOT NFC NORMALIZED) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Independently reject broad and unlisted effective relation/column/sequence access.
+    IF EXISTS(SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        CROSS JOIN pg_catalog.unnest(protected_oids[1:11]) g(oid)
+        WHERE n.nspname!~'^pg_' AND n.nspname<>'information_schema' AND (
+          c.relowner=g.oid OR (c.relkind='S' AND pg_catalog.has_sequence_privilege(g.oid,c.oid,'USAGE,SELECT,UPDATE'))
+          OR (c.relkind IN ('r','v','m','f','p') AND pg_catalog.has_table_privilege(g.oid,c.oid,
+             'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER,MAINTAIN'))))
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+        JOIN pg_catalog.pg_attribute a ON a.attrelid=c.oid AND a.attnum>0 AND NOT a.attisdropped
+        CROSS JOIN pg_catalog.unnest(protected_oids[1:11]) g(oid)
+        CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('REFERENCES')) privilege(name)
+        WHERE n.nspname!~'^pg_' AND n.nspname<>'information_schema' AND c.relkind IN ('r','v','m','f','p')
+          AND pg_catalog.has_column_privilege(g.oid,c.oid,a.attnum,privilege.name)
+          AND NOT EXISTS(SELECT 1 FROM (VALUES ('flooow_offline_audit_owner','command_authority_operation','attestation_manifest_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','correlation_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','credential_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','credential_revision','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','decided_at','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','grant_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','grant_revision','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','operation','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','operation_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','organization_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','permission','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','principal_id','SELECT'),
+('flooow_offline_audit_owner','command_authority_operation','state','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','correlation_id','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','credential_id','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','organization_id','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','principal_id','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','provenance','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','reason','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','revision','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','state','SELECT'),
+('flooow_offline_audit_owner','command_credential_revision','supersedes_revision','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','correlation_id','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','decided_at','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','grant_id','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','organization_id','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','permission','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','principal_id','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','provenance','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','reason','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','revision','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','state','SELECT'),
+('flooow_offline_audit_owner','command_permission_grant','supersedes_grant_id','SELECT'),
+('flooow_offline_audit_owner','command_principal','correlation_id','SELECT'),
+('flooow_offline_audit_owner','command_principal','decided_at','SELECT'),
+('flooow_offline_audit_owner','command_principal','mercado_livre_connection_id','SELECT'),
+('flooow_offline_audit_owner','command_principal','omie_connection_id','SELECT'),
+('flooow_offline_audit_owner','command_principal','organization_id','SELECT'),
+('flooow_offline_audit_owner','command_principal','principal_id','SELECT'),
+('flooow_offline_audit_owner','command_principal','provenance','SELECT'),
+('flooow_offline_audit_owner','command_principal','reason','SELECT'),
+('flooow_offline_audit_owner','flyway_schema_history','checksum','SELECT'),
+('flooow_offline_audit_owner','flyway_schema_history','installed_rank','SELECT'),
+('flooow_offline_audit_owner','flyway_schema_history','script','SELECT'),
+('flooow_offline_audit_owner','flyway_schema_history','success','SELECT'),
+('flooow_offline_audit_owner','flyway_schema_history','type','SELECT'),
+('flooow_offline_audit_owner','flyway_schema_history','version','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','capability','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','connection_id','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','currency','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','input_progress_version','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','organization_id','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','record_ordinal','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','source_integration_ref','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence','source_order_ref','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','capability','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','connection_id','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','input_progress_version','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','organization_id','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','provider_created_local','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','provider_modified_local','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','record_ordinal','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','semantic_fingerprint_version','SELECT'),
+('flooow_offline_audit_owner','integration_omie_transaction_evidence_v3','source_evidence_semantic_fingerprint','SELECT'),
+('flooow_offline_audit_owner','integration_organization','organization_id','SELECT'),
+('flooow_offline_audit_owner','integration_organization','status','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_identity_registry','currency','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_identity_registry','external_order_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_identity_registry','marketplace_key','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_identity_registry','marketplace_order_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_identity_registry','organization_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','marketplace_order_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','organization_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','outcome','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','source_capability','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','source_connection_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','source_input_progress_version','SELECT'),
+('flooow_offline_audit_owner','marketplace_order_occurrence_source_promotion','source_record_ordinal','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','authorization_fingerprint','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','authorization_semantic_version','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','correlation_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','credential_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','credential_revision','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','currency','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','decided_at','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','decision_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','decision_semantic_fingerprint','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','external_order_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','grant_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','grant_revision','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','intent_fingerprint','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','kind','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','marketplace_order_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','ml_capability','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','ml_connection_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','ml_progress_version','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','ml_record_ordinal','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','omie_capability','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','omie_connection_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','omie_progress_version','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','omie_record_ordinal','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','omie_semantic_fingerprint','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','organization_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','permission','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','principal_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','provenance','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','provider_revision_local','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','reason','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','revision','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','source_order_reference','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_decision','supersedes_decision_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_head','decision_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_head','kind','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_head','marketplace_order_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_head','omie_connection_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_head','organization_id','SELECT'),
+('flooow_offline_audit_owner','marketplace_transaction_identity_head','source_order_reference','SELECT'),
+('flooow_offline_audit_owner','offline_admission','admission_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','attempt_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','authenticated_at','SELECT'),
+('flooow_offline_audit_owner','offline_admission','authorization_fingerprint','SELECT'),
+('flooow_offline_audit_owner','offline_admission','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','consumed_at','SELECT'),
+('flooow_offline_audit_owner','offline_admission','consumed_decision_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','credential_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','credential_revision','SELECT'),
+('flooow_offline_audit_owner','offline_admission','deployment_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','durable_state','SELECT'),
+('flooow_offline_audit_owner','offline_admission','execution_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','executor_oid','SELECT'),
+('flooow_offline_audit_owner','offline_admission','expires_at','SELECT'),
+('flooow_offline_audit_owner','offline_admission','generation','SELECT'),
+('flooow_offline_audit_owner','offline_admission','grant_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','grant_revision','SELECT'),
+('flooow_offline_audit_owner','offline_admission','incarnation_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','instance_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','organization_id','SELECT'),
+('flooow_offline_audit_owner','offline_admission','permission','SELECT'),
+('flooow_offline_audit_owner','offline_admission','principal_id','SELECT'),
+('flooow_offline_audit_owner','offline_attempt','attempt_id','SELECT'),
+('flooow_offline_audit_owner','offline_attempt','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_attempt','claimed_at','SELECT'),
+('flooow_offline_audit_owner','offline_attempt','expires_at','SELECT'),
+('flooow_offline_audit_owner','offline_attempt','generation','SELECT'),
+('flooow_offline_audit_owner','offline_attempt','state','SELECT'),
+('flooow_offline_audit_owner','offline_attempt_pointer','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_attempt_pointer','current_attempt_id','SELECT'),
+('flooow_offline_audit_owner','offline_attempt_pointer','generation','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','admission_contract_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','binding_schema_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','canonical_manifest_bytes','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','canonical_manifest_encoding_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','canonical_manifest_hash','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','correlation_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','credential_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','credential_operation_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','decision_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','delivery_contract_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','execution_plan_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','expires_at','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','grant_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','grant_operation_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','integration_reference','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','issued_at','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','manifest_digest','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','manifest_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','marketplace_order_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','mercado_livre_connection_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','omie_connection_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','organization_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','permission','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','plan_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','principal_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','principal_operation_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','provenance','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','reason','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','reconciliation_contract_version','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','run_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','source_order_reference','SELECT'),
+('flooow_offline_audit_owner','offline_binding_header','valid_from','SELECT'),
+('flooow_offline_audit_owner','offline_binding_lifecycle','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_binding_lifecycle','state','SELECT'),
+('flooow_offline_audit_owner','offline_ceremony_result','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_ceremony_result','result','SELECT'),
+('flooow_offline_audit_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_audit_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_audit_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_audit_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','attempt_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','attempted_at','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','credential_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','delivery_receipt_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','execution_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','fresh_applied_receipt_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','generation','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','initial_operation_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','instance_id','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','observation_code','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','observed_at','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','operation_deadline','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','recorded_at','SELECT'),
+('flooow_offline_audit_owner','offline_delivery','state','SELECT'),
+('flooow_offline_audit_owner','offline_execution','attempt_id','SELECT'),
+('flooow_offline_audit_owner','offline_execution','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_execution','claimed_at','SELECT'),
+('flooow_offline_audit_owner','offline_execution','execution_id','SELECT'),
+('flooow_offline_audit_owner','offline_execution','executor_oid','SELECT'),
+('flooow_offline_audit_owner','offline_execution','expires_at','SELECT'),
+('flooow_offline_audit_owner','offline_execution','generation','SELECT'),
+('flooow_offline_audit_owner','offline_execution','instance_id','SELECT'),
+('flooow_offline_audit_owner','offline_execution','state','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','state','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_audit_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_audit_owner','offline_reconciliation','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_reconciliation','state','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','attempt_id','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','binding_id','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','effect_time','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','execution_id','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','frozen_receipt','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','generation','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','instance_id','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','operation_id','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','receipt_id','SELECT'),
+('flooow_offline_audit_owner','offline_stage_receipt','stage','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','accepted_proof_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','algorithm_id','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','artifact_version','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','canonical_manifest_bytes','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','canonical_signature_preimage_bytes','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','canonicalization_version','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','manifest_digest','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','manifest_id','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','organization_id','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','recorded_at','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','schema_version','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signature_bytes','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_authority_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_authority_id','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_authority_revision','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_key_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_key_id','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_key_lineage_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','signer_key_revision','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','subject_public_key_info_der','SELECT'),
+('flooow_offline_audit_owner','s2a_accepted_attestation','verified_at','SELECT'),
+('flooow_offline_audit_owner','s2a_attestation_consumption','consumed_at','SELECT'),
+('flooow_offline_audit_owner','s2a_attestation_consumption','correlation_id','SELECT'),
+('flooow_offline_audit_owner','s2a_attestation_consumption','manifest_digest','SELECT'),
+('flooow_offline_audit_owner','s2a_attestation_consumption','manifest_id','SELECT'),
+('flooow_offline_audit_owner','s2a_attestation_consumption','organization_id','SELECT'),
+('flooow_offline_audit_owner','s2a_attestation_consumption','principal_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','approval_action','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','approval_source_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','decided_at','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','organization_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','permission','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','revision','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_authority_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_authority_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_key_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_key_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_key_revision','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_role','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','signer_subject_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','state','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','valid_from','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_authority_revision','valid_until','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','algorithm_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','effective_at','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','lineage_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','organization_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','revision','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','signer_key_fingerprint','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','signer_key_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','signer_subject_id','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','state','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','subject_public_key_info_der','SELECT'),
+('flooow_offline_audit_owner','s2a_signer_key_revision','valid_from','SELECT'),
+('flooow_offline_execution_owner','command_credential_revision','credential_id','SELECT'),
+('flooow_offline_execution_owner','command_credential_revision','organization_id','SELECT'),
+('flooow_offline_execution_owner','command_credential_revision','principal_id','SELECT'),
+('flooow_offline_execution_owner','command_credential_revision','revision','SELECT'),
+('flooow_offline_execution_owner','command_credential_revision','secret_verifier','SELECT'),
+('flooow_offline_execution_owner','command_credential_revision','state','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','correlation_id','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','decided_at','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','grant_id','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','organization_id','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','permission','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','principal_id','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','provenance','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','reason','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','revision','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','state','SELECT'),
+('flooow_offline_execution_owner','command_permission_grant','supersedes_grant_id','SELECT'),
+('flooow_offline_execution_owner','command_principal','mercado_livre_connection_id','SELECT'),
+('flooow_offline_execution_owner','command_principal','omie_connection_id','SELECT'),
+('flooow_offline_execution_owner','command_principal','organization_id','SELECT'),
+('flooow_offline_execution_owner','command_principal','principal_id','SELECT'),
+('flooow_offline_execution_owner','integration_connector_page_commit','capability','SELECT'),
+('flooow_offline_execution_owner','integration_connector_page_commit','connection_id','SELECT'),
+('flooow_offline_execution_owner','integration_connector_page_commit','input_progress_version','SELECT'),
+('flooow_offline_execution_owner','integration_connector_page_commit','organization_id','SELECT'),
+('flooow_offline_execution_owner','integration_connector_page_commit','record_count','SELECT'),
+('flooow_offline_execution_owner','integration_connector_progress','capability','SELECT'),
+('flooow_offline_execution_owner','integration_connector_progress','connection_id','SELECT'),
+('flooow_offline_execution_owner','integration_connector_progress','organization_id','SELECT'),
+('flooow_offline_execution_owner','integration_connector_progress','progress_version','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','capability','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','connection_id','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','currency','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','external_order_ref','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','input_progress_version','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','organization_id','SELECT'),
+('flooow_offline_execution_owner','integration_mercado_livre_order_source_observation','record_ordinal','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','capability','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','connection_id','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','currency','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','input_progress_version','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','organization_id','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','record_ordinal','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','source_integration_ref','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence','source_order_ref','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','capability','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','connection_id','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','input_progress_version','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','organization_id','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','provider_created_local','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','provider_modified_local','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','record_ordinal','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','semantic_fingerprint_version','SELECT'),
+('flooow_offline_execution_owner','integration_omie_transaction_evidence_v3','source_evidence_semantic_fingerprint','SELECT'),
+('flooow_offline_execution_owner','integration_organization','organization_id','SELECT'),
+('flooow_offline_execution_owner','integration_organization','status','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_identity_registry','currency','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_identity_registry','external_order_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_identity_registry','marketplace_key','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_identity_registry','marketplace_order_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_identity_registry','organization_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','marketplace_order_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','organization_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','outcome','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','source_capability','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','source_connection_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','source_input_progress_version','SELECT'),
+('flooow_offline_execution_owner','marketplace_order_occurrence_source_promotion','source_record_ordinal','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_decision','decision_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_decision','organization_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_head','decision_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_head','marketplace_order_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_head','omie_connection_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_head','organization_id','SELECT'),
+('flooow_offline_execution_owner','marketplace_transaction_identity_head','source_order_reference','SELECT'),
+('flooow_offline_execution_owner','offline_admission','admission_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','admission_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','attempt_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','attempt_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','authenticated_at','INSERT'),
+('flooow_offline_execution_owner','offline_admission','authenticated_at','SELECT'),
+('flooow_offline_execution_owner','offline_admission','authorization_fingerprint','INSERT'),
+('flooow_offline_execution_owner','offline_admission','authorization_fingerprint','SELECT'),
+('flooow_offline_execution_owner','offline_admission','binding_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','consumed_at','INSERT'),
+('flooow_offline_execution_owner','offline_admission','consumed_at','SELECT'),
+('flooow_offline_execution_owner','offline_admission','consumed_at','UPDATE'),
+('flooow_offline_execution_owner','offline_admission','consumed_decision_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','consumed_decision_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','consumed_decision_id','UPDATE'),
+('flooow_offline_execution_owner','offline_admission','credential_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','credential_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','credential_revision','INSERT'),
+('flooow_offline_execution_owner','offline_admission','credential_revision','SELECT'),
+('flooow_offline_execution_owner','offline_admission','deployment_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','deployment_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','durable_state','INSERT'),
+('flooow_offline_execution_owner','offline_admission','durable_state','SELECT'),
+('flooow_offline_execution_owner','offline_admission','durable_state','UPDATE'),
+('flooow_offline_execution_owner','offline_admission','execution_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','execution_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','executor_oid','INSERT'),
+('flooow_offline_execution_owner','offline_admission','executor_oid','SELECT'),
+('flooow_offline_execution_owner','offline_admission','expires_at','INSERT'),
+('flooow_offline_execution_owner','offline_admission','expires_at','SELECT'),
+('flooow_offline_execution_owner','offline_admission','generation','INSERT'),
+('flooow_offline_execution_owner','offline_admission','generation','SELECT'),
+('flooow_offline_execution_owner','offline_admission','grant_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','grant_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','grant_revision','INSERT'),
+('flooow_offline_execution_owner','offline_admission','grant_revision','SELECT'),
+('flooow_offline_execution_owner','offline_admission','incarnation_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','incarnation_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','instance_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','instance_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','lock_token','INSERT'),
+('flooow_offline_execution_owner','offline_admission','lock_token','UPDATE'),
+('flooow_offline_execution_owner','offline_admission','organization_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','organization_id','SELECT'),
+('flooow_offline_execution_owner','offline_admission','permission','INSERT'),
+('flooow_offline_execution_owner','offline_admission','permission','SELECT'),
+('flooow_offline_execution_owner','offline_admission','principal_id','INSERT'),
+('flooow_offline_execution_owner','offline_admission','principal_id','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','attempt_id','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','attempt_id','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','binding_id','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','claimed_at','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','claimed_at','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','expires_at','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','expires_at','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','generation','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','generation','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','lock_token','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','lock_token','UPDATE'),
+('flooow_offline_execution_owner','offline_attempt','state','INSERT'),
+('flooow_offline_execution_owner','offline_attempt','state','SELECT'),
+('flooow_offline_execution_owner','offline_attempt','state','UPDATE'),
+('flooow_offline_execution_owner','offline_attempt_pointer','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_attempt_pointer','claim_permitted','SELECT'),
+('flooow_offline_execution_owner','offline_attempt_pointer','current_attempt_id','SELECT'),
+('flooow_offline_execution_owner','offline_attempt_pointer','current_attempt_id','UPDATE'),
+('flooow_offline_execution_owner','offline_attempt_pointer','generation','SELECT'),
+('flooow_offline_execution_owner','offline_attempt_pointer','lock_token','UPDATE'),
+('flooow_offline_execution_owner','offline_binding_header','admission_contract_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','binding_schema_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','canonical_manifest_bytes','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','canonical_manifest_encoding_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','canonical_manifest_hash','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','correlation_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','credential_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','credential_operation_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','decision_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','delivery_contract_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','execution_plan_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','expires_at','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','grant_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','grant_operation_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','integration_reference','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','issued_at','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','manifest_digest','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','manifest_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','marketplace_order_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','mercado_livre_connection_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','omie_connection_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','organization_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','permission','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','plan_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','principal_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','principal_operation_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','provenance','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','reason','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','reconciliation_contract_version','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','run_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','source_order_reference','SELECT'),
+('flooow_offline_execution_owner','offline_binding_header','valid_from','SELECT'),
+('flooow_offline_execution_owner','offline_binding_lifecycle','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_binding_lifecycle','lock_token','UPDATE'),
+('flooow_offline_execution_owner','offline_binding_lifecycle','state','SELECT'),
+('flooow_offline_execution_owner','offline_ceremony_result','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_ceremony_result','result','SELECT'),
+('flooow_offline_execution_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_execution_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_execution_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_execution_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','attempt_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','attempted_at','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','attempted_at','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','credential_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','delivery_receipt_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','delivery_receipt_id','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','execution_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','fresh_applied_receipt_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','generation','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','initial_operation_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','instance_id','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','lock_token','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','observation_code','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','observation_code','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','observed_at','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','observed_at','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','operation_deadline','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','operation_deadline','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','recorded_at','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','recorded_at','UPDATE'),
+('flooow_offline_execution_owner','offline_delivery','state','SELECT'),
+('flooow_offline_execution_owner','offline_delivery','state','UPDATE'),
+('flooow_offline_execution_owner','offline_execution','attempt_id','INSERT'),
+('flooow_offline_execution_owner','offline_execution','attempt_id','SELECT'),
+('flooow_offline_execution_owner','offline_execution','binding_id','INSERT'),
+('flooow_offline_execution_owner','offline_execution','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_execution','claim_receipt_id','INSERT'),
+('flooow_offline_execution_owner','offline_execution','claim_receipt_id','SELECT'),
+('flooow_offline_execution_owner','offline_execution','claimed_at','INSERT'),
+('flooow_offline_execution_owner','offline_execution','claimed_at','SELECT'),
+('flooow_offline_execution_owner','offline_execution','execution_id','INSERT'),
+('flooow_offline_execution_owner','offline_execution','execution_id','SELECT'),
+('flooow_offline_execution_owner','offline_execution','executor_oid','INSERT'),
+('flooow_offline_execution_owner','offline_execution','executor_oid','SELECT'),
+('flooow_offline_execution_owner','offline_execution','expires_at','INSERT'),
+('flooow_offline_execution_owner','offline_execution','expires_at','SELECT'),
+('flooow_offline_execution_owner','offline_execution','generation','INSERT'),
+('flooow_offline_execution_owner','offline_execution','generation','SELECT'),
+('flooow_offline_execution_owner','offline_execution','instance_id','INSERT'),
+('flooow_offline_execution_owner','offline_execution','instance_id','SELECT'),
+('flooow_offline_execution_owner','offline_execution','lock_token','INSERT'),
+('flooow_offline_execution_owner','offline_execution','lock_token','UPDATE'),
+('flooow_offline_execution_owner','offline_execution','possession_digest','INSERT'),
+('flooow_offline_execution_owner','offline_execution','possession_digest','SELECT'),
+('flooow_offline_execution_owner','offline_execution','state','INSERT'),
+('flooow_offline_execution_owner','offline_execution','state','SELECT'),
+('flooow_offline_execution_owner','offline_execution','state','UPDATE'),
+('flooow_offline_execution_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_execution_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_execution_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_execution_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_execution_owner','offline_readiness','state','SELECT'),
+('flooow_offline_execution_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_execution_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_execution_owner','offline_reconciliation','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_reconciliation','state','SELECT'),
+('flooow_offline_execution_owner','offline_reconciliation','state','UPDATE'),
+('flooow_offline_execution_owner','offline_stage_receipt','attempt_id','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','attempt_id','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','binding_id','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','binding_id','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','effect_time','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','effect_time','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','execution_id','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','execution_id','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','frozen_receipt','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','frozen_receipt','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','generation','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','generation','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','instance_id','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','instance_id','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','operation_id','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','operation_id','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','receipt_id','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','receipt_id','SELECT'),
+('flooow_offline_execution_owner','offline_stage_receipt','stage','INSERT'),
+('flooow_offline_execution_owner','offline_stage_receipt','stage','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','attestation_manifest_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','correlation_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','credential_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','credential_revision','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','decided_at','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','grant_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','grant_revision','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','intent_fingerprint','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','operation','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','operation_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','organization_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','permission','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','principal_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','receipt_fingerprint','SELECT'),
+('flooow_offline_intent_audit_owner','command_authority_operation','state','SELECT'),
+('flooow_offline_intent_audit_owner','command_credential_revision','credential_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_credential_revision','decided_at','SELECT'),
+('flooow_offline_intent_audit_owner','command_credential_revision','organization_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_credential_revision','principal_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_credential_revision','revision','SELECT'),
+('flooow_offline_intent_audit_owner','command_credential_revision','secret_verifier','SELECT'),
+('flooow_offline_intent_audit_owner','command_permission_grant','decided_at','SELECT'),
+('flooow_offline_intent_audit_owner','command_permission_grant','grant_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_permission_grant','organization_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_permission_grant','principal_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','decided_at','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','mercado_livre_connection_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','omie_connection_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','organization_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','principal_id','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','provenance','SELECT'),
+('flooow_offline_intent_audit_owner','command_principal','reason','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','correlation_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','credential_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','credential_operation_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','grant_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','grant_operation_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','manifest_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','mercado_livre_connection_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','omie_connection_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','organization_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','principal_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','principal_operation_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','provenance','SELECT'),
+('flooow_offline_intent_audit_owner','offline_binding_header','reason','SELECT'),
+('flooow_offline_intent_audit_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_intent_audit_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_intent_audit_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_intent_audit_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','state','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_intent_audit_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_intent_audit_owner','s2a_accepted_attestation','accepted_proof_fingerprint','SELECT'),
+('flooow_offline_intent_audit_owner','s2a_accepted_attestation','manifest_digest','SELECT'),
+('flooow_offline_intent_audit_owner','s2a_accepted_attestation','manifest_id','SELECT'),
+('flooow_offline_intent_audit_owner','s2a_accepted_attestation','organization_id','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','attempt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','claimed_at','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','expires_at','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','generation','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','lock_token','UPDATE'),
+('flooow_offline_issuance_owner','offline_attempt','state','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt','state','UPDATE'),
+('flooow_offline_issuance_owner','offline_attempt_pointer','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt_pointer','current_attempt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt_pointer','generation','SELECT'),
+('flooow_offline_issuance_owner','offline_attempt_pointer','lock_token','UPDATE'),
+('flooow_offline_issuance_owner','offline_binding_header','admission_contract_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','binding_schema_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','canonical_manifest_bytes','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','canonical_manifest_encoding_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','canonical_manifest_hash','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','correlation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','credential_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','credential_operation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','decision_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','delivery_contract_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','execution_plan_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','expires_at','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','grant_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','grant_operation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','integration_reference','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','issued_at','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','manifest_digest','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','manifest_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','marketplace_order_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','mercado_livre_connection_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','omie_connection_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','organization_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','permission','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','plan_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','principal_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','principal_operation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','provenance','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','reason','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','reconciliation_contract_version','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','run_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','source_order_reference','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_header','valid_from','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_lifecycle','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_binding_lifecycle','lock_token','UPDATE'),
+('flooow_offline_issuance_owner','offline_binding_lifecycle','state','SELECT'),
+('flooow_offline_issuance_owner','offline_ceremony_result','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_ceremony_result','result','SELECT'),
+('flooow_offline_issuance_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_issuance_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_issuance_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_issuance_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','attempt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','attempt_id','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','credential_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','credential_id','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','execution_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','execution_id','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','fresh_applied_receipt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','fresh_applied_receipt_id','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','generation','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','initial_operation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','initial_operation_id','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','instance_id','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','instance_id','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','lock_token','UPDATE'),
+('flooow_offline_issuance_owner','offline_delivery','state','SELECT'),
+('flooow_offline_issuance_owner','offline_delivery','state','UPDATE'),
+('flooow_offline_issuance_owner','offline_execution','attempt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','claimed_at','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','execution_id','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','executor_oid','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','expires_at','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','generation','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','instance_id','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','lock_token','UPDATE'),
+('flooow_offline_issuance_owner','offline_execution','possession_digest','SELECT'),
+('flooow_offline_issuance_owner','offline_execution','state','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','state','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_issuance_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_issuance_owner','offline_reconciliation','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_reconciliation','state','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','attempt_id','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','attempt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','binding_id','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','binding_id','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','effect_time','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','effect_time','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','execution_id','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','execution_id','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','frozen_receipt','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','frozen_receipt','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','generation','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','generation','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','instance_id','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','instance_id','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','operation_id','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','operation_id','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','receipt_id','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','receipt_id','SELECT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','stage','INSERT'),
+('flooow_offline_issuance_owner','offline_stage_receipt','stage','SELECT'),
+('flooow_offline_principal_lock_owner','command_principal','mercado_livre_connection_id','SELECT'),
+('flooow_offline_principal_lock_owner','command_principal','omie_connection_id','SELECT'),
+('flooow_offline_principal_lock_owner','command_principal','organization_id','SELECT'),
+('flooow_offline_principal_lock_owner','command_principal','principal_id','SELECT'),
+('flooow_offline_principal_lock_owner','command_principal','principal_id','UPDATE'),
+('flooow_offline_principal_lock_owner','offline_attempt','attempt_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt','claimed_at','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt','expires_at','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt','generation','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt','lock_token','UPDATE'),
+('flooow_offline_principal_lock_owner','offline_attempt','state','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt_pointer','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt_pointer','current_attempt_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt_pointer','generation','SELECT'),
+('flooow_offline_principal_lock_owner','offline_attempt_pointer','lock_token','UPDATE'),
+('flooow_offline_principal_lock_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','expires_at','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','mercado_livre_connection_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','omie_connection_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','organization_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','principal_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_header','valid_from','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_lifecycle','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_binding_lifecycle','lock_token','UPDATE'),
+('flooow_offline_principal_lock_owner','offline_binding_lifecycle','state','SELECT'),
+('flooow_offline_principal_lock_owner','offline_ceremony_result','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_ceremony_result','result','SELECT'),
+('flooow_offline_principal_lock_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_principal_lock_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_principal_lock_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_principal_lock_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_principal_lock_owner','offline_delivery','attempt_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_delivery','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_delivery','execution_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_delivery','generation','SELECT'),
+('flooow_offline_principal_lock_owner','offline_delivery','instance_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_delivery','state','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','attempt_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','claimed_at','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','execution_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','executor_oid','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','expires_at','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','generation','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','instance_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','lock_token','UPDATE'),
+('flooow_offline_principal_lock_owner','offline_execution','possession_digest','SELECT'),
+('flooow_offline_principal_lock_owner','offline_execution','state','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','state','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_principal_lock_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_principal_lock_owner','offline_reconciliation','binding_id','SELECT'),
+('flooow_offline_principal_lock_owner','offline_reconciliation','state','SELECT'),
+('flooow_offline_readiness_owner','flyway_schema_history','checksum','SELECT'),
+('flooow_offline_readiness_owner','flyway_schema_history','installed_rank','SELECT'),
+('flooow_offline_readiness_owner','flyway_schema_history','script','SELECT'),
+('flooow_offline_readiness_owner','flyway_schema_history','success','SELECT'),
+('flooow_offline_readiness_owner','flyway_schema_history','type','SELECT'),
+('flooow_offline_readiness_owner','flyway_schema_history','version','SELECT'),
+('flooow_offline_readiness_owner','offline_attempt_pointer','binding_id','SELECT'),
+('flooow_offline_readiness_owner','offline_attempt_pointer','claim_permitted','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','expires_at','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_header','valid_from','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_lifecycle','binding_id','SELECT'),
+('flooow_offline_readiness_owner','offline_binding_lifecycle','state','SELECT'),
+('flooow_offline_readiness_owner','offline_ceremony_result','binding_id','SELECT'),
+('flooow_offline_readiness_owner','offline_ceremony_result','result','SELECT'),
+('flooow_offline_readiness_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_readiness_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_readiness_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_readiness_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_readiness_owner','offline_preflight_key','incarnation_id','SELECT'),
+('flooow_offline_readiness_owner','offline_preflight_key','key_material','SELECT'),
+('flooow_offline_readiness_owner','offline_preflight_key','key_state','SELECT'),
+('flooow_offline_readiness_owner','offline_preflight_key','key_version','SELECT'),
+('flooow_offline_readiness_owner','offline_preflight_key','lineage_id','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','acl_manifest','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','active_key_version','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','history_manifest','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','state','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_readiness_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','attempt_id','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','claimed_at','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','expires_at','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','generation','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','lock_token','UPDATE'),
+('flooow_offline_verification_owner','offline_attempt','state','SELECT'),
+('flooow_offline_verification_owner','offline_attempt','state','UPDATE'),
+('flooow_offline_verification_owner','offline_attempt_pointer','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_attempt_pointer','current_attempt_id','SELECT'),
+('flooow_offline_verification_owner','offline_attempt_pointer','generation','SELECT'),
+('flooow_offline_verification_owner','offline_attempt_pointer','lock_token','UPDATE'),
+('flooow_offline_verification_owner','offline_binding_header','admission_contract_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','binding_schema_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','canonical_manifest_bytes','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','canonical_manifest_encoding_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','canonical_manifest_hash','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','correlation_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','credential_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','credential_operation_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','deadline_policy_digest','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','deadline_policy_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','decision_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','delivery_contract_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','deployment_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','deployment_incarnation_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','execution_plan_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','expires_at','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','grant_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','grant_operation_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','identity_slots','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','integration_reference','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','issued_at','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','manifest_digest','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','manifest_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','marketplace_order_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','mercado_livre_connection_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','offline_surface_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','omie_connection_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','organization_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','permission','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','plan_fingerprint','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','plan_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','principal_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','principal_operation_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','provenance','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','reason','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','reconciliation_contract_version','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','run_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','source_order_reference','SELECT'),
+('flooow_offline_verification_owner','offline_binding_header','valid_from','SELECT'),
+('flooow_offline_verification_owner','offline_binding_lifecycle','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_binding_lifecycle','lock_token','UPDATE'),
+('flooow_offline_verification_owner','offline_binding_lifecycle','state','SELECT'),
+('flooow_offline_verification_owner','offline_ceremony_result','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_ceremony_result','result','SELECT'),
+('flooow_offline_verification_owner','offline_deadline_policy','canonical_policy','SELECT'),
+('flooow_offline_verification_owner','offline_deadline_policy','effective_from','SELECT'),
+('flooow_offline_verification_owner','offline_deadline_policy','policy_digest','SELECT'),
+('flooow_offline_verification_owner','offline_deadline_policy','policy_version','SELECT'),
+('flooow_offline_verification_owner','offline_execution','attempt_id','SELECT'),
+('flooow_offline_verification_owner','offline_execution','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_execution','claimed_at','SELECT'),
+('flooow_offline_verification_owner','offline_execution','execution_id','SELECT'),
+('flooow_offline_verification_owner','offline_execution','executor_oid','SELECT'),
+('flooow_offline_verification_owner','offline_execution','expires_at','SELECT'),
+('flooow_offline_verification_owner','offline_execution','generation','SELECT'),
+('flooow_offline_verification_owner','offline_execution','instance_id','SELECT'),
+('flooow_offline_verification_owner','offline_execution','lock_token','UPDATE'),
+('flooow_offline_verification_owner','offline_execution','possession_digest','SELECT'),
+('flooow_offline_verification_owner','offline_execution','state','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','deployment_id','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','incarnation_id','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','policy_digest','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','policy_version','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','state','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','watchdog_checked_at','SELECT'),
+('flooow_offline_verification_owner','offline_readiness','watchdog_healthy','SELECT'),
+('flooow_offline_verification_owner','offline_reconciliation','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_reconciliation','state','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','attempt_id','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','attempt_id','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','binding_id','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','binding_id','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','effect_time','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','effect_time','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','execution_id','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','execution_id','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','frozen_receipt','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','frozen_receipt','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','generation','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','generation','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','instance_id','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','instance_id','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','operation_id','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','operation_id','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','receipt_id','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','receipt_id','SELECT'),
+('flooow_offline_verification_owner','offline_stage_receipt','stage','INSERT'),
+('flooow_offline_verification_owner','offline_stage_receipt','stage','SELECT')) approved(role_name,relation,column_name,privilege)
+            WHERE approved.role_name=role_names[pg_catalog.array_position(role_oids,g.oid)]
+              AND n.nspname='public' AND approved.relation=c.relname AND approved.column_name=a.attname
+              AND approved.privilege=privilege.name)) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF EXISTS(SELECT 1 FROM pg_catalog.pg_default_acl d WHERE d.defaclrole=ANY(creator_oids)
+        AND (d.defaclobjtype NOT IN ('r','S','f','T','n','L') OR EXISTS(
+          SELECT 1 FROM pg_catalog.aclexplode(d.defaclacl) a WHERE a.privilege_type NOT IN
+          ('EXECUTE','USAGE','CREATE','SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER','MAINTAIN')))) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Global no-entry means hard-wired defaults, not an empty safe ACL.
+    IF EXISTS(SELECT 1 FROM pg_catalog.unnest(creator_oids) creator(oid)
+        CROSS JOIN (VALUES ('r'),('S'),('f'),('T'),('n'),('L')) kind(type)
+        CROSS JOIN LATERAL pg_catalog.aclexplode(COALESCE(
+          (SELECT d.defaclacl FROM pg_catalog.pg_default_acl d WHERE d.defaclrole=creator.oid
+            AND d.defaclnamespace=0 AND d.defaclobjtype=kind.type::pg_catalog."char"),
+          pg_catalog.acldefault(CASE WHEN kind.type='S' THEN 's'::pg_catalog."char" ELSE kind.type::pg_catalog."char" END,creator.oid))) a
+        WHERE a.grantee<>creator.oid)
+       OR EXISTS(SELECT 1 FROM pg_catalog.pg_default_acl d CROSS JOIN LATERAL pg_catalog.aclexplode(d.defaclacl) a
+          WHERE d.defaclrole=ANY(creator_oids) AND a.grantee<>d.defaclrole) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Canonical qualified type names, reciprocal arrays; no regtype/display aliases.
+    SELECT pg_catalog.array_agg(t.oid ORDER BY t.oid),pg_catalog.array_agg(
+        CASE WHEN e.typarray=t.oid THEN
+           CASE WHEN en.nspname~'^[a-z_][a-z0-9_]*$' THEN en.nspname ELSE '"'||pg_catalog.replace(en.nspname,'"','""')||'"' END||'.'||
+           CASE WHEN e.typname~'^[a-z_][a-z0-9_]*$' THEN e.typname ELSE '"'||pg_catalog.replace(e.typname,'"','""')||'"' END||'[]'
+        ELSE CASE WHEN n.nspname~'^[a-z_][a-z0-9_]*$' THEN n.nspname ELSE '"'||pg_catalog.replace(n.nspname,'"','""')||'"' END||'.'||
+           CASE WHEN t.typname~'^[a-z_][a-z0-9_]*$' THEN t.typname ELSE '"'||pg_catalog.replace(t.typname,'"','""')||'"' END END ORDER BY t.oid)
+      INTO type_oids,type_names FROM pg_catalog.pg_type t JOIN pg_catalog.pg_namespace n ON n.oid=t.typnamespace
+      LEFT JOIN pg_catalog.pg_type e ON e.oid=t.typelem LEFT JOIN pg_catalog.pg_namespace en ON en.oid=e.typnamespace
+     WHERE t.typname IS NFC NORMALIZED AND n.nspname IS NFC NORMALIZED
+       AND (e.typarray IS DISTINCT FROM t.oid OR (e.typname IS NFC NORMALIZED AND en.nspname IS NFC NORMALIZED AND e.typelem=0));
+    acl_collections := pg_catalog.array_append(acl_collections,(SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-IDENTITY/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-IDENTITY/V1','UTF8')||'\x000a'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int8send((x.purpose)::pg_catalog.int8),5,4)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((x.purpose)::pg_catalog.int8),5,4))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int8send((x.purpose)::pg_catalog.int8),5,4)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((x.purpose)::pg_catalog.int8),5,4))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int8send((r.oid)::pg_catalog.int8),5,4)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((r.oid)::pg_catalog.int8),5,4))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int8send((r.oid)::pg_catalog.int8),5,4)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((r.oid)::pg_catalog.int8),5,4))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(r.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolcanlogin) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolcanlogin) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolcanlogin) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolcanlogin) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolinherit) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolinherit) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolinherit) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolinherit) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolsuper) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolsuper) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolsuper) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolsuper) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolcreaterole) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolcreaterole) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolcreaterole) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolcreaterole) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolcreatedb) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolcreatedb) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolcreatedb) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolcreatedb) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolreplication) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolreplication) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolreplication) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolreplication) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (r.rolbypassrls) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolbypassrls) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (r.rolbypassrls) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (r.rolbypassrls) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.unnest(protected_oids) WITH ORDINALITY x(oid,purpose) JOIN pg_catalog.pg_roles r ON r.oid=x.oid) encoded_elements));
+    FOR catalog_record IN SELECT p.oid,p.proname,n.nspname,p.proowner,p.prokind,p.prosecdef,
+        p.proisstrict,p.proretset,p.provolatile,p.pronargs,p.pronargdefaults,p.prorettype,
+        p.proargtypes,p.proallargtypes,p.proargmodes,p.proargnames,p.provariadic,p.proconfig,p.proacl,t.typtype
+        FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        JOIN pg_catalog.pg_type t ON t.oid=p.prorettype WHERE p.oid=ANY(function_oids) LOOP
+        IF catalog_record.prokind<>'f' OR catalog_record.proname IS NOT NFC NORMALIZED
+           OR catalog_record.nspname IS NOT NFC NORMALIZED OR catalog_record.pronargdefaults<0
+           OR catalog_record.pronargdefaults>catalog_record.pronargs THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        all_types := ARRAY[]::pg_catalog.oid[]; all_modes := ARRAY[]::pg_catalog.text[];
+        input_names := ARRAY[]::pg_catalog.text[];
+        IF catalog_record.pronargs>0 THEN
+            FOR input_index IN 0..catalog_record.pronargs-1 LOOP
+                canonical_type := type_names[pg_catalog.array_position(type_oids,catalog_record.proargtypes[input_index])];
+                IF canonical_type IS NULL THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+                input_names := pg_catalog.array_append(input_names,canonical_type);
+                all_types := pg_catalog.array_append(all_types,catalog_record.proargtypes[input_index]);
+                all_modes := pg_catalog.array_append(all_modes,'i');
+            END LOOP;
+        END IF;
+        IF catalog_record.proallargtypes IS NULL THEN
+            IF catalog_record.proargmodes IS NOT NULL THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+        ELSE
+            all_types := catalog_record.proallargtypes; all_modes := catalog_record.proargmodes::pg_catalog.text[];
+            IF all_modes IS NULL OR pg_catalog.cardinality(all_types)<>pg_catalog.cardinality(all_modes) THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        END IF;
+        all_names := catalog_record.proargnames::pg_catalog.text[];
+        IF all_names IS NOT NULL AND pg_catalog.cardinality(all_names)<>pg_catalog.cardinality(all_types) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        argument_names := ARRAY[]::pg_catalog.text[]; argument_modes := ARRAY[]::pg_catalog.bytea[];
+        output_elements := ARRAY[]::pg_catalog.bytea[]; input_index := 1;
+        IF pg_catalog.cardinality(all_types)>0 THEN
+            FOR field_tag IN 1..pg_catalog.cardinality(all_types) LOOP
+                canonical_type := type_names[pg_catalog.array_position(type_oids,all_types[field_tag])];
+                IF canonical_type IS NULL OR all_modes[field_tag] NOT IN ('i','o','b','v','t')
+                   OR (all_names[field_tag] IS NOT NULL AND all_names[field_tag] IS NOT NFC NORMALIZED) THEN
+                    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+                END IF;
+                argument_names := pg_catalog.array_append(argument_names,canonical_type);
+                argument_modes := pg_catalog.array_append(argument_modes,pg_catalog.substring(pg_catalog.int4send((CASE all_modes[field_tag] WHEN 'i' THEN 1 WHEN 'o' THEN 2 WHEN 'b' THEN 3 WHEN 'v' THEN 4 WHEN 't' THEN 5 END)::pg_catalog.int4),4,1));
+                IF all_modes[field_tag] IN ('i','b','v') THEN
+                    IF input_names[input_index] IS DISTINCT FROM canonical_type THEN
+                        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+                    END IF;
+                    IF all_modes[field_tag]='v' AND (input_index<>catalog_record.pronargs OR catalog_record.provariadic=0) THEN
+                        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+                    END IF;
+                    input_index := input_index+1;
+                END IF;
+                IF all_modes[field_tag] IN ('o','b','t') THEN
+                    output_elements := pg_catalog.array_append(output_elements,(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-OUTPUT/V1','UTF8')||'\x0003'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(NULLIF(all_names[field_tag],''),'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(NULLIF(all_names[field_tag],''),'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(NULLIF(all_names[field_tag],''),'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(NULLIF(all_names[field_tag],''),'UTF8'))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(canonical_type,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(canonical_type,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(canonical_type,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(canonical_type,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (argument_modes[field_tag]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(argument_modes[field_tag])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (argument_modes[field_tag]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(argument_modes[field_tag])) END)));
+                END IF;
+            END LOOP;
+        END IF;
+        IF input_index<>catalog_record.pronargs+1 OR
+           (catalog_record.provariadic=0 AND 'v'=ANY(all_modes)) OR
+           (catalog_record.provariadic<>0 AND NOT 'v'=ANY(all_modes)) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        canonical_type := type_names[pg_catalog.array_position(type_oids,catalog_record.prorettype)];
+        IF canonical_type IS NULL THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+        return_shape := CASE WHEN 't'=ANY(all_modes) THEN 2 WHEN canonical_type='pg_catalog.void' THEN 3
+          WHEN catalog_record.typtype='c' THEN CASE WHEN catalog_record.proretset THEN 5 ELSE 6 END
+          WHEN canonical_type='pg_catalog.record' THEN CASE WHEN catalog_record.proretset THEN 2 ELSE 7 END
+          ELSE CASE WHEN catalog_record.proretset THEN 4 ELSE 1 END END;
+        IF ('t'=ANY(all_modes) AND NOT catalog_record.proretset)
+           OR (return_shape=3 AND catalog_record.proretset)
+           OR (canonical_type='pg_catalog.record' AND pg_catalog.cardinality(output_elements)=0) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        config_names := ARRAY[]::pg_catalog.text[];
+        IF catalog_record.proconfig IS NOT NULL THEN
+            FOREACH config_entry IN ARRAY catalog_record.proconfig LOOP
+                config_name := pg_catalog.split_part(config_entry,'=',1);
+                IF config_entry IS NULL OR config_entry IS NOT NFC NORMALIZED
+                   OR pg_catalog.strpos(config_entry,'=')<2 OR config_name=ANY(config_names)
+                   OR config_name<>'search_path' THEN
+                    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+                END IF;
+                config_names := pg_catalog.array_append(config_names,config_name);
+            END LOOP;
+        END IF;
+        IF catalog_record.proname~'^offline_' AND catalog_record.nspname='public' AND
+           (NOT catalog_record.prosecdef OR catalog_record.pronargdefaults<>0 OR catalog_record.provariadic<>0
+            OR catalog_record.proconfig IS NULL OR pg_catalog.cardinality(catalog_record.proconfig)<>1
+            OR catalog_record.proconfig[1]!~'^search_path=pg_catalog, *pg_temp$') THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        function_elements := pg_catalog.array_append(function_elements,(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-FUNCTION/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-FUNCTION/V1','UTF8')||'\x0011'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(catalog_record.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(catalog_record.nspname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(catalog_record.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(catalog_record.nspname,'UTF8'))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(catalog_record.proname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(catalog_record.proname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(catalog_record.proname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(catalog_record.proname,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(input_names) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(input_names) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(input_names) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(input_names) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(argument_names) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(argument_names) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(argument_names) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(argument_names) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(argument_modes) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(argument_modes) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(argument_modes) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(argument_modes) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT CASE WHEN NULLIF(all_names[x.ordinal],'') IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(all_names[x.ordinal],'UTF8'))) END AS element,x.ordinal FROM pg_catalog.unnest(all_types) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT CASE WHEN NULLIF(all_names[x.ordinal],'') IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(all_names[x.ordinal],'UTF8'))) END AS element,x.ordinal FROM pg_catalog.unnest(all_types) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT CASE WHEN NULLIF(all_names[x.ordinal],'') IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(all_names[x.ordinal],'UTF8'))) END AS element,x.ordinal FROM pg_catalog.unnest(all_types) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT CASE WHEN NULLIF(all_names[x.ordinal],'') IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(all_names[x.ordinal],'UTF8'))) END AS element,x.ordinal FROM pg_catalog.unnest(all_types) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((return_shape)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((return_shape)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((return_shape)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((return_shape)::pg_catalog.int4),4,1))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(canonical_type,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(canonical_type,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(canonical_type,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(canonical_type,'UTF8'))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(output_elements) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(output_elements) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(output_elements) WITH ORDINALITY x(v,ordinal)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT v AS element,ordinal FROM pg_catalog.unnest(output_elements) WITH ORDINALITY x(v,ordinal)) encoded_elements))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((CASE catalog_record.provolatile WHEN 'i' THEN 1 WHEN 's' THEN 2 WHEN 'v' THEN 3 END)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((CASE catalog_record.provolatile WHEN 'i' THEN 1 WHEN 's' THEN 2 WHEN 'v' THEN 3 END)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((CASE catalog_record.provolatile WHEN 'i' THEN 1 WHEN 's' THEN 2 WHEN 'v' THEN 3 END)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((CASE catalog_record.provolatile WHEN 'i' THEN 1 WHEN 's' THEN 2 WHEN 'v' THEN 3 END)::pg_catalog.int4),4,1))) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (catalog_record.prosecdef) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (catalog_record.prosecdef) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (catalog_record.prosecdef) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (catalog_record.prosecdef) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (catalog_record.proowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (catalog_record.proowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (catalog_record.proowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (catalog_record.proowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(catalog_record.proowner)::pg_catalog.oid)],'UTF8') END))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN catalog_record.proconfig IS NULL THEN NULL::pg_catalog.bytea ELSE (SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(catalog_record.proconfig) WITH ORDINALITY x(v,ordinal)) encoded_elements) END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN catalog_record.proconfig IS NULL THEN NULL::pg_catalog.bytea ELSE (SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(catalog_record.proconfig) WITH ORDINALITY x(v,ordinal)) encoded_elements) END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN catalog_record.proconfig IS NULL THEN NULL::pg_catalog.bytea ELSE (SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(catalog_record.proconfig) WITH ORDINALITY x(v,ordinal)) encoded_elements) END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN catalog_record.proconfig IS NULL THEN NULL::pg_catalog.bytea ELSE (SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY ordinal),'\x'::pg_catalog.bytea) FROM (SELECT pg_catalog.convert_to(v,'UTF8') AS element,ordinal FROM pg_catalog.unnest(catalog_record.proconfig) WITH ORDINALITY x(v,ordinal)) encoded_elements) END))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(catalog_record.pronargdefaults)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(catalog_record.pronargdefaults))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(catalog_record.pronargdefaults)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(catalog_record.pronargdefaults))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(type_names[pg_catalog.array_position(type_oids,catalog_record.provariadic)],'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(type_names[pg_catalog.array_position(type_oids,catalog_record.provariadic)],'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(type_names[pg_catalog.array_position(type_oids,catalog_record.provariadic)],'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(type_names[pg_catalog.array_position(type_oids,catalog_record.provariadic)],'UTF8'))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (catalog_record.proisstrict) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (catalog_record.proisstrict) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (catalog_record.proisstrict) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (catalog_record.proisstrict) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')||'\x0005'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('EXECUTE'::pg_catalog.text)) p(name)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')||'\x0005'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('EXECUTE'::pg_catalog.text)) p(name)) encoded_elements))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')||'\x0005'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('EXECUTE'::pg_catalog.text)) p(name)) encoded_elements)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-EXECUTE/V1','UTF8')||'\x0005'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(catalog_record.proacl,pg_catalog.acldefault('f',catalog_record.proowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_function_privilege(g.oid,catalog_record.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=catalog_record.proowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('EXECUTE'::pg_catalog.text)) p(name)) encoded_elements))) END)));
+    END LOOP;
+    acl_collections := pg_catalog.array_append(acl_collections,(SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT v AS element FROM pg_catalog.unnest(function_elements) x(v)) encoded_elements));
+    acl_collections := pg_catalog.array_append(acl_collections,(SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-MEMBERSHIP/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-MEMBERSHIP/V1','UTF8')||'\x0005'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (m.member)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (m.member)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (m.member)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (m.member)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.member)::pg_catalog.oid)],'UTF8') END))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (m.roleid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (m.roleid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (m.roleid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (m.roleid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(m.roleid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (pg_catalog.bool_or(m.admin_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (pg_catalog.bool_or(m.admin_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (pg_catalog.bool_or(m.admin_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (pg_catalog.bool_or(m.admin_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (pg_catalog.bool_or(m.inherit_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (pg_catalog.bool_or(m.inherit_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (pg_catalog.bool_or(m.inherit_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (pg_catalog.bool_or(m.inherit_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (pg_catalog.bool_or(m.set_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (pg_catalog.bool_or(m.set_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (pg_catalog.bool_or(m.set_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (pg_catalog.bool_or(m.set_option)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.pg_auth_members m WHERE m.member=ANY(protected_oids) OR m.roleid=ANY(protected_oids) GROUP BY m.member,m.roleid) encoded_elements));
+    acl_collections := pg_catalog.array_append(acl_collections,(SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-RELATION/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-RELATION/V1','UTF8')||'\x000a'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(n.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(n.nspname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(n.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(n.nspname,'UTF8'))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(c.relname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(c.relname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(c.relname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(c.relname,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ('\x00'::pg_catalog.bytea) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||('\x00'::pg_catalog.bytea)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ('\x00'::pg_catalog.bytea) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||('\x00'::pg_catalog.bytea)) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_table_privilege(g.oid,c.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace CROSS JOIN pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('SELECT',4),('INSERT',5),('UPDATE',6),('DELETE',7),('TRUNCATE',8),('REFERENCES',9),('TRIGGER',10),('MAINTAIN',12)) p(name,code) WHERE c.oid=ANY(relation_oids) UNION ALL SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-RELATION/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-RELATION/V1','UTF8')||'\x000a'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(n.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(n.nspname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(n.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(n.nspname,'UTF8'))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(c.relname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(c.relname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(c.relname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(c.relname,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ('\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(t.attname,'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(t.attname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||('\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(t.attname,'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(t.attname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ('\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(t.attname,'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(t.attname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||('\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(t.attname,'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(t.attname,'UTF8'))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (c.relowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(c.relowner)::pg_catalog.oid)],'UTF8') END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name) END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name) END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name) END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name) END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name||' WITH GRANT OPTION') END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name||' WITH GRANT OPTION') END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name||' WITH GRANT OPTION') END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (((g.oid=c.relowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(t.attacl,ARRAY[]::pg_catalog.aclitem[])) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_column_privilege(g.oid,c.oid,t.attnum,p.name||' WITH GRANT OPTION') END) OR (g.oid=0 AND EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(c.relacl,pg_catalog.acldefault('r',c.relowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable)))) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=c.relowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM (VALUES ('command_authority_operation','attestation_manifest_id'),
+('command_authority_operation','correlation_id'),
+('command_authority_operation','credential_id'),
+('command_authority_operation','credential_revision'),
+('command_authority_operation','decided_at'),
+('command_authority_operation','grant_id'),
+('command_authority_operation','grant_revision'),
+('command_authority_operation','intent_fingerprint'),
+('command_authority_operation','operation'),
+('command_authority_operation','operation_id'),
+('command_authority_operation','organization_id'),
+('command_authority_operation','permission'),
+('command_authority_operation','principal_id'),
+('command_authority_operation','receipt_fingerprint'),
+('command_authority_operation','state'),
+('command_credential_revision','correlation_id'),
+('command_credential_revision','credential_id'),
+('command_credential_revision','decided_at'),
+('command_credential_revision','organization_id'),
+('command_credential_revision','principal_id'),
+('command_credential_revision','provenance'),
+('command_credential_revision','reason'),
+('command_credential_revision','revision'),
+('command_credential_revision','secret_verifier'),
+('command_credential_revision','state'),
+('command_credential_revision','supersedes_revision'),
+('command_permission_grant','correlation_id'),
+('command_permission_grant','decided_at'),
+('command_permission_grant','grant_id'),
+('command_permission_grant','organization_id'),
+('command_permission_grant','permission'),
+('command_permission_grant','principal_id'),
+('command_permission_grant','provenance'),
+('command_permission_grant','reason'),
+('command_permission_grant','revision'),
+('command_permission_grant','state'),
+('command_permission_grant','supersedes_grant_id'),
+('command_principal','correlation_id'),
+('command_principal','decided_at'),
+('command_principal','mercado_livre_connection_id'),
+('command_principal','omie_connection_id'),
+('command_principal','organization_id'),
+('command_principal','principal_id'),
+('command_principal','provenance'),
+('command_principal','reason'),
+('flyway_schema_history','checksum'),
+('flyway_schema_history','installed_rank'),
+('flyway_schema_history','script'),
+('flyway_schema_history','success'),
+('flyway_schema_history','type'),
+('flyway_schema_history','version'),
+('integration_connector_page_commit','capability'),
+('integration_connector_page_commit','connection_id'),
+('integration_connector_page_commit','input_progress_version'),
+('integration_connector_page_commit','organization_id'),
+('integration_connector_page_commit','record_count'),
+('integration_connector_progress','capability'),
+('integration_connector_progress','connection_id'),
+('integration_connector_progress','organization_id'),
+('integration_connector_progress','progress_version'),
+('integration_mercado_livre_order_source_observation','capability'),
+('integration_mercado_livre_order_source_observation','connection_id'),
+('integration_mercado_livre_order_source_observation','currency'),
+('integration_mercado_livre_order_source_observation','external_order_ref'),
+('integration_mercado_livre_order_source_observation','input_progress_version'),
+('integration_mercado_livre_order_source_observation','organization_id'),
+('integration_mercado_livre_order_source_observation','record_ordinal'),
+('integration_omie_transaction_evidence','capability'),
+('integration_omie_transaction_evidence','connection_id'),
+('integration_omie_transaction_evidence','currency'),
+('integration_omie_transaction_evidence','input_progress_version'),
+('integration_omie_transaction_evidence','organization_id'),
+('integration_omie_transaction_evidence','record_ordinal'),
+('integration_omie_transaction_evidence','source_integration_ref'),
+('integration_omie_transaction_evidence','source_order_ref'),
+('integration_omie_transaction_evidence_v3','capability'),
+('integration_omie_transaction_evidence_v3','connection_id'),
+('integration_omie_transaction_evidence_v3','input_progress_version'),
+('integration_omie_transaction_evidence_v3','organization_id'),
+('integration_omie_transaction_evidence_v3','provider_created_local'),
+('integration_omie_transaction_evidence_v3','provider_modified_local'),
+('integration_omie_transaction_evidence_v3','record_ordinal'),
+('integration_omie_transaction_evidence_v3','semantic_fingerprint_version'),
+('integration_omie_transaction_evidence_v3','source_evidence_semantic_fingerprint'),
+('integration_organization','organization_id'),
+('integration_organization','status'),
+('marketplace_order_identity_registry','currency'),
+('marketplace_order_identity_registry','external_order_id'),
+('marketplace_order_identity_registry','marketplace_key'),
+('marketplace_order_identity_registry','marketplace_order_id'),
+('marketplace_order_identity_registry','organization_id'),
+('marketplace_order_occurrence_source_promotion','marketplace_order_id'),
+('marketplace_order_occurrence_source_promotion','organization_id'),
+('marketplace_order_occurrence_source_promotion','outcome'),
+('marketplace_order_occurrence_source_promotion','source_capability'),
+('marketplace_order_occurrence_source_promotion','source_connection_id'),
+('marketplace_order_occurrence_source_promotion','source_input_progress_version'),
+('marketplace_order_occurrence_source_promotion','source_record_ordinal'),
+('marketplace_transaction_identity_decision','authorization_fingerprint'),
+('marketplace_transaction_identity_decision','authorization_semantic_version'),
+('marketplace_transaction_identity_decision','correlation_id'),
+('marketplace_transaction_identity_decision','credential_id'),
+('marketplace_transaction_identity_decision','credential_revision'),
+('marketplace_transaction_identity_decision','currency'),
+('marketplace_transaction_identity_decision','decided_at'),
+('marketplace_transaction_identity_decision','decision_id'),
+('marketplace_transaction_identity_decision','decision_semantic_fingerprint'),
+('marketplace_transaction_identity_decision','external_order_id'),
+('marketplace_transaction_identity_decision','grant_id'),
+('marketplace_transaction_identity_decision','grant_revision'),
+('marketplace_transaction_identity_decision','intent_fingerprint'),
+('marketplace_transaction_identity_decision','kind'),
+('marketplace_transaction_identity_decision','marketplace_order_id'),
+('marketplace_transaction_identity_decision','ml_capability'),
+('marketplace_transaction_identity_decision','ml_connection_id'),
+('marketplace_transaction_identity_decision','ml_progress_version'),
+('marketplace_transaction_identity_decision','ml_record_ordinal'),
+('marketplace_transaction_identity_decision','omie_capability'),
+('marketplace_transaction_identity_decision','omie_connection_id'),
+('marketplace_transaction_identity_decision','omie_progress_version'),
+('marketplace_transaction_identity_decision','omie_record_ordinal'),
+('marketplace_transaction_identity_decision','omie_semantic_fingerprint'),
+('marketplace_transaction_identity_decision','organization_id'),
+('marketplace_transaction_identity_decision','permission'),
+('marketplace_transaction_identity_decision','principal_id'),
+('marketplace_transaction_identity_decision','provenance'),
+('marketplace_transaction_identity_decision','provider_revision_local'),
+('marketplace_transaction_identity_decision','reason'),
+('marketplace_transaction_identity_decision','revision'),
+('marketplace_transaction_identity_decision','source_order_reference'),
+('marketplace_transaction_identity_decision','supersedes_decision_id'),
+('marketplace_transaction_identity_head','decision_id'),
+('marketplace_transaction_identity_head','kind'),
+('marketplace_transaction_identity_head','marketplace_order_id'),
+('marketplace_transaction_identity_head','omie_connection_id'),
+('marketplace_transaction_identity_head','organization_id'),
+('marketplace_transaction_identity_head','source_order_reference'),
+('offline_admission','admission_id'),
+('offline_admission','attempt_id'),
+('offline_admission','authenticated_at'),
+('offline_admission','authorization_fingerprint'),
+('offline_admission','binding_id'),
+('offline_admission','consumed_at'),
+('offline_admission','consumed_decision_id'),
+('offline_admission','credential_id'),
+('offline_admission','credential_revision'),
+('offline_admission','deployment_id'),
+('offline_admission','durable_state'),
+('offline_admission','execution_id'),
+('offline_admission','executor_oid'),
+('offline_admission','expires_at'),
+('offline_admission','generation'),
+('offline_admission','grant_id'),
+('offline_admission','grant_revision'),
+('offline_admission','incarnation_id'),
+('offline_admission','instance_id'),
+('offline_admission','lock_token'),
+('offline_admission','organization_id'),
+('offline_admission','permission'),
+('offline_admission','principal_id'),
+('offline_attempt','attempt_id'),
+('offline_attempt','binding_id'),
+('offline_attempt','claimed_at'),
+('offline_attempt','expires_at'),
+('offline_attempt','generation'),
+('offline_attempt','lock_token'),
+('offline_attempt','state'),
+('offline_attempt_pointer','binding_id'),
+('offline_attempt_pointer','claim_permitted'),
+('offline_attempt_pointer','current_attempt_id'),
+('offline_attempt_pointer','generation'),
+('offline_attempt_pointer','lock_token'),
+('offline_binding_header','admission_contract_version'),
+('offline_binding_header','binding_id'),
+('offline_binding_header','binding_schema_version'),
+('offline_binding_header','canonical_manifest_bytes'),
+('offline_binding_header','canonical_manifest_encoding_version'),
+('offline_binding_header','canonical_manifest_hash'),
+('offline_binding_header','correlation_id'),
+('offline_binding_header','credential_id'),
+('offline_binding_header','credential_operation_id'),
+('offline_binding_header','deadline_policy_digest'),
+('offline_binding_header','deadline_policy_version'),
+('offline_binding_header','decision_id'),
+('offline_binding_header','delivery_contract_version'),
+('offline_binding_header','deployment_id'),
+('offline_binding_header','deployment_incarnation_id'),
+('offline_binding_header','execution_plan_version'),
+('offline_binding_header','expires_at'),
+('offline_binding_header','grant_id'),
+('offline_binding_header','grant_operation_id'),
+('offline_binding_header','identity_slots'),
+('offline_binding_header','integration_reference'),
+('offline_binding_header','issued_at'),
+('offline_binding_header','manifest_digest'),
+('offline_binding_header','manifest_id'),
+('offline_binding_header','marketplace_order_id'),
+('offline_binding_header','mercado_livre_connection_id'),
+('offline_binding_header','offline_surface_version'),
+('offline_binding_header','omie_connection_id'),
+('offline_binding_header','organization_id'),
+('offline_binding_header','permission'),
+('offline_binding_header','plan_fingerprint'),
+('offline_binding_header','plan_id'),
+('offline_binding_header','principal_id'),
+('offline_binding_header','principal_operation_id'),
+('offline_binding_header','provenance'),
+('offline_binding_header','reason'),
+('offline_binding_header','reconciliation_contract_version'),
+('offline_binding_header','run_id'),
+('offline_binding_header','source_order_reference'),
+('offline_binding_header','valid_from'),
+('offline_binding_lifecycle','binding_id'),
+('offline_binding_lifecycle','lock_token'),
+('offline_binding_lifecycle','state'),
+('offline_ceremony_result','binding_id'),
+('offline_ceremony_result','result'),
+('offline_deadline_policy','canonical_policy'),
+('offline_deadline_policy','effective_from'),
+('offline_deadline_policy','policy_digest'),
+('offline_deadline_policy','policy_version'),
+('offline_delivery','attempt_id'),
+('offline_delivery','attempted_at'),
+('offline_delivery','binding_id'),
+('offline_delivery','credential_id'),
+('offline_delivery','delivery_receipt_id'),
+('offline_delivery','execution_id'),
+('offline_delivery','fresh_applied_receipt_id'),
+('offline_delivery','generation'),
+('offline_delivery','initial_operation_id'),
+('offline_delivery','instance_id'),
+('offline_delivery','lock_token'),
+('offline_delivery','observation_code'),
+('offline_delivery','observed_at'),
+('offline_delivery','operation_deadline'),
+('offline_delivery','recorded_at'),
+('offline_delivery','state'),
+('offline_execution','attempt_id'),
+('offline_execution','binding_id'),
+('offline_execution','claim_receipt_id'),
+('offline_execution','claimed_at'),
+('offline_execution','execution_id'),
+('offline_execution','executor_oid'),
+('offline_execution','expires_at'),
+('offline_execution','generation'),
+('offline_execution','instance_id'),
+('offline_execution','lock_token'),
+('offline_execution','possession_digest'),
+('offline_execution','state'),
+('offline_preflight_key','incarnation_id'),
+('offline_preflight_key','key_material'),
+('offline_preflight_key','key_state'),
+('offline_preflight_key','key_version'),
+('offline_preflight_key','lineage_id'),
+('offline_readiness','acl_manifest'),
+('offline_readiness','active_key_version'),
+('offline_readiness','deployment_id'),
+('offline_readiness','history_manifest'),
+('offline_readiness','incarnation_id'),
+('offline_readiness','policy_digest'),
+('offline_readiness','policy_version'),
+('offline_readiness','state'),
+('offline_readiness','watchdog_checked_at'),
+('offline_readiness','watchdog_healthy'),
+('offline_reconciliation','binding_id'),
+('offline_reconciliation','state'),
+('offline_stage_receipt','attempt_id'),
+('offline_stage_receipt','binding_id'),
+('offline_stage_receipt','effect_time'),
+('offline_stage_receipt','execution_id'),
+('offline_stage_receipt','frozen_receipt'),
+('offline_stage_receipt','generation'),
+('offline_stage_receipt','instance_id'),
+('offline_stage_receipt','operation_id'),
+('offline_stage_receipt','receipt_id'),
+('offline_stage_receipt','stage'),
+('s2a_accepted_attestation','accepted_proof_fingerprint'),
+('s2a_accepted_attestation','algorithm_id'),
+('s2a_accepted_attestation','artifact_version'),
+('s2a_accepted_attestation','canonical_manifest_bytes'),
+('s2a_accepted_attestation','canonical_signature_preimage_bytes'),
+('s2a_accepted_attestation','canonicalization_version'),
+('s2a_accepted_attestation','manifest_digest'),
+('s2a_accepted_attestation','manifest_id'),
+('s2a_accepted_attestation','organization_id'),
+('s2a_accepted_attestation','recorded_at'),
+('s2a_accepted_attestation','schema_version'),
+('s2a_accepted_attestation','signature_bytes'),
+('s2a_accepted_attestation','signer_authority_fingerprint'),
+('s2a_accepted_attestation','signer_authority_id'),
+('s2a_accepted_attestation','signer_authority_revision'),
+('s2a_accepted_attestation','signer_key_fingerprint'),
+('s2a_accepted_attestation','signer_key_id'),
+('s2a_accepted_attestation','signer_key_lineage_fingerprint'),
+('s2a_accepted_attestation','signer_key_revision'),
+('s2a_accepted_attestation','subject_public_key_info_der'),
+('s2a_accepted_attestation','verified_at'),
+('s2a_attestation_consumption','consumed_at'),
+('s2a_attestation_consumption','correlation_id'),
+('s2a_attestation_consumption','manifest_digest'),
+('s2a_attestation_consumption','manifest_id'),
+('s2a_attestation_consumption','organization_id'),
+('s2a_attestation_consumption','principal_id'),
+('s2a_signer_authority_revision','approval_action'),
+('s2a_signer_authority_revision','approval_source_id'),
+('s2a_signer_authority_revision','decided_at'),
+('s2a_signer_authority_revision','organization_id'),
+('s2a_signer_authority_revision','permission'),
+('s2a_signer_authority_revision','revision'),
+('s2a_signer_authority_revision','signer_authority_fingerprint'),
+('s2a_signer_authority_revision','signer_authority_id'),
+('s2a_signer_authority_revision','signer_key_fingerprint'),
+('s2a_signer_authority_revision','signer_key_id'),
+('s2a_signer_authority_revision','signer_key_revision'),
+('s2a_signer_authority_revision','signer_role'),
+('s2a_signer_authority_revision','signer_subject_id'),
+('s2a_signer_authority_revision','state'),
+('s2a_signer_authority_revision','valid_from'),
+('s2a_signer_authority_revision','valid_until'),
+('s2a_signer_key_revision','algorithm_id'),
+('s2a_signer_key_revision','effective_at'),
+('s2a_signer_key_revision','lineage_fingerprint'),
+('s2a_signer_key_revision','organization_id'),
+('s2a_signer_key_revision','revision'),
+('s2a_signer_key_revision','signer_key_fingerprint'),
+('s2a_signer_key_revision','signer_key_id'),
+('s2a_signer_key_revision','signer_subject_id'),
+('s2a_signer_key_revision','state'),
+('s2a_signer_key_revision','subject_public_key_info_der'),
+('s2a_signer_key_revision','valid_from')) inventory(relation,column_name) JOIN pg_catalog.pg_class c ON c.relname=inventory.relation JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace AND n.nspname='public' JOIN pg_catalog.pg_attribute t ON t.attrelid=c.oid AND t.attname=inventory.column_name AND t.attnum>0 AND NOT t.attisdropped CROSS JOIN pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('SELECT',4),('INSERT',5),('UPDATE',6),('REFERENCES',9)) p(name,code)) encoded_elements));
+    acl_collections := pg_catalog.array_append(acl_collections,(SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-SCHEMA/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-SCHEMA/V1','UTF8')||'\x0009'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((1)::pg_catalog.int4),4,1))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(n.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(n.nspname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(n.nspname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(n.nspname,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (n.nspowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (n.nspowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (n.nspowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (n.nspowner)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(n.nspowner)::pg_catalog.oid)],'UTF8') END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=n.nspowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=n.nspowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=n.nspowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=n.nspowner OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(n.nspacl,pg_catalog.acldefault('n',n.nspowner))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_schema_privilege(g.oid,n.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=n.nspowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=n.nspowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=n.nspowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=n.nspowner)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.pg_namespace n CROSS JOIN pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('USAGE',2),('CREATE',3)) p(name,code) WHERE n.nspname!~'^pg_' AND n.nspname<>'information_schema' UNION ALL SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-SCHEMA/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-SCHEMA/V1','UTF8')||'\x0009'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((2)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((2)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((2)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((2)::pg_catalog.int4),4,1))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(d.datname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(d.datname,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(d.datname,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(d.datname,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (d.datdba)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (d.datdba)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (d.datdba)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (d.datdba)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(d.datdba)::pg_catalog.oid)],'UTF8') END))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (g.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(g.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((p.code)::pg_catalog.int4),4,1))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=g.oid AND a.privilege_type=p.name)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name) END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=d.datdba OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=d.datdba OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=d.datdba OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=d.datdba OR CASE WHEN g.oid=0 THEN EXISTS(SELECT 1 FROM pg_catalog.aclexplode(COALESCE(d.datacl,pg_catalog.acldefault('d',d.datdba))) a WHERE a.grantee=0 AND a.privilege_type=p.name AND a.is_grantable) ELSE pg_catalog.has_database_privilege(g.oid,d.oid,p.name||' WITH GRANT OPTION') END)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN ((g.oid=d.datdba)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=d.datdba)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN ((g.oid=d.datdba)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN ((g.oid=d.datdba)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.pg_database d CROSS JOIN pg_catalog.unnest(universe_oids) g(oid) CROSS JOIN (VALUES ('CONNECT',11),('CREATE',3)) p(name,code) WHERE d.datname=pg_catalog.current_database()) encoded_elements));
+    acl_collections := pg_catalog.array_append(acl_collections,(SELECT pg_catalog.substring(pg_catalog.int8send((pg_catalog.count(*))::pg_catalog.int8),5,4)||COALESCE(pg_catalog.string_agg(pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(element))::pg_catalog.int8),5,4)||element,'\x'::pg_catalog.bytea ORDER BY element),'\x'::pg_catalog.bytea) FROM (SELECT (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-DEFAULT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL-DEFAULT/V1','UTF8')||'\x0007'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (creator.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (creator.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (creator.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (creator.oid)=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(creator.oid)::pg_catalog.oid)],'UTF8') END))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(scope.name,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(scope.name,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(scope.name,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(scope.name,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((kind.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((kind.code)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((kind.code)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((kind.code)::pg_catalog.int4),4,1))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (d.defaclrole IS NOT NULL) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (d.defaclrole IS NOT NULL) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (d.defaclrole IS NOT NULL) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (d.defaclrole IS NOT NULL) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (COALESCE(a.grantee,0))=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (COALESCE(a.grantee,0))=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (COALESCE(a.grantee,0))=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (COALESCE(a.grantee,0))=0 THEN '\x00'::pg_catalog.bytea ELSE '\x01'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to(role_names[pg_catalog.array_position(role_oids,(COALESCE(a.grantee,0))::pg_catalog.oid)],'UTF8') END))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int4send((CASE a.privilege_type WHEN 'EXECUTE' THEN 1 WHEN 'USAGE' THEN 2 WHEN 'CREATE' THEN 3 WHEN 'SELECT' THEN 4 WHEN 'INSERT' THEN 5 WHEN 'UPDATE' THEN 6 WHEN 'DELETE' THEN 7 WHEN 'TRUNCATE' THEN 8 WHEN 'REFERENCES' THEN 9 WHEN 'TRIGGER' THEN 10 WHEN 'CONNECT' THEN 11 WHEN 'MAINTAIN' THEN 12 ELSE 0 END)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((CASE a.privilege_type WHEN 'EXECUTE' THEN 1 WHEN 'USAGE' THEN 2 WHEN 'CREATE' THEN 3 WHEN 'SELECT' THEN 4 WHEN 'INSERT' THEN 5 WHEN 'UPDATE' THEN 6 WHEN 'DELETE' THEN 7 WHEN 'TRUNCATE' THEN 8 WHEN 'REFERENCES' THEN 9 WHEN 'TRIGGER' THEN 10 WHEN 'CONNECT' THEN 11 WHEN 'MAINTAIN' THEN 12 ELSE 0 END)::pg_catalog.int4),4,1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int4send((CASE a.privilege_type WHEN 'EXECUTE' THEN 1 WHEN 'USAGE' THEN 2 WHEN 'CREATE' THEN 3 WHEN 'SELECT' THEN 4 WHEN 'INSERT' THEN 5 WHEN 'UPDATE' THEN 6 WHEN 'DELETE' THEN 7 WHEN 'TRUNCATE' THEN 8 WHEN 'REFERENCES' THEN 9 WHEN 'TRIGGER' THEN 10 WHEN 'CONNECT' THEN 11 WHEN 'MAINTAIN' THEN 12 ELSE 0 END)::pg_catalog.int4),4,1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int4send((CASE a.privilege_type WHEN 'EXECUTE' THEN 1 WHEN 'USAGE' THEN 2 WHEN 'CREATE' THEN 3 WHEN 'SELECT' THEN 4 WHEN 'INSERT' THEN 5 WHEN 'UPDATE' THEN 6 WHEN 'DELETE' THEN 7 WHEN 'TRUNCATE' THEN 8 WHEN 'REFERENCES' THEN 9 WHEN 'TRIGGER' THEN 10 WHEN 'CONNECT' THEN 11 WHEN 'MAINTAIN' THEN 12 ELSE 0 END)::pg_catalog.int4),4,1))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN (COALESCE(pg_catalog.bool_or(a.is_grantable),false)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (COALESCE(pg_catalog.bool_or(a.is_grantable),false)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN (COALESCE(pg_catalog.bool_or(a.is_grantable),false)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN (COALESCE(pg_catalog.bool_or(a.is_grantable),false)) THEN '\x01'::pg_catalog.bytea ELSE '\x00'::pg_catalog.bytea END))) END)) AS element FROM pg_catalog.unnest(creator_oids) creator(oid)
+        CROSS JOIN (VALUES ('r',1),('S',2),('f',3),('T',4),('n',5),('L',6)) kind(type,code)
+        CROSS JOIN LATERAL (SELECT 0::pg_catalog.oid AS oid,NULL::pg_catalog.text AS name
+            UNION SELECT n.oid,n.nspname FROM pg_catalog.pg_namespace n WHERE n.nspname IN ('public','offline_crypto')
+                OR EXISTS(SELECT 1 FROM pg_catalog.pg_default_acl extra WHERE extra.defaclrole=creator.oid AND extra.defaclnamespace=n.oid)) scope
+        LEFT JOIN pg_catalog.pg_default_acl d ON d.defaclrole=creator.oid AND d.defaclnamespace=scope.oid AND d.defaclobjtype=kind.type::pg_catalog."char"
+        LEFT JOIN LATERAL pg_catalog.aclexplode(d.defaclacl) a ON true
+        GROUP BY creator.oid,scope.name,kind.code,d.defaclrole,a.grantee,a.privilege_type) encoded_elements));
+    live_acl := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/ACL/V1','UTF8')||'\x0006'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (acl_collections[1]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[1])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (acl_collections[1]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[1])) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (acl_collections[2]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[2])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (acl_collections[2]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[2])) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (acl_collections[3]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[3])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (acl_collections[3]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[3])) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (acl_collections[4]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[4])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (acl_collections[4]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[4])) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (acl_collections[5]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[5])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (acl_collections[5]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[5])) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (acl_collections[6]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[6])) END)))::pg_catalog.int8),5,4)||(CASE WHEN (acl_collections[6]) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(acl_collections[6])) END));
+    IF live_acl IS NULL OR live_acl<>ready_record.acl_manifest OR pg_catalog.sha256(live_acl)<>$6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Validate fresh time again after live catalog/history work.
+    now_us := EXTRACT(EPOCH FROM pg_catalog.clock_timestamp())*1000000;
+    IF NOT auditor_route THEN
+        IF issued_us>now_us OR now_us>=expires_us THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        RETURN $8;
+    END IF;
+    issued_us := now_us;
+    expires_us := issued_us+policy_values[27];
+    IF issued_us<>pg_catalog.trunc(issued_us) OR issued_us<-9223372036854775808
+       OR expires_us>9223372036854775807 OR expires_us<=issued_us
+       OR issued_us<-210866803200000000 OR expires_us>=9224318016000000000 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    receipt_frame := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/PREFLIGHT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/PREFLIGHT/V1','UTF8')||'\x0009'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($3)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($3))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($3)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($3))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ($2) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($2)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ($2) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($2)) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to($4,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to($4,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to($4,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to($4,'UTF8'))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ($5) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($5)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ($5) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($5)) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ($6) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($6)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ($6) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($6)) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ($7) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($7)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ($7) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($7)) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(issued_us::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(issued_us::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(issued_us::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(issued_us::pg_catalog.int8))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(expires_us::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(expires_us::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(expires_us::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(expires_us::pg_catalog.int8))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.substring(pg_catalog.int8send((key_record.key_version)::pg_catalog.int8),5,4)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((key_record.key_version)::pg_catalog.int8),5,4))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.substring(pg_catalog.int8send((key_record.key_version)::pg_catalog.int8),5,4)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.substring(pg_catalog.int8send((key_record.key_version)::pg_catalog.int8),5,4))) END));
+    receipt_mac := offline_crypto.hmac(receipt_frame::pg_catalog.bytea,key_record.key_material::pg_catalog.bytea,'sha256'::pg_catalog.text);
+    IF receipt_mac IS NULL OR pg_catalog.octet_length(receipt_mac)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    RETURN receipt_frame||receipt_mac;
+EXCEPTION WHEN OTHERS THEN
+    -- Never forward parser, key, foreign object, cast, constraint or crypto diagnostics.
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_q$;
+ALTER FUNCTION public.offline_internal_readiness(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) OWNER TO flooow_offline_readiness_owner;
+REVOKE ALL PRIVILEGES ON FUNCTION public.offline_internal_readiness(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.offline_internal_readiness(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) TO flooow_offline_audit_owner;
+GRANT EXECUTE ON FUNCTION public.offline_internal_readiness(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) TO flooow_offline_execution_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_readiness_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_audit_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_execution_owner;

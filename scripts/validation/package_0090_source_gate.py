@@ -96,12 +96,22 @@ def inspect_precondition_bodies(blocks):
 
 def actual_column_grants(statements):
     grants = set()
+    schema_usage=set()
     for statement in statements:
         grant = statement.get("GrantStmt")
         if not grant or not grant.get("is_grant"):
             continue
         if grant["objtype"] == "OBJECT_FUNCTION":
             # Reviewed separately against the exact internal-P manifest, never ignored.
+            continue
+        if grant['objtype']=='OBJECT_SCHEMA':
+            import package_0090_q_source as q
+            if grant.get('grant_option') or grant.get('privileges')!=[{'AccessPriv':{'priv_name':'usage'}}] or grant['objects']!=[{'String':{'sval':'public'}}]:
+                raise ValueError('Unapproved schema grant')
+            for r in grant['grantees']:
+                name=r['RoleSpec'].get('rolename')
+                if name not in q.USAGE or name in schema_usage:raise ValueError('Unapproved/duplicate schema USAGE')
+                schema_usage.add(name)
             continue
         if grant["objtype"] != "OBJECT_TABLE":
             raise ValueError("Prerequisite candidate contains an unexpected non-column grant")
@@ -125,6 +135,9 @@ def actual_column_grants(statements):
                         if item in grants:
                             raise ValueError("Duplicate physical column grant")
                         grants.add(item)
+    q_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_internal_readiness'}}] for s in statements)
+    if schema_usage != (q.USAGE if q_present else set()):
+        raise ValueError('Exact Q/A/E public USAGE prerequisites missing')
     return grants
 
 
@@ -196,9 +209,9 @@ def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21:
-        missing.append("18 public wrappers and remaining Q/Z capabilities are not fully implemented")
+        missing.append("18 public wrappers are not fully implemented; P/Q/Z have bounded static review only")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_internal_readiness\(", source):
-        missing.append("Operational wrapper/Q/Z guards are incomplete; internal-P guards have bounded static review only")
+        missing.append("Internal Q is absent; operational wrappers/guards remain incomplete")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_preflight\(", source):
         missing.append("Wrapper transport and private decision commitment codecs/goldens are incomplete; fixture binding/catalog goldens do not close them")
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21 or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):

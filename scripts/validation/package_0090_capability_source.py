@@ -17,11 +17,12 @@ BUILTINS = {'octet_length','current_setting','substring','get_byte','convert_fro
 
 def check(statements, expected_columns):
     import package_0090_z_source as z
+    import package_0090_q_source as q
     definitions = [s['CreateFunctionStmt'] for s in statements if 'CreateFunctionStmt' in s]
     by_name = {strings(f['funcname']): f for f in definitions}
-    if len(by_name) != len(definitions) or set(by_name) - {('public',P_NAME), ('public',z.NAME)}:
+    if len(by_name) != len(definitions) or set(by_name) - {('public',P_NAME), ('public',z.NAME),('public',q.NAME)}:
         raise ValueError('Unreviewed or duplicate capability definition')
-    expected_execute = EXECUTE | (z.GRANTS if ('public',z.NAME) in by_name else set())
+    expected_execute = EXECUTE | (z.GRANTS if ('public',z.NAME) in by_name else set()) | (q.GRANTS if ('public',q.NAME) in by_name else set())
     grants = set(); revokes = set(); owners = {}
     p_statements = []
     for statement in statements:
@@ -35,8 +36,8 @@ def check(statements, expected_columns):
             vector = tuple(strings(t['TypeName']['names']) for t in obj.get('objargs',[]))
             if owner['objectType']!='OBJECT_FUNCTION' or name not in by_name or name in owners:
                 raise ValueError('Unapproved or duplicate ownership change')
-            expected_types = P_TYPES if name==('public',P_NAME) else z.TYPES
-            expected_owner = P_OWNER if name==('public',P_NAME) else z.OWNER
+            expected_types = P_TYPES if name==('public',P_NAME) else q.TYPES if name==('public',q.NAME) else z.TYPES
+            expected_owner = P_OWNER if name==('public',P_NAME) else q.OWNER if name==('public',q.NAME) else z.OWNER
             if vector!=tuple(('pg_catalog',t) for t in expected_types) or owner['newowner'].get('rolename')!=expected_owner:
                 raise ValueError('Capability ownership/signature mismatch')
             owners[name] = expected_owner
@@ -66,10 +67,12 @@ def check(statements, expected_columns):
             if p_only: p_statements.append(statement)
     expected_revokes = {('public',P_NAME,P_TYPES)} if ('public',P_NAME) in by_name else set()
     if ('public',z.NAME) in by_name: expected_revokes.add(('public',z.NAME,z.TYPES))
+    if ('public',q.NAME) in by_name: expected_revokes.add(('public',q.NAME,q.TYPES))
     if grants!=expected_execute or revokes!=expected_revokes or set(owners)!=set(by_name):
         raise ValueError('Exact capability EXECUTE/ownership closure mismatch')
     result = check_p(p_statements,expected_columns)
     if ('public',z.NAME) in by_name: result.update(z.check(by_name[('public',z.NAME)],expected_columns))
+    if ('public',q.NAME) in by_name: result.update(q.check(by_name[('public',q.NAME)],expected_columns))
     return result
 
 

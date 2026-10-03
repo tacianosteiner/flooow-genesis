@@ -2,7 +2,30 @@
 
 Date: 2026-10-03 (America/Sao_Paulo). This records source work only.
 
-## Superseding retained-evidence and internal-P checkpoints
+## Current state — supersedes every historical status below
+
+CURRENT_GATE=G3F.3B_INTERNAL_Q_AND_PREFLIGHT_IMPLEMENTATION
+INTERNAL_P=PASS_BOUNDED_STATIC
+INTERNAL_Z=PASS_BOUNDED_STATIC
+INTERNAL_Q=PASS_BOUNDED_STATIC
+TESTS=96_OFFLINE_PASS
+PRIMARY_GATE_UNRESOLVED_BLOCKER_COUNT=0
+FULL_V043_REMAINING_IMPLEMENTATION_CATEGORY_COUNT=3
+V043_EXECUTED=NO
+DATABASE_CONNECTION_ATTEMPTED=NO
+PROTECTED_DATABASE_MUTATION=NO
+G3G_AUTHORIZED=NO
+NEXT_GATE=G3F.3B_PUBLIC_WRAPPERS_AND_GUARDS
+
+Q source/security/ACL/frame evidence is recorded in the
+[internal Q review](PACKAGE-0090-G3F-3B-INTERNAL-Q-SOURCE-REVIEW.md).
+The normative fixture and policy/evidence/manifest/binding/catalog/HMAC goldens
+remain closed for their test-only scope. Full operational wrappers, remaining
+wrapper/private transport goldens and full transitive EXECUTE closure remain
+implementation work. V001-V042 are unchanged; V043's execution interlock is
+retained. No production policy/roles/crypto or protected DB are changed.
+
+## Historical retained-evidence and internal-P checkpoints
 
 The independent TTL approval and complete retained test-only evidence fixture
 are recorded. Python/JVM agree on full policy/evidence/manifest/binding/slot,
