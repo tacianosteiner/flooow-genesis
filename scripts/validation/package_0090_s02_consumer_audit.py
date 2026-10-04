@@ -58,6 +58,22 @@ def witness(rows):
     finally:db.close()
 
 
+def synthetic_rows():
+    # Synthetic relational facts only; not a signed accepted proof.
+    positive={r:[{c:c for rr,c in columns() if rr==r}] for r in {r for r,c in columns()}}
+    a=positive['public.s2a_accepted_attestation'][0]
+    k=positive['public.s2a_signer_key_revision'][0]
+    g=positive['public.s2a_signer_authority_revision'][0]
+    for row in (a,k,g):row['organization_id']='organization';row['signer_key_id']='key'
+    a.update(manifest_id='manifest',signer_key_revision=1,signer_authority_revision=1,verified_at='5')
+    k.update(revision=1,state='ACTIVE',valid_from='1',effective_at='1')
+    g.update(revision=1,signer_key_revision=1,state='ENABLED',valid_from='1',valid_until='9',decided_at='1',
+             approval_source_id='approval-source',signer_role='S2A_FIELD_PROOF_APPROVER',
+             approval_action='S2A_FIELD_PROOF_APPROVAL',permission='TRANSACTION_IDENTITY_DECISION_WRITE')
+    k['lineage_fingerprint']=a['signer_key_lineage_fingerprint']
+    return positive
+
+
 def audit():
     text=PRODUCER.read_text(encoding='utf-8-sig')
     inspect=text.split('private fun inspect(',1)[1].split('override fun reconcile',1)[0]
@@ -76,18 +92,7 @@ def audit():
     required={(r,c) for r,c in columns() if r in SIGNERS}
     missing=required-permitted
     physical_missing={(gate.OWNERS['A'],r,c,'select') for r,c in required}-grants
-    # Explicit synthetic relational witness only; no retained runtime fixture.
-    positive={r:[{c:c for rr,c in columns() if rr==r}] for r in {r for r,c in columns()}}
-    a=positive['public.s2a_accepted_attestation'][0]
-    k=positive['public.s2a_signer_key_revision'][0]
-    g=positive['public.s2a_signer_authority_revision'][0]
-    for row in (a,k,g):row['organization_id']='organization';row['signer_key_id']='key'
-    a.update(manifest_id='manifest',signer_key_revision=1,signer_authority_revision=1,verified_at='5')
-    k.update(revision=1,state='ACTIVE',valid_from='1',effective_at='1')
-    g.update(revision=1,signer_key_revision=1,state='ENABLED',valid_from='1',valid_until='9',decided_at='1',
-             approval_source_id='approval-source',signer_role='S2A_FIELD_PROOF_APPROVER',
-             approval_action='S2A_FIELD_PROOF_APPROVAL',permission='TRANSACTION_IDENTITY_DECISION_WRITE')
-    k['lineage_fingerprint']=a['signer_key_lineage_fingerprint']
+    positive=synthetic_rows()
     negative=copy.deepcopy(positive);negative['public.s2a_signer_key_revision'][0]['state']='REVOKED'
     def project(rows):return {r:[{c:v for c,v in row.items() if (r,c) in permitted} for row in items] for r,items in rows.items()}
     return dict(gate='G3F.3B_S02_ACCEPTED_ARTIFACT_CONSUMER_AUTHORITY',

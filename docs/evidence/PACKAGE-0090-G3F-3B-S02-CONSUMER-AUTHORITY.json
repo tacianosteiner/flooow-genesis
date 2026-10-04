@@ -1,6 +1,6 @@
 {
   "gate": "G3F.3B_S02_ACCEPTED_ARTIFACT_CONSUMER_AUTHORITY",
-  "status": "HOLD_CONSUMER_AUTHORITY",
+  "status": "SOURCE_CONSUMER_AUTHORITY_CLOSED",
   "dependency": "S02 INSPECT -> PostgresOfflineFieldProofReconciler.inspect -> accepted -> acceptedArtifact",
   "required_signer_columns": [
     [
@@ -112,291 +112,182 @@
       "valid_from"
     ]
   ],
-  "missing_s02_consumer_columns": [
-    [
-      "public.s2a_signer_authority_revision",
-      "approval_action"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "approval_source_id"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "decided_at"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "organization_id"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "permission"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "revision"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_authority_fingerprint"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_authority_id"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_key_fingerprint"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_key_id"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_key_revision"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_role"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "signer_subject_id"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "state"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "valid_from"
-    ],
-    [
-      "public.s2a_signer_authority_revision",
-      "valid_until"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "algorithm_id"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "effective_at"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "lineage_fingerprint"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "organization_id"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "revision"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "signer_key_fingerprint"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "signer_key_id"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "signer_subject_id"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "state"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "subject_public_key_info_der"
-    ],
-    [
-      "public.s2a_signer_key_revision",
-      "valid_from"
-    ]
-  ],
+  "missing_s02_consumer_columns": [],
   "missing_physical_grants": [],
   "current_signer_consumer_inventory": [
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "organization_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "signer_key_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "revision",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "signer_subject_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "algorithm_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "subject_public_key_info_der",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "signer_key_fingerprint",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "state",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "valid_from",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "effective_at",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_key_revision",
       "column": "lineage_fingerprint",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "organization_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_authority_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "revision",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_subject_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_role",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_key_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_key_revision",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_key_fingerprint",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "approval_action",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "permission",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "valid_from",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "valid_until",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "state",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "signer_authority_fingerprint",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "approval_source_id",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     },
     {
       "relation": "public.s2a_signer_authority_revision",
       "column": "decided_at",
-      "consumer": "RECON.acceptedArtifact",
-      "entrypoint": "S03"
+      "consumer": "INSPECT.acceptedArtifact/RECON.acceptedArtifact",
+      "entrypoint": "S02-S03"
     }
   ],
   "witness": {
     "scope": "SYNTHETIC_SIGNER_JOIN_ONLY_NOT_JCA_OR_RUNTIME_FIXTURE",
     "positive_eligible_rows": 1,
     "revoked_key_eligible_rows": 0,
-    "s02_authorized_projection_identical": true
+    "s02_authorized_projection_identical": false
   },
-  "unresolved_authority_blocker_count": 1,
+  "unresolved_authority_blocker_count": 0,
   "proposed_resolution": "Independent exact S02 consumer traceability for existing A signer-key/authority reads required by frozen inspect.acceptedArtifact; no new columns or grants.",
   "physical_grant_count": 1032,
-  "spec_amended": false,
+  "spec_amended": true,
   "grants_widened": false,
   "retained_fixture_modified": false,
   "database_connection_attempted": false,
