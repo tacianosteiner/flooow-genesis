@@ -9,7 +9,7 @@ TYPES = ('uuid','bytea','uuid','text','bytea','bytea','bytea','bytea')
 NAMES = ('binding_id','plan_fingerprint','expected_incarnation_id','surface_version',
          'expected_history_digest','expected_acl_digest','expected_policy_digest','preflight_receipt')
 GRANTS = {('public',NAME,TYPES,r) for r in ('flooow_offline_audit_owner','flooow_offline_execution_owner')}
-USAGE = {'flooow_offline_readiness_owner','flooow_offline_audit_owner','flooow_offline_execution_owner'}
+USAGE = {'flooow_offline_readiness_owner','flooow_offline_audit_owner','flooow_offline_execution_owner','flooow_offline_principal_lock_owner','flooow_offline_intent_audit_owner'}
 BUILTINS = {'octet_length','current_setting','substring','get_byte','convert_from','array_append',
     'sha256','convert_to','clock_timestamp','isfinite','transaction_timestamp','extract','is_normalized',
     'cardinality','array_agg','unnest','aclexplode','acldefault','has_function_privilege',

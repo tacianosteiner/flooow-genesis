@@ -27,7 +27,16 @@ def check(statements, expected_columns, source=None):
     import package_0090_original_match_source as original
     import package_0090_verification_source as verification
     import build_package_0090_issuance_source as issuance
+    import build_package_0090_executor_control_source as execution
+    import build_package_0090_decision_source as decision
+    compositions=(execution,decision)
+    e_names={('public',n) for c in compositions for n in c.WRAPPERS.values()}
     definitions = [s['CreateFunctionStmt'] for s in statements if 'CreateFunctionStmt' in s]
+    e_definitions=[f for f in definitions if strings(f['funcname']) in e_names]
+    definitions=[f for f in definitions if f not in e_definitions]
+    e_keys={(strings(f['funcname']),tuple(strings(p['FunctionParameter']['argType']['names']) for p in f['parameters'])) for f in e_definitions}
+    if len(e_keys)!=len(e_definitions):raise ValueError('Duplicate executor overload')
+    e_owners=set()
     by_name = {strings(f['funcname']): f for f in definitions}
     if len(by_name) != len(definitions) or set(by_name) - ({('public',P_NAME), ('public',z.NAME),('public',q.NAME),('public',s01.NAME),('public','offline_read_history'),('public',v.NAME),('public',expected.NAME),('public',s02.NAME),('public',s03.NAME),('public',original.NAME)} | {('public',n) for n in verification.WRAPPERS.values()} | {('public',n) for n in issuance.WRAPPERS.values()}):
         raise ValueError('Unreviewed or duplicate capability definition')
@@ -38,6 +47,9 @@ def check(statements, expected_columns, source=None):
     if ('public',original.NAME) in by_name:expected_execute |= original.GRANTS
     if any(('public',n) in by_name for n in verification.WRAPPERS.values()):expected_execute |= verification.grants(__import__('package_0090_source_gate').ROOT.joinpath(__import__('package_0090_source_gate').SPEC).read_text())
     if any(('public',n) in by_name for n in issuance.WRAPPERS.values()):expected_execute |= issuance.grants(__import__('package_0090_source_gate').ROOT.joinpath(__import__('package_0090_source_gate').SPEC).read_text())
+    if e_definitions:expected_execute |= execution.GRANTS
+    if any(strings(f['funcname']) in {('public',n) for n in decision.WRAPPERS.values()} for f in e_definitions):
+        expected_execute |= {(schema,name,tuple(t.split('.')[-1] for t in types),owner) for schema,name,types,owner in decision.grants(__import__('package_0090_source_gate').ROOT.joinpath(__import__('package_0090_source_gate').SPEC).read_text())}
     grants = set(); revokes = set(); owners = {}
     p_statements = []
     for statement in statements:
@@ -49,6 +61,11 @@ def check(statements, expected_columns, source=None):
             obj = owner.get('object',{}).get('ObjectWithArgs',{})
             name = strings(obj.get('objname',[]))
             vector = tuple(strings(t['TypeName']['names']) for t in obj.get('objargs',[]))
+            if name in e_names:
+                key=(name,vector)
+                if owner['objectType']!='OBJECT_FUNCTION' or key not in e_keys or key in e_owners or owner['newowner'].get('rolename')!=execution.OWNER:raise ValueError('Executor exact ownership/signature mismatch')
+                e_owners.add(key)
+                continue
             if owner['objectType']!='OBJECT_FUNCTION' or name not in by_name or name in owners:
                 raise ValueError('Unapproved or duplicate ownership change')
             expected_types = P_TYPES if name==('public',P_NAME) else q.TYPES if name==('public',q.NAME) else s01.TYPES if name==('public',s01.NAME) else read.TYPES if name==('public','offline_read_history') else z.TYPES
@@ -99,6 +116,8 @@ def check(statements, expected_columns, source=None):
     if ('public',original.NAME) in by_name:expected_revokes.add(('public',original.NAME,original.TYPES))
     expected_revokes |= {('public',n,verification.TYPES) for n in verification.WRAPPERS.values() if ('public',n) in by_name}
     expected_revokes |= {('public',n,issuance.TYPES) for n in issuance.WRAPPERS.values() if ('public',n) in by_name}
+    expected_revokes |= {(name[0],name[1],tuple(t[1] for t in vector)) for name,vector in e_keys}
+    if e_owners!=e_keys:raise ValueError('Executor ownership missing')
     if grants!=expected_execute or revokes!=expected_revokes or set(owners)!=set(by_name):
         raise ValueError('Exact capability EXECUTE/ownership closure mismatch')
     result = check_p(p_statements,expected_columns)
@@ -115,6 +134,12 @@ def check(statements, expected_columns, source=None):
         if ('public',n) in by_name:result.update(verification.check(by_name[('public',n)],expected_columns,source))
     for n in issuance.WRAPPERS.values():
         if ('public',n) in by_name:result.update(verification.check(by_name[('public',n)],expected_columns,source,composition=issuance))
+    if e_definitions:
+        expected_e_keys={(('public',c.WRAPPERS[s]),tuple(('pg_catalog',t) for t in c.TYPES[s])) for c in compositions for s in c.WRAPPERS}
+        if e_keys!=expected_e_keys:raise ValueError('Exact six executor signatures missing or extra')
+        for fn in e_definitions:
+            composition=next(c for c in compositions if strings(fn['funcname']) in {('public',n) for n in c.WRAPPERS.values()})
+            result.update(verification.check(fn,expected_columns,source,composition=composition))
     return result
 
 

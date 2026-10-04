@@ -12,7 +12,8 @@ def check(fn,expected_columns,source,composition=None):
     wrappers=composition.WRAPPERS if composition else WRAPPERS
     owner=composition.OWNER if composition else OWNER
     generator=composition.build_one if composition else build_one
-    stage=next(s for s,n in wrappers.items() if n==name)
+    input_types=tuple(strings(p['FunctionParameter']['argType']['names'])[-1] for p in fn['parameters'])
+    stage=next(s for s,n in wrappers.items() if n==name and (not composition or not isinstance(composition.TYPES,dict) or composition.TYPES[s]==input_types))
     spec=(gate.ROOT/gate.SPEC).read_text(encoding='utf-8-sig')
     reference=json.loads(parse_sql_json(generator(source,spec,stage)))['stmts'][0]['stmt']['CreateFunctionStmt']
     def clean(v):
@@ -20,6 +21,12 @@ def check(fn,expected_columns,source,composition=None):
         if isinstance(v,dict):return {k:clean(x) for k,x in v.items() if k!='location'}
         return v
     if clean(fn)!=clean(reference):raise ValueError('Exact '+stage+' guarded frozen composition changed')
+    if stage=='S16':
+        body=next(o['DefElem']['arg']['List']['items'][0]['String']['sval'] for o in fn['options'] if o['DefElem']['defname']=='as')
+        if body.index('FROM public.offline_admission')>body.index('IF public.offline_lock_bound_principal'):raise ValueError('Admission C lock must precede domain lock')
+    if stage in ('S17','S18'):
+        body=next(o['DefElem']['arg']['List']['items'][0]['String']['sval'] for o in fn['options'] if o['DefElem']['defname']=='as')
+        if not body.index('FROM public.offline_admission')<body.index('IF public.offline_lock_bound_principal')<body.index('PERFORM pg_catalog.pg_advisory_xact_lock'):raise ValueError('C/admission then original AU principal lock must precede decision advisory')
     expressions=[]
     def collect(v):
         if isinstance(v,list):
@@ -32,7 +39,7 @@ def check(fn,expected_columns,source,composition=None):
     privileges={(r,c,p) for o,r,c,p in expected_columns if o==owner}
     observed=set()
     from package_0090_q_source import BUILTINS
-    builtins=BUILTINS|{'int2send','decode','encode','to_char','timezone','gen_random_uuid','num_nonnulls'}
+    builtins=BUILTINS|{'int2send','decode','encode','to_char','timezone','gen_random_uuid','num_nonnulls','pg_advisory_xact_lock','hashtextextended','max','count'}
     calls={('public',n) for n in FROZEN.values()}|{('public','offline_internal_matches_original_signed_attestation'),('public','offline_internal_canonical_spki_ed25519_verify')}
     if composition:calls={('public',n) for n in composition.FROZEN.values()}
     def review(v,inherited=None):
@@ -43,14 +50,25 @@ def check(fn,expected_columns,source,composition=None):
             if 'SelectStmt' in v:
                 stmt=v['SelectStmt']
                 if stmt.get('intoClause'):raise ValueError('V SELECT INTO table forbidden')
-                for item in stmt.get('fromClause',[]):
-                    if 'RangeVar' in item:
-                        r=item['RangeVar'];aliases[r.get('alias',{}).get('aliasname',r['relname'])]=r.get('schemaname','')+'.'+r['relname']
+                def from_alias(item):
+                    if isinstance(item,list):
+                        for x in item:from_alias(x)
+                    elif isinstance(item,dict):
+                        if 'RangeVar' in item:
+                            r=item['RangeVar'];aliases[r.get('alias',{}).get('aliasname',r['relname'])]=r.get('schemaname','')+'.'+r['relname']
+                        if 'JoinExpr' in item:from_alias(item['JoinExpr'])
+                        for key in ('larg','rarg'):
+                            if key in item:from_alias(item[key])
+                from_alias(stmt.get('fromClause',[]))
             for key,priv in [('InsertStmt','insert'),('UpdateStmt','update')]:
                 if key in v:
                     stmt=v[key];r=stmt['relation'];relation=r.get('schemaname','')+'.'+r['relname']
-                    mutable=stage in ('S06','S08','S10','S12')
+                    mutable=stage in ('S06','S08','S10','S12','S13','S14','S15','S16','S18')
                     allowed_effects={'public.offline_stage_receipt','public.offline_attempt'} | ({'public.offline_delivery'} if stage=='S10' else set())
+                    if stage=='S13':allowed_effects={'public.offline_attempt','public.offline_execution','public.offline_attempt_pointer'}
+                    if stage in ('S14','S15'):allowed_effects={'public.offline_delivery'}
+                    if stage=='S16':allowed_effects={'public.offline_admission'}
+                    if stage=='S18':allowed_effects={'public.offline_admission','public.offline_stage_receipt','public.offline_attempt','public.offline_execution','public.offline_reconciliation'}
                     if not mutable or relation not in allowed_effects:raise ValueError('V unapproved semantic effect')
                     targets=stmt.get('cols',stmt.get('targetList',[]))
                     for item in targets:
@@ -67,9 +85,9 @@ def check(fn,expected_columns,source,composition=None):
                 if call not in calls and call not in {('pg_catalog',n) for n in builtins}:raise ValueError('V unapproved function '+repr(call))
             for x in v.values():review(x,aliases)
     for expression in expressions:
-        query=re.sub(r'^\s*[a-z_][a-z0-9_]*(?:\[[^]]+\])?\s*:=\s*','',expression,flags=re.I)
-        if not query.lstrip().upper().startswith(('SELECT','WITH','INSERT','UPDATE')):query='SELECT '+query
+        query=re.sub(r'^\s*[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*|\[[^]]+\])?\s*:=\s*','',expression,flags=re.I)
+        if not re.match(r'^\s*(SELECT|WITH|INSERT|UPDATE)\b',query,re.I):query='SELECT '+query
         for item in json.loads(parse_sql_json(query))['stmts']:
             if not set(item['stmt'])<={'SelectStmt','InsertStmt','UpdateStmt'}:raise ValueError('V unsupported SQL effect')
             review(item['stmt'])
-    return {stage.lower()+'_source':'BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF',stage.lower()+'_read_columns':len(observed),stage.lower()+('_verified_v_lineage_before_frozen' if composition else '_original_match_before_frozen'):True}
+    return {stage.lower()+'_source':'BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF',stage.lower()+'_read_columns':len(observed),stage.lower()+('_guarded_control_composition' if composition and composition.OWNER=='flooow_offline_execution_owner' else '_verified_v_lineage_before_frozen' if composition else '_original_match_before_frozen'):True}

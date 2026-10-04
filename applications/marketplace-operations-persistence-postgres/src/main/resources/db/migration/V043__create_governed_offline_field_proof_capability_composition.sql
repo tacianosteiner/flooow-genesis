@@ -6688,6 +6688,8 @@ GRANT EXECUTE ON FUNCTION public.offline_internal_readiness(pg_catalog.uuid,pg_c
 GRANT USAGE ON SCHEMA public TO flooow_offline_readiness_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_audit_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_execution_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_principal_lock_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_intent_audit_owner;
 
 -- Approved V Ed25519 bridge: no A/private-native access.
 -- Existing crypto dependency inspection above requires D-only native ACLs
@@ -16573,3 +16575,3889 @@ GRANT EXECUTE ON FUNCTION public.s2a_v042_begin_attested_initial_credential_veri
 GRANT EXECUTE ON FUNCTION public.s2a_v042_begin_attested_principal_verification(pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.int4,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.timestamptz,pg_catalog.timestamptz,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text) TO flooow_offline_issuance_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_issuance_owner;
 -- End public S07-S12.
+
+-- Public S13-S16: exclusive claim, delivery and durable admission.
+CREATE FUNCTION public.offline_claim_attempt(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,
+    surface_version pg_catalog.text,
+    expected_generation pg_catalog.int8,
+    execution_id pg_catalog.uuid,
+    instance_id pg_catalog.uuid,
+    possession_secret pg_catalog.bytea,
+    preflight_receipt pg_catalog.bytea) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_s13$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    attempt_record record;
+    execution_record record;
+    pointer_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    result record;
+    delivery_record record;
+    admission_record record;
+    credential_record record;
+    grant_record record;
+    fresh_receipt record;
+    final_execution_record record;
+    final_attempt_record record;
+    server_attempt_id pg_catalog.uuid;
+    server_receipt_id pg_catalog.uuid;
+    permission_to_attempt pg_catalog.bool;
+    authorization_fingerprint pg_catalog.bytea;
+    new_claim pg_catalog.bool;
+    new_admission pg_catalog.bool;
+    codec_cursor pg_catalog.int4;
+    codec_length pg_catalog.int8;
+    codec_number pg_catalog.numeric;
+    codec_byte pg_catalog.int4;
+    codec_raw pg_catalog.bytea;
+    receipt_incarnation pg_catalog.uuid;
+    receipt_binding_fingerprint pg_catalog.bytea;
+    receipt_surface pg_catalog.text;
+    receipt_history_digest pg_catalog.bytea;
+    receipt_acl_digest pg_catalog.bytea;
+    receipt_policy_digest pg_catalog.bytea;
+    receipt_issued_at pg_catalog.timestamptz;
+    receipt_expires_at pg_catalog.timestamptz;
+    receipt_key_version pg_catalog.int8;
+BEGIN
+    IF $1 IS NULL OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $2 IS NULL OR $3 IS NULL OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4 IS NULL OR $5 IS NULL OR $5<=0 OR $6 IS NULL OR $6='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $7 IS NULL OR $7='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $8 IS NULL OR $9 IS NULL OR $4<>'0090-v1' OR pg_catalog.octet_length($2)<>32 OR pg_catalog.current_setting('transaction_isolation')<>'read committed' OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($8)<>32 OR pg_catalog.octet_length($9)<=32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_schema_version,h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.run_id,h.plan_id,h.execution_plan_version,h.organization_id,h.manifest_id,h.manifest_digest,h.canonical_manifest_hash,h.canonical_manifest_encoding_version,h.mercado_livre_connection_id,h.omie_connection_id,h.marketplace_order_id,h.source_order_reference,h.integration_reference,h.permission,h.reason,h.provenance,h.principal_id,h.credential_id,h.grant_id,h.decision_id,h.correlation_id,h.principal_operation_id,h.credential_operation_id,h.grant_operation_id,h.issued_at,h.valid_from,h.expires_at,h.identity_slots,h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,h.admission_contract_version,h.delivery_contract_version,h.reconciliation_contract_version,h.plan_fingerprint,h.canonical_manifest_bytes
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF header_record.plan_fingerprint<>pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')||'\x0026'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END))) OR pg_catalog.sha256(header_record.canonical_manifest_bytes)<>header_record.manifest_digest OR header_record.canonical_manifest_hash<>header_record.manifest_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=3 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))>279 OR pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),1,45)<>pg_catalog.decode('00000027464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f505245464c494748542f56310009','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 45;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    receipt_incarnation := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF receipt_incarnation='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 33 AND 33 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    receipt_binding_fingerprint := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 8 AND 8 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    receipt_surface := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF receipt_surface IS NOT NFC NORMALIZED OR receipt_surface ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 33 AND 33 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    receipt_history_digest := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 33 AND 33 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    receipt_acl_digest := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 33 AND 33 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    receipt_policy_digest := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    receipt_issued_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(receipt_issued_at) OR EXTRACT(EPOCH FROM receipt_issued_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>8 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    receipt_expires_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(receipt_expires_at) OR EXTRACT(EPOCH FROM receipt_expires_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor)<>0 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+1)<>9 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32))-codec_cursor-6 OR pg_catalog.get_byte(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32),codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    receipt_key_version := codec_number::pg_catalog.int8;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(pg_catalog.substring($9,1,pg_catalog.octet_length($9)-32)) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF receipt_incarnation IS DISTINCT FROM $3 OR receipt_binding_fingerprint IS DISTINCT FROM $2 OR receipt_surface IS DISTINCT FROM $4 OR receipt_policy_digest IS DISTINCT FROM header_record.deadline_policy_digest OR receipt_key_version<=0 OR public.offline_internal_readiness($1,$2,$3,$4,receipt_history_digest,receipt_acl_digest,receipt_policy_digest,$9) IS DISTINCT FROM $9 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    PERFORM l.binding_id FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE' FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    SELECT p.binding_id,p.current_attempt_id,p.generation,p.claim_permitted INTO STRICT pointer_record FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 FOR UPDATE;
+    IF pointer_record.generation<>$5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    new_claim := pointer_record.current_attempt_id IS NULL;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR database_now<header_record.valid_from OR database_now>=header_record.expires_at OR database_now<policy_record.effective_from OR receipt_issued_at>database_now OR receipt_expires_at<=database_now OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    IF new_claim THEN
+    IF pointer_record.claim_permitted IS NOT TRUE THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+        server_attempt_id := pg_catalog.gen_random_uuid(); server_receipt_id := pg_catalog.gen_random_uuid();
+        INSERT INTO public.offline_attempt(binding_id,attempt_id,generation,state,claimed_at,expires_at,lock_token)
+          VALUES($1,server_attempt_id,$5,'CLAIMED',database_now,LEAST(header_record.expires_at,database_now+(policy_values[9]::pg_catalog.text||' microseconds')::pg_catalog.interval),0);
+        INSERT INTO public.offline_execution(binding_id,attempt_id,generation,execution_id,instance_id,executor_oid,state,possession_digest,claimed_at,expires_at,claim_receipt_id,lock_token)
+          SELECT $1,server_attempt_id,$5,$6,$7,slot_oids[3],'OWNED',pg_catalog.sha256($8),database_now,LEAST(a.expires_at,database_now+(policy_values[11]::pg_catalog.text||' microseconds')::pg_catalog.interval),server_receipt_id,0 FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=server_attempt_id AND a.generation=$5;
+        UPDATE public.offline_attempt_pointer p SET current_attempt_id=server_attempt_id WHERE p.binding_id=$1 AND p.generation=$5 AND p.current_attempt_id IS NULL;
+        IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    ELSE
+        server_attempt_id := pointer_record.current_attempt_id;
+    END IF;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=server_attempt_id AND a.generation=$5 FOR UPDATE;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at,e.claim_receipt_id INTO STRICT execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=server_attempt_id AND e.generation=$5 AND e.execution_id=$6 AND e.instance_id=$7 FOR UPDATE;
+    IF attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR execution_record.state<>'OWNED' OR execution_record.executor_oid<>slot_oids[3] OR execution_record.possession_digest IS DISTINCT FROM pg_catalog.sha256($8) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    PERFORM c.binding_id FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    PERFORM r.binding_id FROM public.offline_reconciliation r WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF public.offline_internal_readiness($1,$2,$3,$4,receipt_history_digest,receipt_acl_digest,receipt_policy_digest,$9) IS DISTINCT FROM $9 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    database_now := pg_catalog.clock_timestamp();
+    IF database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR database_now>=receipt_expires_at OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    SELECT server_attempt_id AS attempt_id,$5 AS generation,$6 AS execution_id,$7 AS instance_id,attempt_record.claimed_at AS claimed_at,attempt_record.expires_at AS attempt_expires_at,execution_record.expires_at AS execution_expires_at,execution_record.claim_receipt_id AS claim_receipt_id INTO result;
+    IF pg_catalog.num_nonnulls(result.attempt_id,result.generation,result.execution_id,result.instance_id,result.claimed_at,result.attempt_expires_at,result.execution_expires_at,result.claim_receipt_id)<>8 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    RETURN (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S13/OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S13/OUTPUT/V1','UTF8')||'\x0008'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.attempt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.attempt_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.attempt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.attempt_id))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(result.generation)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(result.generation))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(result.generation)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(result.generation))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.execution_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.execution_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.execution_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.execution_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.instance_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.instance_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.instance_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.instance_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.claimed_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.claimed_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.claimed_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.claimed_at)*1000000)::pg_catalog.int8))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempt_expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempt_expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempt_expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempt_expires_at)*1000000)::pg_catalog.int8))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.execution_expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.execution_expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.execution_expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.execution_expires_at)*1000000)::pg_catalog.int8))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.claim_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.claim_receipt_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.claim_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.claim_receipt_id))) END));
+EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_s13$;
+ALTER FUNCTION public.offline_claim_attempt(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.bytea) OWNER TO flooow_offline_execution_owner;
+REVOKE ALL ON FUNCTION public.offline_claim_attempt(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.bytea) FROM PUBLIC;
+CREATE FUNCTION public.offline_claim_attempt(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,
+    surface_version pg_catalog.text,
+    attempt_id pg_catalog.uuid,
+    generation pg_catalog.int8,
+    execution_id pg_catalog.uuid,
+    instance_id pg_catalog.uuid,
+    possession_secret pg_catalog.bytea,
+    credential_id pg_catalog.uuid,
+    initial_operation_id pg_catalog.uuid,
+    fresh_applied_receipt_id pg_catalog.uuid) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_s14$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    attempt_record record;
+    execution_record record;
+    pointer_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    result record;
+    delivery_record record;
+    admission_record record;
+    credential_record record;
+    grant_record record;
+    fresh_receipt record;
+    final_execution_record record;
+    final_attempt_record record;
+    server_attempt_id pg_catalog.uuid;
+    server_receipt_id pg_catalog.uuid;
+    permission_to_attempt pg_catalog.bool;
+    authorization_fingerprint pg_catalog.bytea;
+    new_claim pg_catalog.bool;
+    new_admission pg_catalog.bool;
+    codec_cursor pg_catalog.int4;
+    codec_length pg_catalog.int8;
+    codec_number pg_catalog.numeric;
+    codec_byte pg_catalog.int4;
+    codec_raw pg_catalog.bytea;
+    fresh_outcome pg_catalog.text;
+    fresh_result_operation_id pg_catalog.uuid;
+    fresh_result_intent_fingerprint pg_catalog.text;
+    fresh_result_receipt_fingerprint pg_catalog.text;
+    fresh_result_effect_time pg_catalog.timestamptz;
+BEGIN
+    IF $1 IS NULL OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $2 IS NULL OR $3 IS NULL OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4 IS NULL OR $5 IS NULL OR $5='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $6 IS NULL OR $6<=0 OR $7 IS NULL OR $7='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $8 IS NULL OR $8='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $9 IS NULL OR $10 IS NULL OR $10='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $11 IS NULL OR $11='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $12 IS NULL OR $12='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4<>'0090-v1' OR pg_catalog.octet_length($2)<>32 OR pg_catalog.current_setting('transaction_isolation')<>'read committed' OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($9)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_schema_version,h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.run_id,h.plan_id,h.execution_plan_version,h.organization_id,h.manifest_id,h.manifest_digest,h.canonical_manifest_hash,h.canonical_manifest_encoding_version,h.mercado_livre_connection_id,h.omie_connection_id,h.marketplace_order_id,h.source_order_reference,h.integration_reference,h.permission,h.reason,h.provenance,h.principal_id,h.credential_id,h.grant_id,h.decision_id,h.correlation_id,h.principal_operation_id,h.credential_operation_id,h.grant_operation_id,h.issued_at,h.valid_from,h.expires_at,h.identity_slots,h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,h.admission_contract_version,h.delivery_contract_version,h.reconciliation_contract_version,h.plan_fingerprint,h.canonical_manifest_bytes
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF header_record.plan_fingerprint<>pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')||'\x0026'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END))) OR pg_catalog.sha256(header_record.canonical_manifest_bytes)<>header_record.manifest_digest OR header_record.canonical_manifest_hash<>header_record.manifest_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=3 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- C: lifecycle -> pointer -> attempt -> execution, before the private domain lock.
+    PERFORM l.binding_id FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE' FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    SELECT p.binding_id,p.current_attempt_id,p.generation INTO pointer_record
+      FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 FOR UPDATE;
+    IF NOT FOUND OR pointer_record.current_attempt_id IS DISTINCT FROM $5 OR pointer_record.generation <> $6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO attempt_record
+      FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 FOR UPDATE;
+    IF NOT FOUND OR attempt_record.state<>'EFFECTS_IN_PROGRESS' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,
+           e.state,e.claimed_at,e.expires_at,e.possession_digest INTO execution_record
+      FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6
+       AND e.execution_id=$7 AND e.instance_id=$8 FOR UPDATE;
+    IF NOT FOUND OR execution_record.state <> 'OWNED' OR execution_record.executor_oid <> slot_oids[3]
+       OR execution_record.possession_digest <> pg_catalog.sha256($9) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    PERFORM r.binding_id FROM public.offline_reconciliation r WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    PERFORM c.binding_id FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(policy_record.effective_from)
+       OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at)
+       OR database_now < policy_record.effective_from OR database_now < header_record.valid_from
+       OR database_now >= header_record.expires_at OR database_now < attempt_record.claimed_at
+       OR database_now >= attempt_record.expires_at OR database_now < execution_record.claimed_at
+       OR database_now >= execution_record.expires_at OR database_now < ready_record.watchdog_checked_at
+       OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000 > policy_values[23]
+       OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000 > policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT pg_catalog.isfinite(header_record.issued_at) OR NOT pg_catalog.isfinite(header_record.valid_from) OR NOT pg_catalog.isfinite(header_record.expires_at) OR header_record.valid_from<header_record.issued_at OR header_record.expires_at<=header_record.valid_from OR NOT pg_catalog.isfinite(attempt_record.claimed_at) OR NOT pg_catalog.isfinite(attempt_record.expires_at) OR attempt_record.expires_at<=attempt_record.claimed_at OR attempt_record.claimed_at<header_record.valid_from OR attempt_record.expires_at>header_record.expires_at OR NOT pg_catalog.isfinite(execution_record.claimed_at) OR NOT pg_catalog.isfinite(execution_record.expires_at) OR execution_record.claimed_at<attempt_record.claimed_at OR execution_record.expires_at<=execution_record.claimed_at OR execution_record.expires_at>attempt_record.expires_at OR EXTRACT(EPOCH FROM(attempt_record.expires_at-attempt_record.claimed_at))*1000000>policy_values[9] OR EXTRACT(EPOCH FROM(execution_record.expires_at-execution_record.claimed_at))*1000000>policy_values[11] OR EXTRACT(EPOCH FROM(header_record.expires_at-header_record.valid_from))*1000000>policy_values[13] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF $10 IS DISTINCT FROM header_record.credential_id OR $11 IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+    IF delivery_record.attempt_id IS DISTINCT FROM $5 OR delivery_record.generation<>$6 OR delivery_record.execution_id IS DISTINCT FROM $7 OR delivery_record.instance_id IS DISTINCT FROM $8 OR delivery_record.credential_id IS DISTINCT FROM header_record.credential_id OR delivery_record.initial_operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT fresh_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='INITIAL_CREDENTIAL_APPLIED';
+    IF fresh_receipt.execution_id<>$7 OR fresh_receipt.instance_id<>$8 OR fresh_receipt.operation_id IS DISTINCT FROM $11 OR fresh_receipt.receipt_id IS DISTINCT FROM $12 OR delivery_record.fresh_applied_receipt_id IS DISTINCT FROM $12 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(fresh_receipt.frozen_receipt)>250 OR pg_catalog.substring(fresh_receipt.frozen_receipt,1,46)<>pg_catalog.decode('00000028464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5331302f4f55545055542f56310005','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 46;
+    IF pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 18 OR codec_length>pg_catalog.octet_length(fresh_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(fresh_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    fresh_outcome := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF fresh_outcome IS NOT NFC NORMALIZED OR fresh_outcome ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(fresh_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(fresh_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    fresh_result_operation_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF fresh_result_operation_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(fresh_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(fresh_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    fresh_result_intent_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF fresh_result_intent_fingerprint IS NOT NFC NORMALIZED OR fresh_result_intent_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(fresh_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(fresh_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    fresh_result_receipt_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF fresh_result_receipt_fingerprint IS NOT NFC NORMALIZED OR fresh_result_receipt_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(fresh_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(fresh_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(fresh_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    fresh_result_effect_time := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(fresh_result_effect_time) OR EXTRACT(EPOCH FROM fresh_result_effect_time)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(fresh_receipt.frozen_receipt) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF fresh_outcome<>'APPLIED' OR fresh_result_operation_id IS DISTINCT FROM $11 OR fresh_result_effect_time IS DISTINCT FROM fresh_receipt.effect_time THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    permission_to_attempt := delivery_record.state='CREATED_NOT_DELIVERABLE';
+    IF delivery_record.state NOT IN ('CREATED_NOT_DELIVERABLE','DELIVERY_ATTEMPTED') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    IF permission_to_attempt THEN
+        database_now := pg_catalog.clock_timestamp();
+        UPDATE public.offline_delivery d SET state='DELIVERY_ATTEMPTED',delivery_receipt_id=pg_catalog.gen_random_uuid(),attempted_at=database_now,operation_deadline=LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at,database_now+(policy_values[17]::pg_catalog.text||' microseconds')::pg_catalog.interval) WHERE d.binding_id=$1 AND d.generation=$6 AND d.state='CREATED_NOT_DELIVERABLE';
+        IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+
+    SELECT delivery_record.delivery_receipt_id AS delivery_receipt_id,delivery_record.credential_id AS credential_id,delivery_record.initial_operation_id AS initial_operation_id,delivery_record.fresh_applied_receipt_id AS fresh_applied_receipt_id,delivery_record.execution_id AS execution_id,delivery_record.instance_id AS instance_id,delivery_record.attempted_at AS attempted_at,delivery_record.operation_deadline AS operation_deadline,permission_to_attempt AS permission_to_attempt INTO result;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at INTO STRICT final_execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT final_attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6;
+    IF final_execution_record.state<>'OWNED' OR final_execution_record.executor_oid<>slot_oids[3] OR final_execution_record.possession_digest<>pg_catalog.sha256($9) OR final_execution_record.claimed_at IS DISTINCT FROM execution_record.claimed_at OR final_execution_record.expires_at IS DISTINCT FROM execution_record.expires_at OR final_attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR final_attempt_record.claimed_at IS DISTINCT FROM attempt_record.claimed_at OR final_attempt_record.expires_at IS DISTINCT FROM attempt_record.expires_at OR NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE') OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 AND p.current_attempt_id=$5 AND p.generation=$6) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO STRICT ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    database_now := pg_catalog.clock_timestamp();
+    IF ready_record.state<>'READY' OR ready_record.policy_version<>policy_record.policy_version OR ready_record.policy_digest<>policy_record.policy_digest OR ready_record.watchdog_healthy IS NOT TRUE OR NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at) OR database_now<ready_record.watchdog_checked_at OR database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23] OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.num_nonnulls(result.delivery_receipt_id,result.credential_id,result.initial_operation_id,result.fresh_applied_receipt_id,result.execution_id,result.instance_id,result.attempted_at,result.operation_deadline,result.permission_to_attempt)<>9 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    RETURN (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S14/OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S14/OUTPUT/V1','UTF8')||'\x0009'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.delivery_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.delivery_receipt_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.delivery_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.delivery_receipt_id))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.credential_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.initial_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.initial_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.initial_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.initial_operation_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.fresh_applied_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.fresh_applied_receipt_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.fresh_applied_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.fresh_applied_receipt_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.execution_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.execution_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.execution_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.execution_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.instance_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.instance_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.instance_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.instance_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempted_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempted_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempted_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.attempted_at)*1000000)::pg_catalog.int8))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.operation_deadline)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.operation_deadline)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.operation_deadline)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.operation_deadline)*1000000)::pg_catalog.int8))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ((CASE WHEN result.permission_to_attempt THEN pg_catalog.decode('01','hex') ELSE pg_catalog.decode('00','hex') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN result.permission_to_attempt THEN pg_catalog.decode('01','hex') ELSE pg_catalog.decode('00','hex') END))) END)))::pg_catalog.int8),5,4)||(CASE WHEN ((CASE WHEN result.permission_to_attempt THEN pg_catalog.decode('01','hex') ELSE pg_catalog.decode('00','hex') END)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||((CASE WHEN result.permission_to_attempt THEN pg_catalog.decode('01','hex') ELSE pg_catalog.decode('00','hex') END))) END));
+EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_s14$;
+ALTER FUNCTION public.offline_claim_attempt(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid) OWNER TO flooow_offline_execution_owner;
+REVOKE ALL ON FUNCTION public.offline_claim_attempt(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid) FROM PUBLIC;
+CREATE FUNCTION public.offline_claim_attempt(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,
+    surface_version pg_catalog.text,
+    attempt_id pg_catalog.uuid,
+    generation pg_catalog.int8,
+    execution_id pg_catalog.uuid,
+    instance_id pg_catalog.uuid,
+    possession_secret pg_catalog.bytea,
+    delivery_receipt_id pg_catalog.uuid,
+    delivery_outcome pg_catalog.text,
+    delivery_observed_at pg_catalog.timestamptz,
+    delivery_observation_code pg_catalog.text) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_s15$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    attempt_record record;
+    execution_record record;
+    pointer_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    result record;
+    delivery_record record;
+    admission_record record;
+    credential_record record;
+    grant_record record;
+    fresh_receipt record;
+    final_execution_record record;
+    final_attempt_record record;
+    server_attempt_id pg_catalog.uuid;
+    server_receipt_id pg_catalog.uuid;
+    permission_to_attempt pg_catalog.bool;
+    authorization_fingerprint pg_catalog.bytea;
+    new_claim pg_catalog.bool;
+    new_admission pg_catalog.bool;
+    codec_cursor pg_catalog.int4;
+    codec_length pg_catalog.int8;
+    codec_number pg_catalog.numeric;
+    codec_byte pg_catalog.int4;
+    codec_raw pg_catalog.bytea;
+BEGIN
+    IF $1 IS NULL OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $2 IS NULL OR $3 IS NULL OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4 IS NULL OR $5 IS NULL OR $5='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $6 IS NULL OR $6<=0 OR $7 IS NULL OR $7='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $8 IS NULL OR $8='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $9 IS NULL OR $10 IS NULL OR $10='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $11 IS NULL OR $12 IS NULL OR NOT pg_catalog.isfinite($12) OR $13 IS NULL OR $4<>'0090-v1' OR pg_catalog.octet_length($2)<>32 OR pg_catalog.current_setting('transaction_isolation')<>'read committed' OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($9)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_schema_version,h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.run_id,h.plan_id,h.execution_plan_version,h.organization_id,h.manifest_id,h.manifest_digest,h.canonical_manifest_hash,h.canonical_manifest_encoding_version,h.mercado_livre_connection_id,h.omie_connection_id,h.marketplace_order_id,h.source_order_reference,h.integration_reference,h.permission,h.reason,h.provenance,h.principal_id,h.credential_id,h.grant_id,h.decision_id,h.correlation_id,h.principal_operation_id,h.credential_operation_id,h.grant_operation_id,h.issued_at,h.valid_from,h.expires_at,h.identity_slots,h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,h.admission_contract_version,h.delivery_contract_version,h.reconciliation_contract_version,h.plan_fingerprint,h.canonical_manifest_bytes
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF header_record.plan_fingerprint<>pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')||'\x0026'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END))) OR pg_catalog.sha256(header_record.canonical_manifest_bytes)<>header_record.manifest_digest OR header_record.canonical_manifest_hash<>header_record.manifest_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=3 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- C: lifecycle -> pointer -> attempt -> execution, before the private domain lock.
+    PERFORM l.binding_id FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE' FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    SELECT p.binding_id,p.current_attempt_id,p.generation INTO pointer_record
+      FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 FOR UPDATE;
+    IF NOT FOUND OR pointer_record.current_attempt_id IS DISTINCT FROM $5 OR pointer_record.generation <> $6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO attempt_record
+      FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 FOR UPDATE;
+    IF NOT FOUND OR attempt_record.state<>'EFFECTS_IN_PROGRESS' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,
+           e.state,e.claimed_at,e.expires_at,e.possession_digest INTO execution_record
+      FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6
+       AND e.execution_id=$7 AND e.instance_id=$8 FOR UPDATE;
+    IF NOT FOUND OR execution_record.state <> 'OWNED' OR execution_record.executor_oid <> slot_oids[3]
+       OR execution_record.possession_digest <> pg_catalog.sha256($9) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    PERFORM r.binding_id FROM public.offline_reconciliation r WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    PERFORM c.binding_id FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(policy_record.effective_from)
+       OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at)
+       OR database_now < policy_record.effective_from OR database_now < header_record.valid_from
+       OR database_now >= header_record.expires_at OR database_now < attempt_record.claimed_at
+       OR database_now >= attempt_record.expires_at OR database_now < execution_record.claimed_at
+       OR database_now >= execution_record.expires_at OR database_now < ready_record.watchdog_checked_at
+       OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000 > policy_values[23]
+       OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000 > policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT pg_catalog.isfinite(header_record.issued_at) OR NOT pg_catalog.isfinite(header_record.valid_from) OR NOT pg_catalog.isfinite(header_record.expires_at) OR header_record.valid_from<header_record.issued_at OR header_record.expires_at<=header_record.valid_from OR NOT pg_catalog.isfinite(attempt_record.claimed_at) OR NOT pg_catalog.isfinite(attempt_record.expires_at) OR attempt_record.expires_at<=attempt_record.claimed_at OR attempt_record.claimed_at<header_record.valid_from OR attempt_record.expires_at>header_record.expires_at OR NOT pg_catalog.isfinite(execution_record.claimed_at) OR NOT pg_catalog.isfinite(execution_record.expires_at) OR execution_record.claimed_at<attempt_record.claimed_at OR execution_record.expires_at<=execution_record.claimed_at OR execution_record.expires_at>attempt_record.expires_at OR EXTRACT(EPOCH FROM(attempt_record.expires_at-attempt_record.claimed_at))*1000000>policy_values[9] OR EXTRACT(EPOCH FROM(execution_record.expires_at-execution_record.claimed_at))*1000000>policy_values[11] OR EXTRACT(EPOCH FROM(header_record.expires_at-header_record.valid_from))*1000000>policy_values[13] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+    IF delivery_record.attempt_id IS DISTINCT FROM $5 OR delivery_record.generation<>$6 OR delivery_record.execution_id IS DISTINCT FROM $7 OR delivery_record.instance_id IS DISTINCT FROM $8 OR delivery_record.credential_id IS DISTINCT FROM header_record.credential_id OR delivery_record.initial_operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF $10 IS DISTINCT FROM delivery_record.delivery_receipt_id OR $11 NOT IN ('DELIVERY_ACKNOWLEDGED','DELIVERY_FAILED_REVIEW_REQUIRED','DELIVERY_OUTCOME_UNKNOWN') OR $13 NOT IN ('COMPLETE','PARTIAL','IO_FAILURE','PROCESS_UNCERTAINTY') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF delivery_record.state='DELIVERY_ATTEMPTED' THEN
+        database_now := pg_catalog.clock_timestamp();
+    IF delivery_record.operation_deadline IS NULL OR database_now>=delivery_record.operation_deadline THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+        UPDATE public.offline_delivery d SET state=$11,observed_at=$12,observation_code=$13,recorded_at=database_now WHERE d.binding_id=$1 AND d.generation=$6 AND d.delivery_receipt_id=$10 AND d.state='DELIVERY_ATTEMPTED';
+        IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    ELSE
+    IF delivery_record.state IS DISTINCT FROM $11 OR delivery_record.observed_at IS DISTINCT FROM $12 OR delivery_record.observation_code IS DISTINCT FROM $13 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+
+    SELECT delivery_record.delivery_receipt_id AS delivery_receipt_id,delivery_record.state AS delivery_state,delivery_record.observed_at AS observed_at,delivery_record.observation_code AS observation_code,delivery_record.recorded_at AS recorded_at INTO result;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at INTO STRICT final_execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT final_attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6;
+    IF final_execution_record.state<>'OWNED' OR final_execution_record.executor_oid<>slot_oids[3] OR final_execution_record.possession_digest<>pg_catalog.sha256($9) OR final_execution_record.claimed_at IS DISTINCT FROM execution_record.claimed_at OR final_execution_record.expires_at IS DISTINCT FROM execution_record.expires_at OR final_attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR final_attempt_record.claimed_at IS DISTINCT FROM attempt_record.claimed_at OR final_attempt_record.expires_at IS DISTINCT FROM attempt_record.expires_at OR NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE') OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 AND p.current_attempt_id=$5 AND p.generation=$6) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO STRICT ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    database_now := pg_catalog.clock_timestamp();
+    IF ready_record.state<>'READY' OR ready_record.policy_version<>policy_record.policy_version OR ready_record.policy_digest<>policy_record.policy_digest OR ready_record.watchdog_healthy IS NOT TRUE OR NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at) OR database_now<ready_record.watchdog_checked_at OR database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23] OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.num_nonnulls(result.delivery_receipt_id,result.delivery_state,result.observed_at,result.observation_code,result.recorded_at)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    RETURN (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S15/OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S15/OUTPUT/V1','UTF8')||'\x0005'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.delivery_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.delivery_receipt_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.delivery_receipt_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.delivery_receipt_id))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(result.delivery_state,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.delivery_state,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(result.delivery_state,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.delivery_state,'UTF8'))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.observed_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.observed_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.observed_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.observed_at)*1000000)::pg_catalog.int8))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(result.observation_code,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.observation_code,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(result.observation_code,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.observation_code,'UTF8'))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.recorded_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.recorded_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.recorded_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.recorded_at)*1000000)::pg_catalog.int8))) END));
+EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_s15$;
+ALTER FUNCTION public.offline_claim_attempt(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.timestamptz,pg_catalog.text) OWNER TO flooow_offline_execution_owner;
+REVOKE ALL ON FUNCTION public.offline_claim_attempt(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.timestamptz,pg_catalog.text) FROM PUBLIC;
+CREATE FUNCTION public.offline_authenticate_command(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,
+    surface_version pg_catalog.text,
+    attempt_id pg_catalog.uuid,
+    generation pg_catalog.int8,
+    execution_id pg_catalog.uuid,
+    instance_id pg_catalog.uuid,
+    possession_secret pg_catalog.bytea,
+    credential_id pg_catalog.uuid,
+    credential_revision pg_catalog.int4,
+    credential_proof pg_catalog.bytea) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_s16$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    attempt_record record;
+    execution_record record;
+    pointer_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    result record;
+    delivery_record record;
+    admission_record record;
+    credential_record record;
+    grant_record record;
+    fresh_receipt record;
+    final_execution_record record;
+    final_attempt_record record;
+    server_attempt_id pg_catalog.uuid;
+    server_receipt_id pg_catalog.uuid;
+    permission_to_attempt pg_catalog.bool;
+    authorization_fingerprint pg_catalog.bytea;
+    new_claim pg_catalog.bool;
+    new_admission pg_catalog.bool;
+    codec_cursor pg_catalog.int4;
+    codec_length pg_catalog.int8;
+    codec_number pg_catalog.numeric;
+    codec_byte pg_catalog.int4;
+    codec_raw pg_catalog.bytea;
+    verified_outcome pg_catalog.text;
+    verified_result_organization_id pg_catalog.uuid;
+    verified_result_manifest_id pg_catalog.uuid;
+    verified_result_manifest_digest pg_catalog.text;
+    verified_result_accepted_proof_fingerprint pg_catalog.text;
+    verified_result_verified_at pg_catalog.timestamptz;
+    verified_result_recorded_at pg_catalog.timestamptz;
+    lineage_receipt record;
+BEGIN
+    IF $1 IS NULL OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $2 IS NULL OR $3 IS NULL OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4 IS NULL OR $5 IS NULL OR $5='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $6 IS NULL OR $6<=0 OR $7 IS NULL OR $7='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $8 IS NULL OR $8='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $9 IS NULL OR $10 IS NULL OR $10='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $11 IS NULL OR $11<=0 OR $12 IS NULL OR $4<>'0090-v1' OR pg_catalog.octet_length($2)<>32 OR pg_catalog.current_setting('transaction_isolation')<>'read committed' OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($9)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_schema_version,h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.run_id,h.plan_id,h.execution_plan_version,h.organization_id,h.manifest_id,h.manifest_digest,h.canonical_manifest_hash,h.canonical_manifest_encoding_version,h.mercado_livre_connection_id,h.omie_connection_id,h.marketplace_order_id,h.source_order_reference,h.integration_reference,h.permission,h.reason,h.provenance,h.principal_id,h.credential_id,h.grant_id,h.decision_id,h.correlation_id,h.principal_operation_id,h.credential_operation_id,h.grant_operation_id,h.issued_at,h.valid_from,h.expires_at,h.identity_slots,h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,h.admission_contract_version,h.delivery_contract_version,h.reconciliation_contract_version,h.plan_fingerprint,h.canonical_manifest_bytes
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF header_record.plan_fingerprint<>pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')||'\x0026'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END))) OR pg_catalog.sha256(header_record.canonical_manifest_bytes)<>header_record.manifest_digest OR header_record.canonical_manifest_hash<>header_record.manifest_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=3 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- C: lifecycle -> pointer -> attempt -> execution, before the private domain lock.
+    PERFORM l.binding_id FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE' FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    SELECT p.binding_id,p.current_attempt_id,p.generation INTO pointer_record
+      FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 FOR UPDATE;
+    IF NOT FOUND OR pointer_record.current_attempt_id IS DISTINCT FROM $5 OR pointer_record.generation <> $6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO attempt_record
+      FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 FOR UPDATE;
+    IF NOT FOUND OR attempt_record.state<>'EFFECTS_IN_PROGRESS' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,
+           e.state,e.claimed_at,e.expires_at,e.possession_digest INTO execution_record
+      FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6
+       AND e.execution_id=$7 AND e.instance_id=$8 FOR UPDATE;
+    IF NOT FOUND OR execution_record.state <> 'OWNED' OR execution_record.executor_oid <> slot_oids[3]
+       OR execution_record.possession_digest <> pg_catalog.sha256($9) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    PERFORM r.binding_id FROM public.offline_reconciliation r WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    PERFORM c.binding_id FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(policy_record.effective_from)
+       OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at)
+       OR database_now < policy_record.effective_from OR database_now < header_record.valid_from
+       OR database_now >= header_record.expires_at OR database_now < attempt_record.claimed_at
+       OR database_now >= attempt_record.expires_at OR database_now < execution_record.claimed_at
+       OR database_now >= execution_record.expires_at OR database_now < ready_record.watchdog_checked_at
+       OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000 > policy_values[23]
+       OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000 > policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT pg_catalog.isfinite(header_record.issued_at) OR NOT pg_catalog.isfinite(header_record.valid_from) OR NOT pg_catalog.isfinite(header_record.expires_at) OR header_record.valid_from<header_record.issued_at OR header_record.expires_at<=header_record.valid_from OR NOT pg_catalog.isfinite(attempt_record.claimed_at) OR NOT pg_catalog.isfinite(attempt_record.expires_at) OR attempt_record.expires_at<=attempt_record.claimed_at OR attempt_record.claimed_at<header_record.valid_from OR attempt_record.expires_at>header_record.expires_at OR NOT pg_catalog.isfinite(execution_record.claimed_at) OR NOT pg_catalog.isfinite(execution_record.expires_at) OR execution_record.claimed_at<attempt_record.claimed_at OR execution_record.expires_at<=execution_record.claimed_at OR execution_record.expires_at>attempt_record.expires_at OR EXTRACT(EPOCH FROM(attempt_record.expires_at-attempt_record.claimed_at))*1000000>policy_values[9] OR EXTRACT(EPOCH FROM(execution_record.expires_at-execution_record.claimed_at))*1000000>policy_values[11] OR EXTRACT(EPOCH FROM(header_record.expires_at-header_record.valid_from))*1000000>policy_values[13] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF $10 IS DISTINCT FROM header_record.credential_id OR $11<>1 OR pg_catalog.octet_length($12)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+    IF delivery_record.attempt_id IS DISTINCT FROM $5 OR delivery_record.generation<>$6 OR delivery_record.execution_id IS DISTINCT FROM $7 OR delivery_record.instance_id IS DISTINCT FROM $8 OR delivery_record.credential_id IS DISTINCT FROM header_record.credential_id OR delivery_record.initial_operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF delivery_record.state<>'DELIVERY_ACKNOWLEDGED' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='ATTESTATION_VERIFIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS NOT NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(lineage_receipt.frozen_receipt)>288 OR pg_catalog.substring(lineage_receipt.frozen_receipt,1,46)<>pg_catalog.decode('00000028464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5330362f4f55545055542f56310007','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 46;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 18 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_outcome := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_outcome IS NOT NFC NORMALIZED OR verified_outcome ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_organization_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF verified_result_organization_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_manifest_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF verified_result_manifest_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_manifest_digest := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_result_manifest_digest IS NOT NFC NORMALIZED OR verified_result_manifest_digest ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_accepted_proof_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_result_accepted_proof_fingerprint IS NOT NFC NORMALIZED OR verified_result_accepted_proof_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    verified_result_verified_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(verified_result_verified_at) OR EXTRACT(EPOCH FROM verified_result_verified_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    verified_result_recorded_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(verified_result_recorded_at) OR EXTRACT(EPOCH FROM verified_result_recorded_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(lineage_receipt.frozen_receipt) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF verified_outcome NOT IN ('ACCEPTED','ALREADY_ACCEPTED') OR verified_result_organization_id IS DISTINCT FROM header_record.organization_id OR verified_result_manifest_id IS DISTINCT FROM header_record.manifest_id OR verified_result_manifest_digest IS DISTINCT FROM pg_catalog.encode(header_record.manifest_digest,'hex') OR verified_result_verified_at IS DISTINCT FROM verified_result_recorded_at OR lineage_receipt.effect_time IS DISTINCT FROM verified_result_verified_at THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='PRINCIPAL_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.principal_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='INITIAL_CREDENTIAL_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF lineage_receipt.receipt_id IS DISTINCT FROM delivery_record.fresh_applied_receipt_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='GRANT_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.grant_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.admission_id,a.deployment_id,a.incarnation_id,a.binding_id,a.attempt_id,a.generation,a.execution_id,a.instance_id,a.executor_oid,a.credential_id,a.credential_revision,a.principal_id,a.organization_id,a.grant_id,a.grant_revision,a.authorization_fingerprint,a.permission,a.authenticated_at,a.expires_at,a.durable_state,a.consumed_decision_id,a.consumed_at INTO admission_record FROM public.offline_admission a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 AND a.execution_id=$7 AND a.instance_id=$8 AND a.credential_id=$10 AND a.credential_revision=$11 AND a.grant_id=header_record.grant_id AND a.grant_revision=1 AND a.permission=header_record.permission FOR UPDATE;
+    new_admission := NOT FOUND;
+    IF public.offline_lock_bound_principal($1,$2,$3,$4,$5,$6,$7,$8,$9) IS NOT TRUE THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT c.organization_id,c.principal_id,c.credential_id,c.revision,c.state,c.secret_verifier INTO STRICT credential_record
+      FROM public.command_credential_revision c JOIN public.command_principal p
+        ON p.organization_id=c.organization_id AND p.principal_id=c.principal_id
+     WHERE c.organization_id=header_record.organization_id AND c.principal_id=header_record.principal_id
+       AND c.credential_id=header_record.credential_id AND c.revision=1 AND c.state='ENABLED'
+       AND p.mercado_livre_connection_id=header_record.mercado_livre_connection_id AND p.omie_connection_id=header_record.omie_connection_id
+       AND NOT EXISTS(SELECT 1 FROM public.command_credential_revision n WHERE n.organization_id=c.organization_id AND n.credential_id=c.credential_id AND n.revision>c.revision);
+    SELECT g.organization_id,g.principal_id,g.grant_id,g.revision,g.permission,g.state INTO STRICT grant_record
+      FROM public.command_permission_grant g WHERE g.organization_id=header_record.organization_id AND g.principal_id=header_record.principal_id
+       AND g.grant_id=header_record.grant_id AND g.revision=1 AND g.permission=header_record.permission AND g.state='ENABLED'
+       AND NOT EXISTS(SELECT 1 FROM public.command_permission_grant n WHERE n.organization_id=g.organization_id AND n.principal_id=g.principal_id AND n.permission=g.permission AND (n.revision>g.revision OR n.grant_id<>g.grant_id));
+    authorization_fingerprint := pg_catalog.decode(public.transaction_identity_grant_fingerprint(header_record.organization_id,header_record.grant_id),'hex');
+    IF credential_record.credential_id IS DISTINCT FROM $10 OR credential_record.revision<>$11 OR pg_catalog.octet_length(credential_record.secret_verifier)<>32 OR credential_record.secret_verifier IS DISTINCT FROM $12 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT EXISTS(SELECT 1 FROM public.integration_organization o WHERE o.organization_id=header_record.organization_id AND o.status='ACTIVE') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF EXISTS(SELECT 1 FROM public.marketplace_transaction_identity_decision d WHERE d.organization_id=header_record.organization_id AND d.decision_id=header_record.decision_id) OR EXISTS(SELECT 1 FROM public.marketplace_transaction_identity_head h WHERE h.organization_id=header_record.organization_id AND h.omie_connection_id=header_record.omie_connection_id AND h.source_order_reference=header_record.source_order_reference AND h.marketplace_order_id=header_record.marketplace_order_id) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(authorization_fingerprint)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    database_now := pg_catalog.clock_timestamp();
+    IF new_admission THEN
+        INSERT INTO public.offline_admission(admission_id,deployment_id,incarnation_id,binding_id,attempt_id,generation,execution_id,instance_id,executor_oid,credential_id,credential_revision,principal_id,organization_id,grant_id,grant_revision,authorization_fingerprint,permission,authenticated_at,expires_at,durable_state,consumed_decision_id,consumed_at,lock_token) VALUES(pg_catalog.gen_random_uuid(),header_record.deployment_id,$3,$1,$5,$6,$7,$8,slot_oids[3],$10,$11,header_record.principal_id,header_record.organization_id,header_record.grant_id,grant_record.revision,authorization_fingerprint,header_record.permission,database_now,LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at,database_now+(policy_values[15]::pg_catalog.text||' microseconds')::pg_catalog.interval),'ISSUED',NULL,NULL,0);
+        SELECT a.admission_id,a.deployment_id,a.incarnation_id,a.binding_id,a.attempt_id,a.generation,a.execution_id,a.instance_id,a.executor_oid,a.credential_id,a.credential_revision,a.principal_id,a.organization_id,a.grant_id,a.grant_revision,a.authorization_fingerprint,a.permission,a.authenticated_at,a.expires_at,a.durable_state,a.consumed_decision_id,a.consumed_at INTO STRICT admission_record FROM public.offline_admission a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 AND a.execution_id=$7 AND a.instance_id=$8 AND a.credential_id=$10 AND a.credential_revision=$11 AND a.grant_id=header_record.grant_id AND a.grant_revision=grant_record.revision AND a.permission=header_record.permission;
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at INTO STRICT final_execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT final_attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6;
+    IF final_execution_record.state<>'OWNED' OR final_execution_record.executor_oid<>slot_oids[3] OR final_execution_record.possession_digest<>pg_catalog.sha256($9) OR final_execution_record.claimed_at IS DISTINCT FROM execution_record.claimed_at OR final_execution_record.expires_at IS DISTINCT FROM execution_record.expires_at OR final_attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR final_attempt_record.claimed_at IS DISTINCT FROM attempt_record.claimed_at OR final_attempt_record.expires_at IS DISTINCT FROM attempt_record.expires_at OR NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE') OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 AND p.current_attempt_id=$5 AND p.generation=$6) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO STRICT ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    database_now := pg_catalog.clock_timestamp();
+    IF ready_record.state<>'READY' OR ready_record.policy_version<>policy_record.policy_version OR ready_record.policy_digest<>policy_record.policy_digest OR ready_record.watchdog_healthy IS NOT TRUE OR NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at) OR database_now<ready_record.watchdog_checked_at OR database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23] OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    SELECT admission_record.admission_id AS admission_id,admission_record.credential_revision AS credential_revision,admission_record.grant_id AS grant_id,admission_record.grant_revision AS grant_revision,admission_record.permission AS permission,admission_record.authenticated_at AS authenticated_at,admission_record.expires_at AS expires_at,admission_record.durable_state AS durable_state INTO result;
+    IF pg_catalog.num_nonnulls(result.admission_id,result.credential_revision,result.grant_id,result.grant_revision,result.permission,result.authenticated_at,result.expires_at,result.durable_state)<>8 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    RETURN (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S16/OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S16/OUTPUT/V1','UTF8')||'\x0008'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.admission_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.admission_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.admission_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.admission_id))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(result.credential_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(result.credential_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(result.credential_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(result.credential_revision))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.grant_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(result.grant_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(result.grant_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(result.grant_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(result.grant_revision))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(result.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(result.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.permission,'UTF8'))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.authenticated_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.authenticated_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.authenticated_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.authenticated_at)*1000000)::pg_catalog.int8))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(result.durable_state,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.durable_state,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(result.durable_state,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.durable_state,'UTF8'))) END));
+EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_s16$;
+ALTER FUNCTION public.offline_authenticate_command(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.int4,pg_catalog.bytea) OWNER TO flooow_offline_execution_owner;
+REVOKE ALL ON FUNCTION public.offline_authenticate_command(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.int4,pg_catalog.bytea) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.transaction_identity_grant_fingerprint(pg_catalog.uuid,pg_catalog.uuid) TO flooow_offline_execution_owner;
+GRANT EXECUTE ON FUNCTION public.transaction_identity_hash(pg_catalog.text[]) TO flooow_offline_execution_owner;
+-- End public S13-S16.
+
+-- Public S17-S18: private decision facts and original unchanged snapshot.
+CREATE FUNCTION public.offline_prepare_attested_decision(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,
+    surface_version pg_catalog.text,
+    attempt_id pg_catalog.uuid,
+    generation pg_catalog.int8,
+    execution_id pg_catalog.uuid,
+    instance_id pg_catalog.uuid,
+    possession_secret pg_catalog.bytea,
+    admission_id pg_catalog.uuid,
+    decision_request pg_catalog.bytea) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_s17$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    attempt_record record;
+    execution_record record;
+    pointer_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    result record;
+    delivery_record record;
+    admission_record record;
+    credential_record record;
+    grant_record record;
+    fresh_receipt record;
+    final_execution_record record;
+    final_attempt_record record;
+    server_attempt_id pg_catalog.uuid;
+    server_receipt_id pg_catalog.uuid;
+    permission_to_attempt pg_catalog.bool;
+    authorization_fingerprint pg_catalog.bytea;
+    new_claim pg_catalog.bool;
+    new_admission pg_catalog.bool;
+    codec_cursor pg_catalog.int4;
+    codec_length pg_catalog.int8;
+    codec_number pg_catalog.numeric;
+    codec_byte pg_catalog.int4;
+    codec_raw pg_catalog.bytea;
+    verified_outcome pg_catalog.text;
+    verified_result_organization_id pg_catalog.uuid;
+    verified_result_manifest_id pg_catalog.uuid;
+    verified_result_manifest_digest pg_catalog.text;
+    verified_result_accepted_proof_fingerprint pg_catalog.text;
+    verified_result_verified_at pg_catalog.timestamptz;
+    verified_result_recorded_at pg_catalog.timestamptz;
+    lineage_receipt record;
+    request_decision_id pg_catalog.uuid;
+    request_source_order_reference pg_catalog.text;
+    request_marketplace_order_id pg_catalog.uuid;
+    request_kind pg_catalog.text;
+    request_reason pg_catalog.text;
+    request_provenance pg_catalog.text;
+    request_correlation_id pg_catalog.uuid;
+    request_supersedes_decision_id pg_catalog.uuid;
+    facts_p_organization_id pg_catalog.uuid;
+    facts_p_decision_id pg_catalog.uuid;
+    facts_p_decision_omie_connection_id pg_catalog.uuid;
+    facts_p_decision_source_order_reference pg_catalog.text;
+    facts_p_decision_marketplace_order_id pg_catalog.uuid;
+    facts_p_kind pg_catalog.text;
+    facts_p_decision_reason pg_catalog.text;
+    facts_p_revision pg_catalog.int4;
+    facts_p_supersedes_decision_id pg_catalog.uuid;
+    facts_p_ml_connection_id pg_catalog.uuid;
+    facts_p_ml_capability pg_catalog.text;
+    facts_p_ml_progress_version pg_catalog.int8;
+    facts_p_ml_record_ordinal pg_catalog.int4;
+    facts_p_external_order_id pg_catalog.text;
+    facts_p_currency pg_catalog.bpchar;
+    facts_p_omie_capability pg_catalog.text;
+    facts_p_omie_progress_version pg_catalog.int8;
+    facts_p_omie_record_ordinal pg_catalog.int4;
+    facts_p_omie_semantic_fingerprint pg_catalog.bpchar;
+    facts_p_provider_revision_local pg_catalog.timestamp;
+    facts_p_principal_id pg_catalog.uuid;
+    facts_p_credential_id pg_catalog.uuid;
+    facts_p_credential_revision pg_catalog.int4;
+    facts_p_grant_id pg_catalog.uuid;
+    facts_p_grant_revision pg_catalog.int4;
+    facts_p_decision_permission pg_catalog.text;
+    facts_p_authorization_semantic_version pg_catalog.text;
+    facts_p_authorization_fingerprint pg_catalog.bpchar;
+    facts_p_intent_fingerprint pg_catalog.bpchar;
+    facts_p_decision_semantic_fingerprint pg_catalog.bpchar;
+    facts_p_decision_provenance pg_catalog.text;
+    facts_p_decision_correlation_id pg_catalog.uuid;
+    facts_p_schema_version pg_catalog.int4;
+    facts_p_claim_manifest_id pg_catalog.uuid;
+    facts_p_claim_organization_id pg_catalog.uuid;
+    facts_p_mercado_livre_connection_id pg_catalog.uuid;
+    facts_p_omie_connection_id pg_catalog.uuid;
+    facts_p_source_order_reference pg_catalog.text;
+    facts_p_integration_reference pg_catalog.text;
+    facts_p_marketplace_order_id pg_catalog.uuid;
+    facts_p_permission pg_catalog.text;
+    facts_p_accountable_operator pg_catalog.uuid;
+    facts_p_approval_source pg_catalog.uuid;
+    facts_p_approval_window_start pg_catalog.timestamptz;
+    facts_p_approval_window_end pg_catalog.timestamptz;
+    facts_p_revocation_owner pg_catalog.uuid;
+    facts_p_credential_custodian pg_catalog.uuid;
+    facts_p_credential_delivery_method pg_catalog.text;
+    facts_p_credential_rotation_owner pg_catalog.uuid;
+    facts_p_immediate_revocation_policy pg_catalog.text;
+    facts_p_reason pg_catalog.text;
+    facts_p_provenance pg_catalog.text;
+    facts_p_correlation_id pg_catalog.uuid;
+    facts_p_evidence_binding_fingerprint pg_catalog.text;
+    accepted_artifact_version pg_catalog.int4;
+    accepted_schema_version pg_catalog.int4;
+    accepted_canonicalization_version pg_catalog.int4;
+    accepted_canonical_manifest_bytes pg_catalog.bytea;
+    accepted_manifest_digest pg_catalog.text;
+    accepted_signature_preimage_bytes pg_catalog.bytea;
+    accepted_algorithm_id pg_catalog.text;
+    accepted_signer_subject_id pg_catalog.uuid;
+    accepted_signer_key_id pg_catalog.uuid;
+    accepted_signer_key_revision pg_catalog.int4;
+    accepted_signer_key_fingerprint pg_catalog.text;
+    accepted_signer_key_lineage_fingerprint pg_catalog.text;
+    accepted_subject_public_key_info_der pg_catalog.bytea;
+    accepted_signature_bytes pg_catalog.bytea;
+    accepted_signer_authority_id pg_catalog.uuid;
+    accepted_signer_authority_revision pg_catalog.int4;
+    accepted_signer_authority_fingerprint pg_catalog.text;
+    accepted_verified_at pg_catalog.timestamptz;
+    accepted_accepted_proof_fingerprint pg_catalog.text;
+    accepted_signed_evidence_binding_fingerprint pg_catalog.text;
+
+    caller_request pg_catalog.bytea;
+    accepted_snapshot pg_catalog.bytea;
+    preparation_digest pg_catalog.bytea;
+    server_facts pg_catalog.bytea;
+    snapshot record;
+    target_record record;
+    evidence_record record;
+    selected_evidence record;
+    current_revision pg_catalog.timestamp;
+    semantic_count pg_catalog.int8;
+    resource_key pg_catalog.text;
+    manifest_fields pg_catalog.text[];
+    manifest_cursor pg_catalog.int4;
+    manifest_index pg_catalog.int4;
+    manifest_size pg_catalog.int8;
+    manifest_value pg_catalog.text;
+    window_start pg_catalog.timestamptz;
+    window_end pg_catalog.timestamptz;
+    output_bytes pg_catalog.bytea;
+BEGIN
+    IF $1 IS NULL OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $2 IS NULL OR $3 IS NULL OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4 IS NULL OR $5 IS NULL OR $5='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $6 IS NULL OR $6<=0 OR $7 IS NULL OR $7='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $8 IS NULL OR $8='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $9 IS NULL OR $10 IS NULL OR $10='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $11 IS NULL OR $4<>'0090-v1' OR pg_catalog.octet_length($2)<>32 OR pg_catalog.current_setting('transaction_isolation')<>'read committed' OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($9)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_schema_version,h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.run_id,h.plan_id,h.execution_plan_version,h.organization_id,h.manifest_id,h.manifest_digest,h.canonical_manifest_hash,h.canonical_manifest_encoding_version,h.mercado_livre_connection_id,h.omie_connection_id,h.marketplace_order_id,h.source_order_reference,h.integration_reference,h.permission,h.reason,h.provenance,h.principal_id,h.credential_id,h.grant_id,h.decision_id,h.correlation_id,h.principal_operation_id,h.credential_operation_id,h.grant_operation_id,h.issued_at,h.valid_from,h.expires_at,h.identity_slots,h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,h.admission_contract_version,h.delivery_contract_version,h.reconciliation_contract_version,h.plan_fingerprint,h.canonical_manifest_bytes
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF header_record.plan_fingerprint<>pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')||'\x0026'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END))) OR pg_catalog.sha256(header_record.canonical_manifest_bytes)<>header_record.manifest_digest OR header_record.canonical_manifest_hash<>header_record.manifest_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=3 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- C: lifecycle -> pointer -> attempt -> execution, before the private domain lock.
+    PERFORM l.binding_id FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE' FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    SELECT p.binding_id,p.current_attempt_id,p.generation INTO pointer_record
+      FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 FOR UPDATE;
+    IF NOT FOUND OR pointer_record.current_attempt_id IS DISTINCT FROM $5 OR pointer_record.generation <> $6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO attempt_record
+      FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 FOR UPDATE;
+    IF NOT FOUND OR attempt_record.state<>'EFFECTS_IN_PROGRESS' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,
+           e.state,e.claimed_at,e.expires_at,e.possession_digest INTO execution_record
+      FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6
+       AND e.execution_id=$7 AND e.instance_id=$8 FOR UPDATE;
+    IF NOT FOUND OR execution_record.state <> 'OWNED' OR execution_record.executor_oid <> slot_oids[3]
+       OR execution_record.possession_digest <> pg_catalog.sha256($9) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    PERFORM r.binding_id FROM public.offline_reconciliation r WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    PERFORM c.binding_id FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(policy_record.effective_from)
+       OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at)
+       OR database_now < policy_record.effective_from OR database_now < header_record.valid_from
+       OR database_now >= header_record.expires_at OR database_now < attempt_record.claimed_at
+       OR database_now >= attempt_record.expires_at OR database_now < execution_record.claimed_at
+       OR database_now >= execution_record.expires_at OR database_now < ready_record.watchdog_checked_at
+       OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000 > policy_values[23]
+       OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000 > policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT pg_catalog.isfinite(header_record.issued_at) OR NOT pg_catalog.isfinite(header_record.valid_from) OR NOT pg_catalog.isfinite(header_record.expires_at) OR header_record.valid_from<header_record.issued_at OR header_record.expires_at<=header_record.valid_from OR NOT pg_catalog.isfinite(attempt_record.claimed_at) OR NOT pg_catalog.isfinite(attempt_record.expires_at) OR attempt_record.expires_at<=attempt_record.claimed_at OR attempt_record.claimed_at<header_record.valid_from OR attempt_record.expires_at>header_record.expires_at OR NOT pg_catalog.isfinite(execution_record.claimed_at) OR NOT pg_catalog.isfinite(execution_record.expires_at) OR execution_record.claimed_at<attempt_record.claimed_at OR execution_record.expires_at<=execution_record.claimed_at OR execution_record.expires_at>attempt_record.expires_at OR EXTRACT(EPOCH FROM(attempt_record.expires_at-attempt_record.claimed_at))*1000000>policy_values[9] OR EXTRACT(EPOCH FROM(execution_record.expires_at-execution_record.claimed_at))*1000000>policy_values[11] OR EXTRACT(EPOCH FROM(header_record.expires_at-header_record.valid_from))*1000000>policy_values[13] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+    IF delivery_record.attempt_id IS DISTINCT FROM $5 OR delivery_record.generation<>$6 OR delivery_record.execution_id IS DISTINCT FROM $7 OR delivery_record.instance_id IS DISTINCT FROM $8 OR delivery_record.credential_id IS DISTINCT FROM header_record.credential_id OR delivery_record.initial_operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF delivery_record.state<>'DELIVERY_ACKNOWLEDGED' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.admission_id,a.deployment_id,a.incarnation_id,a.binding_id,a.attempt_id,a.generation,a.execution_id,a.instance_id,a.executor_oid,a.credential_id,a.credential_revision,a.principal_id,a.organization_id,a.grant_id,a.grant_revision,a.authorization_fingerprint,a.permission,a.authenticated_at,a.expires_at,a.durable_state,a.consumed_decision_id,a.consumed_at INTO STRICT admission_record FROM public.offline_admission a WHERE a.admission_id=$10 AND a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 AND a.execution_id=$7 AND a.instance_id=$8 FOR UPDATE;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='ATTESTATION_VERIFIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS NOT NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(lineage_receipt.frozen_receipt)>288 OR pg_catalog.substring(lineage_receipt.frozen_receipt,1,46)<>pg_catalog.decode('00000028464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5330362f4f55545055542f56310007','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 46;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 18 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_outcome := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_outcome IS NOT NFC NORMALIZED OR verified_outcome ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_organization_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF verified_result_organization_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_manifest_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF verified_result_manifest_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_manifest_digest := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_result_manifest_digest IS NOT NFC NORMALIZED OR verified_result_manifest_digest ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_accepted_proof_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_result_accepted_proof_fingerprint IS NOT NFC NORMALIZED OR verified_result_accepted_proof_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    verified_result_verified_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(verified_result_verified_at) OR EXTRACT(EPOCH FROM verified_result_verified_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    verified_result_recorded_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(verified_result_recorded_at) OR EXTRACT(EPOCH FROM verified_result_recorded_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(lineage_receipt.frozen_receipt) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF verified_outcome NOT IN ('ACCEPTED','ALREADY_ACCEPTED') OR verified_result_organization_id IS DISTINCT FROM header_record.organization_id OR verified_result_manifest_id IS DISTINCT FROM header_record.manifest_id OR verified_result_manifest_digest IS DISTINCT FROM pg_catalog.encode(header_record.manifest_digest,'hex') OR verified_result_verified_at IS DISTINCT FROM verified_result_recorded_at OR lineage_receipt.effect_time IS DISTINCT FROM verified_result_verified_at THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='PRINCIPAL_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.principal_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='INITIAL_CREDENTIAL_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF lineage_receipt.receipt_id IS DISTINCT FROM delivery_record.fresh_applied_receipt_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='GRANT_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.grant_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    caller_request := $11;
+    IF pg_catalog.octet_length(caller_request)>1475 OR pg_catalog.substring(caller_request,1,45)<>pg_catalog.decode('00000027464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5331372f494e5055542f56310008','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 45;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_decision_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_decision_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 257 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_source_order_reference := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_source_order_reference IS NOT NFC NORMALIZED OR request_source_order_reference ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_marketplace_order_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_marketplace_order_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 10 AND 10 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_kind := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_kind IS NOT NFC NORMALIZED OR request_kind ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 22 AND 22 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_reason := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_reason IS NOT NFC NORMALIZED OR request_reason ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 1025 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_provenance := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_provenance IS NOT NFC NORMALIZED OR request_provenance ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_correlation_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_correlation_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>8 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length<1 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF codec_length=1 AND pg_catalog.get_byte(caller_request,codec_cursor+6)=0 THEN
+        request_supersedes_decision_id := NULL;
+    ELSE
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_supersedes_decision_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_supersedes_decision_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(caller_request) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF request_decision_id IS DISTINCT FROM header_record.decision_id OR request_source_order_reference IS DISTINCT FROM header_record.source_order_reference OR request_marketplace_order_id IS DISTINCT FROM header_record.marketplace_order_id OR request_kind<>'CONFIRMED' OR request_reason<>'EXPLICIT_CONFIRMATION' OR request_provenance IS DISTINCT FROM header_record.provenance OR request_correlation_id IS DISTINCT FROM header_record.correlation_id OR request_supersedes_decision_id IS NOT NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF public.offline_lock_bound_principal($1,$2,$3,$4,$5,$6,$7,$8,$9) IS NOT TRUE THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT c.organization_id,c.principal_id,c.credential_id,c.revision,c.state INTO STRICT credential_record
+      FROM public.command_credential_revision c JOIN public.command_principal p
+        ON p.organization_id=c.organization_id AND p.principal_id=c.principal_id
+     WHERE c.organization_id=header_record.organization_id AND c.principal_id=header_record.principal_id
+       AND c.credential_id=header_record.credential_id AND c.revision=1 AND c.state='ENABLED'
+       AND p.mercado_livre_connection_id=header_record.mercado_livre_connection_id AND p.omie_connection_id=header_record.omie_connection_id
+       AND NOT EXISTS(SELECT 1 FROM public.command_credential_revision n WHERE n.organization_id=c.organization_id AND n.credential_id=c.credential_id AND n.revision>c.revision);
+    SELECT g.organization_id,g.principal_id,g.grant_id,g.revision,g.permission,g.state INTO STRICT grant_record
+      FROM public.command_permission_grant g WHERE g.organization_id=header_record.organization_id AND g.principal_id=header_record.principal_id
+       AND g.grant_id=header_record.grant_id AND g.revision=1 AND g.permission=header_record.permission AND g.state='ENABLED'
+       AND NOT EXISTS(SELECT 1 FROM public.command_permission_grant n WHERE n.organization_id=g.organization_id AND n.principal_id=g.principal_id AND n.permission=g.permission AND (n.revision>g.revision OR n.grant_id<>g.grant_id));
+    authorization_fingerprint := pg_catalog.decode(public.transaction_identity_grant_fingerprint(header_record.organization_id,header_record.grant_id),'hex');
+    IF NOT EXISTS(SELECT 1 FROM public.integration_organization o WHERE o.organization_id=header_record.organization_id AND o.status='ACTIVE') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(authorization_fingerprint)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('transaction-identity/id/1:'||header_record.organization_id::pg_catalog.text||':'||header_record.decision_id::pg_catalog.text,0));
+    IF EXISTS(SELECT 1 FROM public.marketplace_transaction_identity_decision d WHERE d.organization_id=header_record.organization_id AND d.decision_id=header_record.decision_id) THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;
+    IF public.offline_lock_bound_principal($1,$2,$3,$4,$5,$6,$7,$8,$9) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF public.transaction_identity_progress_lock(header_record.organization_id,header_record.omie_connection_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    FOR resource_key IN SELECT pg_catalog.unnest(ARRAY[
+      'transaction-identity/subject/1:'||header_record.organization_id::pg_catalog.text||':'||header_record.omie_connection_id::pg_catalog.text||':'||pg_catalog.octet_length(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))::pg_catalog.text||':'||header_record.source_order_reference,
+      'transaction-identity/target/1:'||header_record.organization_id::pg_catalog.text||':'||header_record.marketplace_order_id::pg_catalog.text]) ORDER BY 1 LOOP
+        PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(resource_key,0));
+    END LOOP;
+SELECT i.external_order_id,i.currency,p.source_input_progress_version,p.source_record_ordinal
+ INTO STRICT target_record
+            FROM public.marketplace_order_identity_registry i JOIN public.marketplace_order_occurrence_source_promotion p
+            ON p.organization_id=i.organization_id AND p.marketplace_order_id=i.marketplace_order_id
+            JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id
+                AND s.connection_id=p.source_connection_id AND s.capability=p.source_capability
+                AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal
+            WHERE i.organization_id=header_record.organization_id AND i.marketplace_order_id=header_record.marketplace_order_id AND i.marketplace_key='mercado-livre'
+                AND p.source_connection_id=header_record.mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'
+                AND p.outcome IN ('PROMOTED','DUPLICATE') AND s.external_order_ref=i.external_order_id AND s.currency=i.currency
+            ORDER BY p.source_input_progress_version,p.source_record_ordinal LIMIT 1;
+    FOR evidence_record IN SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference LOOP
+    IF evidence_record.page_complete IS NOT TRUE OR evidence_record.record_count IS NULL OR evidence_record.record_ordinal>=evidence_record.record_count OR evidence_record.semantic_fingerprint_version IS DISTINCT FROM 1 OR evidence_record.source_evidence_semantic_fingerprint IS NULL OR evidence_record.source_evidence_semantic_fingerprint !~ '^[0-9a-f]{64}$' OR (evidence_record.provider_created_local IS NULL AND evidence_record.provider_modified_local IS NULL) OR (evidence_record.provider_created_local IS NOT NULL AND evidence_record.provider_modified_local IS NOT NULL AND evidence_record.provider_modified_local<evidence_record.provider_created_local) OR NOT pg_catalog.isfinite(COALESCE(evidence_record.provider_modified_local,evidence_record.provider_created_local)) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    END LOOP;
+    SELECT pg_catalog.max(COALESCE(e.provider_modified_local,e.provider_created_local)) INTO current_revision FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e;
+    IF current_revision IS NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT pg_catalog.count(DISTINCT e.source_evidence_semantic_fingerprint) INTO semantic_count FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e WHERE COALESCE(e.provider_modified_local,e.provider_created_local)=current_revision;
+    IF semantic_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF EXISTS(SELECT 1 FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e WHERE COALESCE(e.provider_modified_local,e.provider_created_local)=current_revision AND ((e.source_integration_ref IS NOT NULL AND e.source_integration_ref<>target_record.external_order_id) OR (e.currency IS NOT NULL AND e.currency<>target_record.currency))) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.input_progress_version,e.record_ordinal,e.source_evidence_semantic_fingerprint INTO STRICT selected_evidence FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e WHERE COALESCE(e.provider_modified_local,e.provider_created_local)=current_revision ORDER BY e.input_progress_version,e.record_ordinal LIMIT 1;
+    IF EXISTS(SELECT 1 FROM public.marketplace_transaction_identity_head h WHERE h.organization_id=header_record.organization_id AND h.omie_connection_id=header_record.omie_connection_id AND h.source_order_reference=header_record.source_order_reference AND h.marketplace_order_id=header_record.marketplace_order_id) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT c.organization_id,c.principal_id,c.credential_id,c.revision,c.state INTO STRICT credential_record
+      FROM public.command_credential_revision c JOIN public.command_principal p
+        ON p.organization_id=c.organization_id AND p.principal_id=c.principal_id
+     WHERE c.organization_id=header_record.organization_id AND c.principal_id=header_record.principal_id
+       AND c.credential_id=header_record.credential_id AND c.revision=1 AND c.state='ENABLED'
+       AND p.mercado_livre_connection_id=header_record.mercado_livre_connection_id AND p.omie_connection_id=header_record.omie_connection_id
+       AND NOT EXISTS(SELECT 1 FROM public.command_credential_revision n WHERE n.organization_id=c.organization_id AND n.credential_id=c.credential_id AND n.revision>c.revision);
+    SELECT g.organization_id,g.principal_id,g.grant_id,g.revision,g.permission,g.state INTO STRICT grant_record
+      FROM public.command_permission_grant g WHERE g.organization_id=header_record.organization_id AND g.principal_id=header_record.principal_id
+       AND g.grant_id=header_record.grant_id AND g.revision=1 AND g.permission=header_record.permission AND g.state='ENABLED'
+       AND NOT EXISTS(SELECT 1 FROM public.command_permission_grant n WHERE n.organization_id=g.organization_id AND n.principal_id=g.principal_id AND n.permission=g.permission AND (n.revision>g.revision OR n.grant_id<>g.grant_id));
+    authorization_fingerprint := pg_catalog.decode(public.transaction_identity_grant_fingerprint(header_record.organization_id,header_record.grant_id),'hex');
+    IF NOT EXISTS(SELECT 1 FROM public.integration_organization o WHERE o.organization_id=header_record.organization_id AND o.status='ACTIVE') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(authorization_fingerprint)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    facts_p_organization_id := header_record.organization_id;
+    facts_p_decision_id := header_record.decision_id;
+    facts_p_decision_omie_connection_id := header_record.omie_connection_id;
+    facts_p_decision_source_order_reference := header_record.source_order_reference;
+    facts_p_decision_marketplace_order_id := header_record.marketplace_order_id;
+    facts_p_kind := 'CONFIRMED';
+    facts_p_decision_reason := 'EXPLICIT_CONFIRMATION';
+    facts_p_revision := 1;
+    facts_p_supersedes_decision_id := NULL;
+    facts_p_ml_connection_id := header_record.mercado_livre_connection_id;
+    facts_p_ml_capability := 'marketplace-economic.order-source';
+    facts_p_ml_progress_version := target_record.source_input_progress_version;
+    facts_p_ml_record_ordinal := target_record.source_record_ordinal;
+    facts_p_external_order_id := target_record.external_order_id;
+    facts_p_currency := target_record.currency;
+    facts_p_omie_capability := 'marketplace-economic.omie-transaction-evidence.reacquisition-v3';
+    facts_p_omie_progress_version := selected_evidence.input_progress_version;
+    facts_p_omie_record_ordinal := selected_evidence.record_ordinal;
+    facts_p_omie_semantic_fingerprint := selected_evidence.source_evidence_semantic_fingerprint;
+    facts_p_provider_revision_local := current_revision;
+    facts_p_principal_id := header_record.principal_id;
+    facts_p_credential_id := header_record.credential_id;
+    facts_p_credential_revision := credential_record.revision;
+    facts_p_grant_id := header_record.grant_id;
+    facts_p_grant_revision := grant_record.revision;
+    facts_p_decision_permission := header_record.permission;
+    facts_p_authorization_semantic_version := 'command-authorization/1';
+    facts_p_authorization_fingerprint := pg_catalog.encode(authorization_fingerprint,'hex');
+    facts_p_intent_fingerprint := NULL;
+    facts_p_decision_semantic_fingerprint := NULL;
+    facts_p_decision_provenance := header_record.provenance;
+    facts_p_decision_correlation_id := header_record.correlation_id;
+    -- Decode all 23 length-prefixed manifest texts; no alternate framing.
+        manifest_fields := ARRAY[]::pg_catalog.text[];
+        manifest_cursor := 0;
+        FOR manifest_index IN 1..23 LOOP
+            IF manifest_cursor+4>pg_catalog.octet_length(header_record.canonical_manifest_bytes) THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Truncated manifest';
+            END IF;
+            manifest_size := pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor)::pg_catalog.int8*16777216
+                +pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor+1)::pg_catalog.int8*65536
+                +pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor+2)::pg_catalog.int8*256
+                +pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor+3);
+            manifest_cursor := manifest_cursor+4;
+            IF manifest_size<1 OR manifest_size>4096 OR manifest_cursor+manifest_size>pg_catalog.octet_length(header_record.canonical_manifest_bytes) THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid manifest frame';
+            END IF;
+            manifest_value := pg_catalog.convert_from(pg_catalog.substring(header_record.canonical_manifest_bytes,manifest_cursor+1,manifest_size::pg_catalog.int4),'UTF8');
+            IF manifest_value ~ '[[:cntrl:]]' OR manifest_value ~ '^[[:space:]]|[[:space:]]$'
+               OR NOT pg_catalog.is_normalized(manifest_value,'NFC') THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Noncanonical manifest text';
+            END IF;
+            manifest_fields := pg_catalog.array_append(manifest_fields,manifest_value);
+            manifest_cursor := manifest_cursor+manifest_size::pg_catalog.int4;
+        END LOOP;
+        IF manifest_cursor<>pg_catalog.octet_length(header_record.canonical_manifest_bytes)
+           OR manifest_fields[1]<>'FLOOOW:S2A:APPROVAL-MANIFEST:1' OR manifest_fields[2]<>'1'
+           OR manifest_fields[3]<>header_record.manifest_id::pg_catalog.text
+           OR manifest_fields[4]<>header_record.organization_id::pg_catalog.text
+           OR manifest_fields[5]<>header_record.mercado_livre_connection_id::pg_catalog.text
+           OR manifest_fields[6]<>header_record.omie_connection_id::pg_catalog.text
+           OR manifest_fields[7]<>header_record.source_order_reference
+           OR manifest_fields[8]<>header_record.integration_reference
+           OR manifest_fields[9]<>header_record.marketplace_order_id::pg_catalog.text
+           OR manifest_fields[10]<>header_record.permission
+           OR manifest_fields[17]<>'PROTECTED_TTY_ONE_TIME'
+           OR manifest_fields[19]<>'SEPARATE_APPROVAL_REQUIRED'
+           OR manifest_fields[23] !~ '^[0-9a-f]{64}$'
+           OR manifest_fields[20]<>header_record.reason OR manifest_fields[21]<>header_record.provenance
+           OR manifest_fields[22]<>header_record.correlation_id::pg_catalog.text THEN
+            RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Manifest binding mismatch';
+        END IF;
+        FOR manifest_index IN SELECT pg_catalog.unnest(ARRAY[3,4,5,6,9,11,12,15,16,18,22]) LOOP
+            IF manifest_fields[manifest_index]<>(manifest_fields[manifest_index]::pg_catalog.uuid)::pg_catalog.text
+               OR manifest_fields[manifest_index]='00000000-0000-0000-0000-000000000000' THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Noncanonical manifest UUID';
+            END IF;
+        END LOOP;
+        window_start := manifest_fields[13]::pg_catalog.timestamptz;
+        window_end := manifest_fields[14]::pg_catalog.timestamptz;
+        IF NOT pg_catalog.isfinite(window_start) OR NOT pg_catalog.isfinite(window_end) OR window_start>=window_end
+           OR manifest_fields[13]<>pg_catalog.to_char(window_start AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+           OR manifest_fields[14]<>pg_catalog.to_char(window_end AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') THEN
+            RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Noncanonical manifest window';
+        END IF;
+    facts_p_schema_version := manifest_fields[2]::pg_catalog.int4;
+    facts_p_claim_manifest_id := manifest_fields[3]::pg_catalog.uuid;
+    facts_p_claim_organization_id := manifest_fields[4]::pg_catalog.uuid;
+    facts_p_mercado_livre_connection_id := manifest_fields[5]::pg_catalog.uuid;
+    facts_p_omie_connection_id := manifest_fields[6]::pg_catalog.uuid;
+    facts_p_source_order_reference := manifest_fields[7]::pg_catalog.text;
+    facts_p_integration_reference := manifest_fields[8]::pg_catalog.text;
+    facts_p_marketplace_order_id := manifest_fields[9]::pg_catalog.uuid;
+    facts_p_permission := manifest_fields[10]::pg_catalog.text;
+    facts_p_accountable_operator := manifest_fields[11]::pg_catalog.uuid;
+    facts_p_approval_source := manifest_fields[12]::pg_catalog.uuid;
+    facts_p_approval_window_start := manifest_fields[13]::pg_catalog.timestamptz;
+    facts_p_approval_window_end := manifest_fields[14]::pg_catalog.timestamptz;
+    facts_p_revocation_owner := manifest_fields[15]::pg_catalog.uuid;
+    facts_p_credential_custodian := manifest_fields[16]::pg_catalog.uuid;
+    facts_p_credential_delivery_method := manifest_fields[17]::pg_catalog.text;
+    facts_p_credential_rotation_owner := manifest_fields[18]::pg_catalog.uuid;
+    facts_p_immediate_revocation_policy := manifest_fields[19]::pg_catalog.text;
+    facts_p_reason := manifest_fields[20]::pg_catalog.text;
+    facts_p_provenance := manifest_fields[21]::pg_catalog.text;
+    facts_p_correlation_id := manifest_fields[22]::pg_catalog.uuid;
+    facts_p_evidence_binding_fingerprint := manifest_fields[23]::pg_catalog.text;
+    facts_p_intent_fingerprint := public.transaction_identity_intent(ROW(facts_p_organization_id,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_kind,facts_p_decision_reason,facts_p_revision,facts_p_supersedes_decision_id,facts_p_ml_connection_id,facts_p_ml_capability,facts_p_ml_progress_version,facts_p_ml_record_ordinal,facts_p_external_order_id,facts_p_currency,facts_p_omie_capability,facts_p_omie_progress_version,facts_p_omie_record_ordinal,facts_p_omie_semantic_fingerprint,facts_p_provider_revision_local,facts_p_principal_id,facts_p_credential_id,facts_p_credential_revision,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_permission,facts_p_authorization_semantic_version,facts_p_authorization_fingerprint,facts_p_intent_fingerprint,facts_p_decision_semantic_fingerprint,facts_p_decision_provenance,facts_p_decision_correlation_id,NULL::pg_catalog.timestamptz)::public.marketplace_transaction_identity_decision);
+    facts_p_decision_semantic_fingerprint := public.transaction_identity_fingerprint(ROW(facts_p_organization_id,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_kind,facts_p_decision_reason,facts_p_revision,facts_p_supersedes_decision_id,facts_p_ml_connection_id,facts_p_ml_capability,facts_p_ml_progress_version,facts_p_ml_record_ordinal,facts_p_external_order_id,facts_p_currency,facts_p_omie_capability,facts_p_omie_progress_version,facts_p_omie_record_ordinal,facts_p_omie_semantic_fingerprint,facts_p_provider_revision_local,facts_p_principal_id,facts_p_credential_id,facts_p_credential_revision,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_permission,facts_p_authorization_semantic_version,facts_p_authorization_fingerprint,facts_p_intent_fingerprint,facts_p_decision_semantic_fingerprint,facts_p_decision_provenance,facts_p_decision_correlation_id,NULL::pg_catalog.timestamptz)::public.marketplace_transaction_identity_decision);
+    server_facts := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-SERVER-FACTS/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-SERVER-FACTS/V1','UTF8')||'\x0036'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_organization_id))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_omie_connection_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8'))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_marketplace_order_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_kind,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_kind,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_kind,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_kind,'UTF8'))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_reason,'UTF8'))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_revision))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_supersedes_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_supersedes_decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_supersedes_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_supersedes_decision_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_ml_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_ml_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_ml_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_ml_connection_id))) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_ml_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_ml_capability,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_ml_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_ml_capability,'UTF8'))) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(facts_p_ml_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_ml_progress_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(facts_p_ml_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_ml_progress_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_ml_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_ml_record_ordinal))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_ml_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_ml_record_ordinal))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_external_order_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_external_order_id,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_external_order_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_external_order_id,'UTF8'))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8'))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_omie_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_capability,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_omie_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_capability,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(facts_p_omie_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_omie_progress_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(facts_p_omie_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_omie_progress_version))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_omie_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_omie_record_ordinal))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_omie_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_omie_record_ordinal))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_credential_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_credential_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_credential_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_credential_revision))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_grant_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_grant_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_grant_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_grant_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_grant_revision))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_permission,'UTF8'))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8'))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_provenance,'UTF8'))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_correlation_id))) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_schema_version))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_claim_manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_claim_manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_manifest_id))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_claim_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_claim_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_organization_id))) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_mercado_livre_connection_id))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_omie_connection_id))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_source_order_reference,'UTF8'))) END)||'\x0027'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_integration_reference,'UTF8'))) END)||'\x0028'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_marketplace_order_id))) END)||'\x0029'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_permission,'UTF8'))) END)||'\x002a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_accountable_operator)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_accountable_operator))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_accountable_operator)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_accountable_operator))) END)||'\x002b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_approval_source)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_approval_source))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_approval_source)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_approval_source))) END)||'\x002c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8))) END)||'\x002d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8))) END)||'\x002e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_revocation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_revocation_owner))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_revocation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_revocation_owner))) END)||'\x002f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_credential_custodian)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_custodian))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_credential_custodian)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_custodian))) END)||'\x0030'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8'))) END)||'\x0031'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_credential_rotation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_rotation_owner))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_credential_rotation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_rotation_owner))) END)||'\x0032'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8'))) END)||'\x0033'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_reason,'UTF8'))) END)||'\x0034'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_provenance,'UTF8'))) END)||'\x0035'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_correlation_id))) END)||'\x0036'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8'))) END));
+    SELECT v.outcome,v.result_decision_id,v.result_decision_semantic_fingerprint,v.result_decided_at,v.result_manifest_id,v.result_artifact_version,v.result_schema_version,v.result_canonicalization_version,v.result_canonical_manifest_bytes,v.result_manifest_digest,v.result_signature_preimage_bytes,v.result_algorithm_id,v.result_signer_subject_id,v.result_signer_key_id,v.result_signer_key_revision,v.result_signer_key_fingerprint,v.result_signer_key_lineage_fingerprint,v.result_subject_public_key_info_der,v.result_signature_bytes,v.result_signer_authority_id,v.result_signer_authority_revision,v.result_signer_authority_fingerprint,v.result_verified_at,v.result_accepted_proof_fingerprint,v.result_signed_evidence_binding_fingerprint,v.result_current_durable_evidence_binding,v.result_observed_effect_time,v.result_observed_organization_status,v.result_observed_effective_signer_key_revision,v.result_observed_effective_signer_key_state,v.result_observed_current_signer_authority_id,v.result_observed_current_signer_authority_revision,v.result_observed_current_signer_authority_fingerprint INTO STRICT snapshot FROM public.s2a_v042_begin_attested_decision_verification(facts_p_organization_id,facts_p_principal_id,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_schema_version,facts_p_claim_manifest_id,facts_p_claim_organization_id,facts_p_mercado_livre_connection_id,facts_p_omie_connection_id,facts_p_source_order_reference,facts_p_integration_reference,facts_p_marketplace_order_id,facts_p_permission,facts_p_accountable_operator,facts_p_approval_source,facts_p_approval_window_start,facts_p_approval_window_end,facts_p_revocation_owner,facts_p_credential_custodian,facts_p_credential_delivery_method,facts_p_credential_rotation_owner,facts_p_immediate_revocation_policy,facts_p_reason,facts_p_provenance,facts_p_correlation_id,facts_p_evidence_binding_fingerprint) v;
+    IF snapshot.outcome='ALREADY_APPLIED' THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;
+    IF snapshot.outcome IS DISTINCT FROM 'READY' OR snapshot.result_decision_id IS DISTINCT FROM header_record.decision_id OR snapshot.result_manifest_id IS DISTINCT FROM header_record.manifest_id OR snapshot.result_canonical_manifest_bytes IS DISTINCT FROM header_record.canonical_manifest_bytes OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM verified_result_accepted_proof_fingerprint OR snapshot.result_verified_at IS DISTINCT FROM verified_result_verified_at THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.num_nonnulls(snapshot.result_artifact_version,snapshot.result_schema_version,snapshot.result_canonicalization_version,snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,snapshot.result_signature_preimage_bytes,snapshot.result_algorithm_id,snapshot.result_signer_subject_id,snapshot.result_signer_key_id,snapshot.result_signer_key_revision,snapshot.result_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,snapshot.result_subject_public_key_info_der,snapshot.result_signature_bytes,snapshot.result_signer_authority_id,snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_signed_evidence_binding_fingerprint)<>20 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    accepted_artifact_version := snapshot.result_artifact_version;
+    accepted_schema_version := snapshot.result_schema_version;
+    accepted_canonicalization_version := snapshot.result_canonicalization_version;
+    accepted_canonical_manifest_bytes := snapshot.result_canonical_manifest_bytes;
+    accepted_manifest_digest := snapshot.result_manifest_digest;
+    accepted_signature_preimage_bytes := snapshot.result_signature_preimage_bytes;
+    accepted_algorithm_id := snapshot.result_algorithm_id;
+    accepted_signer_subject_id := snapshot.result_signer_subject_id;
+    accepted_signer_key_id := snapshot.result_signer_key_id;
+    accepted_signer_key_revision := snapshot.result_signer_key_revision;
+    accepted_signer_key_fingerprint := snapshot.result_signer_key_fingerprint;
+    accepted_signer_key_lineage_fingerprint := snapshot.result_signer_key_lineage_fingerprint;
+    accepted_subject_public_key_info_der := snapshot.result_subject_public_key_info_der;
+    accepted_signature_bytes := snapshot.result_signature_bytes;
+    accepted_signer_authority_id := snapshot.result_signer_authority_id;
+    accepted_signer_authority_revision := snapshot.result_signer_authority_revision;
+    accepted_signer_authority_fingerprint := snapshot.result_signer_authority_fingerprint;
+    accepted_verified_at := snapshot.result_verified_at;
+    accepted_accepted_proof_fingerprint := snapshot.result_accepted_proof_fingerprint;
+    accepted_signed_evidence_binding_fingerprint := snapshot.result_signed_evidence_binding_fingerprint;
+    accepted_snapshot := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-ACCEPTED/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-ACCEPTED/V1','UTF8')||'\x0014'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(accepted_artifact_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_artifact_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(accepted_artifact_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_artifact_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(accepted_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(accepted_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_schema_version))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(accepted_canonicalization_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_canonicalization_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(accepted_canonicalization_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_canonicalization_version))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_canonical_manifest_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_canonical_manifest_bytes)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_canonical_manifest_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_canonical_manifest_bytes)) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_manifest_digest,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_manifest_digest,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_manifest_digest,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_manifest_digest,'UTF8'))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_signature_preimage_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_signature_preimage_bytes)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_signature_preimage_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_signature_preimage_bytes)) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_algorithm_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_algorithm_id,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_algorithm_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_algorithm_id,'UTF8'))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(accepted_signer_subject_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(accepted_signer_subject_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(accepted_signer_subject_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(accepted_signer_subject_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(accepted_signer_key_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(accepted_signer_key_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(accepted_signer_key_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(accepted_signer_key_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(accepted_signer_key_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_signer_key_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(accepted_signer_key_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_signer_key_revision))) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_signer_key_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signer_key_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_signer_key_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signer_key_fingerprint,'UTF8'))) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_signer_key_lineage_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signer_key_lineage_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_signer_key_lineage_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signer_key_lineage_fingerprint,'UTF8'))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_subject_public_key_info_der) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_subject_public_key_info_der)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_subject_public_key_info_der) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_subject_public_key_info_der)) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_signature_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_signature_bytes)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_signature_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_signature_bytes)) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(accepted_signer_authority_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(accepted_signer_authority_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(accepted_signer_authority_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(accepted_signer_authority_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(accepted_signer_authority_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_signer_authority_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(accepted_signer_authority_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(accepted_signer_authority_revision))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_signer_authority_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signer_authority_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_signer_authority_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signer_authority_fingerprint,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM accepted_verified_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM accepted_verified_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM accepted_verified_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM accepted_verified_at)*1000000)::pg_catalog.int8))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_accepted_proof_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_accepted_proof_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_accepted_proof_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_accepted_proof_fingerprint,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(accepted_signed_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signed_evidence_binding_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(accepted_signed_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(accepted_signed_evidence_binding_fingerprint,'UTF8'))) END));
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at INTO STRICT final_execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT final_attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6;
+    IF final_execution_record.state<>'OWNED' OR final_execution_record.executor_oid<>slot_oids[3] OR final_execution_record.possession_digest<>pg_catalog.sha256($9) OR final_execution_record.claimed_at IS DISTINCT FROM execution_record.claimed_at OR final_execution_record.expires_at IS DISTINCT FROM execution_record.expires_at OR final_attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR final_attempt_record.claimed_at IS DISTINCT FROM attempt_record.claimed_at OR final_attempt_record.expires_at IS DISTINCT FROM attempt_record.expires_at OR NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE') OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 AND p.current_attempt_id=$5 AND p.generation=$6) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO STRICT ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    database_now := pg_catalog.clock_timestamp();
+    IF ready_record.state<>'READY' OR ready_record.policy_version<>policy_record.policy_version OR ready_record.policy_digest<>policy_record.policy_digest OR ready_record.watchdog_healthy IS NOT TRUE OR NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at) OR database_now<ready_record.watchdog_checked_at OR database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23] OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    preparation_digest := pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-PREPARATION/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-PREPARATION/V1','UTF8')||'\x000c'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($1))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ($2) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($2)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ($2) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($2)) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($3)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($3))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($3)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($3))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to($4,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to($4,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to($4,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to($4,'UTF8'))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($5)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($5))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($5)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($5))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send($6)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send($6))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send($6)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send($6))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($7)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($7))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($7)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($7))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($8))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($10)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($10))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($10)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($10))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (caller_request) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(caller_request)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (caller_request) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(caller_request)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (server_facts) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(server_facts)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (server_facts) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(server_facts)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_snapshot) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_snapshot)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_snapshot) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_snapshot)) END)));
+    RETURN (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S17/OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S17/OUTPUT/V1','UTF8')||'\x0003'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (caller_request) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(caller_request)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (caller_request) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(caller_request)) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (preparation_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(preparation_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (preparation_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(preparation_digest)) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_snapshot) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_snapshot)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_snapshot) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_snapshot)) END));
+EXCEPTION WHEN OTHERS THEN
+    IF SQLSTATE='P0017' AND SQLERRM='REPLAY_INSPECTION_REQUIRED' THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_s17$;
+ALTER FUNCTION public.offline_prepare_attested_decision(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.bytea) OWNER TO flooow_offline_execution_owner;
+REVOKE ALL ON FUNCTION public.offline_prepare_attested_decision(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.bytea) FROM PUBLIC;
+CREATE FUNCTION public.offline_apply_attested_decision(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    expected_incarnation_id pg_catalog.uuid,
+    surface_version pg_catalog.text,
+    attempt_id pg_catalog.uuid,
+    generation pg_catalog.int8,
+    execution_id pg_catalog.uuid,
+    instance_id pg_catalog.uuid,
+    possession_secret pg_catalog.bytea,
+    admission_id pg_catalog.uuid,
+    decision_request pg_catalog.bytea) RETURNS pg_catalog.bytea
+LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_s18$
+
+DECLARE
+    header_record record;
+    ready_record record;
+    policy_record record;
+    attempt_record record;
+    execution_record record;
+    pointer_record record;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    field_tag pg_catalog.int4;
+    byte_number pg_catalog.int4;
+    cursor_position pg_catalog.int4;
+    payload_length pg_catalog.int8;
+    domain_length pg_catalog.int8;
+    field_value pg_catalog.numeric;
+    policy_values pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    database_now pg_catalog.timestamptz;
+    result record;
+    delivery_record record;
+    admission_record record;
+    credential_record record;
+    grant_record record;
+    fresh_receipt record;
+    final_execution_record record;
+    final_attempt_record record;
+    server_attempt_id pg_catalog.uuid;
+    server_receipt_id pg_catalog.uuid;
+    permission_to_attempt pg_catalog.bool;
+    authorization_fingerprint pg_catalog.bytea;
+    new_claim pg_catalog.bool;
+    new_admission pg_catalog.bool;
+    codec_cursor pg_catalog.int4;
+    codec_length pg_catalog.int8;
+    codec_number pg_catalog.numeric;
+    codec_byte pg_catalog.int4;
+    codec_raw pg_catalog.bytea;
+    verified_outcome pg_catalog.text;
+    verified_result_organization_id pg_catalog.uuid;
+    verified_result_manifest_id pg_catalog.uuid;
+    verified_result_manifest_digest pg_catalog.text;
+    verified_result_accepted_proof_fingerprint pg_catalog.text;
+    verified_result_verified_at pg_catalog.timestamptz;
+    verified_result_recorded_at pg_catalog.timestamptz;
+    lineage_receipt record;
+    request_decision_id pg_catalog.uuid;
+    request_source_order_reference pg_catalog.text;
+    request_marketplace_order_id pg_catalog.uuid;
+    request_kind pg_catalog.text;
+    request_reason pg_catalog.text;
+    request_provenance pg_catalog.text;
+    request_correlation_id pg_catalog.uuid;
+    request_supersedes_decision_id pg_catalog.uuid;
+    facts_p_organization_id pg_catalog.uuid;
+    facts_p_decision_id pg_catalog.uuid;
+    facts_p_decision_omie_connection_id pg_catalog.uuid;
+    facts_p_decision_source_order_reference pg_catalog.text;
+    facts_p_decision_marketplace_order_id pg_catalog.uuid;
+    facts_p_kind pg_catalog.text;
+    facts_p_decision_reason pg_catalog.text;
+    facts_p_revision pg_catalog.int4;
+    facts_p_supersedes_decision_id pg_catalog.uuid;
+    facts_p_ml_connection_id pg_catalog.uuid;
+    facts_p_ml_capability pg_catalog.text;
+    facts_p_ml_progress_version pg_catalog.int8;
+    facts_p_ml_record_ordinal pg_catalog.int4;
+    facts_p_external_order_id pg_catalog.text;
+    facts_p_currency pg_catalog.bpchar;
+    facts_p_omie_capability pg_catalog.text;
+    facts_p_omie_progress_version pg_catalog.int8;
+    facts_p_omie_record_ordinal pg_catalog.int4;
+    facts_p_omie_semantic_fingerprint pg_catalog.bpchar;
+    facts_p_provider_revision_local pg_catalog.timestamp;
+    facts_p_principal_id pg_catalog.uuid;
+    facts_p_credential_id pg_catalog.uuid;
+    facts_p_credential_revision pg_catalog.int4;
+    facts_p_grant_id pg_catalog.uuid;
+    facts_p_grant_revision pg_catalog.int4;
+    facts_p_decision_permission pg_catalog.text;
+    facts_p_authorization_semantic_version pg_catalog.text;
+    facts_p_authorization_fingerprint pg_catalog.bpchar;
+    facts_p_intent_fingerprint pg_catalog.bpchar;
+    facts_p_decision_semantic_fingerprint pg_catalog.bpchar;
+    facts_p_decision_provenance pg_catalog.text;
+    facts_p_decision_correlation_id pg_catalog.uuid;
+    facts_p_schema_version pg_catalog.int4;
+    facts_p_claim_manifest_id pg_catalog.uuid;
+    facts_p_claim_organization_id pg_catalog.uuid;
+    facts_p_mercado_livre_connection_id pg_catalog.uuid;
+    facts_p_omie_connection_id pg_catalog.uuid;
+    facts_p_source_order_reference pg_catalog.text;
+    facts_p_integration_reference pg_catalog.text;
+    facts_p_marketplace_order_id pg_catalog.uuid;
+    facts_p_permission pg_catalog.text;
+    facts_p_accountable_operator pg_catalog.uuid;
+    facts_p_approval_source pg_catalog.uuid;
+    facts_p_approval_window_start pg_catalog.timestamptz;
+    facts_p_approval_window_end pg_catalog.timestamptz;
+    facts_p_revocation_owner pg_catalog.uuid;
+    facts_p_credential_custodian pg_catalog.uuid;
+    facts_p_credential_delivery_method pg_catalog.text;
+    facts_p_credential_rotation_owner pg_catalog.uuid;
+    facts_p_immediate_revocation_policy pg_catalog.text;
+    facts_p_reason pg_catalog.text;
+    facts_p_provenance pg_catalog.text;
+    facts_p_correlation_id pg_catalog.uuid;
+    facts_p_evidence_binding_fingerprint pg_catalog.text;
+    accepted_artifact_version pg_catalog.int4;
+    accepted_schema_version pg_catalog.int4;
+    accepted_canonicalization_version pg_catalog.int4;
+    accepted_canonical_manifest_bytes pg_catalog.bytea;
+    accepted_manifest_digest pg_catalog.text;
+    accepted_signature_preimage_bytes pg_catalog.bytea;
+    accepted_algorithm_id pg_catalog.text;
+    accepted_signer_subject_id pg_catalog.uuid;
+    accepted_signer_key_id pg_catalog.uuid;
+    accepted_signer_key_revision pg_catalog.int4;
+    accepted_signer_key_fingerprint pg_catalog.text;
+    accepted_signer_key_lineage_fingerprint pg_catalog.text;
+    accepted_subject_public_key_info_der pg_catalog.bytea;
+    accepted_signature_bytes pg_catalog.bytea;
+    accepted_signer_authority_id pg_catalog.uuid;
+    accepted_signer_authority_revision pg_catalog.int4;
+    accepted_signer_authority_fingerprint pg_catalog.text;
+    accepted_verified_at pg_catalog.timestamptz;
+    accepted_accepted_proof_fingerprint pg_catalog.text;
+    accepted_signed_evidence_binding_fingerprint pg_catalog.text;
+
+    caller_request pg_catalog.bytea;
+    accepted_snapshot pg_catalog.bytea;
+    preparation_digest pg_catalog.bytea;
+    server_facts pg_catalog.bytea;
+    snapshot record;
+    target_record record;
+    evidence_record record;
+    selected_evidence record;
+    current_revision pg_catalog.timestamp;
+    semantic_count pg_catalog.int8;
+    resource_key pg_catalog.text;
+    manifest_fields pg_catalog.text[];
+    manifest_cursor pg_catalog.int4;
+    manifest_index pg_catalog.int4;
+    manifest_size pg_catalog.int8;
+    manifest_value pg_catalog.text;
+    window_start pg_catalog.timestamptz;
+    window_end pg_catalog.timestamptz;
+    output_bytes pg_catalog.bytea;
+BEGIN
+    IF $1 IS NULL OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $2 IS NULL OR $3 IS NULL OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $4 IS NULL OR $5 IS NULL OR $5='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $6 IS NULL OR $6<=0 OR $7 IS NULL OR $7='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $8 IS NULL OR $8='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $9 IS NULL OR $10 IS NULL OR $10='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid OR $11 IS NULL OR $4<>'0090-v1' OR pg_catalog.octet_length($2)<>32 OR pg_catalog.current_setting('transaction_isolation')<>'read committed' OR pg_catalog.current_setting('transaction_read_only')<>'off' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($9)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_schema_version,h.binding_id,h.deployment_id,h.deployment_incarnation_id,h.run_id,h.plan_id,h.execution_plan_version,h.organization_id,h.manifest_id,h.manifest_digest,h.canonical_manifest_hash,h.canonical_manifest_encoding_version,h.mercado_livre_connection_id,h.omie_connection_id,h.marketplace_order_id,h.source_order_reference,h.integration_reference,h.permission,h.reason,h.provenance,h.principal_id,h.credential_id,h.grant_id,h.decision_id,h.correlation_id,h.principal_operation_id,h.credential_operation_id,h.grant_operation_id,h.issued_at,h.valid_from,h.expires_at,h.identity_slots,h.offline_surface_version,h.deadline_policy_version,h.deadline_policy_digest,h.admission_contract_version,h.delivery_contract_version,h.reconciliation_contract_version,h.plan_fingerprint,h.canonical_manifest_bytes
+      INTO header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF header_record.plan_fingerprint<>pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/BINDING/V1','UTF8')||'\x0026'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.binding_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.binding_schema_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.binding_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.binding_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.deployment_incarnation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.deployment_incarnation_id))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.run_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.run_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.plan_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.plan_id))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.execution_plan_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.execution_plan_version))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.organization_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.manifest_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.manifest_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.manifest_digest)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.canonical_manifest_hash) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.canonical_manifest_hash)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(header_record.canonical_manifest_encoding_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(header_record.canonical_manifest_encoding_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.mercado_livre_connection_id))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.omie_connection_id))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.marketplace_order_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.integration_reference,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.permission,'UTF8'))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reason,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.provenance,'UTF8'))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_id))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.decision_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.correlation_id))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.principal_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.principal_operation_id))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.credential_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.credential_operation_id))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(header_record.grant_operation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(header_record.grant_operation_id))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.issued_at)*1000000)::pg_catalog.int8))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.valid_from)*1000000)::pg_catalog.int8))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM header_record.expires_at)*1000000)::pg_catalog.int8))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.identity_slots) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.identity_slots)) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.offline_surface_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.offline_surface_version,'UTF8'))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.deadline_policy_version,'UTF8'))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (header_record.deadline_policy_digest) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(header_record.deadline_policy_digest)) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.admission_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.admission_contract_version,'UTF8'))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.delivery_contract_version,'UTF8'))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(header_record.reconciliation_contract_version,'UTF8'))) END))) OR pg_catalog.sha256(header_record.canonical_manifest_bytes)<>header_record.manifest_digest OR header_record.canonical_manifest_hash<>header_record.manifest_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=3 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT p.policy_version,p.policy_digest,p.canonical_policy,p.effective_from INTO policy_record
+      FROM public.offline_deadline_policy p
+     WHERE p.policy_version=header_record.deadline_policy_version AND p.policy_digest=header_record.deadline_policy_digest;
+    IF NOT FOUND OR pg_catalog.sha256(policy_record.canonical_policy) <> policy_record.policy_digest THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- Full29-field parser, with checked signed-int8 conversion; no TTL/GUC/default source.
+    domain_length := 0;
+    FOR byte_number IN 0..3 LOOP
+        domain_length := domain_length*256+pg_catalog.get_byte(policy_record.canonical_policy,byte_number);
+    END LOOP;
+    IF domain_length <> pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8'))
+       OR pg_catalog.substring(policy_record.canonical_policy,5,domain_length::pg_catalog.int4)
+           <> pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DEADLINE-POLICY/V1','UTF8') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := domain_length::pg_catalog.int4+4;
+    IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+       OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> 29 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    cursor_position := cursor_position+2;
+    FOR field_tag IN 1..29 LOOP
+        IF pg_catalog.get_byte(policy_record.canonical_policy,cursor_position) <> 0
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+1) <> field_tag THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        payload_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            payload_length := payload_length*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+2+byte_number);
+        END LOOP;
+        IF payload_length <= 1 OR payload_length > pg_catalog.octet_length(policy_record.canonical_policy)-cursor_position-6
+           OR pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+6) <> 1 THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF field_tag=1 THEN
+            IF pg_catalog.substring(policy_record.canonical_policy,cursor_position+8,(payload_length-1)::pg_catalog.int4)
+               <> pg_catalog.convert_to(policy_record.policy_version,'UTF8')
+               OR policy_record.policy_version='' OR policy_record.policy_version IS NOT NFC NORMALIZED THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+        ELSE
+            IF payload_length <> 9 THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+            field_value := 0;
+            FOR byte_number IN 0..7 LOOP
+                field_value := field_value*256+pg_catalog.get_byte(policy_record.canonical_policy,cursor_position+7+byte_number);
+            END LOOP;
+            IF field_value <= 0 OR field_value > 9223372036854775807 THEN
+                RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+            END IF;
+            policy_values := pg_catalog.array_append(policy_values,field_value::pg_catalog.int8);
+        END IF;
+        cursor_position := cursor_position+6+payload_length::pg_catalog.int4;
+    END LOOP;
+    IF cursor_position <> pg_catalog.octet_length(policy_record.canonical_policy) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    FOR field_tag IN 1..14 LOOP
+        IF policy_values[field_tag*2-1] > policy_values[field_tag*2] THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+    END LOOP;
+    IF policy_values[3] > policy_values[2] OR policy_values[5] > policy_values[2]
+       OR policy_values[7] > policy_values[2] OR policy_values[9] > policy_values[13]
+       OR policy_values[11] > policy_values[13]
+       OR policy_values[15] > LEAST(policy_values[9],policy_values[11],policy_values[13])
+       OR policy_values[17] > LEAST(policy_values[11],policy_values[13])
+       OR policy_values[25] >= policy_values[17] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    IF NOT FOUND OR ready_record.state <> 'READY' OR ready_record.policy_version <> policy_record.policy_version
+       OR ready_record.policy_digest <> policy_record.policy_digest OR NOT ready_record.watchdog_healthy THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    -- C: lifecycle -> pointer -> attempt -> execution, before the private domain lock.
+    PERFORM l.binding_id FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE' FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    SELECT p.binding_id,p.current_attempt_id,p.generation INTO pointer_record
+      FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 FOR UPDATE;
+    IF NOT FOUND OR pointer_record.current_attempt_id IS DISTINCT FROM $5 OR pointer_record.generation <> $6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO attempt_record
+      FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 FOR UPDATE;
+    IF NOT FOUND OR attempt_record.state<>'EFFECTS_IN_PROGRESS' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,
+           e.state,e.claimed_at,e.expires_at,e.possession_digest INTO execution_record
+      FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6
+       AND e.execution_id=$7 AND e.instance_id=$8 FOR UPDATE;
+    IF NOT FOUND OR execution_record.state <> 'OWNED' OR execution_record.executor_oid <> slot_oids[3]
+       OR execution_record.possession_digest <> pg_catalog.sha256($9) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    PERFORM r.binding_id FROM public.offline_reconciliation r WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    PERFORM c.binding_id FROM public.offline_ceremony_result c WHERE c.binding_id=$1 AND c.result='NONE';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(policy_record.effective_from)
+       OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at)
+       OR database_now < policy_record.effective_from OR database_now < header_record.valid_from
+       OR database_now >= header_record.expires_at OR database_now < attempt_record.claimed_at
+       OR database_now >= attempt_record.expires_at OR database_now < execution_record.claimed_at
+       OR database_now >= execution_record.expires_at OR database_now < ready_record.watchdog_checked_at
+       OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000 > policy_values[23]
+       OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000 > policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF NOT pg_catalog.isfinite(header_record.issued_at) OR NOT pg_catalog.isfinite(header_record.valid_from) OR NOT pg_catalog.isfinite(header_record.expires_at) OR header_record.valid_from<header_record.issued_at OR header_record.expires_at<=header_record.valid_from OR NOT pg_catalog.isfinite(attempt_record.claimed_at) OR NOT pg_catalog.isfinite(attempt_record.expires_at) OR attempt_record.expires_at<=attempt_record.claimed_at OR attempt_record.claimed_at<header_record.valid_from OR attempt_record.expires_at>header_record.expires_at OR NOT pg_catalog.isfinite(execution_record.claimed_at) OR NOT pg_catalog.isfinite(execution_record.expires_at) OR execution_record.claimed_at<attempt_record.claimed_at OR execution_record.expires_at<=execution_record.claimed_at OR execution_record.expires_at>attempt_record.expires_at OR EXTRACT(EPOCH FROM(attempt_record.expires_at-attempt_record.claimed_at))*1000000>policy_values[9] OR EXTRACT(EPOCH FROM(execution_record.expires_at-execution_record.claimed_at))*1000000>policy_values[11] OR EXTRACT(EPOCH FROM(header_record.expires_at-header_record.valid_from))*1000000>policy_values[13] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT d.binding_id,d.attempt_id,d.generation,d.execution_id,d.instance_id,d.credential_id,d.initial_operation_id,d.fresh_applied_receipt_id,d.state,d.delivery_receipt_id,d.attempted_at,d.operation_deadline,d.observed_at,d.observation_code,d.recorded_at INTO STRICT delivery_record FROM public.offline_delivery d WHERE d.binding_id=$1 FOR UPDATE;
+    IF delivery_record.attempt_id IS DISTINCT FROM $5 OR delivery_record.generation<>$6 OR delivery_record.execution_id IS DISTINCT FROM $7 OR delivery_record.instance_id IS DISTINCT FROM $8 OR delivery_record.credential_id IS DISTINCT FROM header_record.credential_id OR delivery_record.initial_operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF delivery_record.state<>'DELIVERY_ACKNOWLEDGED' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT a.admission_id,a.deployment_id,a.incarnation_id,a.binding_id,a.attempt_id,a.generation,a.execution_id,a.instance_id,a.executor_oid,a.credential_id,a.credential_revision,a.principal_id,a.organization_id,a.grant_id,a.grant_revision,a.authorization_fingerprint,a.permission,a.authenticated_at,a.expires_at,a.durable_state,a.consumed_decision_id,a.consumed_at INTO STRICT admission_record FROM public.offline_admission a WHERE a.admission_id=$10 AND a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 AND a.execution_id=$7 AND a.instance_id=$8 FOR UPDATE;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='ATTESTATION_VERIFIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS NOT NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(lineage_receipt.frozen_receipt)>288 OR pg_catalog.substring(lineage_receipt.frozen_receipt,1,46)<>pg_catalog.decode('00000028464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5330362f4f55545055542f56310007','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 46;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 18 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_outcome := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_outcome IS NOT NFC NORMALIZED OR verified_outcome ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_organization_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF verified_result_organization_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_manifest_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF verified_result_manifest_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_manifest_digest := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_result_manifest_digest IS NOT NFC NORMALIZED OR verified_result_manifest_digest ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    verified_result_accepted_proof_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF verified_result_accepted_proof_fingerprint IS NOT NFC NORMALIZED OR verified_result_accepted_proof_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    verified_result_verified_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(verified_result_verified_at) OR EXTRACT(EPOCH FROM verified_result_verified_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor)<>0 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(lineage_receipt.frozen_receipt)-codec_cursor-6 OR pg_catalog.get_byte(lineage_receipt.frozen_receipt,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(lineage_receipt.frozen_receipt,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    verified_result_recorded_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(verified_result_recorded_at) OR EXTRACT(EPOCH FROM verified_result_recorded_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(lineage_receipt.frozen_receipt) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF verified_outcome NOT IN ('ACCEPTED','ALREADY_ACCEPTED') OR verified_result_organization_id IS DISTINCT FROM header_record.organization_id OR verified_result_manifest_id IS DISTINCT FROM header_record.manifest_id OR verified_result_manifest_digest IS DISTINCT FROM pg_catalog.encode(header_record.manifest_digest,'hex') OR verified_result_verified_at IS DISTINCT FROM verified_result_recorded_at OR lineage_receipt.effect_time IS DISTINCT FROM verified_result_verified_at THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='PRINCIPAL_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.principal_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='INITIAL_CREDENTIAL_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.credential_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF lineage_receipt.receipt_id IS DISTINCT FROM delivery_record.fresh_applied_receipt_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time INTO STRICT lineage_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='GRANT_APPLIED';
+    IF lineage_receipt.execution_id IS DISTINCT FROM $7 OR lineage_receipt.instance_id IS DISTINCT FROM $8 OR lineage_receipt.operation_id IS DISTINCT FROM header_record.grant_operation_id THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length($11)>6660 OR pg_catalog.substring($11,1,46)<>pg_catalog.decode('00000028464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5331372f4f55545055542f56310003','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 46;
+    IF pg_catalog.get_byte($11,codec_cursor)<>0 OR pg_catalog.get_byte($11,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte($11,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 1476 OR codec_length>pg_catalog.octet_length($11)-codec_cursor-6 OR pg_catalog.get_byte($11,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring($11,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    caller_request := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte($11,codec_cursor)<>0 OR pg_catalog.get_byte($11,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte($11,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 33 AND 33 OR codec_length>pg_catalog.octet_length($11)-codec_cursor-6 OR pg_catalog.get_byte($11,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring($11,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    preparation_digest := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte($11,codec_cursor)<>0 OR pg_catalog.get_byte($11,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte($11,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 5087 OR codec_length>pg_catalog.octet_length($11)-codec_cursor-6 OR pg_catalog.get_byte($11,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring($11,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_snapshot := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length($11) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(accepted_snapshot)>5086 OR pg_catalog.substring(accepted_snapshot,1,53)<>pg_catalog.decode('0000002f464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f4445434953494f4e2d41434345505445442f56310014','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 53;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=2147483648 THEN codec_number := codec_number-4294967296; END IF;
+    accepted_artifact_version := codec_number::pg_catalog.int4;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=2147483648 THEN codec_number := codec_number-4294967296; END IF;
+    accepted_schema_version := codec_number::pg_catalog.int4;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=2147483648 THEN codec_number := codec_number-4294967296; END IF;
+    accepted_canonicalization_version := codec_number::pg_catalog.int4;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 4097 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_canonical_manifest_bytes := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_manifest_digest := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_manifest_digest IS NOT NFC NORMALIZED OR accepted_manifest_digest ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 223 AND 223 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signature_preimage_bytes := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 8 AND 8 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_algorithm_id := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_algorithm_id IS NOT NFC NORMALIZED OR accepted_algorithm_id ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>8 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signer_subject_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF accepted_signer_subject_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>9 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signer_key_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF accepted_signer_key_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>10 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=2147483648 THEN codec_number := codec_number-4294967296; END IF;
+    accepted_signer_key_revision := codec_number::pg_catalog.int4;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>11 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signer_key_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_signer_key_fingerprint IS NOT NFC NORMALIZED OR accepted_signer_key_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>12 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signer_key_lineage_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_signer_key_lineage_fingerprint IS NOT NFC NORMALIZED OR accepted_signer_key_lineage_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>13 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 45 AND 45 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_subject_public_key_info_der := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>14 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signature_bytes := codec_raw;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>15 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signer_authority_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF accepted_signer_authority_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>16 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=2147483648 THEN codec_number := codec_number-4294967296; END IF;
+    accepted_signer_authority_revision := codec_number::pg_catalog.int4;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>17 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signer_authority_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_signer_authority_fingerprint IS NOT NFC NORMALIZED OR accepted_signer_authority_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>18 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 9 AND 9 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    codec_number := 0;
+    FOR codec_byte IN 0..7 LOOP
+        codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte);
+    END LOOP;
+    IF codec_number>=9223372036854775808 THEN codec_number := codec_number-18446744073709551616; END IF;
+    accepted_verified_at := '1970-01-01 00:00:00+00'::pg_catalog.timestamptz+(pg_catalog.trunc(codec_number/1000000)::pg_catalog.text||' seconds')::pg_catalog.interval+((codec_number%1000000)::pg_catalog.text||' microseconds')::pg_catalog.interval;
+    IF NOT pg_catalog.isfinite(accepted_verified_at) OR EXTRACT(EPOCH FROM accepted_verified_at)*1000000<>codec_number THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>19 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_accepted_proof_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_accepted_proof_fingerprint IS NOT NFC NORMALIZED OR accepted_accepted_proof_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>20 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    accepted_signed_evidence_binding_fingerprint := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF accepted_signed_evidence_binding_fingerprint IS NOT NFC NORMALIZED OR accepted_signed_evidence_binding_fingerprint ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(accepted_snapshot) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(caller_request)>1475 OR pg_catalog.substring(caller_request,1,45)<>pg_catalog.decode('00000027464c4f4f4f572f4f46464c494e452d4649454c442d50524f4f462f5331372f494e5055542f56310008','hex') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := 45;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_decision_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_decision_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>2 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 257 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_source_order_reference := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_source_order_reference IS NOT NFC NORMALIZED OR request_source_order_reference ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>3 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_marketplace_order_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_marketplace_order_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 10 AND 10 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_kind := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_kind IS NOT NFC NORMALIZED OR request_kind ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>5 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 22 AND 22 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_reason := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_reason IS NOT NFC NORMALIZED OR request_reason ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 2 AND 1025 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_provenance := pg_catalog.convert_from(codec_raw,'UTF8');
+    IF request_provenance IS NOT NFC NORMALIZED OR request_provenance ~ '[[:cntrl:]]|^[[:space:]]|[[:space:]]$' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>7 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_correlation_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_correlation_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF pg_catalog.get_byte(caller_request,codec_cursor)<>0 OR pg_catalog.get_byte(caller_request,codec_cursor+1)<>8 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_length := 0;
+    FOR codec_byte IN 0..3 LOOP
+        codec_length := codec_length*256+pg_catalog.get_byte(caller_request,codec_cursor+2+codec_byte);
+    END LOOP;
+    IF codec_length<1 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF codec_length=1 AND pg_catalog.get_byte(caller_request,codec_cursor+6)=0 THEN
+        request_supersedes_decision_id := NULL;
+    ELSE
+    IF codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(caller_request)-codec_cursor-6 OR pg_catalog.get_byte(caller_request,codec_cursor+6)<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    codec_raw := pg_catalog.substring(caller_request,codec_cursor+8,(codec_length-1)::pg_catalog.int4);
+    request_supersedes_decision_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid;
+    IF request_supersedes_decision_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    END IF;
+    codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4;
+    IF codec_cursor<>pg_catalog.octet_length(caller_request) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF request_decision_id IS DISTINCT FROM header_record.decision_id OR request_source_order_reference IS DISTINCT FROM header_record.source_order_reference OR request_marketplace_order_id IS DISTINCT FROM header_record.marketplace_order_id OR request_kind<>'CONFIRMED' OR request_reason<>'EXPLICIT_CONFIRMATION' OR request_provenance IS DISTINCT FROM header_record.provenance OR request_correlation_id IS DISTINCT FROM header_record.correlation_id OR request_supersedes_decision_id IS NOT NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF public.offline_lock_bound_principal($1,$2,$3,$4,$5,$6,$7,$8,$9) IS NOT TRUE THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT c.organization_id,c.principal_id,c.credential_id,c.revision,c.state INTO STRICT credential_record
+      FROM public.command_credential_revision c JOIN public.command_principal p
+        ON p.organization_id=c.organization_id AND p.principal_id=c.principal_id
+     WHERE c.organization_id=header_record.organization_id AND c.principal_id=header_record.principal_id
+       AND c.credential_id=header_record.credential_id AND c.revision=1 AND c.state='ENABLED'
+       AND p.mercado_livre_connection_id=header_record.mercado_livre_connection_id AND p.omie_connection_id=header_record.omie_connection_id
+       AND NOT EXISTS(SELECT 1 FROM public.command_credential_revision n WHERE n.organization_id=c.organization_id AND n.credential_id=c.credential_id AND n.revision>c.revision);
+    SELECT g.organization_id,g.principal_id,g.grant_id,g.revision,g.permission,g.state INTO STRICT grant_record
+      FROM public.command_permission_grant g WHERE g.organization_id=header_record.organization_id AND g.principal_id=header_record.principal_id
+       AND g.grant_id=header_record.grant_id AND g.revision=1 AND g.permission=header_record.permission AND g.state='ENABLED'
+       AND NOT EXISTS(SELECT 1 FROM public.command_permission_grant n WHERE n.organization_id=g.organization_id AND n.principal_id=g.principal_id AND n.permission=g.permission AND (n.revision>g.revision OR n.grant_id<>g.grant_id));
+    authorization_fingerprint := pg_catalog.decode(public.transaction_identity_grant_fingerprint(header_record.organization_id,header_record.grant_id),'hex');
+    IF NOT EXISTS(SELECT 1 FROM public.integration_organization o WHERE o.organization_id=header_record.organization_id AND o.status='ACTIVE') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(authorization_fingerprint)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('transaction-identity/id/1:'||header_record.organization_id::pg_catalog.text||':'||header_record.decision_id::pg_catalog.text,0));
+    IF EXISTS(SELECT 1 FROM public.marketplace_transaction_identity_decision d WHERE d.organization_id=header_record.organization_id AND d.decision_id=header_record.decision_id) THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;
+    IF public.offline_lock_bound_principal($1,$2,$3,$4,$5,$6,$7,$8,$9) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    IF public.transaction_identity_progress_lock(header_record.organization_id,header_record.omie_connection_id) IS NOT TRUE THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    FOR resource_key IN SELECT pg_catalog.unnest(ARRAY[
+      'transaction-identity/subject/1:'||header_record.organization_id::pg_catalog.text||':'||header_record.omie_connection_id::pg_catalog.text||':'||pg_catalog.octet_length(pg_catalog.convert_to(header_record.source_order_reference,'UTF8'))::pg_catalog.text||':'||header_record.source_order_reference,
+      'transaction-identity/target/1:'||header_record.organization_id::pg_catalog.text||':'||header_record.marketplace_order_id::pg_catalog.text]) ORDER BY 1 LOOP
+        PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(resource_key,0));
+    END LOOP;
+SELECT i.external_order_id,i.currency,p.source_input_progress_version,p.source_record_ordinal
+ INTO STRICT target_record
+            FROM public.marketplace_order_identity_registry i JOIN public.marketplace_order_occurrence_source_promotion p
+            ON p.organization_id=i.organization_id AND p.marketplace_order_id=i.marketplace_order_id
+            JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id
+                AND s.connection_id=p.source_connection_id AND s.capability=p.source_capability
+                AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal
+            WHERE i.organization_id=header_record.organization_id AND i.marketplace_order_id=header_record.marketplace_order_id AND i.marketplace_key='mercado-livre'
+                AND p.source_connection_id=header_record.mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'
+                AND p.outcome IN ('PROMOTED','DUPLICATE') AND s.external_order_ref=i.external_order_id AND s.currency=i.currency
+            ORDER BY p.source_input_progress_version,p.source_record_ordinal LIMIT 1;
+    FOR evidence_record IN SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference LOOP
+    IF evidence_record.page_complete IS NOT TRUE OR evidence_record.record_count IS NULL OR evidence_record.record_ordinal>=evidence_record.record_count OR evidence_record.semantic_fingerprint_version IS DISTINCT FROM 1 OR evidence_record.source_evidence_semantic_fingerprint IS NULL OR evidence_record.source_evidence_semantic_fingerprint !~ '^[0-9a-f]{64}$' OR (evidence_record.provider_created_local IS NULL AND evidence_record.provider_modified_local IS NULL) OR (evidence_record.provider_created_local IS NOT NULL AND evidence_record.provider_modified_local IS NOT NULL AND evidence_record.provider_modified_local<evidence_record.provider_created_local) OR NOT pg_catalog.isfinite(COALESCE(evidence_record.provider_modified_local,evidence_record.provider_created_local)) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    END LOOP;
+    SELECT pg_catalog.max(COALESCE(e.provider_modified_local,e.provider_created_local)) INTO current_revision FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e;
+    IF current_revision IS NULL THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT pg_catalog.count(DISTINCT e.source_evidence_semantic_fingerprint) INTO semantic_count FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e WHERE COALESCE(e.provider_modified_local,e.provider_created_local)=current_revision;
+    IF semantic_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF EXISTS(SELECT 1 FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e WHERE COALESCE(e.provider_modified_local,e.provider_created_local)=current_revision AND ((e.source_integration_ref IS NOT NULL AND e.source_integration_ref<>target_record.external_order_id) OR (e.currency IS NOT NULL AND e.currency<>target_record.currency))) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.input_progress_version,e.record_ordinal,e.source_evidence_semantic_fingerprint INTO STRICT selected_evidence FROM (SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,
+            v.provider_created_local,v.provider_modified_local,v.source_evidence_semantic_fingerprint,v.semantic_fingerprint_version,p.record_count,
+            (p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND p.record_count=(SELECT pg_catalog.count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id
+                AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)
+             AND b.input_progress_version<pr.progress_version) AS page_complete
+            FROM public.integration_omie_transaction_evidence b LEFT JOIN public.integration_omie_transaction_evidence_v3 v
+            USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)
+            LEFT JOIN public.integration_connector_page_commit p USING(organization_id,connection_id,capability,input_progress_version)
+            JOIN public.integration_connector_progress pr ON pr.organization_id=b.organization_id AND pr.connection_id=b.connection_id AND pr.capability=b.capability
+            WHERE b.organization_id=header_record.organization_id AND b.connection_id=header_record.omie_connection_id AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=header_record.source_order_reference) e WHERE COALESCE(e.provider_modified_local,e.provider_created_local)=current_revision ORDER BY e.input_progress_version,e.record_ordinal LIMIT 1;
+    IF EXISTS(SELECT 1 FROM public.marketplace_transaction_identity_head h WHERE h.organization_id=header_record.organization_id AND h.omie_connection_id=header_record.omie_connection_id AND h.source_order_reference=header_record.source_order_reference AND h.marketplace_order_id=header_record.marketplace_order_id) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT c.organization_id,c.principal_id,c.credential_id,c.revision,c.state INTO STRICT credential_record
+      FROM public.command_credential_revision c JOIN public.command_principal p
+        ON p.organization_id=c.organization_id AND p.principal_id=c.principal_id
+     WHERE c.organization_id=header_record.organization_id AND c.principal_id=header_record.principal_id
+       AND c.credential_id=header_record.credential_id AND c.revision=1 AND c.state='ENABLED'
+       AND p.mercado_livre_connection_id=header_record.mercado_livre_connection_id AND p.omie_connection_id=header_record.omie_connection_id
+       AND NOT EXISTS(SELECT 1 FROM public.command_credential_revision n WHERE n.organization_id=c.organization_id AND n.credential_id=c.credential_id AND n.revision>c.revision);
+    SELECT g.organization_id,g.principal_id,g.grant_id,g.revision,g.permission,g.state INTO STRICT grant_record
+      FROM public.command_permission_grant g WHERE g.organization_id=header_record.organization_id AND g.principal_id=header_record.principal_id
+       AND g.grant_id=header_record.grant_id AND g.revision=1 AND g.permission=header_record.permission AND g.state='ENABLED'
+       AND NOT EXISTS(SELECT 1 FROM public.command_permission_grant n WHERE n.organization_id=g.organization_id AND n.principal_id=g.principal_id AND n.permission=g.permission AND (n.revision>g.revision OR n.grant_id<>g.grant_id));
+    authorization_fingerprint := pg_catalog.decode(public.transaction_identity_grant_fingerprint(header_record.organization_id,header_record.grant_id),'hex');
+    IF NOT EXISTS(SELECT 1 FROM public.integration_organization o WHERE o.organization_id=header_record.organization_id AND o.status='ACTIVE') THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.octet_length(authorization_fingerprint)<>32 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    facts_p_organization_id := header_record.organization_id;
+    facts_p_decision_id := header_record.decision_id;
+    facts_p_decision_omie_connection_id := header_record.omie_connection_id;
+    facts_p_decision_source_order_reference := header_record.source_order_reference;
+    facts_p_decision_marketplace_order_id := header_record.marketplace_order_id;
+    facts_p_kind := 'CONFIRMED';
+    facts_p_decision_reason := 'EXPLICIT_CONFIRMATION';
+    facts_p_revision := 1;
+    facts_p_supersedes_decision_id := NULL;
+    facts_p_ml_connection_id := header_record.mercado_livre_connection_id;
+    facts_p_ml_capability := 'marketplace-economic.order-source';
+    facts_p_ml_progress_version := target_record.source_input_progress_version;
+    facts_p_ml_record_ordinal := target_record.source_record_ordinal;
+    facts_p_external_order_id := target_record.external_order_id;
+    facts_p_currency := target_record.currency;
+    facts_p_omie_capability := 'marketplace-economic.omie-transaction-evidence.reacquisition-v3';
+    facts_p_omie_progress_version := selected_evidence.input_progress_version;
+    facts_p_omie_record_ordinal := selected_evidence.record_ordinal;
+    facts_p_omie_semantic_fingerprint := selected_evidence.source_evidence_semantic_fingerprint;
+    facts_p_provider_revision_local := current_revision;
+    facts_p_principal_id := header_record.principal_id;
+    facts_p_credential_id := header_record.credential_id;
+    facts_p_credential_revision := credential_record.revision;
+    facts_p_grant_id := header_record.grant_id;
+    facts_p_grant_revision := grant_record.revision;
+    facts_p_decision_permission := header_record.permission;
+    facts_p_authorization_semantic_version := 'command-authorization/1';
+    facts_p_authorization_fingerprint := pg_catalog.encode(authorization_fingerprint,'hex');
+    facts_p_intent_fingerprint := NULL;
+    facts_p_decision_semantic_fingerprint := NULL;
+    facts_p_decision_provenance := header_record.provenance;
+    facts_p_decision_correlation_id := header_record.correlation_id;
+    -- Decode all 23 length-prefixed manifest texts; no alternate framing.
+        manifest_fields := ARRAY[]::pg_catalog.text[];
+        manifest_cursor := 0;
+        FOR manifest_index IN 1..23 LOOP
+            IF manifest_cursor+4>pg_catalog.octet_length(header_record.canonical_manifest_bytes) THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Truncated manifest';
+            END IF;
+            manifest_size := pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor)::pg_catalog.int8*16777216
+                +pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor+1)::pg_catalog.int8*65536
+                +pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor+2)::pg_catalog.int8*256
+                +pg_catalog.get_byte(header_record.canonical_manifest_bytes,manifest_cursor+3);
+            manifest_cursor := manifest_cursor+4;
+            IF manifest_size<1 OR manifest_size>4096 OR manifest_cursor+manifest_size>pg_catalog.octet_length(header_record.canonical_manifest_bytes) THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Invalid manifest frame';
+            END IF;
+            manifest_value := pg_catalog.convert_from(pg_catalog.substring(header_record.canonical_manifest_bytes,manifest_cursor+1,manifest_size::pg_catalog.int4),'UTF8');
+            IF manifest_value ~ '[[:cntrl:]]' OR manifest_value ~ '^[[:space:]]|[[:space:]]$'
+               OR NOT pg_catalog.is_normalized(manifest_value,'NFC') THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Noncanonical manifest text';
+            END IF;
+            manifest_fields := pg_catalog.array_append(manifest_fields,manifest_value);
+            manifest_cursor := manifest_cursor+manifest_size::pg_catalog.int4;
+        END LOOP;
+        IF manifest_cursor<>pg_catalog.octet_length(header_record.canonical_manifest_bytes)
+           OR manifest_fields[1]<>'FLOOOW:S2A:APPROVAL-MANIFEST:1' OR manifest_fields[2]<>'1'
+           OR manifest_fields[3]<>header_record.manifest_id::pg_catalog.text
+           OR manifest_fields[4]<>header_record.organization_id::pg_catalog.text
+           OR manifest_fields[5]<>header_record.mercado_livre_connection_id::pg_catalog.text
+           OR manifest_fields[6]<>header_record.omie_connection_id::pg_catalog.text
+           OR manifest_fields[7]<>header_record.source_order_reference
+           OR manifest_fields[8]<>header_record.integration_reference
+           OR manifest_fields[9]<>header_record.marketplace_order_id::pg_catalog.text
+           OR manifest_fields[10]<>header_record.permission
+           OR manifest_fields[17]<>'PROTECTED_TTY_ONE_TIME'
+           OR manifest_fields[19]<>'SEPARATE_APPROVAL_REQUIRED'
+           OR manifest_fields[23] !~ '^[0-9a-f]{64}$'
+           OR manifest_fields[20]<>header_record.reason OR manifest_fields[21]<>header_record.provenance
+           OR manifest_fields[22]<>header_record.correlation_id::pg_catalog.text THEN
+            RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Manifest binding mismatch';
+        END IF;
+        FOR manifest_index IN SELECT pg_catalog.unnest(ARRAY[3,4,5,6,9,11,12,15,16,18,22]) LOOP
+            IF manifest_fields[manifest_index]<>(manifest_fields[manifest_index]::pg_catalog.uuid)::pg_catalog.text
+               OR manifest_fields[manifest_index]='00000000-0000-0000-0000-000000000000' THEN
+                RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Noncanonical manifest UUID';
+            END IF;
+        END LOOP;
+        window_start := manifest_fields[13]::pg_catalog.timestamptz;
+        window_end := manifest_fields[14]::pg_catalog.timestamptz;
+        IF NOT pg_catalog.isfinite(window_start) OR NOT pg_catalog.isfinite(window_end) OR window_start>=window_end
+           OR manifest_fields[13]<>pg_catalog.to_char(window_start AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"')
+           OR manifest_fields[14]<>pg_catalog.to_char(window_end AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') THEN
+            RAISE EXCEPTION USING ERRCODE='22023',MESSAGE='Noncanonical manifest window';
+        END IF;
+    facts_p_schema_version := manifest_fields[2]::pg_catalog.int4;
+    facts_p_claim_manifest_id := manifest_fields[3]::pg_catalog.uuid;
+    facts_p_claim_organization_id := manifest_fields[4]::pg_catalog.uuid;
+    facts_p_mercado_livre_connection_id := manifest_fields[5]::pg_catalog.uuid;
+    facts_p_omie_connection_id := manifest_fields[6]::pg_catalog.uuid;
+    facts_p_source_order_reference := manifest_fields[7]::pg_catalog.text;
+    facts_p_integration_reference := manifest_fields[8]::pg_catalog.text;
+    facts_p_marketplace_order_id := manifest_fields[9]::pg_catalog.uuid;
+    facts_p_permission := manifest_fields[10]::pg_catalog.text;
+    facts_p_accountable_operator := manifest_fields[11]::pg_catalog.uuid;
+    facts_p_approval_source := manifest_fields[12]::pg_catalog.uuid;
+    facts_p_approval_window_start := manifest_fields[13]::pg_catalog.timestamptz;
+    facts_p_approval_window_end := manifest_fields[14]::pg_catalog.timestamptz;
+    facts_p_revocation_owner := manifest_fields[15]::pg_catalog.uuid;
+    facts_p_credential_custodian := manifest_fields[16]::pg_catalog.uuid;
+    facts_p_credential_delivery_method := manifest_fields[17]::pg_catalog.text;
+    facts_p_credential_rotation_owner := manifest_fields[18]::pg_catalog.uuid;
+    facts_p_immediate_revocation_policy := manifest_fields[19]::pg_catalog.text;
+    facts_p_reason := manifest_fields[20]::pg_catalog.text;
+    facts_p_provenance := manifest_fields[21]::pg_catalog.text;
+    facts_p_correlation_id := manifest_fields[22]::pg_catalog.uuid;
+    facts_p_evidence_binding_fingerprint := manifest_fields[23]::pg_catalog.text;
+    facts_p_intent_fingerprint := public.transaction_identity_intent(ROW(facts_p_organization_id,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_kind,facts_p_decision_reason,facts_p_revision,facts_p_supersedes_decision_id,facts_p_ml_connection_id,facts_p_ml_capability,facts_p_ml_progress_version,facts_p_ml_record_ordinal,facts_p_external_order_id,facts_p_currency,facts_p_omie_capability,facts_p_omie_progress_version,facts_p_omie_record_ordinal,facts_p_omie_semantic_fingerprint,facts_p_provider_revision_local,facts_p_principal_id,facts_p_credential_id,facts_p_credential_revision,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_permission,facts_p_authorization_semantic_version,facts_p_authorization_fingerprint,facts_p_intent_fingerprint,facts_p_decision_semantic_fingerprint,facts_p_decision_provenance,facts_p_decision_correlation_id,NULL::pg_catalog.timestamptz)::public.marketplace_transaction_identity_decision);
+    facts_p_decision_semantic_fingerprint := public.transaction_identity_fingerprint(ROW(facts_p_organization_id,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_kind,facts_p_decision_reason,facts_p_revision,facts_p_supersedes_decision_id,facts_p_ml_connection_id,facts_p_ml_capability,facts_p_ml_progress_version,facts_p_ml_record_ordinal,facts_p_external_order_id,facts_p_currency,facts_p_omie_capability,facts_p_omie_progress_version,facts_p_omie_record_ordinal,facts_p_omie_semantic_fingerprint,facts_p_provider_revision_local,facts_p_principal_id,facts_p_credential_id,facts_p_credential_revision,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_permission,facts_p_authorization_semantic_version,facts_p_authorization_fingerprint,facts_p_intent_fingerprint,facts_p_decision_semantic_fingerprint,facts_p_decision_provenance,facts_p_decision_correlation_id,NULL::pg_catalog.timestamptz)::public.marketplace_transaction_identity_decision);
+    server_facts := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-SERVER-FACTS/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-SERVER-FACTS/V1','UTF8')||'\x0036'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_organization_id))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_omie_connection_id))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_source_order_reference,'UTF8'))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_marketplace_order_id))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_kind,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_kind,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_kind,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_kind,'UTF8'))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_reason,'UTF8'))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_revision))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_supersedes_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_supersedes_decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_supersedes_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_supersedes_decision_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_ml_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_ml_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_ml_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_ml_connection_id))) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_ml_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_ml_capability,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_ml_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_ml_capability,'UTF8'))) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(facts_p_ml_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_ml_progress_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(facts_p_ml_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_ml_progress_version))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_ml_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_ml_record_ordinal))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_ml_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_ml_record_ordinal))) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_external_order_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_external_order_id,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_external_order_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_external_order_id,'UTF8'))) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_currency::pg_catalog.text,'UTF8'))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_omie_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_capability,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_omie_capability,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_capability,'UTF8'))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send(facts_p_omie_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_omie_progress_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send(facts_p_omie_progress_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send(facts_p_omie_progress_version))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_omie_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_omie_record_ordinal))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_omie_record_ordinal)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_omie_record_ordinal))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_omie_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM (facts_p_provider_revision_local-'1970-01-01 00:00:00'::pg_catalog.timestamp))*1000000)::pg_catalog.int8))) END)||'\x0015'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_principal_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_principal_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_principal_id))) END)||'\x0016'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_credential_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_id))) END)||'\x0017'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_credential_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_credential_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_credential_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_credential_revision))) END)||'\x0018'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_grant_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_grant_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_grant_id))) END)||'\x0019'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_grant_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_grant_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_grant_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_grant_revision))) END)||'\x001a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_permission,'UTF8'))) END)||'\x001b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_semantic_version,'UTF8'))) END)||'\x001c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_authorization_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x001d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_intent_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x001e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_semantic_fingerprint::pg_catalog.text,'UTF8'))) END)||'\x001f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_decision_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_decision_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_decision_provenance,'UTF8'))) END)||'\x0020'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_decision_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_decision_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_decision_correlation_id))) END)||'\x0021'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(facts_p_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(facts_p_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(facts_p_schema_version))) END)||'\x0022'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_claim_manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_manifest_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_claim_manifest_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_manifest_id))) END)||'\x0023'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_claim_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_organization_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_claim_organization_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_claim_organization_id))) END)||'\x0024'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_mercado_livre_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_mercado_livre_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_mercado_livre_connection_id))) END)||'\x0025'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_omie_connection_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_omie_connection_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_omie_connection_id))) END)||'\x0026'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_source_order_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_source_order_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_source_order_reference,'UTF8'))) END)||'\x0027'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_integration_reference,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_integration_reference,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_integration_reference,'UTF8'))) END)||'\x0028'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_marketplace_order_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_marketplace_order_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_marketplace_order_id))) END)||'\x0029'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_permission,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_permission,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_permission,'UTF8'))) END)||'\x002a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_accountable_operator)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_accountable_operator))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_accountable_operator)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_accountable_operator))) END)||'\x002b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_approval_source)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_approval_source))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_approval_source)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_approval_source))) END)||'\x002c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_start)*1000000)::pg_catalog.int8))) END)||'\x002d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM facts_p_approval_window_end)*1000000)::pg_catalog.int8))) END)||'\x002e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_revocation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_revocation_owner))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_revocation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_revocation_owner))) END)||'\x002f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_credential_custodian)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_custodian))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_credential_custodian)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_custodian))) END)||'\x0030'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_credential_delivery_method,'UTF8'))) END)||'\x0031'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_credential_rotation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_rotation_owner))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_credential_rotation_owner)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_credential_rotation_owner))) END)||'\x0032'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_immediate_revocation_policy,'UTF8'))) END)||'\x0033'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_reason,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_reason,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_reason,'UTF8'))) END)||'\x0034'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_provenance,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_provenance,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_provenance,'UTF8'))) END)||'\x0035'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(facts_p_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_correlation_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(facts_p_correlation_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(facts_p_correlation_id))) END)||'\x0036'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(facts_p_evidence_binding_fingerprint,'UTF8'))) END));
+    SELECT v.outcome,v.result_decision_id,v.result_decision_semantic_fingerprint,v.result_decided_at,v.result_manifest_id,v.result_artifact_version,v.result_schema_version,v.result_canonicalization_version,v.result_canonical_manifest_bytes,v.result_manifest_digest,v.result_signature_preimage_bytes,v.result_algorithm_id,v.result_signer_subject_id,v.result_signer_key_id,v.result_signer_key_revision,v.result_signer_key_fingerprint,v.result_signer_key_lineage_fingerprint,v.result_subject_public_key_info_der,v.result_signature_bytes,v.result_signer_authority_id,v.result_signer_authority_revision,v.result_signer_authority_fingerprint,v.result_verified_at,v.result_accepted_proof_fingerprint,v.result_signed_evidence_binding_fingerprint,v.result_current_durable_evidence_binding,v.result_observed_effect_time,v.result_observed_organization_status,v.result_observed_effective_signer_key_revision,v.result_observed_effective_signer_key_state,v.result_observed_current_signer_authority_id,v.result_observed_current_signer_authority_revision,v.result_observed_current_signer_authority_fingerprint INTO STRICT snapshot FROM public.s2a_v042_begin_attested_decision_verification(facts_p_organization_id,facts_p_principal_id,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_schema_version,facts_p_claim_manifest_id,facts_p_claim_organization_id,facts_p_mercado_livre_connection_id,facts_p_omie_connection_id,facts_p_source_order_reference,facts_p_integration_reference,facts_p_marketplace_order_id,facts_p_permission,facts_p_accountable_operator,facts_p_approval_source,facts_p_approval_window_start,facts_p_approval_window_end,facts_p_revocation_owner,facts_p_credential_custodian,facts_p_credential_delivery_method,facts_p_credential_rotation_owner,facts_p_immediate_revocation_policy,facts_p_reason,facts_p_provenance,facts_p_correlation_id,facts_p_evidence_binding_fingerprint) v;
+    IF snapshot.outcome='ALREADY_APPLIED' THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;
+    IF snapshot.outcome IS DISTINCT FROM 'READY' OR snapshot.result_decision_id IS DISTINCT FROM header_record.decision_id OR snapshot.result_manifest_id IS DISTINCT FROM header_record.manifest_id OR snapshot.result_canonical_manifest_bytes IS DISTINCT FROM header_record.canonical_manifest_bytes OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM verified_result_accepted_proof_fingerprint OR snapshot.result_verified_at IS DISTINCT FROM verified_result_verified_at THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF pg_catalog.num_nonnulls(snapshot.result_artifact_version,snapshot.result_schema_version,snapshot.result_canonicalization_version,snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,snapshot.result_signature_preimage_bytes,snapshot.result_algorithm_id,snapshot.result_signer_subject_id,snapshot.result_signer_key_id,snapshot.result_signer_key_revision,snapshot.result_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,snapshot.result_subject_public_key_info_der,snapshot.result_signature_bytes,snapshot.result_signer_authority_id,snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_signed_evidence_binding_fingerprint)<>20 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF accepted_snapshot IS DISTINCT FROM (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-ACCEPTED/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-ACCEPTED/V1','UTF8')||'\x0014'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(snapshot.result_artifact_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_artifact_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(snapshot.result_artifact_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_artifact_version))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(snapshot.result_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_schema_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(snapshot.result_schema_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_schema_version))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(snapshot.result_canonicalization_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_canonicalization_version))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(snapshot.result_canonicalization_version)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_canonicalization_version))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (snapshot.result_canonical_manifest_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_canonical_manifest_bytes)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (snapshot.result_canonical_manifest_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_canonical_manifest_bytes)) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_manifest_digest,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_manifest_digest,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_manifest_digest,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_manifest_digest,'UTF8'))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (snapshot.result_signature_preimage_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_signature_preimage_bytes)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (snapshot.result_signature_preimage_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_signature_preimage_bytes)) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_algorithm_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_algorithm_id,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_algorithm_id,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_algorithm_id,'UTF8'))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(snapshot.result_signer_subject_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(snapshot.result_signer_subject_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(snapshot.result_signer_subject_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(snapshot.result_signer_subject_id))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(snapshot.result_signer_key_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(snapshot.result_signer_key_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(snapshot.result_signer_key_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(snapshot.result_signer_key_id))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(snapshot.result_signer_key_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_signer_key_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(snapshot.result_signer_key_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_signer_key_revision))) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_signer_key_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signer_key_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_signer_key_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signer_key_fingerprint,'UTF8'))) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_signer_key_lineage_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signer_key_lineage_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_signer_key_lineage_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signer_key_lineage_fingerprint,'UTF8'))) END)||'\x000d'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (snapshot.result_subject_public_key_info_der) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_subject_public_key_info_der)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (snapshot.result_subject_public_key_info_der) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_subject_public_key_info_der)) END)||'\x000e'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (snapshot.result_signature_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_signature_bytes)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (snapshot.result_signature_bytes) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(snapshot.result_signature_bytes)) END)||'\x000f'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(snapshot.result_signer_authority_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(snapshot.result_signer_authority_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(snapshot.result_signer_authority_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(snapshot.result_signer_authority_id))) END)||'\x0010'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int4send(snapshot.result_signer_authority_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_signer_authority_revision))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int4send(snapshot.result_signer_authority_revision)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int4send(snapshot.result_signer_authority_revision))) END)||'\x0011'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_signer_authority_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signer_authority_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_signer_authority_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signer_authority_fingerprint,'UTF8'))) END)||'\x0012'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM snapshot.result_verified_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM snapshot.result_verified_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM snapshot.result_verified_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM snapshot.result_verified_at)*1000000)::pg_catalog.int8))) END)||'\x0013'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_accepted_proof_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_accepted_proof_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_accepted_proof_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_accepted_proof_fingerprint,'UTF8'))) END)||'\x0014'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(snapshot.result_signed_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signed_evidence_binding_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(snapshot.result_signed_evidence_binding_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(snapshot.result_signed_evidence_binding_fingerprint,'UTF8'))) END)) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at INTO STRICT final_execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT final_attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6;
+    IF final_execution_record.state<>'OWNED' OR final_execution_record.executor_oid<>slot_oids[3] OR final_execution_record.possession_digest<>pg_catalog.sha256($9) OR final_execution_record.claimed_at IS DISTINCT FROM execution_record.claimed_at OR final_execution_record.expires_at IS DISTINCT FROM execution_record.expires_at OR final_attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR final_attempt_record.claimed_at IS DISTINCT FROM attempt_record.claimed_at OR final_attempt_record.expires_at IS DISTINCT FROM attempt_record.expires_at OR NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE') OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 AND p.current_attempt_id=$5 AND p.generation=$6) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO STRICT ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    database_now := pg_catalog.clock_timestamp();
+    IF ready_record.state<>'READY' OR ready_record.policy_version<>policy_record.policy_version OR ready_record.policy_digest<>policy_record.policy_digest OR ready_record.watchdog_healthy IS NOT TRUE OR NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at) OR database_now<ready_record.watchdog_checked_at OR database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23] OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF preparation_digest IS DISTINCT FROM pg_catalog.sha256((pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-PREPARATION/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-PREPARATION/V1','UTF8')||'\x000c'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($1))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($1)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($1))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN ($2) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($2)) END)))::pg_catalog.int8),5,4)||(CASE WHEN ($2) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||($2)) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($3)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($3))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($3)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($3))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to($4,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to($4,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to($4,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to($4,'UTF8'))) END)||'\x0005'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($5)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($5))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($5)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($5))) END)||'\x0006'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send($6)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send($6))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send($6)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send($6))) END)||'\x0007'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($7)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($7))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($7)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($7))) END)||'\x0008'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($8))) END)||'\x0009'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send($10)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($10))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send($10)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send($10))) END)||'\x000a'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (caller_request) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(caller_request)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (caller_request) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(caller_request)) END)||'\x000b'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (server_facts) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(server_facts)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (server_facts) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(server_facts)) END)||'\x000c'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (accepted_snapshot) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_snapshot)) END)))::pg_catalog.int8),5,4)||(CASE WHEN (accepted_snapshot) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(accepted_snapshot)) END))) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT v.outcome,v.result_decision_id,v.result_decision_semantic_fingerprint,v.result_decided_at INTO STRICT result FROM public.s2a_v042_apply_attested_decision(facts_p_organization_id,facts_p_decision_id,facts_p_decision_omie_connection_id,facts_p_decision_source_order_reference,facts_p_decision_marketplace_order_id,facts_p_kind,facts_p_decision_reason,facts_p_revision,facts_p_supersedes_decision_id,facts_p_ml_connection_id,facts_p_ml_capability,facts_p_ml_progress_version,facts_p_ml_record_ordinal,facts_p_external_order_id,facts_p_currency,facts_p_omie_capability,facts_p_omie_progress_version,facts_p_omie_record_ordinal,facts_p_omie_semantic_fingerprint,facts_p_provider_revision_local,facts_p_principal_id,facts_p_credential_id,facts_p_credential_revision,facts_p_grant_id,facts_p_grant_revision,facts_p_decision_permission,facts_p_authorization_semantic_version,facts_p_authorization_fingerprint,facts_p_intent_fingerprint,facts_p_decision_semantic_fingerprint,facts_p_decision_provenance,facts_p_decision_correlation_id,facts_p_schema_version,facts_p_claim_manifest_id,facts_p_claim_organization_id,facts_p_mercado_livre_connection_id,facts_p_omie_connection_id,facts_p_source_order_reference,facts_p_integration_reference,facts_p_marketplace_order_id,facts_p_permission,facts_p_accountable_operator,facts_p_approval_source,facts_p_approval_window_start,facts_p_approval_window_end,facts_p_revocation_owner,facts_p_credential_custodian,facts_p_credential_delivery_method,facts_p_credential_rotation_owner,facts_p_immediate_revocation_policy,facts_p_reason,facts_p_provenance,facts_p_correlation_id,facts_p_evidence_binding_fingerprint,accepted_artifact_version,accepted_canonicalization_version,accepted_canonical_manifest_bytes,accepted_manifest_digest,accepted_signature_preimage_bytes,accepted_algorithm_id,accepted_signer_subject_id,accepted_signer_key_id,accepted_signer_key_revision,accepted_signer_key_fingerprint,accepted_signer_key_lineage_fingerprint,accepted_subject_public_key_info_der,accepted_signature_bytes,accepted_signer_authority_id,accepted_signer_authority_revision,accepted_signer_authority_fingerprint,accepted_verified_at,accepted_accepted_proof_fingerprint,accepted_signed_evidence_binding_fingerprint) v;
+    IF result.outcome IS DISTINCT FROM 'APPLIED' OR result.result_decision_id IS DISTINCT FROM header_record.decision_id OR result.result_decision_semantic_fingerprint IS DISTINCT FROM facts_p_decision_semantic_fingerprint OR pg_catalog.num_nonnulls(result.outcome,result.result_decision_id,result.result_decision_semantic_fingerprint,result.result_decided_at)<>4 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT e.binding_id,e.attempt_id,e.generation,e.execution_id,e.instance_id,e.executor_oid,e.state,e.possession_digest,e.claimed_at,e.expires_at INTO STRICT final_execution_record FROM public.offline_execution e WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8;
+    SELECT a.binding_id,a.attempt_id,a.generation,a.state,a.claimed_at,a.expires_at INTO STRICT final_attempt_record FROM public.offline_attempt a WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6;
+    IF final_execution_record.state<>'OWNED' OR final_execution_record.executor_oid<>slot_oids[3] OR final_execution_record.possession_digest<>pg_catalog.sha256($9) OR final_execution_record.claimed_at IS DISTINCT FROM execution_record.claimed_at OR final_execution_record.expires_at IS DISTINCT FROM execution_record.expires_at OR final_attempt_record.state NOT IN ('CLAIMED','EFFECTS_IN_PROGRESS') OR final_attempt_record.claimed_at IS DISTINCT FROM attempt_record.claimed_at OR final_attempt_record.expires_at IS DISTINCT FROM attempt_record.expires_at OR NOT EXISTS(SELECT 1 FROM public.offline_binding_lifecycle l WHERE l.binding_id=$1 AND l.state='ACTIVE') OR NOT EXISTS(SELECT 1 FROM public.offline_attempt_pointer p WHERE p.binding_id=$1 AND p.current_attempt_id=$5 AND p.generation=$6) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT r.deployment_id,r.incarnation_id,r.state,r.policy_version,r.policy_digest,
+           r.watchdog_checked_at,r.watchdog_healthy INTO STRICT ready_record
+      FROM public.offline_readiness r WHERE r.deployment_id=header_record.deployment_id AND r.incarnation_id=$3;
+    database_now := pg_catalog.clock_timestamp();
+    IF ready_record.state<>'READY' OR ready_record.policy_version<>policy_record.policy_version OR ready_record.policy_digest<>policy_record.policy_digest OR ready_record.watchdog_healthy IS NOT TRUE OR NOT pg_catalog.isfinite(database_now) OR NOT pg_catalog.isfinite(ready_record.watchdog_checked_at) OR database_now<ready_record.watchdog_checked_at OR database_now>=header_record.expires_at OR database_now>=attempt_record.expires_at OR database_now>=execution_record.expires_at OR EXTRACT(EPOCH FROM(database_now-ready_record.watchdog_checked_at))*1000000>policy_values[23] OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    IF admission_record.deployment_id IS DISTINCT FROM header_record.deployment_id OR admission_record.incarnation_id IS DISTINCT FROM $3 OR admission_record.binding_id IS DISTINCT FROM $1 OR admission_record.attempt_id IS DISTINCT FROM $5 OR admission_record.generation<>$6 OR admission_record.execution_id IS DISTINCT FROM $7 OR admission_record.instance_id IS DISTINCT FROM $8 OR admission_record.executor_oid<>slot_oids[3] OR admission_record.credential_id IS DISTINCT FROM header_record.credential_id OR admission_record.credential_revision<>credential_record.revision OR admission_record.principal_id IS DISTINCT FROM header_record.principal_id OR admission_record.organization_id IS DISTINCT FROM header_record.organization_id OR admission_record.grant_id IS DISTINCT FROM header_record.grant_id OR admission_record.grant_revision<>grant_record.revision OR admission_record.authorization_fingerprint IS DISTINCT FROM authorization_fingerprint OR admission_record.permission IS DISTINCT FROM header_record.permission OR admission_record.durable_state<>'ISSUED' OR admission_record.consumed_decision_id IS NOT NULL OR admission_record.consumed_at IS NOT NULL OR NOT pg_catalog.isfinite(admission_record.authenticated_at) OR NOT pg_catalog.isfinite(admission_record.expires_at) OR admission_record.authenticated_at>database_now OR admission_record.expires_at<=database_now OR admission_record.expires_at>LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    output_bytes := (pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S18/OUTPUT/V1','UTF8')))::pg_catalog.int8),5,4)||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/S18/OUTPUT/V1','UTF8')||'\x0004'::pg_catalog.bytea||'\x0001'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(result.outcome,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.outcome,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(result.outcome,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.outcome,'UTF8'))) END)||'\x0002'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.uuid_send(result.result_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.result_decision_id))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.uuid_send(result.result_decision_id)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.uuid_send(result.result_decision_id))) END)||'\x0003'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.convert_to(result.result_decision_semantic_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.result_decision_semantic_fingerprint,'UTF8'))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.convert_to(result.result_decision_semantic_fingerprint,'UTF8')) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.convert_to(result.result_decision_semantic_fingerprint,'UTF8'))) END)||'\x0004'::pg_catalog.bytea||pg_catalog.substring(pg_catalog.int8send((pg_catalog.octet_length((CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.result_decided_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.result_decided_at)*1000000)::pg_catalog.int8))) END)))::pg_catalog.int8),5,4)||(CASE WHEN (pg_catalog.int8send((EXTRACT(EPOCH FROM result.result_decided_at)*1000000)::pg_catalog.int8)) IS NULL THEN '\x00'::pg_catalog.bytea ELSE ('\x01'::pg_catalog.bytea||(pg_catalog.int8send((EXTRACT(EPOCH FROM result.result_decided_at)*1000000)::pg_catalog.int8))) END));
+    INSERT INTO public.offline_stage_receipt(binding_id,attempt_id,generation,execution_id,instance_id,stage,receipt_id,operation_id,frozen_receipt,effect_time)
+      VALUES($1,$5,$6,$7,$8,'IDENTITY_DECISION_APPLIED',pg_catalog.gen_random_uuid(),NULL,output_bytes,result.result_decided_at);
+    UPDATE public.offline_admission a SET durable_state='CONSUMED',consumed_decision_id=header_record.decision_id,consumed_at=database_now WHERE a.admission_id=$10 AND a.durable_state='ISSUED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    UPDATE public.offline_attempt a SET state='EFFECTS_COMPLETE' WHERE a.binding_id=$1 AND a.attempt_id=$5 AND a.generation=$6 AND a.state='EFFECTS_IN_PROGRESS';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    UPDATE public.offline_execution e SET state='RELEASED' WHERE e.binding_id=$1 AND e.attempt_id=$5 AND e.generation=$6 AND e.execution_id=$7 AND e.instance_id=$8 AND e.state='OWNED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    UPDATE public.offline_reconciliation r SET state='REQUIRED' WHERE r.binding_id=$1 AND r.state='NOT_STARTED';
+    IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
+    database_now := pg_catalog.clock_timestamp();
+    IF database_now>=LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at,admission_record.expires_at) OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1] THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    RETURN output_bytes;
+EXCEPTION WHEN OTHERS THEN
+    IF SQLSTATE='P0017' AND SQLERRM='REPLAY_INSPECTION_REQUIRED' THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_s18$;
+ALTER FUNCTION public.offline_apply_attested_decision(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.bytea) OWNER TO flooow_offline_execution_owner;
+REVOKE ALL ON FUNCTION public.offline_apply_attested_decision(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int8,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.bytea) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.s2a_v042_apply_attested_decision(pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.int4,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.int8,pg_catalog.int4,pg_catalog.text,pg_catalog.bpchar,pg_catalog.text,pg_catalog.int8,pg_catalog.int4,pg_catalog.bpchar,pg_catalog.timestamp,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.int4,pg_catalog.uuid,pg_catalog.int4,pg_catalog.text,pg_catalog.text,pg_catalog.bpchar,pg_catalog.bpchar,pg_catalog.bpchar,pg_catalog.text,pg_catalog.uuid,pg_catalog.int4,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.timestamptz,pg_catalog.timestamptz,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.int4,pg_catalog.int4,pg_catalog.bytea,pg_catalog.text,pg_catalog.bytea,pg_catalog.text,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.int4,pg_catalog.text,pg_catalog.text,pg_catalog.bytea,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.int4,pg_catalog.text,pg_catalog.timestamptz,pg_catalog.text,pg_catalog.text) TO flooow_offline_execution_owner;
+GRANT EXECUTE ON FUNCTION public.s2a_v042_begin_attested_decision_verification(pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.int4,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.int4,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.timestamptz,pg_catalog.timestamptz,pg_catalog.uuid,pg_catalog.uuid,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text) TO flooow_offline_execution_owner;
+GRANT EXECUTE ON FUNCTION public.transaction_identity_fingerprint(public.marketplace_transaction_identity_decision) TO flooow_offline_execution_owner;
+GRANT EXECUTE ON FUNCTION public.transaction_identity_intent(public.marketplace_transaction_identity_decision) TO flooow_offline_execution_owner;
+GRANT EXECUTE ON FUNCTION public.transaction_identity_progress_lock(pg_catalog.uuid,pg_catalog.uuid) TO flooow_offline_execution_owner;
+-- End public S17-S18.

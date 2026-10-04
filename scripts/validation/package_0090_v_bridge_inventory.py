@@ -42,7 +42,7 @@ def inventory():
                     'offline_crypto_schema':'D_OWNER_Q_USAGE_BEFORE_V_NEW_SOURCE_GRANT'},
                 public_native_crypto_execute=False,a_direct_native_crypto_execute=False,
                 a_private_crypto_usage=False,v_hmac_or_mac32_execute=False,
-                future_v041_v042_wrapper_closure='PENDING_UNIMPLEMENTED_WRAPPERS',
+                future_v041_v042_wrapper_closure='ALL_18_SIGNATURES_BOUNDED_STATIC_REVIEW_NOT_DEPLOYED_PROOF',
                 runtime_effective_acl_proof=False,protected_database_mutation=False)
 
 

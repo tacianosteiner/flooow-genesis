@@ -1,5 +1,10 @@
 # Package 0090 ? V/I source composition checkpoint
 
+Historical checkpoint. The subsequent [executor/source closure review](PACKAGE-0090-S13-S18-SOURCE-REVIEW.md)
+and `PACKAGE-0090-S07-S18-ISOLATED-REVIEW.json` now include actual I/E wrapper
+transport execution and the current writer/JCA oracle; the earlier runtime-pending
+statement below records this checkpoint's original boundary.
+
 S05/S06 authenticate mutable VERIFIER/binding, recompute the 38-tag header and
 original manifest, retain C locks/possession/deadline guards, require the approved
 original-match helper before frozen V041 lookup, freshly verify native Ed25519,

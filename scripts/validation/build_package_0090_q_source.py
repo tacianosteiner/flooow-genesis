@@ -347,6 +347,8 @@ GRANT EXECUTE ON FUNCTION public.offline_internal_readiness(''' + signature + ''
 GRANT USAGE ON SCHEMA public TO flooow_offline_readiness_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_audit_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_execution_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_principal_lock_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_intent_audit_owner;
 '''
 
 
@@ -653,5 +655,14 @@ def build_catalog(spec):
 if __name__ == '__main__':
     source = SOURCE.read_text(encoding='utf-8-sig')
     generated = build(source, SPEC.read_text(encoding='utf-8-sig'))
-    source = source.split('-- Internal Q: bound readiness/receipt', 1)[0].rstrip() + '\n\n' + generated
-    SOURCE.write_text(source, encoding='utf-8')
+    marker='-- Internal Q: bound readiness/receipt'
+    if marker in source:
+        start=source.index(marker)
+        ending='GRANT USAGE ON SCHEMA public TO flooow_offline_execution_owner;'
+        end=source.index(ending,start)+len(ending)
+        for role in ('principal_lock','intent_audit'):
+            extra='\nGRANT USAGE ON SCHEMA public TO flooow_offline_'+role+'_owner;'
+            if source[end:].startswith(extra):end+=len(extra)
+        source=source[:start]+generated.rstrip()+source[end:]
+    else:source+='\n'+generated
+    SOURCE.write_text(source, encoding='utf-8',newline='\n')

@@ -38,7 +38,7 @@ def sql_value(value,kind):
     if kind=='bytea':return 'decode('+quote(value)+",'hex')"
     return quote(value)+'::pg_catalog.'+kind
 
-def review():
+def review(extension=None,observer=None):
     if run(['docker','image','inspect',BUILDER,'--format','{{.Id}}']).strip()!=EXPECTED_BUILDER_ID:raise ValueError('Builder changed')
     source=(gate.ROOT/gate.V043).read_text();spec=(gate.ROOT/gate.SPEC).read_text()
     with tempfile.TemporaryDirectory(prefix='flooow-0090-verification-') as scratch:
@@ -125,6 +125,7 @@ def review():
         sql+="BEGIN; UPDATE public.offline_execution SET expires_at=clock_timestamp()-interval '1 second'; SET SESSION AUTHORIZATION test_verifier;\n"+assertion('S06',encoded['S06'],True)+'RESET SESSION AUTHORIZATION; ROLLBACK;\n'
         sql+="UPDATE public.test_frozen_fault SET enabled=true; SET SESSION AUTHORIZATION test_verifier;\n"+assertion('S06',encoded['S06'],True)+"RESET SESSION AUTHORIZATION; DO $rollback$ BEGIN IF (SELECT counter FROM public.test_frozen_effects)<>2 OR (SELECT expires_at FROM public.offline_execution)<=clock_timestamp() THEN RAISE EXCEPTION 'TENTATIVE_EFFECT_NOT_ROLLED_BACK'; END IF; END; $rollback$;\n"
         sql+='SELECT \'VERIFICATION_ISOLATED_PASS\';\n'
+        if extension is not None:sql=extension(sql,locals())
         (work/'review.sql').write_text(sql,encoding='utf-8',newline='\n');shutil.copytree(NATIVE,work/'native')
         script='''set -eu
 cd /work/native
@@ -139,6 +140,7 @@ cat /work/result.log
         (work/'run.sh').write_text(script,encoding='ascii',newline='\n')
         output=run(['docker','run','--rm','--network','none','--entrypoint','sh','--mount',f'type=bind,source={work},target=/work',BUILDER,'/work/run.sh'])
         if 'VERIFICATION_ISOLATED_PASS' not in output:raise ValueError('Incomplete rehearsal')
+        if observer is not None:observer(output)
         golden={s:dict(input_hex=encoded[s].hex(),output_hex=expected_outputs[s].hex()) for s in ('S05','S06')}
         (gate.ROOT/'docs/evidence/PACKAGE-0090-S05-S06-TRANSPORT-GOLDENS.json').write_text(json.dumps(dict(scope='ISOLATED_TEST_ONLY',frozen_transports='STUB_NOT_V041_PARITY',goldens=golden),indent=2)+'\n')
     return dict(status='PASS_ISOLATED_WRAPPERS_STUB_FROZEN_TRANSPORTS',native_crypto='ACTUAL_C',source_bodies='ACTUAL_S05_S06',output_goldens='INDEPENDENT_PYTHON_TYPED_CODEC',negatives=negatives+['EXPIRED_EXECUTION','POST_FROZEN_EXPIRY_ROLLS_BACK_EFFECT'],stage_replay='ONE_UNCHANGED_RECEIPT',sql_sha256=hashlib.sha256(sql.encode()).hexdigest(),v043_executed=False,protected_database_connection=False,production_policy=False,limitations=['V041 BEGIN/PERSIST are stubbed transports; this does not prove frozen semantic parity or complete deployment ACL closure.'])

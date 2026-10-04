@@ -218,7 +218,7 @@ def prerequisite_checks(source, spec):
 def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
-    # 18 public signatures + P/Q/Z/V bridge + the narrowly approved ADMIN trigger.
+    # 18 public signatures + P/Q/Z/V bridge + two exact ADMIN exceptions.
     closed_function_count = 24
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != closed_function_count:
         missing.append("Operational public wrappers remain incomplete; P/Q/Z/V and S01-S04 have bounded review only")

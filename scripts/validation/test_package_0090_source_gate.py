@@ -82,16 +82,19 @@ class SourceGateTests(unittest.TestCase):
         self.reject(self.source + "\nALTER TABLE public.command_principal ADD COLUMN forbidden int4;")
 
     def test_incomplete_source_never_reports_full_closure(self):
-        self.assertEqual(len(gate.closure_gaps(self.source, self.spec)), 3)
+        from build_package_0090_decision_source import MARKER
+        self.assertEqual(gate.closure_gaps(self.source,self.spec),[])
+        self.assertEqual(len(gate.closure_gaps(self.source.split(MARKER,1)[0], self.spec)), 3)
 
     def test_fixture_approval_does_not_close_implementation(self):
-        gaps = gate.closure_gaps(self.source, self.spec)
+        from build_package_0090_decision_source import MARKER
+        gaps = gate.closure_gaps(self.source.split(MARKER,1)[0], self.spec)
         self.assertFalse(any('TTL/maximum approval' in gap for gap in gaps))
         self.assertTrue(any('golden' in gap for gap in gaps))
         for marker in ('TAG28_PREFLIGHT_RECEIPT_TTL_US=1000000',
                        'TAG29_PREFLIGHT_RECEIPT_TTL_APPROVED_MAX_US=2000000',
                        'PRODUCTION_POLICY_PROVISIONING=NO'):
-            self.assertEqual(len(gate.closure_gaps(self.source, self.spec.replace(marker, 'INVALID'))), 4)
+            self.assertEqual(len(gate.closure_gaps(self.source.split(MARKER,1)[0], self.spec.replace(marker, 'INVALID'))), 4)
 
     def test_internal_p_signature_and_acl_static_manifest(self):
         result=gate.prerequisite_checks(self.source,self.spec)
