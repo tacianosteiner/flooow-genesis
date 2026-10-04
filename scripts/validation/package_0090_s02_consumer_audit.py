@@ -100,7 +100,7 @@ def audit():
             s02_authorized_projection_identical=project(positive)==project(negative)),
         unresolved_authority_blocker_count=1 if missing else 0,
         proposed_resolution='Independent exact S02 consumer traceability for existing A signer-key/authority reads required by frozen inspect.acceptedArtifact; no new columns or grants.',
-        physical_grant_count=len(grants),spec_amended=False,grants_widened=False,
+        physical_grant_count=len(grants),spec_amended=not missing,grants_widened=False,
         retained_fixture_modified=False,database_connection_attempted=False,runtime_proof=False)
 
 

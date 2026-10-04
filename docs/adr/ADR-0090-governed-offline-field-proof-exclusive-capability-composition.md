@@ -349,3 +349,28 @@ Owner A receives only the six READ_PRIVILEGE columns below on public.integration
 The S01 target predicate preserves every join and filter of PostgresCeremonyComposition.runtime.matchesTarget; its six placeholders are replaced only by authenticated binding header fields in producer order. The unchanged EXISTS establishes the frozen target match. A separate readiness cardinality check over that identical join requires one eligible row and rejects ambiguous/multiple rows. No provider normalization: retained mercado-livre differs from frozen br.com.mercadolivre. Synthetic target-only tests cannot prove retained runtime-positive readiness. Organization and both connection predicates, R binding/slot/policy/readiness guards and target readiness all precede Q sentinel issuance. S01 stays STABLE/read-only/no-lock; all-state R reads ignore mutation expiry.
 
 The normative ACL inventory in SPEC-0090 records the exact six added A reads: organization_id, connection_id, capability, input_progress_version, record_ordinal, external_order_ref. Physical grant inventory increases from 1026 to 1032 only upon complete actual/normative set equality. Deployment Q expectations must be regenerated from that complete inventory. V043 interlock remains until full source closure; protected PostgreSQL, production policy/crypto/roles and G3G remain excluded.
+
+
+## S02 acceptedArtifact consumer authority amendment - 2026-10-03
+
+S02_ACCEPTED_ARTIFACT_CONSUMER_AUTHORITY=APPROVED.
+CONSUMER=S02_ONLY; PURPOSE=INSPECT_ACCEPTED_ARTIFACT_PREDICATE;
+PROJECTION=PRIVATE_PREDICATES_ONLY.
+
+The existing 27 A signer-key/signer-authority READ_PRIVILEGE rows in section22.4
+now also trace to INSPECT.acceptedArtifact/S02. This is solely the exact frozen
+PostgresOfflineFieldProofReconciler.inspect -> accepted(connection,input) ->
+acceptedArtifact dependency. RECON.acceptedArtifact/S03 authority and semantics
+remain unchanged. Preserve all existing joins, states, fingerprints, public-key
+lineage, approval source/action/role, permission, verified-at windows and counts/
+cardinality, including the non-SQL proof validation performed by the producer.
+
+NEW_COLUMNS=0; NEW_PHYSICAL_GRANTS=0; PHYSICAL_GRANT_COUNT=1032.
+No raw signer-row or broader signer metadata output, service-role SELECT,
+helper function, current-possession inference, cached fixture truth or authority
+inference from ownership/grants is authorized. S02 remains STABLE/read-only,
+with bound organization/binding, uniform foreign/nonexistent denial and the
+unchanged admission validity rules. This approval supplies consumer traceability
+only; it does not turn the SQL signer join into the full acceptedArtifact result.
+V001-V042, the V043 interlock, protected DB, production policy/crypto/live roles,
+G3G and main publication remain outside this amendment.

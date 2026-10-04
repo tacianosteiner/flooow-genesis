@@ -1172,33 +1172,33 @@ Every retained SELECT has a field use: predicate/join/order/cardinality, a decla
 | A | public.marketplace_transaction_identity_head | marketplace_order_id | READ_PRIVILEGE | INSPECT/RECON | S02-S03 | Existing exact inspect/consumption/decision predicates and full declared accepted/decision projection or frozen helper hash inputs | NO | NONE |
 | A | public.marketplace_transaction_identity_head | decision_id | READ_PRIVILEGE | INSPECT/RECON | S02-S03 | Existing exact inspect/consumption/decision predicates and full declared accepted/decision projection or frozen helper hash inputs | NO | NONE |
 | A | public.marketplace_transaction_identity_head | kind | READ_PRIVILEGE | INSPECT/RECON | S02-S03 | Existing exact inspect/consumption/decision predicates and full declared accepted/decision projection or frozen helper hash inputs | NO | NONE |
-| A | public.s2a_signer_key_revision | organization_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | signer_key_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | revision | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | signer_subject_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | algorithm_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | subject_public_key_info_der | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | signer_key_fingerprint | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | state | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | valid_from | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | effective_at | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_key_revision | lineage_fingerprint | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | organization_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_authority_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | revision | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_subject_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_role | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_key_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_key_revision | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_key_fingerprint | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | approval_action | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | permission | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | valid_from | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | valid_until | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | state | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | signer_authority_fingerprint | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | approval_source_id | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
-| A | public.s2a_signer_authority_revision | decided_at | READ_PRIVILEGE | RECON.acceptedArtifact | S03 | Exact accepted authority join/action/role/source/permission/window predicates | NO | NONE |
+| A | public.s2a_signer_key_revision | organization_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | signer_key_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | revision | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | signer_subject_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | algorithm_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | subject_public_key_info_der | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | signer_key_fingerprint | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | state | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | valid_from | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | effective_at | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_key_revision | lineage_fingerprint | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted signer-key join/state/verified-at/public-key lineage predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | organization_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_authority_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | revision | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_subject_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_role | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_key_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_key_revision | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_key_fingerprint | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | approval_action | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | permission | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | valid_from | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | valid_until | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | state | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | signer_authority_fingerprint | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | approval_source_id | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
+| A | public.s2a_signer_authority_revision | decided_at | READ_PRIVILEGE | INSPECT.acceptedArtifact/RECON.acceptedArtifact | S02-S03 | Exact accepted authority join/action/role/source/permission/window predicates; S02_ONLY consumes exact frozen inspect.acceptedArtifact predicate privately | NO | NONE |
 | A | public.command_authority_operation | organization_id | READ_PRIVILEGE | INSPECT/RECON.consumption | S02-S03 | Bound prefix/unexpected-operation counts, receipt-null shape and effect-time lineage; intent/receipt hash delegated to Z | NO | NONE |
 | A | public.command_authority_operation | operation_id | READ_PRIVILEGE | INSPECT/RECON.consumption | S02-S03 | Bound prefix/unexpected-operation counts, receipt-null shape and effect-time lineage; intent/receipt hash delegated to Z | NO | NONE |
 | A | public.command_authority_operation | operation | READ_PRIVILEGE | INSPECT/RECON.consumption | S02-S03 | Bound prefix/unexpected-operation counts, receipt-null shape and effect-time lineage; intent/receipt hash delegated to Z | NO | NONE |
@@ -2370,3 +2370,27 @@ The S01 target predicate preserves every join and filter of PostgresCeremonyComp
 | A | public.integration_mercado_livre_order_source_observation | input_progress_version | READ_PRIVILEGE | PREFLIGHT.matchesTarget | S01 | Frozen authenticated bound join; private predicate only | NO | NONE |
 | A | public.integration_mercado_livre_order_source_observation | record_ordinal | READ_PRIVILEGE | PREFLIGHT.matchesTarget | S01 | Frozen authenticated bound join; private predicate only | NO | NONE |
 | A | public.integration_mercado_livre_order_source_observation | external_order_ref | READ_PRIVILEGE | PREFLIGHT.matchesTarget | S01 | Frozen authenticated bound join; private predicate only | NO | NONE |
+
+## S02 acceptedArtifact consumer authority amendment - 2026-10-03
+
+S02_ACCEPTED_ARTIFACT_CONSUMER_AUTHORITY=APPROVED.
+CONSUMER=S02_ONLY; PURPOSE=INSPECT_ACCEPTED_ARTIFACT_PREDICATE;
+PROJECTION=PRIVATE_PREDICATES_ONLY.
+
+The existing 27 A signer-key/signer-authority READ_PRIVILEGE rows in section22.4
+now also trace to INSPECT.acceptedArtifact/S02. This is solely the exact frozen
+PostgresOfflineFieldProofReconciler.inspect -> accepted(connection,input) ->
+acceptedArtifact dependency. RECON.acceptedArtifact/S03 authority and semantics
+remain unchanged. Preserve all existing joins, states, fingerprints, public-key
+lineage, approval source/action/role, permission, verified-at windows and counts/
+cardinality, including the non-SQL proof validation performed by the producer.
+
+NEW_COLUMNS=0; NEW_PHYSICAL_GRANTS=0; PHYSICAL_GRANT_COUNT=1032.
+No raw signer-row or broader signer metadata output, service-role SELECT,
+helper function, current-possession inference, cached fixture truth or authority
+inference from ownership/grants is authorized. S02 remains STABLE/read-only,
+with bound organization/binding, uniform foreign/nonexistent denial and the
+unchanged admission validity rules. This approval supplies consumer traceability
+only; it does not turn the SQL signer join into the full acceptedArtifact result.
+V001-V042, the V043 interlock, protected DB, production policy/crypto/live roles,
+G3G and main publication remain outside this amendment.

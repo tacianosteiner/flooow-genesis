@@ -48,17 +48,22 @@ class ReadSourceTests(unittest.TestCase):
             with self.subTest(mutation=old),self.assertRaises((ValueError,ParseError)):
                 gate.prerequisite_checks(self.source.split(MARKER,1)[0]+build(self.source).replace(old,new),self.spec)
 
-    def test_next_boundary_exact_signer_consumer_gap(self):
+    def test_approved_exact_signer_consumer_scope(self):
         report=boundary.audit()
-        self.assertEqual(report['unresolved_authority_blocker_count'],1)
+        self.assertEqual(report['unresolved_authority_blocker_count'],0)
         self.assertEqual(len(report['required_signer_columns']),27)
-        self.assertEqual(report['missing_s02_consumer_columns'],report['required_signer_columns'])
+        self.assertEqual(report['missing_s02_consumer_columns'],[])
         self.assertEqual(report['missing_physical_grants'],[])
         self.assertEqual(report['witness']['positive_eligible_rows'],1)
         self.assertEqual(report['witness']['revoked_key_eligible_rows'],0)
-        self.assertTrue(report['witness']['s02_authorized_projection_identical'])
+        self.assertFalse(report['witness']['s02_authorized_projection_identical'])
         self.assertFalse(report['database_connection_attempted'])
-        self.assertFalse(report['spec_amended'])
+        self.assertTrue(report['spec_amended'])
+        self.assertEqual(report['physical_grant_count'],1032)
+        self.assertFalse(report['grants_widened'])
+        self.assertTrue(all(row['consumer']=='INSPECT.acceptedArtifact/RECON.acceptedArtifact'
+                            and row['entrypoint']=='S02-S03'
+                            for row in report['current_signer_consumer_inventory']))
 
 
 if __name__=='__main__':unittest.main()
