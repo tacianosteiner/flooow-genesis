@@ -6,13 +6,14 @@
 
 #include <openssl/crypto.h>
 #include <openssl/evp.h>
+#include <openssl/err.h>
 #include <openssl/x509.h>
 
 PG_MODULE_MAGIC;
 
 PG_FUNCTION_INFO_V1(timing_safe_equal32);
-/* Candidate only: no extension SQL binding until the error-contract hold in
- * PACKAGE-0090-ED25519-NATIVE-REVIEW.md is closed. Do not deploy this binary. */
+/* Acceptance contract: only true accepts. Invalid encoded-point rejection is
+ * false; structural input and operational failures remain distinct errors. */
 PG_FUNCTION_INFO_V1(canonical_spki_ed25519_verify);
 
 Datum
@@ -37,15 +38,38 @@ canonical_spki_ed25519_verify(PG_FUNCTION_ARGS)
     signature = PG_GETARG_BYTEA_PP(2);
     message = PG_GETARG_BYTEA_PP(1);
     cursor = (const unsigned char *) VARDATA_ANY(spki);
+    ERR_clear_error();
     key = d2i_PUBKEY(NULL, &cursor, 44);
+    if (key == NULL && ERR_GET_REASON(ERR_peek_last_error()) == ERR_R_MALLOC_FAILURE)
+        ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
+                        errmsg("Ed25519 public key allocation failed")));
     if (key == NULL || cursor != (const unsigned char *) VARDATA_ANY(spki) + 44 ||
-        EVP_PKEY_id(key) != EVP_PKEY_ED25519 || i2d_PUBKEY(key, NULL) != 44)
+        EVP_PKEY_id(key) != EVP_PKEY_ED25519)
+    {
+        EVP_PKEY_free(key);
+        ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                        errmsg("Invalid canonical Ed25519 SubjectPublicKeyInfo")));
+    }
+    result = i2d_PUBKEY(key, NULL);
+    if (result <= 0)
+    {
+        EVP_PKEY_free(key);
+        ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
+                        errmsg("Ed25519 public key encoding failed")));
+    }
+    if (result != 44)
     {
         EVP_PKEY_free(key);
         ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                         errmsg("Invalid canonical Ed25519 SubjectPublicKeyInfo")));
     }
     result = i2d_PUBKEY(key, &output);
+    if (result <= 0)
+    {
+        EVP_PKEY_free(key);
+        ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
+                        errmsg("Ed25519 public key encoding failed")));
+    }
     if (result != 44 || memcmp(canonical, VARDATA_ANY(spki), 44) != 0)
     {
         EVP_PKEY_free(key);
@@ -60,10 +84,18 @@ canonical_spki_ed25519_verify(PG_FUNCTION_ARGS)
         ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
                         errmsg("Ed25519 verification initialization failed")));
     }
+    ERR_clear_error();
     result = EVP_DigestVerify(context,
                              (const unsigned char *) VARDATA_ANY(signature), 64,
                              (const unsigned char *) VARDATA_ANY(message),
                              VARSIZE_ANY_EXHDR(message));
+    if (ERR_GET_REASON(ERR_peek_last_error()) == ERR_R_MALLOC_FAILURE)
+    {
+        EVP_MD_CTX_free(context);
+        EVP_PKEY_free(key);
+        ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
+                        errmsg("Ed25519 verification allocation failed")));
+    }
     EVP_MD_CTX_free(context);
     EVP_PKEY_free(key);
     PG_FREE_IF_COPY(spki, 0);

@@ -1,4 +1,40 @@
-# Package 0090 native Ed25519 bounded review: error-contract hold
+# Package 0090 native Ed25519 source closure
+
+## Current status - approved normalization supersedes the historical hold
+
+Baseline: 2dd97572d2a8d17e0f993ff6f6c4d72b501e44f1. Fetch proved local=remote
+and a clean checkpoint/package-0090-cloud-handoff before work.
+The supplied invalid-key error closure explicitly approves acceptance semantics,
+not provider exception taxonomy. JCA_PROVIDER_EXCEPTION_TAXONOMY_PARITY=NOT_REQUIRED;
+ACCEPTED_ARTIFACT_DECISION_PARITY=REQUIRED; FINAL_DECISION_PARITY=PASS.
+The known FF point is CRYPTOGRAPHIC_REJECTION_FALSE; both providers reject at
+accepted(). This supersedes the historical error-contract hold below.
+
+NATIVE_SOURCE_CLOSED=YES_BOUNDED_NOT_RUNTIME. All 51 vectors were rerun: 50
+comparable results match, 51 acceptance decisions match, with no positive or
+false-to-true divergence. All structural malformed vectors remain 22023 errors.
+Eight fault-injection paths remain XX000, including context allocation,
+initialization, unexpected negative/positive verification results, key parsing
+allocation, both encoding failures and allocation on a zero verification result.
+Fault substitutions exist solely in the test harness, never in deployable C.
+ASAN/UBSAN and MAC32 equal/unequal regressions pass. Two clean PGXS builds have
+identical binary SHA256. Exact export allowlist, imports, dependency and
+RELRO/BIND_NOW/non-executable-stack evidence is regenerated in the JSON.
+
+Extension SQL now binds exactly three unnamed mandatory bytea inputs to the
+approved native symbol and immediately revokes PUBLIC privileges. Six binding
+and adversarial source tests pass, alongside the 131 existing Package0090 tests.
+ADR/SPEC record the approved 22023/false/true/XX000 contract and narrow V/A path.
+No installation, PostgreSQL execution, runtime ACL assertion, migration or
+production role/policy action occurred. Native/SQL closure is not installed
+deployment proof. Exact deployable candidate hash is in the regenerated JSON.
+
+NEXT_GATE=G3F.3B_INTERNAL_V_BRIDGE_AND_S02_IMPLEMENTATION.
+UNRESOLVED_INVALID_KEY_ERROR_BLOCKER_COUNT=0.
+Continue with the exact V-owned bridge and full S02 acceptedArtifact flow.
+Historical observations below remain retained research evidence.
+
+## Historical checkpoint - error-contract hold before normalization
 
 Baseline fetch proved local HEAD = origin/checkpoint/package-0090-cloud-handoff =
 778d2c0687395ca5865611e56b2ddc036b091c96 and a clean worktree.

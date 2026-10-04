@@ -1,8 +1,8 @@
 """Offline, network-disabled native/JCA review. Never installs crypto or opens a DB.
 
 Prerequisite: gradlew :applications:marketplace-operations:classes --offline.
-An observed key-error/false difference is reported separately from comparable
-boolean vectors; accepted() fail-closed equivalence is not exact error parity.
+The approved normalization compares accepted() decisions, preserving separate
+structural and operational errors. JCA exception taxonomy is not required.
 """
 import hashlib
 import json
@@ -44,6 +44,11 @@ def review():
         shell = '''set -eu
 cd /review/native
 make with_llvm=no > /review/build.txt 2>&1
+sha256sum flooow_offline_mac32.so > /review/binary-first.sha256
+make clean > /review/clean.txt 2>&1
+make with_llvm=no > /review/rebuild.txt 2>&1
+sha256sum flooow_offline_mac32.so > /review/binary-second.sha256
+cmp /review/binary-first.sha256 /review/binary-second.sha256
 nm -D --defined-only flooow_offline_mac32.so > /review/exports.txt
 nm -D --undefined-only flooow_offline_mac32.so > /review/imports.txt
 readelf -dW flooow_offline_mac32.so > /review/dynamic.txt
@@ -51,9 +56,9 @@ readelf -lW flooow_offline_mac32.so > /review/segments.txt
 ldd flooow_offline_mac32.so > /review/dependencies.txt
 cd /review
 cc -std=c11 -Wall -Wextra -I. harness.c -lcrypto -o harness
-./harness < vectors.txt > results.txt
+./harness < vectors.txt > results.txt 2> operational.txt
 cc -std=c11 -g -O1 -fsanitize=address,undefined -fno-omit-frame-pointer -I. harness.c -lcrypto -o harness-sanitized
-ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./harness-sanitized < vectors.txt > sanitized-results.txt
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ./harness-sanitized < vectors.txt > sanitized-results.txt 2> sanitized-operational.txt
 openssl pkey -pubin -inform DER -in invalid.der -pubcheck -noout > pubcheck.txt 2>&1
 pg_config --version > versions.txt
 openssl version >> versions.txt
@@ -64,6 +69,10 @@ openssl version >> versions.txt
         outputs = dict(line.split('|') for line in (work/'results.txt').read_text().splitlines())
         if (work/'results.txt').read_bytes() != (work/'sanitized-results.txt').read_bytes():
             raise RuntimeError('Sanitized parity changed')
+        operational=(work/'operational.txt').read_text().splitlines()
+        expected_operational=[f'OPERATIONAL_INJECTION_{mode}=XX000' for mode in range(1,9)]
+        if operational!=expected_operational or (work/'sanitized-operational.txt').read_text().splitlines()!=expected_operational:
+            raise RuntimeError('Operational failures must remain XX000')
         exports = sorted(line.split()[-1] for line in (work/'exports.txt').read_text().splitlines())
         if exports != sorted(['Pg_magic_func','pg_finfo_timing_safe_equal32','timing_safe_equal32',
                               'pg_finfo_canonical_spki_ed25519_verify','canonical_spki_ed25519_verify']):
@@ -80,10 +89,22 @@ openssl version >> versions.txt
         results = [dict(name=row[0],spki_hex=row[1],message_hex=row[2],signature_hex=row[3],
                         jca=row[4],native=outputs[row[0]],exact_match=row[4]==outputs[row[0]],
                         accepted_fail_closed_match=(row[4]=='true')==(outputs[row[0]]=='true')) for row in rows]
-        return dict(baseline='778d2c0687395ca5865611e56b2ddc036b091c96',
-                    status='HOLD_EXACT_KEY_ERROR_CONTRACT',builder=image_id,
+        if len(results)!=51 or sum(r['exact_match'] for r in results)!=50 or not all(r['accepted_fail_closed_match'] for r in results):
+            raise RuntimeError('Acceptance normalization parity failed')
+        if any(r['jca']=='structural_error' and r['native']!='structural_error' for r in results):
+            raise RuntimeError('Structural malformed inputs must remain errors')
+        if next(r for r in results if r['name']=='point_scalar_255')['native']!='false':
+            raise RuntimeError('Known invalid-point vector must reject')
+        return dict(baseline='2dd97572d2a8d17e0f993ff6f6c4d72b501e44f1',
+                    status='PASS_NATIVE_SOURCE_ACCEPTANCE_CONTRACT_NOT_RUNTIME',builder=image_id,
+                    jca_provider_exception_taxonomy_parity='NOT_REQUIRED',
+                    accepted_artifact_decision_parity='REQUIRED_PASS',
+                    known_invalid_point_classification='CRYPTOGRAPHIC_REJECTION_FALSE',
+                    operational_failure_injection=operational,
                     versions=(work/'versions.txt').read_text().splitlines(),
                     native_source_sha256=hashlib.sha256((NATIVE/'flooow_offline_mac32.c').read_bytes()).hexdigest(),
+                    extension_sql_sha256=hashlib.sha256((NATIVE/'flooow_offline_mac32--1.0.sql').read_bytes()).hexdigest(),
+                    binary_reproducibility='TWO_CLEAN_BUILDS_IDENTICAL_SHA256',
                     native_binary_sha256=hashlib.sha256((work/'native/flooow_offline_mac32.so').read_bytes()).hexdigest(),
                     exports=exports,imports=imports.splitlines(),
                     dependencies=re.sub(r' \(0x[0-9a-f]+\)', '', (work/'dependencies.txt').read_text()).splitlines(),

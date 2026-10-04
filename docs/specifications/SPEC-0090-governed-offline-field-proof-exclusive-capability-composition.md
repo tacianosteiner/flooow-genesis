@@ -2394,3 +2394,63 @@ unchanged admission validity rules. This approval supplies consumer traceability
 only; it does not turn the SQL signer join into the full acceptedArtifact result.
 V001-V042, the V043 interlock, protected DB, production policy/crypto/live roles,
 G3G and main publication remain outside this amendment.
+
+## S02 fresh Ed25519 verification and acceptance error contract - 2026-10-03
+
+This explicit approval supersedes only the previous no-helper limitation for
+S02 acceptedArtifact and the Q-only crypto-schema limitation where specified
+below. Other authority remains unchanged. Native verification correctness stays
+inside the governed database boundary; no JVM/caller verification flag or
+accepted_proof_fingerprint may substitute for fresh verification.
+
+Approve offline_crypto.canonical_spki_ed25519_verify(bytea,bytea,bytea) -> bool,
+with exact pg_catalog-qualified unnamed mandatory types, LANGUAGE C IMMUTABLE
+STRICT PARALLEL SAFE SECURITY INVOKER, proconfig NULL, scalar return,
+module $libdir/flooow_offline_mac32 and symbol canonical_spki_ed25519_verify.
+The inputs are SPKI DER, exact canonical signature preimage bytes and exact
+signature bytes. Only Ed25519 is allowed. Use d2i_PUBKEY with full consumption,
+require Ed25519, i2d_PUBKEY canonical byte-for-byte round-trip, and one-shot
+EVP_DigestVerifyInit(NULL digest)/EVP_DigestVerify. No prehash, normalization,
+handwritten curve/point mathematics, fallback, alternate provider or algorithm.
+Frozen required lengths are SPKI 44 and signature 64 bytes. SQL NULL produces
+NULL through STRICT; NULL never accepts.
+
+Structural malformed/incomplete/trailing/noncanonical DER, algorithm mismatch
+and malformed required lengths raise SQLSTATE 22023. Approved OpenSSL ordinary
+cryptographic rejection returns false, including the known FF encoded-point
+vector (JCA InvalidKeyException -> accepted false; OpenSSL false -> accepted
+false). Allocation, initialization unrelated to ordinary key rejection,
+unexpected API results and internal invariants raise XX000. TRUE is the only
+acceptance value. S02 catches primitive failures and maps false/error to
+acceptedArtifact=false. JCA_PROVIDER_EXCEPTION_TAXONOMY_PARITY=NOT_REQUIRED;
+ACCEPTED_ARTIFACT_DECISION_PARITY=REQUIRED. Operational failures must not silently
+become false; structural malformed inputs must remain errors at the primitive.
+
+Owner D=postgres retains administrative native ownership. Only V receives exact
+non-grantable native EXECUTE and offline_crypto USAGE, in addition to Q's
+previous schema USAGE and its two unchanged HMAC/comparator grants. V receives
+no HMAC/comparator EXECUTE or key-material read. A receives neither private
+crypto-schema USAGE nor native EXECUTE. PUBLIC, service logins, I/E/P/Q/Z and
+ordinary wrappers receive no Ed25519 native EXECUTE. Owner/default/membership
+bypass remains forbidden. Extension/binary installation and creator defaults
+remain separate trusted deployment actions, never V043 repair or live work.
+
+The sole operational bridge is
+public.offline_internal_canonical_spki_ed25519_verify(pg_catalog.bytea,
+pg_catalog.bytea,pg_catalog.bytea) RETURNS pg_catalog.bool, owned by V,
+SECURITY DEFINER IMMUTABLE STRICT PARALLEL SAFE, fixed
+search_path=pg_catalog,pg_temp. Its sole body delegates the exact three bytes
+arguments to the fully qualified native primitive. Only A receives non-grantable
+EXECUTE; PUBLIC and service logins receive none. A already has public USAGE;
+no private-schema resolution grant is added. This helper is an internal
+capability, not an additional public product wrapper or output field.
+
+S02 preserves exact frozen signer predicates/cardinality, canonical manifest,
+digest/preimage, fingerprints/lineage, schema/version/window/recorded_at,
+accepted-proof recomputation, eleven output fields and seven counts. No DML,
+locks, possession inference, truth persistence, caller truth or raw key output.
+Physical column grants remain 1032; native/bridge EXECUTE and schema USAGE are
+separately inventoried. Frozen JCA decision parity, all 51 vectors, operational
+fault injection, native safety/exports/dependencies/hardening, reproducible
+binary SHA256 and deployment provenance are mandatory source evidence.
+Installed ACLs, PostgreSQL parity and runtime proof remain separate gates.

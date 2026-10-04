@@ -374,3 +374,32 @@ unchanged admission validity rules. This approval supplies consumer traceability
 only; it does not turn the SQL signer join into the full acceptedArtifact result.
 V001-V042, the V043 interlock, protected DB, production policy/crypto/live roles,
 G3G and main publication remain outside this amendment.
+
+## S02 Ed25519 path and invalid-key acceptance contract - 2026-10-03
+
+The supplied bounded native-path approval and invalid-key closure authorize one
+thin OpenSSL Ed25519 native primitive in the existing flooow_offline_mac32
+package. Fresh verification is mandatory inside the database boundary; caller
+truth, cached proof fingerprints and handwritten curve/point logic are forbidden.
+The exact native contract, V-owned bridge and ACL manifest are specified in the
+S02 fresh Ed25519 amendment of SPEC-0090. This supersedes only the previous
+S02 no-helper and Q-only schema limitations for this exact capability.
+
+JCA_PROVIDER_EXCEPTION_TAXONOMY_PARITY=NOT_REQUIRED.
+ACCEPTED_ARTIFACT_DECISION_PARITY=REQUIRED.
+The known FF point is cryptographic rejection: JCA InvalidKeyException maps to
+accepted false; OpenSSL false maps to accepted false. Structural errors remain
+22023; operational/allocation/internal failures remain XX000. Only true accepts.
+No provider internals, alternate algorithms or authority widening is permitted.
+
+D owns the native primitive; only V gets exact native EXECUTE and private crypto
+USAGE. V's fixed-search-path SECURITY DEFINER bridge delegates exactly three
+bytea arguments. Only A gets bridge EXECUTE, with no direct native access,
+private-schema USAGE or key-material authority. PUBLIC/services have no path.
+S02 public signature, eleven outputs, seven counts and read-only behavior stay
+unchanged. Physical column grants remain 1032; function/schema capabilities are
+separate. Final reproducible binary identity and source evidence do not prove
+installed ownership/ACLs or PostgreSQL runtime parity.
+
+V001-V042, V043 execution/interlock, protected DB/runtime installation,
+production roles/policy, G3G and main publication remain excluded.
