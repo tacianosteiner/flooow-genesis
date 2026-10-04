@@ -10,7 +10,6 @@ import io.flooow.marketplace.persistence.postgres.PostgresCommandAuthorization
 import io.flooow.marketplace.persistence.postgres.PostgresTransactionIdentityWriter
 import java.nio.file.Path
 import java.security.SecureRandom
-import java.time.Clock
 import javax.sql.DataSource
 
 /** Explicitly keeps issuer and runtime connection ownership separate. */
@@ -98,27 +97,13 @@ fun main(args: Array<String>) {
     val inputPath = environment["FLOOOW_FIELD_PROOF_INPUT_PATH"]
         ?: error("FLOOOW_FIELD_PROOF_INPUT_PATH is required")
     val input = OfflineFieldProofInputLoader.load(Path.of(inputPath))
-    val databaseConfiguration = OfflineDatabaseConfiguration.fromEnvironment(environment)
-    val dataSources = OfflineDataSources.create(databaseConfiguration)
-    val composition = PostgresCeremonyComposition(dataSources.verifier, dataSources.issuer, dataSources.runtime)
-    val tty = SystemConsoleProtectedTty()
-    val launcher = OfflineFieldProofLauncher(
-        verifier = composition.verifier,
-        issuer = composition.issuer,
-        runtime = composition.runtime,
-        tty = tty,
-        boundaryVerifier = PostgresOfflineFieldProofBoundaryVerifier(databaseConfiguration, dataSources),
-        reconciler = PostgresOfflineFieldProofReconciler(
-            dataSources.runtime
-        ),
-        operatorConfirmation = SystemConsoleOperatorConfirmation(),
-        clock = Clock.systemUTC(),
-        random = SecureRandom()
+    val (deployment, sources) = GovernedDeployment.environment(environment)
+    val launcher = GovernedOfflineFieldProofLauncher(
+        deployment, sources, SystemConsoleProtectedTty(), SystemConsoleOperatorConfirmation(), SecureRandom()
     )
-    val result = launcher.execute(input)
-    println("OUTCOME=${result.outcome}")
-    println("PLAN_FINGERPRINT=${result.planFingerprint}")
-    println("LAST_STAGE=${result.lastStage}")
+    val outcome = try { launcher.execute(input) } catch (_: Throwable) { "DENIED_OR_AMBIGUOUS_REQUIRES_INSPECTION" }
+    println("OUTCOME=${outcome}")
+    println("PLAN_FINGERPRINT=${input.plan.fingerprint()}")
     println("RUN_ID=${input.plan.runId}")
     println("MANIFEST_ID=${input.attestation.manifest.manifestId}")
     println("PRINCIPAL_ID=${input.plan.principalId}")
@@ -128,8 +113,5 @@ fun main(args: Array<String>) {
     println("PROVIDER_CALL=NO")
     println("ROTATE_CREDENTIAL=HOLD")
     println("REVOKE=HOLD")
-    check(result.outcome == OfflineFieldProofOutcome.SUCCESS_RECONCILED ||
-        result.outcome == OfflineFieldProofOutcome.ALREADY_APPLIED_RECONCILED) {
-        "Field-proof launcher stopped fail-closed: ${result.outcome}"
-    }
+    check(outcome == "EFFECTS_COMPLETE_RECONCILIATION_REQUIRED") { "FIELD_PROOF_STOPPED_REQUIRES_INSPECTION" }
 }
