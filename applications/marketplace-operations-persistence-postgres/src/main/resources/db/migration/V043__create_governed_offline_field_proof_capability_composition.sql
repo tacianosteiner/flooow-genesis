@@ -3,7 +3,7 @@
 -- Do not execute or run Flyway against this incomplete candidate.
 -- Normative contract: SPEC-0090 sections 21-25, including the approved amendments.
 -- Complete guards/wrappers and independently approved golden evidence remain pending.
--- P/Q/Z source only; public wrapper closure remains incomplete.
+-- P/Q/Z and approved Ed25519 V bridge source; public wrapper closure incomplete.
 -- No crypto objects, service logins or deployment data are provisioned.
 -- NEW_CANONICAL_DOMAIN_AUTHORITY=NO. Future guards/admin governance enforce
 -- cross-table transitions, immutability, permanent slot allocation and tombstones.
@@ -5078,7 +5078,7 @@ BEGIN
     SELECT pg_catalog.array_agg(p.oid ORDER BY p.oid) INTO function_oids
       FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
      WHERE (n.nspname='public' AND p.proname=ANY(ARRAY['command_authorization_organization_lock','offline_apply_attested_decision','offline_apply_grant','offline_apply_initial_credential','offline_apply_principal','offline_authenticate_command','offline_begin_grant','offline_begin_initial_credential','offline_begin_principal','offline_begin_verification','offline_claim_attempt','offline_inspect','offline_internal_readiness','offline_internal_verify_authority_intent','offline_lock_bound_principal','offline_persist_verification','offline_preflight','offline_prepare_attested_decision','offline_read_history','offline_reconcile','s2a_begin_attestation_verification','s2a_persist_attestation_verification_result','s2a_v042_apply_attested_decision','s2a_v042_apply_attested_grant','s2a_v042_apply_attested_initial_credential','s2a_v042_apply_attested_principal','s2a_v042_authority_intent','s2a_v042_authority_receipt','s2a_v042_begin_attested_decision_verification','s2a_v042_begin_attested_grant_verification','s2a_v042_begin_attested_initial_credential_verification','s2a_v042_begin_attested_principal_verification','s2a_v042_frame','s2a_v042_instant','s2a_v042_text','transaction_identity_fingerprint','transaction_identity_grant_fingerprint','transaction_identity_hash','transaction_identity_intent','transaction_identity_progress_lock']::pg_catalog.text[]))
-        OR (n.nspname='offline_crypto' AND p.proname IN ('hmac','timing_safe_equal32'))
+        OR (n.nspname='offline_crypto' AND p.proname IN ('hmac','timing_safe_equal32','canonical_spki_ed25519_verify'))
         OR (n.nspname!~'^pg_' AND n.nspname<>'information_schema' AND
             EXISTS(SELECT 1 FROM pg_catalog.unnest(protected_oids[1:11]) q(oid)
                    WHERE pg_catalog.has_function_privilege(q.oid,p.oid,'EXECUTE')));
@@ -6625,6 +6625,61 @@ GRANT EXECUTE ON FUNCTION public.offline_internal_readiness(pg_catalog.uuid,pg_c
 GRANT USAGE ON SCHEMA public TO flooow_offline_readiness_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_audit_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_execution_owner;
+
+
+-- Approved V Ed25519 bridge: no A/private-native access.
+-- Existing crypto dependency inspection above requires D-only native ACLs
+-- before the newly approved two V grants below. This is no general ACL repair.
+DO $$
+DECLARE
+    native_oid pg_catalog.oid;
+    deployment_oid pg_catalog.oid;
+BEGIN
+    SELECT r.oid INTO deployment_oid FROM pg_catalog.pg_roles r WHERE r.rolname='postgres';
+    native_oid := pg_catalog.to_regprocedure('offline_crypto.canonical_spki_ed25519_verify(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea)');
+    IF native_oid IS NULL OR NOT EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p
+        JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+        JOIN pg_catalog.pg_language l ON l.oid=p.prolang
+        JOIN pg_catalog.pg_depend d ON d.classid='pg_catalog.pg_proc'::pg_catalog.regclass
+             AND d.objid=p.oid AND d.deptype='e' AND d.refclassid='pg_catalog.pg_extension'::pg_catalog.regclass
+        JOIN pg_catalog.pg_extension e ON e.oid=d.refobjid
+        WHERE p.oid=native_oid AND p.proowner=deployment_oid AND n.nspname='offline_crypto'
+          AND l.lanname='c' AND p.prokind='f' AND p.provolatile='i'
+          AND p.proisstrict AND NOT p.prosecdef AND NOT p.proretset AND p.proparallel='s'
+          AND p.pronargdefaults=0 AND p.provariadic=0 AND p.proargnames IS NULL
+          AND p.proallargtypes IS NULL AND p.proargmodes IS NULL AND p.proconfig IS NULL
+          AND p.prorettype='pg_catalog.bool'::pg_catalog.regtype
+          AND p.probin='$libdir/flooow_offline_mac32' AND p.prosrc='canonical_spki_ed25519_verify'
+          AND e.extname='flooow_offline_mac32' AND e.extversion='1.0' AND e.extowner=deployment_oid
+    ) OR EXISTS (
+        SELECT 1 FROM pg_catalog.pg_proc p CROSS JOIN LATERAL
+            pg_catalog.aclexplode(COALESCE(p.proacl,pg_catalog.acldefault('f',p.proowner))) a
+        WHERE p.oid=native_oid AND (a.grantee<>deployment_oid OR a.is_grantable AND a.grantee<>p.proowner)
+    ) THEN
+        RAISE EXCEPTION 'Approved exact private Ed25519 deployment prerequisite is missing or unsafe';
+    END IF;
+END;
+$$;
+GRANT USAGE ON SCHEMA offline_crypto TO flooow_offline_verification_owner;
+GRANT EXECUTE ON FUNCTION offline_crypto.canonical_spki_ed25519_verify(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) TO flooow_offline_verification_owner;
+
+CREATE FUNCTION public.offline_internal_canonical_spki_ed25519_verify(
+    subject_public_key_info_der pg_catalog.bytea,
+    canonical_signature_preimage_bytes pg_catalog.bytea,
+    signature_bytes pg_catalog.bytea
+) RETURNS pg_catalog.bool
+LANGUAGE plpgsql IMMUTABLE STRICT PARALLEL SAFE SECURITY DEFINER
+SET search_path=pg_catalog,pg_temp
+AS $offline_v_ed25519$
+BEGIN
+    RETURN offline_crypto.canonical_spki_ed25519_verify($1,$2,$3);
+END;
+$offline_v_ed25519$;
+ALTER FUNCTION public.offline_internal_canonical_spki_ed25519_verify(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) OWNER TO flooow_offline_verification_owner;
+REVOKE ALL ON FUNCTION public.offline_internal_canonical_spki_ed25519_verify(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.offline_internal_canonical_spki_ed25519_verify(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea) TO flooow_offline_audit_owner;
+-- End approved V Ed25519 bridge.
 
 -- Public S01: authenticated bound private readiness predicates.
 CREATE FUNCTION public.offline_preflight(

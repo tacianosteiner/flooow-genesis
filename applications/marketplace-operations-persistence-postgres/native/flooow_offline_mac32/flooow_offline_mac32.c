@@ -16,6 +16,25 @@ PG_FUNCTION_INFO_V1(timing_safe_equal32);
  * false; structural input and operational failures remain distinct errors. */
 PG_FUNCTION_INFO_V1(canonical_spki_ed25519_verify);
 
+/* OpenSSL may append a decoder/provider error after an allocation error.
+ * Inspect the whole operation's queue, never only the last error. */
+static bool
+openssl_operational_failure(void)
+{
+    unsigned long error;
+    bool failed = false;
+
+    while ((error = ERR_get_error()) != 0)
+    {
+        int reason = ERR_GET_REASON(error);
+
+        if (reason == ERR_R_MALLOC_FAILURE || reason == ERR_R_INTERNAL_ERROR ||
+            reason == ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED)
+            failed = true;
+    }
+    return failed;
+}
+
 Datum
 canonical_spki_ed25519_verify(PG_FUNCTION_ARGS)
 {
@@ -40,7 +59,7 @@ canonical_spki_ed25519_verify(PG_FUNCTION_ARGS)
     cursor = (const unsigned char *) VARDATA_ANY(spki);
     ERR_clear_error();
     key = d2i_PUBKEY(NULL, &cursor, 44);
-    if (key == NULL && ERR_GET_REASON(ERR_peek_last_error()) == ERR_R_MALLOC_FAILURE)
+    if (key == NULL && openssl_operational_failure())
         ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
                         errmsg("Ed25519 public key allocation failed")));
     if (key == NULL || cursor != (const unsigned char *) VARDATA_ANY(spki) + 44 ||
@@ -70,7 +89,13 @@ canonical_spki_ed25519_verify(PG_FUNCTION_ARGS)
         ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
                         errmsg("Ed25519 public key encoding failed")));
     }
-    if (result != 44 || memcmp(canonical, VARDATA_ANY(spki), 44) != 0)
+    if (result != 44)
+    {
+        EVP_PKEY_free(key);
+        ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
+                        errmsg("Ed25519 public key encoding invariant failed")));
+    }
+    if (memcmp(canonical, VARDATA_ANY(spki), 44) != 0)
     {
         EVP_PKEY_free(key);
         ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
@@ -89,7 +114,7 @@ canonical_spki_ed25519_verify(PG_FUNCTION_ARGS)
                              (const unsigned char *) VARDATA_ANY(signature), 64,
                              (const unsigned char *) VARDATA_ANY(message),
                              VARSIZE_ANY_EXHDR(message));
-    if (ERR_GET_REASON(ERR_peek_last_error()) == ERR_R_MALLOC_FAILURE)
+    if (openssl_operational_failure())
     {
         EVP_MD_CTX_free(context);
         EVP_PKEY_free(key);

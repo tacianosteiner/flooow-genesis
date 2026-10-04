@@ -97,6 +97,7 @@ def inspect_precondition_bodies(blocks):
 def actual_column_grants(statements):
     grants = set()
     schema_usage=set()
+    private_usage=set()
     for statement in statements:
         grant = statement.get("GrantStmt")
         if not grant or not grant.get("is_grant"):
@@ -106,10 +107,14 @@ def actual_column_grants(statements):
             continue
         if grant['objtype']=='OBJECT_SCHEMA':
             import package_0090_q_source as q
-            if grant.get('grant_option') or grant.get('privileges')!=[{'AccessPriv':{'priv_name':'usage'}}] or grant['objects']!=[{'String':{'sval':'public'}}]:
+            if grant.get('grant_option') or grant.get('privileges')!=[{'AccessPriv':{'priv_name':'usage'}}] or grant['objects'] not in ([{'String':{'sval':'public'}}],[{'String':{'sval':'offline_crypto'}}]):
                 raise ValueError('Unapproved schema grant')
             for r in grant['grantees']:
                 name=r['RoleSpec'].get('rolename')
+                if grant['objects']==[{'String':{'sval':'offline_crypto'}}]:
+                    if name!=OWNERS['V'] or name in private_usage:raise ValueError('Only V exact private USAGE')
+                    private_usage.add(name)
+                    continue
                 if name not in q.USAGE or name in schema_usage:raise ValueError('Unapproved/duplicate schema USAGE')
                 schema_usage.add(name)
             continue
@@ -138,6 +143,9 @@ def actual_column_grants(statements):
     q_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_internal_readiness'}}] for s in statements)
     if schema_usage != (q.USAGE if q_present else set()):
         raise ValueError('Exact Q/A/E public USAGE prerequisites missing')
+    from build_package_0090_v_bridge_source import NAME as v_name
+    v_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':v_name}}] for s in statements)
+    if private_usage!=({OWNERS['V']} if v_present else set()):raise ValueError('Exact V-only private schema path missing')
     return grants
 
 
@@ -208,13 +216,13 @@ def prerequisite_checks(source, spec):
 def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
-    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21:
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 22:
         missing.append("Public wrappers remain incomplete; P/Q/Z/S01 have bounded static review only")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_internal_readiness\(", source):
         missing.append("Internal Q is absent; operational wrappers/guards remain incomplete")
-    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21:
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 22:
         missing.append("Wrapper transport and private decision commitment codecs/goldens are incomplete; fixture binding/catalog goldens do not close them")
-    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 21 or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 22 or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
         missing.append("Exact frozen/internal capability EXECUTE ACL closure is absent")
     approval = ('FIXTURE_ID=PACKAGE-0090-G3F-3B-FIXTURE-001',
                 'POLICY_VERSION=fixture-1',

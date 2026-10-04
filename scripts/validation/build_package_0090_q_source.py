@@ -390,7 +390,7 @@ def build_catalog(spec):
     SELECT pg_catalog.array_agg(p.oid ORDER BY p.oid) INTO function_oids
       FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
      WHERE (n.nspname='public' AND p.proname=ANY(ARRAY[''' + ','.join(literal(n) for n in function_names) + ''']::pg_catalog.text[]))
-        OR (n.nspname='offline_crypto' AND p.proname IN ('hmac','timing_safe_equal32'))
+        OR (n.nspname='offline_crypto' AND p.proname IN ('hmac','timing_safe_equal32','canonical_spki_ed25519_verify'))
         OR (n.nspname!~'^pg_' AND n.nspname<>'information_schema' AND
             EXISTS(SELECT 1 FROM pg_catalog.unnest(protected_oids[1:11]) q(oid)
                    WHERE pg_catalog.has_function_privilege(q.oid,p.oid,'EXECUTE')));

@@ -13,9 +13,12 @@ accepted(). This supersedes the historical error-contract hold below.
 NATIVE_SOURCE_CLOSED=YES_BOUNDED_NOT_RUNTIME. All 51 vectors were rerun: 50
 comparable results match, 51 acceptance decisions match, with no positive or
 false-to-true divergence. All structural malformed vectors remain 22023 errors.
-Eight fault-injection paths remain XX000, including context allocation,
+Ten fault-injection paths remain XX000, including context allocation,
 initialization, unexpected negative/positive verification results, key parsing
-allocation, both encoding failures and allocation on a zero verification result.
+allocation, both encoding failures and allocation on a zero verification result,
+encoding-size invariants and an internal provider failure on a zero result.
+Allocation detection scans the complete OpenSSL error queue, including tests
+where a later non-allocation error hides the original allocation error.
 Fault substitutions exist solely in the test harness, never in deployable C.
 ASAN/UBSAN and MAC32 equal/unequal regressions pass. Two clean PGXS builds have
 identical binary SHA256. Exact export allowlist, imports, dependency and
@@ -31,7 +34,9 @@ deployment proof. Exact deployable candidate hash is in the regenerated JSON.
 
 NEXT_GATE=G3F.3B_INTERNAL_V_BRIDGE_AND_S02_IMPLEMENTATION.
 UNRESOLVED_INVALID_KEY_ERROR_BLOCKER_COUNT=0.
-Continue with the exact V-owned bridge and full S02 acceptedArtifact flow.
+Continuation implemented the V bridge and identified the independent original
+signed-input gap documented in PACKAGE-0090-S02-EXPECTED-ATTESTATION-AUTHORITY.md.
+CURRENT_NEXT_GATE=G3F.3B_S02_EXPECTED_SIGNED_ATTESTATION_BINDING.
 Historical observations below remain retained research evidence.
 
 ## Historical checkpoint - error-contract hold before normalization

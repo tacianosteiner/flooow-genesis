@@ -16,6 +16,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 NATIVE = ROOT / 'applications/marketplace-operations-persistence-postgres/native/flooow_offline_mac32'
 BUILDER = 'flooow-0090-crypto-builder:fe0425a2'
+EXPECTED_BUILDER_ID = 'sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561'
 
 
 def run(args, **kwargs):
@@ -64,13 +65,17 @@ pg_config --version > versions.txt
 openssl version >> versions.txt
 '''
         image_id = run(['docker','image','inspect','--format','{{.Id}}',BUILDER]).strip()
+        if image_id!=EXPECTED_BUILDER_ID:raise RuntimeError('Pinned crypto builder identity changed')
         run(['docker','run','--rm','--network','none','--mount',f'type=bind,source={scratch},target=/review',
              '--entrypoint','sh',image_id,'-c',shell])
+        versions=(work/'versions.txt').read_text().splitlines()
+        if len(versions)!=2 or not versions[0].startswith('PostgreSQL 18.4 ') or not versions[1].startswith('OpenSSL 3.5.6 '):
+            raise RuntimeError('Pinned PostgreSQL/OpenSSL runtime contract changed')
         outputs = dict(line.split('|') for line in (work/'results.txt').read_text().splitlines())
         if (work/'results.txt').read_bytes() != (work/'sanitized-results.txt').read_bytes():
             raise RuntimeError('Sanitized parity changed')
         operational=(work/'operational.txt').read_text().splitlines()
-        expected_operational=[f'OPERATIONAL_INJECTION_{mode}=XX000' for mode in range(1,9)]
+        expected_operational=[f'OPERATIONAL_INJECTION_{mode}=XX000' for mode in range(1,11)]
         if operational!=expected_operational or (work/'sanitized-operational.txt').read_text().splitlines()!=expected_operational:
             raise RuntimeError('Operational failures must remain XX000')
         exports = sorted(line.split()[-1] for line in (work/'exports.txt').read_text().splitlines())

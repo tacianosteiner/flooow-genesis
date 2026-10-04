@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <setjmp.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
@@ -18,15 +19,17 @@ static int test_init(EVP_MD_CTX *ctx, EVP_PKEY_CTX **pctx, const EVP_MD *type, E
 static int test_verify(EVP_MD_CTX *ctx,const unsigned char *sig,size_t siglen,const unsigned char *msg,size_t msglen) {
     if(injected_failure==3)return -1;
     if(injected_failure==4)return 2;
-    if(injected_failure==8) { ERR_raise(ERR_LIB_EVP,ERR_R_MALLOC_FAILURE);return 0; }
+    if(injected_failure==8) { ERR_raise(ERR_LIB_EVP,ERR_R_MALLOC_FAILURE);ERR_raise(ERR_LIB_EVP,ERR_R_PASSED_INVALID_ARGUMENT);return 0; }
+    if(injected_failure==10) { ERR_raise(ERR_LIB_EVP,ERR_R_INTERNAL_ERROR);return 0; }
     return EVP_DigestVerify(ctx,sig,siglen,msg,msglen);
 }
 static EVP_PKEY *test_parse(EVP_PKEY **key,const unsigned char **bytes,long length) {
-    if(injected_failure==5) { ERR_raise(ERR_LIB_EVP,ERR_R_MALLOC_FAILURE);return NULL; }
+    if(injected_failure==5) { ERR_raise(ERR_LIB_EVP,ERR_R_MALLOC_FAILURE);ERR_raise(ERR_LIB_EVP,ERR_R_PASSED_INVALID_ARGUMENT);return NULL; }
     return d2i_PUBKEY(key,bytes,length);
 }
 static int test_encode(const EVP_PKEY *key,unsigned char **bytes) {
     if((injected_failure==6 && !bytes)||(injected_failure==7 && bytes))return -1;
+    if(injected_failure==9 && bytes)return 43;
     return i2d_PUBKEY(key,bytes);
 }
 static jmp_buf failure;
@@ -77,7 +80,7 @@ int main(void) {
         else result=canonical_spki_ed25519_verify()?"true":"false";
         printf("%s|%s\n",parts[0],result);
         if(strcmp(parts[0],"valid")==0) {
-            for(int mode=1;mode<=8;mode++) {
+            for(int mode=1;mode<=10;mode++) {
                 injected_failure=mode;error_code=0;
                 if(setjmp(failure)==0) { (void)canonical_spki_ed25519_verify();return 4; }
                 if(error_code!=ERRCODE_INTERNAL_ERROR)return 5;
