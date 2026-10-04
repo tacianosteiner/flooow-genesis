@@ -1674,15 +1674,15 @@ Every retained SELECT has a field use: predicate/join/order/cardinality, a decla
 | A | public.offline_execution | state | READ_PRIVILEGE | INSPECT/RECON | S02-S03 | State/origin/time coherence I2/I5/I13/I15/I17; no possession digest | NO | Control-only; frozen effects unchanged |
 | A | public.offline_execution | claimed_at | READ_PRIVILEGE | INSPECT/RECON | S02-S03 | State/origin/time coherence I2/I5/I13/I15/I17; no possession digest | NO | Control-only; frozen effects unchanged |
 | A | public.offline_execution | expires_at | READ_PRIVILEGE | INSPECT/RECON | S02-S03 | State/origin/time coherence I2/I5/I13/I15/I17; no possession digest | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | binding_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | attempt_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | generation | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | execution_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | instance_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | credential_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | initial_operation_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | fresh_applied_receipt_id | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
-| I | public.offline_delivery | state | READ_PRIVILEGE | ISSUE-STAGE | S09-S10 | Single fresh credential origin initialization; reject second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | binding_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | attempt_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | generation | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | execution_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | instance_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | credential_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | initial_operation_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | fresh_applied_receipt_id | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
+| I | public.offline_delivery | state | READ_PRIVILEGE | ISSUE-STAGE / GUARD-I ACK | S09-S12 | Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin | NO | Control-only; frozen effects unchanged |
 | E | public.offline_delivery | binding_id | READ_PRIVILEGE | DELIVERY/AUTH/COMPLETE | S14-S18 | Original live single-consumption/report replay, deadline, ACK prerequisite and decision coherence | NO | Control-only; frozen effects unchanged |
 | E | public.offline_delivery | attempt_id | READ_PRIVILEGE | DELIVERY/AUTH/COMPLETE | S14-S18 | Original live single-consumption/report replay, deadline, ACK prerequisite and decision coherence | NO | Control-only; frozen effects unchanged |
 | E | public.offline_delivery | generation | READ_PRIVILEGE | DELIVERY/AUTH/COMPLETE | S14-S18 | Original live single-consumption/report replay, deadline, ACK prerequisite and decision coherence | NO | Control-only; frozen effects unchanged |
@@ -2551,3 +2551,12 @@ I/E receive no helper access and rely only on verified durable V stage lineage.
 Native verification and trusted adapter JCA remain independently mandatory.
 V001-V042 and the unconditional V043 interlock remain unchanged; no protected
 PostgreSQL, production policy/roles, G3G or main publication is authorized.
+
+### Existing issuer delivery guard matrix alignment
+
+The nine existing I/offline_delivery READ_PRIVILEGE rows cover S09-S12:
+S09/S10 preserve fresh credential origin; S11/S12 require the exact original live
+DELIVERY_ACKNOWLEDGED prerequisite already mandatory in I5 and section8's M
+contract. The existing S07-S12 delivery lock and I column privileges are unchanged.
+This aligns entrypoint labels with the previously authorized mandatory guard;
+no new grant, helper, public projection, owner or execution capability is added.

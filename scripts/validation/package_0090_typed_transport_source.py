@@ -25,16 +25,19 @@ def bound(name,kind):
     if kind=='bytea':
         if 'signature_preimage' in name:return (222,222)
         if 'subject_public_key_info' in name:return (44,44)
-        if name=='p_signature_bytes':return (64,64)
+        if name in ('p_signature_bytes','p_expected_signature_bytes'):return (64,64)
+        if name=='p_secret_verifier':return (32,32)
         if 'canonical_manifest' in name:return (1,4096)
         raise ValueError('Unbounded bytea '+name)
     if kind=='text':
-        if 'fingerprint' in name or name=='p_manifest_digest':return (64,64)
+        if 'fingerprint' in name or name.endswith('manifest_digest'):return (64,64)
         if name=='p_source_order_reference':return (1,256)
         if name=='p_integration_reference':return (1,60)
         if name=='p_reason':return (1,512)
         if name=='p_provenance':return (1,1024)
         enums={'p_permission':'TRANSACTION_IDENTITY_DECISION_WRITE','p_credential_delivery_method':'PROTECTED_TTY_ONE_TIME','p_immediate_revocation_policy':'SEPARATE_APPROVAL_REQUIRED','p_algorithm_id':'Ed25519'}
+        if name=='p_expected_algorithm_id':return (7,7)
+        if name=='outcome':return (1,17)
         if name in enums:return (len(enums[name]),len(enums[name]))
         # Output fields are never accepted as arbitrary request text except the
         # explicitly frozen expected fingerprints handled above.
@@ -44,8 +47,8 @@ def bound(name,kind):
 def declarations(fields,prefix='input_'):
     return ''.join('    '+prefix+name+' pg_catalog.'+kind+';\n' for name,kind in fields)
 
-def decode(expression,stage,fields,prefix='input_'):
-    domain='FLOOOW/OFFLINE-FIELD-PROOF/'+stage+'/INPUT/V1'
+def decode(expression,stage,fields,prefix='input_',direction='INPUT'):
+    domain='FLOOOW/OFFLINE-FIELD-PROOF/'+stage+'/'+direction+'/V1'
     domain_bytes=domain.encode();head=(len(domain_bytes).to_bytes(4,'big')+domain_bytes+len(fields).to_bytes(2,'big')).hex()
     total=6+len(domain_bytes)+sum(7+bound(n,t)[1] for n,t in fields)
     code=deny('pg_catalog.octet_length('+expression+')>'+str(total)+' OR pg_catalog.substring('+expression+',1,'+str(len(domain_bytes)+6)+")<>pg_catalog.decode('"+head+"','hex')")

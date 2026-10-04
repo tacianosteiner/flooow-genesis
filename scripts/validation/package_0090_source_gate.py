@@ -115,7 +115,7 @@ def actual_column_grants(statements):
                     if name!=OWNERS['V'] or name in private_usage:raise ValueError('Only V exact private USAGE')
                     private_usage.add(name)
                     continue
-                if name not in q.USAGE | {OWNERS['V']} or name in schema_usage:raise ValueError('Unapproved/duplicate schema USAGE')
+                if name not in q.USAGE | {OWNERS['V'],OWNERS['I']} or name in schema_usage:raise ValueError('Unapproved/duplicate schema USAGE')
                 schema_usage.add(name)
             continue
         if grant["objtype"] != "OBJECT_TABLE":
@@ -142,7 +142,8 @@ def actual_column_grants(statements):
                         grants.add(item)
     q_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_internal_readiness'}}] for s in statements)
     original_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_internal_matches_original_signed_attestation'}}] for s in statements)
-    if schema_usage != ((q.USAGE if q_present else set()) | ({OWNERS['V']} if original_present else set())):
+    issuance_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_begin_principal'}}] for s in statements)
+    if schema_usage != ((q.USAGE if q_present else set()) | ({OWNERS['V']} if original_present else set()) | ({OWNERS['I']} if issuance_present else set())):
         raise ValueError('Exact Q/A/E public USAGE prerequisites missing')
     from build_package_0090_v_bridge_source import NAME as v_name
     v_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':v_name}}] for s in statements)

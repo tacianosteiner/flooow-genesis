@@ -1,0 +1,90 @@
+{
+  "gate": "G3F.3B_ISSUER_DELIVERY_ACK_CONSUMER_AUTHORITY",
+  "status": "ALIGNED_EXISTING_I5_AND_I_COLUMN_AUTHORITY",
+  "unresolved_authority_blocker_count": 0,
+  "required_boundary": "S11/S12 grant M guard",
+  "required_invariant": "I5 original live execution DELIVERY_ACKNOWLEDGED before grant",
+  "approved_i_delivery_reads": [
+    {
+      "column": "binding_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "attempt_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "generation",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "execution_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "instance_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "credential_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "initial_operation_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "fresh_applied_receipt_id",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    },
+    {
+      "column": "state",
+      "consumer": "ISSUE-STAGE / GUARD-I ACK",
+      "entrypoint": "S09-S12",
+      "purpose": "Existing I5: fresh credential origin initialization or exact original live ACK prerequisite before grant; no second origin"
+    }
+  ],
+  "physical_grant_count": 1040,
+  "physical_i_select_exists": true,
+  "authorized_s11_s12_consumer": true,
+  "rationale": "Existing I5 explicitly requires the original live ACK before grant; I already has all nine scoped delivery column reads and S07-S12 delivery lock authority. The matrix entrypoint labels are aligned with that existing mandatory guard. No new role, column privilege, helper, caller projection or mutation authority is added.",
+  "selected_handoff": {
+    "change": "Aligned the nine existing I delivery read consumer rows with mandatory I5 for S09-S12; no new privilege",
+    "fields": [
+      "binding_id",
+      "attempt_id",
+      "generation",
+      "execution_id",
+      "instance_id",
+      "credential_id",
+      "initial_operation_id",
+      "fresh_applied_receipt_id",
+      "state"
+    ],
+    "new_column_grants": 0,
+    "new_helpers": 0,
+    "new_public_signatures": 0,
+    "required_checks": "Exact binding/current attempt/generation/execution/instance/credential/initial operation and original fresh Applied receipt; state DELIVERY_ACKNOWLEDGED; retain M possession/window/C locks"
+  },
+  "s07_s12_implemented": "BOUNDED_SOURCE_NOT_RUNTIME",
+  "authority_widened": false,
+  "v043_executed": false,
+  "protected_database_connection": false,
+  "limitation": "Source consumer alignment only; full installed ACL and runtime guard closure remain separate."
+}
