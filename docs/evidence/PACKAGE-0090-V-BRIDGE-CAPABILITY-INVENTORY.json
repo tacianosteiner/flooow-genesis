@@ -2,7 +2,7 @@
   "gate": "G3F.3B_V_BRIDGE_EXECUTE_SOURCE_INVENTORY",
   "scope": "ALL_PRESENT_SOURCE_EXPLICIT_GRANTS_AND_OWNERS_NOT_INSTALLED_EFFECTIVE_ACLS",
   "exact_column_grants": 1040,
-  "function_execute_grant_count": 14,
+  "function_execute_grant_count": 16,
   "function_execute_grants": [
     {
       "schema": "public",
@@ -195,6 +195,26 @@
       "grantee": "flooow_offline_audit_owner",
       "privilege": "EXECUTE",
       "grant_option": false
+    },
+    {
+      "schema": "public",
+      "name": "transaction_identity_intent",
+      "input_types": [
+        "public.marketplace_transaction_identity_decision"
+      ],
+      "grantee": "flooow_offline_audit_owner",
+      "privilege": "EXECUTE",
+      "grant_option": false
+    },
+    {
+      "schema": "public",
+      "name": "transaction_identity_fingerprint",
+      "input_types": [
+        "public.marketplace_transaction_identity_decision"
+      ],
+      "grantee": "flooow_offline_audit_owner",
+      "privilege": "EXECUTE",
+      "grant_option": false
     }
   ],
   "schema_usage_grant_count": 4,
@@ -318,6 +338,18 @@
     {
       "schema": "public",
       "name": "offline_inspect",
+      "input_types": [
+        "pg_catalog.uuid",
+        "pg_catalog.bytea",
+        "pg_catalog.uuid",
+        "pg_catalog.text"
+      ],
+      "owner": "flooow_offline_audit_owner",
+      "implicit_owner_execute": true
+    },
+    {
+      "schema": "public",
+      "name": "offline_reconcile",
       "input_types": [
         "pg_catalog.uuid",
         "pg_catalog.bytea",

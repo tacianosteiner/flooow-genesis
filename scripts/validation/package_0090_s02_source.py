@@ -8,14 +8,14 @@ from package_0090_capability_source import strings
 GRANTS={('public','transaction_identity_grant_fingerprint',('uuid','uuid'),OWNER),
         ('public','transaction_identity_hash',('text[]',),OWNER)}
 
-def check(fn,expected_columns,source):
+def check(fn,expected_columns,source, generator=build, additional_calls=frozenset()):
     import pglast
     from pglast.parser import parse_sql_json
     def clean(v):
         if isinstance(v,list):return [clean(x) for x in v]
         if isinstance(v,dict):return {k:clean(x) for k,x in v.items() if k!='location'}
         return v
-    reference=json.loads(parse_sql_json(build(source)))['stmts'][0]['stmt']['CreateFunctionStmt']
+    reference=json.loads(parse_sql_json(generator(source)))['stmts'][0]['stmt']['CreateFunctionStmt']
     if clean(fn)!=clean(reference):raise ValueError('S02 exact independent-input/frozen-predicate/guard/output changed')
     expressions=[]
     def walk(v):
@@ -26,13 +26,14 @@ def check(fn,expected_columns,source):
                 raise ValueError('S02 dynamic SQL/mutation/set return forbidden')
             if 'PLpgSQL_expr' in v:expressions.append(v['PLpgSQL_expr']['query'])
             for x in v.values():walk(x)
-    walk(pglast.parse_plpgsql(build(source)))
+    walk(pglast.parse_plpgsql(generator(source)))
     allowed={(r,c) for o,r,c,p in expected_columns if o==OWNER and p=='select'}
     observed=set()
     from package_0090_q_source import BUILTINS
     builtins=BUILTINS|{'int2send','decode','encode','to_char','bool_and','timezone'}
     calls={('public','offline_internal_readiness'),('public','offline_internal_verify_authority_intent'),
            ('public','offline_internal_canonical_spki_ed25519_verify'),('public','transaction_identity_grant_fingerprint')}
+    calls |= additional_calls
     def aliases_in(v,aliases):
         if isinstance(v,list):
             for x in v:aliases_in(x,aliases)

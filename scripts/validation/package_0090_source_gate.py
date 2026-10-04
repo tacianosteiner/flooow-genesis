@@ -216,13 +216,15 @@ def prerequisite_checks(source, spec):
 def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
-    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 22:
-        missing.append("Public wrappers remain incomplete; P/Q/Z/S01 have bounded static review only")
+    # 18 public signatures + P/Q/Z/V bridge + the narrowly approved ADMIN trigger.
+    closed_function_count = 23
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != closed_function_count:
+        missing.append("Operational public wrappers remain incomplete; P/Q/Z/V and S01-S04 have bounded review only")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_internal_readiness\(", source):
         missing.append("Internal Q is absent; operational wrappers/guards remain incomplete")
-    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 22:
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != closed_function_count:
         missing.append("Wrapper transport and private decision commitment codecs/goldens are incomplete; fixture binding/catalog goldens do not close them")
-    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != 22 or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
+    if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != closed_function_count or not re.search(r"(?im)^GRANT EXECUTE ON FUNCTION", source):
         missing.append("Exact frozen/internal capability EXECUTE ACL closure is absent")
     approval = ('FIXTURE_ID=PACKAGE-0090-G3F-3B-FIXTURE-001',
                 'POLICY_VERSION=fixture-1',

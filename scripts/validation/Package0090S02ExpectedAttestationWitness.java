@@ -9,6 +9,8 @@ import java.sql.*;
 import java.time.*;
 import java.util.*;
 import javax.sql.DataSource;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 class Package0090S02ExpectedAttestationWitness {
     static final HexFormat HEX=HexFormat.of();
@@ -85,6 +87,29 @@ class Package0090S02ExpectedAttestationWitness {
         values.put("accepted_proof_fingerprint",AcceptedAttestationFingerprintCodec.INSTANCE.fingerprint(proof));
         return values;
     }
+    static byte[] acceptedSnapshot(SignedApprovalAttestation original,int number) throws Exception {
+        var values=row(original,number);var manifest=original.getManifest();
+        values.put("organization_id",invoke(manifest,"getOrganizationId"));values.put("manifest_id",manifest.getManifestId());
+        String[] names={"organization_id","manifest_id","artifact_version","schema_version","canonicalization_version",
+            "canonical_manifest_bytes","manifest_digest","canonical_signature_preimage_bytes","algorithm_id","signer_key_id",
+            "signer_key_revision","signer_key_fingerprint","signer_key_lineage_fingerprint","subject_public_key_info_der",
+            "signature_bytes","signer_authority_id","signer_authority_revision","signer_authority_fingerprint",
+            "verified_at","accepted_proof_fingerprint","recorded_at"};
+        var buffer=new ByteArrayOutputStream();var out=new DataOutputStream(buffer);
+        byte[] domain="FLOOOW/OFFLINE-FIELD-PROOF/RECONCILE-ACCEPTED/V1".getBytes(StandardCharsets.UTF_8);
+        out.writeInt(domain.length);out.write(domain);out.writeShort(names.length);
+        for(int index=0;index<names.length;index++) {
+            Object value=values.get(names[index]);var payloadBuffer=new ByteArrayOutputStream();var payload=new DataOutputStream(payloadBuffer);
+            payload.writeByte(1);
+            if(value instanceof UUID id) {payload.writeLong(id.getMostSignificantBits());payload.writeLong(id.getLeastSignificantBits());}
+            else if(value instanceof Integer integer)payload.writeInt(integer);
+            else if(value instanceof byte[] bytes)payload.write(bytes);
+            else if(value instanceof java.sql.Timestamp timestamp) {var instant=timestamp.toInstant();payload.writeLong(Math.addExact(Math.multiplyExact(instant.getEpochSecond(),1000000),instant.getNano()/1000));}
+            else payload.write(value.toString().getBytes(StandardCharsets.UTF_8));
+            byte[] bytes=payloadBuffer.toByteArray();out.writeShort(index+1);out.writeInt(bytes.length);out.write(bytes);
+        }
+        return buffer.toByteArray();
+    }
     public static void main(String[] args) throws Exception {
         var base=OfflineFieldProofInputLoader.INSTANCE.load(Path.of(args[0]));
         var first=signed(base.getAttestation().getManifest(),1);var second=signed(first.getManifest(),2);
@@ -119,6 +144,7 @@ class Package0090S02ExpectedAttestationWitness {
                 lines.add("ORIGINAL_"+label+"_signature_bytes="+HEX.formatHex(original.signatureBytes()));
                 lines.add("ORIGINAL_"+label+"_manifest_digest="+ApprovalManifestCanonicalCodec.INSTANCE.manifestDigest(
                     ApprovalManifestCanonicalCodec.INSTANCE.canonicalManifestBytes(original.getManifest())));
+                lines.add("S03_ACCEPTED_"+label+"_SNAPSHOT="+HEX.formatHex(acceptedSnapshot(original,number)));
                 for(var entry:new TreeMap<>(row(original,number)).entrySet()) {
                     Object value=entry.getValue();
                     String encoded=value instanceof byte[] bytes?HEX.formatHex(bytes):

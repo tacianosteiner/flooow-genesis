@@ -35,11 +35,16 @@ def canonical(values):
 
 def frozen_types():
     result={}
-    for name in ('V040','V041'):
+    for name in ('V034','V037','V040','V041','V042'):
         path=next((gate.ROOT/gate.MIGRATIONS).glob(name+'__*.sql'))
         from pglast.parser import parse_sql_json
         statements=[x['stmt'] for x in json.loads(parse_sql_json(path.read_text(encoding='utf-8-sig')))['stmts']]
         for statement in statements:
+            if 'AlterTableStmt' in statement:
+                alter=statement['AlterTableStmt'];table=alter['relation']['relname']
+                for command in alter.get('cmds',[]):
+                    column=command.get('AlterTableCmd',{}).get('def',{}).get('ColumnDef')
+                    if column and table in result:result[table][column['colname']]=column['typeName']['names'][-1]['String']['sval']
             if 'CreateStmt' not in statement:continue
             table=statement['CreateStmt']; columns={}
             for item in table['tableElts']:
@@ -77,11 +82,23 @@ def review():
                 'mercado_livre_connection_id':fields[4],'omie_connection_id':fields[5],'source_order_reference':fields[6],
                 'integration_reference':fields[7],'marketplace_order_id':fields[8],'permission':fields[9],
                 'reason':fields[19],'provenance':fields[20],'correlation_id':fields[21]}
+        base_values=dict(line.split('=',1) for line in fixture_input().splitlines())
+        for field,plan_field in [('principal_id','principalId'),('credential_id','credentialId'),('grant_id','grantId'),('principal_operation_id','principalOperationId'),('credential_operation_id','initialCredentialOperationId'),('grant_operation_id','grantOperationId')]:
+            header[field]=base_values['plan.'+plan_field]
         header_types={k:('bytea' if k in ('manifest_digest','canonical_manifest_bytes') else 'uuid' if k.endswith('_id') else 'text') for k in header}
         sql='CREATE SCHEMA offline_crypto;\nCREATE TABLE public.offline_binding_header('+','.join(k+' pg_catalog.'+t for k,t in header_types.items())+',PRIMARY KEY(binding_id));\n'
         # Mock signer/accepted transports preserve frozen column types, not live roles.
         for table in ('s2a_signer_key_revision','s2a_signer_authority_revision','s2a_accepted_attestation'):
             sql+='CREATE TABLE public.'+table+'('+','.join(k+' pg_catalog.'+t for k,t in types[table].items())+');\n'
+        for table in ('command_principal','command_credential_revision','command_permission_grant','command_authority_operation'):
+            sql+='CREATE TABLE public.'+table+'('+','.join(k+' pg_catalog.'+t for k,t in types[table].items())+');\n'
+        from pglast import parse_sql
+        from pglast.stream import RawStream
+        frozen=(gate.ROOT/next(p.relative_to(gate.ROOT) for p in (gate.ROOT/gate.MIGRATIONS).glob('V042__*.sql'))).read_text(encoding='utf-8-sig')
+        pure={'s2a_v042_frame','s2a_v042_text','s2a_v042_instant','s2a_v042_authority_intent','s2a_v042_authority_receipt'}
+        for statement in parse_sql(frozen):
+            if type(statement.stmt).__name__=='CreateFunctionStmt' and statement.stmt.funcname[-1].sval in pure:
+                sql+=RawStream()(statement.stmt)+';\n'
         sql+="CREATE FUNCTION offline_crypto.canonical_spki_ed25519_verify(bytea,bytea,bytea) RETURNS boolean AS '/work/native/flooow_offline_mac32','canonical_spki_ed25519_verify' LANGUAGE C IMMUTABLE STRICT;\n"
         sql+="CREATE FUNCTION public.offline_internal_canonical_spki_ed25519_verify(bytea,bytea,bytea) RETURNS boolean LANGUAGE sql IMMUTABLE STRICT AS 'SELECT offline_crypto.canonical_spki_ed25519_verify($1,$2,$3)';\n"
         expected=commitment_sql().replace('flooow_offline_control_owner','postgres')
@@ -123,6 +140,10 @@ BEGIN
                 sql+=insert('s2a_accepted_attestation',rows[stored_label],types['s2a_accepted_attestation'])+assert_result(expected_label==stored_label,expected_label+stored_label)+'ROLLBACK;\n'
         # Test all expected-input integrity failures against a valid stored A.
         sql+=insert('s2a_accepted_attestation',rows['A'],types['s2a_accepted_attestation'])
+        from build_package_0090_s03_source import schema,encode
+        from build_package_0090_q_source import frame,nullable
+        snapshot=frame('RECONCILE-ACCEPTED',[nullable(encode('a.'+n,t)) for n,t in schema('s2a_accepted_attestation')])
+        sql+='DO $golden$ BEGIN IF (SELECT '+snapshot+" FROM public.s2a_accepted_attestation a)<>decode("+quote(values['S03_ACCEPTED_A_SNAPSHOT'])+",'hex') THEN RAISE EXCEPTION 'S03_ACCEPTED_SNAPSHOT_GOLDEN'; END IF; END; $golden$;\n"
         negatives={'manifest_digest':"repeat('0',64)",'signer_key_id':quote(str(uuid.UUID(int=77))),
                    'signer_key_fingerprint':"repeat('0',64)",'signature_bytes':"decode(repeat('00',64),'hex')",'algorithm_id':quote('RSA'),
                    'canonical_expected_attestation':"decode('00','hex')",'commitment_digest':"decode(repeat('00',32),'hex')"}
@@ -150,6 +171,21 @@ BEGIN
         sql+="DO $atomic$ BEGIN BEGIN INSERT INTO public.offline_binding_header(binding_id,manifest_digest) VALUES ('00000000-0000-0000-0000-000000000888',decode(repeat('00',32),'hex')); INSERT INTO public.offline_expected_signed_attestation(binding_id) VALUES ('00000000-0000-0000-0000-000000000888'); EXCEPTION WHEN not_null_violation OR invalid_parameter_value THEN NULL; END; IF EXISTS(SELECT 1 FROM public.offline_binding_header WHERE binding_id='00000000-0000-0000-0000-000000000888') THEN RAISE EXCEPTION 'PARTIAL_REGISTRATION'; END IF; END; $atomic$;\n"
         sql+="DO $orphan$ BEGIN BEGIN INSERT INTO public.offline_binding_header(binding_id,manifest_digest) VALUES ('00000000-0000-0000-0000-000000000889',decode(repeat('00',32),'hex')); SET CONSTRAINTS offline_header_original_input_required IMMEDIATE; RAISE EXCEPTION 'ORPHAN_DID_NOT_REJECT'; EXCEPTION WHEN foreign_key_violation THEN NULL; END; END; $orphan$;\n"
         sql+='SELECT \'S02_ISOLATED_PREDICATE_PASS\';\n'
+        from build_package_0090_z_source import build as z_build
+        z_query=z_build((gate.ROOT/gate.V043).read_text()).split('    RETURN QUERY',1)[1].split('EXCEPTION WHEN OTHERS',1)[0]
+        sql+='CREATE FUNCTION public.test_z() RETURNS TABLE(intent_matches boolean,receipt_matches boolean) LANGUAGE plpgsql AS $z$ DECLARE header_record record; BEGIN SELECT * INTO header_record FROM public.offline_binding_header; RETURN QUERY '+z_query+' END; $z$;\n'
+        common=dict(organization_id=header['organization_id'],principal_id=header['principal_id'],reason=header['reason'],provenance=header['provenance'],correlation_id=header['correlation_id'],decided_at=rows['A']['verified_at'])
+        sql+='BEGIN;\n'+insert('command_principal',dict(common,mercado_livre_connection_id=header['mercado_livre_connection_id'],omie_connection_id=header['omie_connection_id']),types['command_principal'])
+        sql+=insert('command_credential_revision',dict(common,credential_id=header['credential_id'],revision='1',state='ENABLED',secret_verifier='01'*32),types['command_credential_revision'])
+        sql+=insert('command_permission_grant',dict(common,grant_id=header['grant_id'],revision='1',state='ENABLED',permission='TRANSACTION_IDENTITY_DECISION_WRITE'),types['command_permission_grant'])
+        for operation,operation_id,extra in [('PRINCIPAL',header['principal_operation_id'],{}),('INITIAL_CREDENTIAL',header['credential_operation_id'],dict(credential_id=header['credential_id'],credential_revision='1',state='ENABLED')),('GRANT',header['grant_operation_id'],dict(grant_id=header['grant_id'],grant_revision='1',permission='TRANSACTION_IDENTITY_DECISION_WRITE',state='ENABLED'))]:
+            values_for_op={k:v for k,v in common.items() if k not in ('reason','provenance')}
+            values_for_op.update(operation=operation,operation_id=operation_id,attestation_manifest_id=header['manifest_id'],**extra)
+            sql+=insert('command_authority_operation',values_for_op,types['command_authority_operation'])
+            sql+="UPDATE public.command_authority_operation o SET intent_fingerprint=public.s2a_v042_authority_intent(o.operation,o.operation_id,o.organization_id,o.principal_id,"+quote(header['mercado_livre_connection_id'])+','+quote(header['omie_connection_id'])+",o.credential_id,CASE WHEN o.operation='INITIAL_CREDENTIAL' THEN decode(repeat('01',32),'hex') ELSE NULL END,o.grant_id,"+quote(header['reason'])+','+quote(header['provenance'])+",o.correlation_id,o.attestation_manifest_id,"+quote(rows['A']['accepted_proof_fingerprint'])+','+quote(rows['A']['manifest_digest'])+");\n"
+            sql+='UPDATE public.command_authority_operation o SET receipt_fingerprint=public.s2a_v042_authority_receipt(o.intent_fingerprint,o.operation,o.principal_id,o.credential_id,o.credential_revision,o.grant_id,o.grant_revision,o.permission,o.state);\n'
+            sql+="DO $z_assert$ DECLARE result record; BEGIN SELECT * INTO result FROM public.test_z(); IF result.intent_matches IS NOT TRUE OR result.receipt_matches IS NOT TRUE THEN RAISE EXCEPTION 'Z_PREFIX_FAILED "+operation+"'; END IF; END; $z_assert$;\n"
+        sql+="UPDATE public.command_authority_operation SET receipt_fingerprint=repeat('0',64) WHERE operation='GRANT'; DO $z_bad$ DECLARE result record; BEGIN SELECT * INTO result FROM public.test_z(); IF result.receipt_matches THEN RAISE EXCEPTION 'Z_CORRUPTED_RECEIPT_ACCEPTED'; END IF; END; $z_bad$; ROLLBACK;\nSELECT 'Z_PREFIX_1_2_3_PASS';\n"
         (work/'review.sql').write_text(sql,encoding='utf-8',newline='\n')
         shutil.copytree(NATIVE,work/'native')
         script='''set -eu
@@ -172,6 +208,7 @@ cat /work/result.log
             tuple_with_binding=dict(binding_id=header['binding_id'],**original_tuple)
             encoded=canonical(tuple_with_binding)
             golden['originals'][label]=dict(tuple_with_binding,canonical_expected_attestation=encoded.hex(),commitment_digest=hashlib.sha256(encoded).hexdigest())
+        golden['s03_accepted_snapshots']={label:values['S03_ACCEPTED_'+label+'_SNAPSHOT'] for label in ('A','B')}
         (gate.ROOT/'docs/evidence/PACKAGE-0090-S02-ORIGINAL-INPUT-GOLDENS.json').write_text(json.dumps(golden,indent=2)+'\n',encoding='utf-8')
         return dict(gate='G3F.3B_S02_ISOLATED_PREDICATE',status='PASS',builder_id=EXPECTED_BUILDER_ID,
             ab_matrix={'expected_A_stored_A':True,'expected_A_stored_B':False,'expected_B_stored_A':False,'expected_B_stored_B':True},
@@ -180,8 +217,10 @@ cat /work/result.log
             immutable_negatives=list(negatives)+['DELETE','TRUNCATE','DUPLICATE','FOREIGN_BINDING','HEADER_UPDATE'],
             predicate_negatives=['MISSING_EXPECTED','WRONG_MANIFEST','WRONG_KEY','WRONG_KEY_FINGERPRINT','WRONG_SIGNATURE','ALTERED_CANONICAL_WITH_REHASH','FOREIGN_BINDING','DUPLICATE_ACCEPTED','ALTERED_STORED_PREIMAGE','ALTERED_ACCEPTED_PROOF_FINGERPRINT'],
             registration_negatives=['WRONG_ALGORITHM','SIGNATURE_LENGTH_63','FAILED_EXPECTED_ROLLS_BACK_HEADER','ORPHAN_HEADER_DEFERRED_FK'],atomic_rollback=True,
+            s03_accepted_snapshot_golden='PASS_ACTUAL_SQL_VS_INDEPENDENT_JAVA',
+            z_prefixes='PASS_REAL_SQL_1_2_3_AND_CORRUPTED_GRANT_RECEIPT',
             sql_sha256=hashlib.sha256(sql.encode()).hexdigest(),v043_executed=False,protected_database_connection=False,
-            limitations=['Accepted predicate and original-input constraints only; whole wrapper guard/ACL/state/transport runtime certification pending.'])
+            limitations=['Focused accepted predicate, original-input constraints, Z fingerprints and accepted-snapshot encoding; whole wrapper guard/ACL/state/transport runtime certification pending.'])
 
 if __name__=='__main__':
     report=review();target=gate.ROOT/'docs/evidence/PACKAGE-0090-S02-ISOLATED-PREDICATE-REVIEW.json'
