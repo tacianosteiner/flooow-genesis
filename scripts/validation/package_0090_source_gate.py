@@ -172,7 +172,7 @@ def prerequisite_checks(source, spec):
                         r"MESSAGE = 'Package 0090 V043 implementation closure is incomplete; execution denied';\s*END;\s*", body):
         raise ValueError("Incomplete-candidate execution interlock is absent or conditional")
     for statement in statements:
-        if not set(statement) <= {"DoStmt", "VariableSetStmt", "CreateStmt", "AlterTableStmt", "IndexStmt", "GrantStmt", "CreateFunctionStmt", "AlterOwnerStmt"}:
+        if not set(statement) <= {"DoStmt", "VariableSetStmt", "CreateStmt", "AlterTableStmt", "IndexStmt", "GrantStmt", "CreateFunctionStmt", "AlterOwnerStmt", "CreateTrigStmt"}:
             raise ValueError("Unapproved top-level SQL statement")
     admin = source.split("-- ADMIN: SPEC 24", 1)[1].split("-- T01", 1)[0]
     if re.search(r"\b(?:CREATE|ALTER) ROLE\b", admin, re.IGNORECASE):
@@ -182,10 +182,10 @@ def prerequisite_checks(source, spec):
     creates = [s["CreateStmt"] for s in statements if "CreateStmt" in s]
     scope = spec.split("### 24.2 Closed ownership and ACL scope", 1)[1].split("### 24.3", 1)[0]
     controls = set(re.findall(r"(?m)^- public\.(offline_[a-z_]+)$", scope))
-    if len(controls) != 14 or len(creates) != 14 or any(c["relation"]["schemaname"] != "public" for c in creates) or {
+    if len(controls) != 15 or len(creates) != 15 or any(c["relation"]["schemaname"] != "public" for c in creates) or {
         c["relation"]["relname"] for c in creates
     } != controls:
-        raise ValueError("Control creation scope is not exactly 14 Package 0090 tables")
+        raise ValueError("Control creation scope is not exactly 15 Package 0090 tables")
     for statement in statements:
         for kind in ("AlterTableStmt", "IndexStmt"):
             if kind in statement:

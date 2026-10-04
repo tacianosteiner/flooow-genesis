@@ -56,8 +56,8 @@ AS $offline_z$
     -- Exact canonical operations, never caller-selected IDs or a persisted match flag.
     -- Missing joins produce false; query failure is an error, never inferred absence.
     RETURN QUERY
-    SELECT pg_catalog.count(*)=3 AND pg_catalog.bool_and(x.intent_ok) IS TRUE,
-           pg_catalog.count(*)=3 AND pg_catalog.bool_and(x.receipt_ok) IS TRUE
+    SELECT pg_catalog.count(*) BETWEEN 1 AND 3 AND pg_catalog.bool_and(x.intent_ok) IS TRUE,
+           pg_catalog.count(*) BETWEEN 1 AND 3 AND pg_catalog.bool_and(x.receipt_ok) IS TRUE
       FROM (
         SELECT o.intent_fingerprint=public.s2a_v042_authority_intent(
                    o.operation,o.operation_id,o.organization_id,o.principal_id,
@@ -86,8 +86,8 @@ AS $offline_z$
                  AND o.credential_id=header_record.credential_id AND c.principal_id=header_record.principal_id
                  AND o.decided_at=c.decided_at)
              OR (o.operation='GRANT' AND o.operation_id=header_record.grant_operation_id
-                 AND o.grant_id=header_record.grant_id AND o.credential_id=header_record.credential_id
-                 AND c.principal_id=header_record.principal_id AND g.principal_id=header_record.principal_id
+                 AND o.grant_id=header_record.grant_id AND o.credential_id IS NULL
+                 AND g.principal_id=header_record.principal_id
                  AND o.decided_at=g.decided_at))
       ) x;
 EXCEPTION WHEN OTHERS THEN

@@ -1,8 +1,8 @@
 {
   "gate": "G3F.3B_V_BRIDGE_EXECUTE_SOURCE_INVENTORY",
   "scope": "ALL_PRESENT_SOURCE_EXPLICIT_GRANTS_AND_OWNERS_NOT_INSTALLED_EFFECTIVE_ACLS",
-  "exact_column_grants": 1032,
-  "function_execute_grant_count": 12,
+  "exact_column_grants": 1040,
+  "function_execute_grant_count": 14,
   "function_execute_grants": [
     {
       "schema": "public",
@@ -174,6 +174,27 @@
       "grantee": "flooow_offline_audit_owner",
       "privilege": "EXECUTE",
       "grant_option": false
+    },
+    {
+      "schema": "public",
+      "name": "transaction_identity_grant_fingerprint",
+      "input_types": [
+        "pg_catalog.uuid",
+        "pg_catalog.uuid"
+      ],
+      "grantee": "flooow_offline_audit_owner",
+      "privilege": "EXECUTE",
+      "grant_option": false
+    },
+    {
+      "schema": "public",
+      "name": "transaction_identity_hash",
+      "input_types": [
+        "pg_catalog.text[]"
+      ],
+      "grantee": "flooow_offline_audit_owner",
+      "privilege": "EXECUTE",
+      "grant_option": false
     }
   ],
   "schema_usage_grant_count": 4,
@@ -204,6 +225,13 @@
     }
   ],
   "function_owner_changes": [
+    {
+      "schema": "public",
+      "name": "offline_internal_expected_attestation_guard",
+      "input_types": [],
+      "owner": "flooow_offline_control_owner",
+      "implicit_owner_execute": true
+    },
     {
       "schema": "public",
       "name": "offline_lock_bound_principal",
@@ -278,6 +306,18 @@
     {
       "schema": "public",
       "name": "offline_read_history",
+      "input_types": [
+        "pg_catalog.uuid",
+        "pg_catalog.bytea",
+        "pg_catalog.uuid",
+        "pg_catalog.text"
+      ],
+      "owner": "flooow_offline_audit_owner",
+      "implicit_owner_execute": true
+    },
+    {
+      "schema": "public",
+      "name": "offline_inspect",
       "input_types": [
         "pg_catalog.uuid",
         "pg_catalog.bytea",

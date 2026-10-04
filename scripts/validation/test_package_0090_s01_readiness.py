@@ -151,7 +151,7 @@ class S01ReadinessTests(unittest.TestCase):
 
     def test_exact_acl_and_target_boundary(self):
         report=s01.audit()
-        self.assertEqual(report['physical_grant_count'],1032)
+        self.assertEqual(report['physical_grant_count'],1040)
         self.assertEqual(report['unresolved_authority_blocker_count'],0)
         self.assertEqual(report['a_ml_source_read_columns'],sorted(('organization_id','connection_id','capability','input_progress_version','record_ordinal','external_order_ref')))
         self.assertTrue(report['s01_implemented'])

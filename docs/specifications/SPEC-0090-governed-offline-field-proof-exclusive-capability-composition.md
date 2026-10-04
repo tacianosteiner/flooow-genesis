@@ -2149,6 +2149,7 @@ The conceptual ACL codec fixtures in22.1 use synthetic role admin, LOGIN=true/IN
 ADMIN may own only these exact Package0090 tables, with exactly the existing21.7 column schemas and22.3 key rules:
 
 - public.offline_binding_header
+- public.offline_expected_signed_attestation
 - public.offline_binding_lifecycle
 - public.offline_attempt_pointer
 - public.offline_attempt
@@ -2454,3 +2455,58 @@ separately inventoried. Frozen JCA decision parity, all 51 vectors, operational
 fault injection, native safety/exports/dependencies/hardening, reproducible
 binary SHA256 and deployment provenance are mandatory source evidence.
 Installed ACLs, PostgreSQL parity and runtime proof remain separate gates.
+
+
+## Independent original signed-attestation commitment approval — 2026-10-03
+
+Authority: FLOOOW PACKAGE 0090 G3F.3B EXPECTED SIGNED ATTESTATION BINDING
+AUTHORITY, baseline 1817e5168e060987017a94a545f4c51f6f5b78a0.
+The public S02 four-input signature, output and 38-tag binding remain unchanged.
+ADMIN owns the additional private public.offline_expected_signed_attestation
+relation. It has exactly the eight non-null fields enumerated below; canonical
+bytes use bytea. Tags 1..6 are binding UUID, manifest lowerhex64, algorithm,
+signer UUID, signer fingerprint lowerhex64, and signature bytes, in that order,
+under FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1.
+Canonical framing uses the existing tagged framing and required presence bytes.
+Ed25519 is mandatory, signer UUID is non-NIL, signature length is exactly 64,
+and commitment_digest is SHA-256 of the exact canonical bytes.
+
+Trusted ADMIN registration canonicalizes the original manifest, computes its
+digest and constructs the expected tuple from the SAME independently supplied
+original SignedApprovalAttestation. It inserts header then expected tuple in one
+transaction. The existing forward FK and a DEFERRABLE INITIALLY DEFERRED reverse
+FK require both or neither at commit; an expected insert failure requires the
+registration transaction to roll back. Plain INSERT rejects duplicates. Neither
+accepted rows, signer tables, reconciliation, snapshots nor S02 callers supply
+the expected values. No repair or overwrite registration path is approved.
+
+The narrowly required ADMIN-owned trigger function
+public.offline_internal_expected_attestation_guard() validates the original
+tuple against the header digest and exact canonical encoding before INSERT.
+It rejects UPDATE/DELETE on either immutable input relation and statement-level
+TRUNCATE, including privileged administrative data writes. As with all PostgreSQL
+guards, trusted deployment superusers can alter DDL; that authority is outside
+operational capabilities. PUBLIC function EXECUTE is revoked and no non-owner
+EXECUTE is granted. Its only consumer is the four exact input-guard triggers.
+This requirement narrowly supersedes section 24.2's no-ADMIN-function statement;
+it adds no service authority, registration wrapper or operational execution.
+
+A reads precisely these eight columns for S02_ONLY,
+EXPECTED_ORIGINAL_SIGNED_ATTESTATION_COMPARISON, PRIVATE_PREDICATES_ONLY.
+No expected fields are returned; no direct service/PUBLIC access or A write/lock
+authority is granted. S02 recomputes the encoding and digest, compares expected
+manifest/algorithm/key/fingerprint/signature exactly, builds the preimage from
+the expected key tuple, freshly verifies Ed25519 and recomputes the accepted
+proof fingerprint while preserving all frozen signer/window/cardinality checks
+and accepted() error-to-false behavior. Source evidence does not certify runtime.
+
+| OWNER | RELATION | COLUMN | PRIVILEGE_CLASS | CONSUMER / EXACT_QUERY_OR_INTERNAL_BLOCK | ENTRYPOINT | WHY_REQUIRED | CAN_REMOVE | TRANSITIVE_CAPABILITY |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| A | public.offline_expected_signed_attestation | binding_id | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | manifest_digest | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | algorithm_id | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | signer_key_id | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | signer_key_fingerprint | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | signature_bytes | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | canonical_expected_attestation | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |
+| A | public.offline_expected_signed_attestation | commitment_digest | READ_PRIVILEGE | S02_ONLY expected-original comparison | S02 | Original independent signed input | NO | PRIVATE_PREDICATES_ONLY |

@@ -59,7 +59,7 @@ class ReadSourceTests(unittest.TestCase):
         self.assertFalse(report['witness']['s02_authorized_projection_identical'])
         self.assertFalse(report['database_connection_attempted'])
         self.assertTrue(report['spec_amended'])
-        self.assertEqual(report['physical_grant_count'],1032)
+        self.assertEqual(report['physical_grant_count'],1040)
         self.assertFalse(report['grants_widened'])
         self.assertTrue(all(row['consumer']=='INSPECT.acceptedArtifact/RECON.acceptedArtifact'
                             and row['entrypoint']=='S02-S03'

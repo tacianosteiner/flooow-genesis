@@ -1,6 +1,6 @@
 {
   "gate": "G3F.3B_S02_EXPECTED_SIGNED_ATTESTATION_BINDING",
-  "status": "HOLD_MISSING_INDEPENDENT_EXPECTED_INPUT",
+  "status": "PASS_ORIGINAL_INPUT_COMMITMENT_SOURCE",
   "reference": "ACTUAL_FROZEN_ACCEPTED_METHOD_WITH_MOCK_JDBC_NO_DATABASE",
   "witness": {
     "CANONICAL_MANIFEST_EQUAL": "true",
@@ -63,11 +63,7 @@
     "| 29-33 | issued_at,valid_from,expires_at,identity_slots,offline_surface_version | instant x3,slot collection,text |",
     "| 34-38 | deadline_policy_version,deadline_policy_digest,admission_contract_version,delivery_contract_version,reconciliation_contract_version | text,hash32,text x3 |"
   ],
-  "missing_expected_signed_fields": [
-    "signature_bytes",
-    "signer_key_fingerprint",
-    "signer_key_id"
-  ],
+  "missing_expected_signed_fields": [],
   "algorithm_constraint": "STATIC_ED25519_SUFFICIENT_NOT_A_MISSING_EXPECTATION",
   "frozen_comparisons": [
     "proof.algorithmId == signed.algorithmId",
@@ -78,10 +74,10 @@
   ],
   "producer_sha256": "c4c0744379576f1f88e8b64ab10970e94b52d1760211c011030ea5b32eebd988",
   "codec_sha256": "74763cd4b0c3ab49b3f2c882f724df3ec10561f9aaa452c7b29fd1d6a943b26d",
-  "physical_column_grants": 1032,
-  "conclusion": "Same manifest/plan and all binding fields cannot distinguish two valid original signed inputs whose frozen accepted decisions differ for the same stored artifact.",
-  "s02_implemented": false,
-  "unresolved_authority_blocker_count": 1,
+  "physical_column_grants": 1040,
+  "conclusion": "Private immutable independent original-input commitment closes the A/B distinction without modifying public binding/signature/output.",
+  "s02_implemented": true,
+  "unresolved_authority_blocker_count": 0,
   "database_connection_attempted": false,
   "protected_database_mutation": false
 }

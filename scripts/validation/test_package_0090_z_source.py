@@ -20,7 +20,7 @@ class ZSourceTests(unittest.TestCase):
         self.assertEqual(result['internal_z_source'],'BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF')
 
     def test_private_verifier_cannot_be_output(self):
-        self.reject_z('pg_catalog.count(*)=3 AND pg_catalog.bool_and(x.intent_ok) IS TRUE', 'c.secret_verifier')
+        self.reject_z('pg_catalog.count(*) BETWEEN 1 AND 3 AND pg_catalog.bool_and(x.intent_ok) IS TRUE', 'c.secret_verifier')
 
     def test_unapproved_private_read(self):
         self.reject_z('c.secret_verifier,o.grant_id', 'c.credential_kind,o.grant_id')

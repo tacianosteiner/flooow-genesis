@@ -107,5 +107,26 @@ class Package0090S02ExpectedAttestationWitness {
         System.out.println("STORED_B_EXPECTED_B="+d);
         System.out.println("MANIFEST_DIGEST="+ApprovalManifestCanonicalCodec.INSTANCE.manifestDigest(
             ApprovalManifestCanonicalCodec.INSTANCE.canonicalManifestBytes(first.getManifest())));
+        if(args.length==2) {
+            var lines=new ArrayList<String>();
+            for(int number=1;number<=2;number++) {
+                var original=number==1?first:second;
+                String label=number==1?"A":"B";
+                // ORIGINAL comes directly from signed(), before any database row.
+                lines.add("ORIGINAL_"+label+"_algorithm_id="+original.getAlgorithmId());
+                lines.add("ORIGINAL_"+label+"_signer_key_id="+invoke(original,"getSignerKeyId"));
+                lines.add("ORIGINAL_"+label+"_signer_key_fingerprint="+invoke(original,"getSignerKeyFingerprint"));
+                lines.add("ORIGINAL_"+label+"_signature_bytes="+HEX.formatHex(original.signatureBytes()));
+                lines.add("ORIGINAL_"+label+"_manifest_digest="+ApprovalManifestCanonicalCodec.INSTANCE.manifestDigest(
+                    ApprovalManifestCanonicalCodec.INSTANCE.canonicalManifestBytes(original.getManifest())));
+                for(var entry:new TreeMap<>(row(original,number)).entrySet()) {
+                    Object value=entry.getValue();
+                    String encoded=value instanceof byte[] bytes?HEX.formatHex(bytes):
+                        value instanceof java.sql.Timestamp timestamp?timestamp.toInstant().toString():value.toString();
+                    lines.add("ROW_"+label+"_"+entry.getKey()+"="+encoded);
+                }
+            }
+            Files.write(Path.of(args[1]),lines);
+        }
     }
 }

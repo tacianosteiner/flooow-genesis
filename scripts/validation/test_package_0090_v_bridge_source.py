@@ -12,7 +12,7 @@ class VBridgeTests(unittest.TestCase):
         with self.assertRaises(ValueError):gate.prerequisite_checks(source,self.spec)
     def test_exact_bridge_and_unchanged_column_grants(self):
         report=gate.prerequisite_checks(self.source,self.spec)
-        self.assertEqual(report['exact_column_grants'],1032)
+        self.assertEqual(report['exact_column_grants'],1040)
         self.assertFalse(report['a_direct_native_access'])
         self.assertFalse(report['a_private_crypto_usage'])
     def test_a_native_execute_rejected(self):

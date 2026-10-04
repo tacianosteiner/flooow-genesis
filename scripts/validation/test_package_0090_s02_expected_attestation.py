@@ -17,8 +17,8 @@ class ExpectedAttestationBoundaryTests(unittest.TestCase):
         self.assertEqual(self.report['witness']['PLAN_EQUAL'],'true')
         self.assertTrue(set(self.report['missing_expected_signed_fields']).isdisjoint(self.report['binding_columns']))
     def test_no_authority_widening_or_completion_claim(self):
-        self.assertEqual(self.report['physical_column_grants'],1032)
-        self.assertFalse(self.report['s02_implemented'])
+        self.assertEqual(self.report['physical_column_grants'],1040)
+        self.assertTrue(self.report['s02_implemented'])
         self.assertFalse(self.report['database_connection_attempted'])
 
 

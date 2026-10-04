@@ -80,7 +80,7 @@ class S01SourceTests(unittest.TestCase):
         statements,_=gate.parse(self.source)
         expected=gate.expected_column_grants(self.spec)
         self.assertEqual(gate.actual_column_grants(statements),expected)
-        self.assertEqual(len(expected),1032)
+        self.assertEqual(len(expected),1040)
         relation='public.integration_mercado_livre_order_source_observation'
         approved={(review.OWNER,relation,c,'select') for c in ('organization_id','connection_id','capability','input_progress_version','record_ordinal','external_order_ref')}
         self.assertEqual({g for g in expected if g[0]==review.OWNER and g[1]==relation},approved)

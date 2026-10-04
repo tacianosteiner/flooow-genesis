@@ -11,7 +11,7 @@ def inventory():
     checks=gate.prerequisite_checks(source,spec)
     def function(obj):
         names=strings(obj['objname'])
-        return dict(schema=names[0],name=names[1],input_types=['.'.join(strings(t['TypeName']['names'])) for t in obj['objargs']])
+        return dict(schema=names[0],name=names[1],input_types=['.'.join(strings(t['TypeName']['names']))+'[]'*len(t['TypeName'].get('arrayBounds',[])) for t in obj.get('objargs',[])])
     functions=[];schemas=[];owners=[]
     for stmt in stmts:
         if 'AlterOwnerStmt' in stmt:

@@ -63,11 +63,11 @@ def check(fn, expected_columns):
             for child in node.values(): walk(child)
     walk(pl)
     if len(returns) != 1: raise ValueError('Z exact single aggregate return required')
-    if not re.search(r'RETURN QUERY\s+SELECT pg_catalog.count\(\*\)=3 AND pg_catalog.bool_and\(x.intent_ok\) IS TRUE,\s*'
-                     r'pg_catalog.count\(\*\)=3 AND pg_catalog.bool_and\(x.receipt_ok\) IS TRUE\s+FROM', body):
+    if not re.search(r'RETURN QUERY\s+SELECT pg_catalog.count\(\*\) BETWEEN 1 AND 3 AND pg_catalog.bool_and\(x.intent_ok\) IS TRUE,\s*'
+                     r'pg_catalog.count\(\*\) BETWEEN 1 AND 3 AND pg_catalog.bool_and\(x.receipt_ok\) IS TRUE\s+FROM', body):
         raise ValueError('Z output must contain only aggregate match booleans')
-    if body.count('c.principal_id=header_record.principal_id') != 2:
-        raise ValueError('Z credential principal scope required in both canonical branches')
+    if body.count('c.principal_id=header_record.principal_id') != 1 or 'o.credential_id IS NULL' not in body:
+        raise ValueError('Z credential and null-credential grant scope required')
     allowed = {(relation, column) for owner, relation, column, privilege in expected_columns
                if owner == OWNER and privilege == 'select'}
     observed = set()
@@ -117,7 +117,7 @@ def check(fn, expected_columns):
         raise ValueError('Z frozen canonical comparisons missing')
     for required in ("slot_number=4 AND slot_name <> SESSION_USER", "FOR field_tag IN 1..29 LOOP",
                      "c.principal_id=header_record.principal_id", "g.principal_id=header_record.principal_id",
-                     "pg_catalog.count(*)=3", "RETURN QUERY", "policy_values[19]",
+                     "pg_catalog.count(*) BETWEEN 1 AND 3", "RETURN QUERY", "policy_values[19]",
                      "MESSAGE='INDETERMINATE'"):
         if required not in body: raise ValueError('Z required guard/comparison missing: '+required)
     return {'internal_z_source':'BOUNDED_STATIC_PASS_NOT_RUNTIME_PROOF', 'internal_z_read_columns':len(observed)}

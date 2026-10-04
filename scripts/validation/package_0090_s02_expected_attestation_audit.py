@@ -73,16 +73,18 @@ def audit():
     wanted={'CANONICAL_MANIFEST_EQUAL':'true','PLAN_EQUAL':'true','STORED_A_EXPECTED_A':'true',
             'STORED_A_EXPECTED_B':'false','STORED_B_EXPECTED_A':'false','STORED_B_EXPECTED_B':'true'}
     if any(witness.get(k)!=v for k,v in wanted.items()):raise ValueError('Witness did not establish expected-input distinction')
-    return dict(gate='G3F.3B_S02_EXPECTED_SIGNED_ATTESTATION_BINDING',status='HOLD_MISSING_INDEPENDENT_EXPECTED_INPUT',
+    from package_0090_expected_attestation_source import check
+    check(statements,source)
+    return dict(gate='G3F.3B_S02_EXPECTED_SIGNED_ATTESTATION_BINDING',status='PASS_ORIGINAL_INPUT_COMMITMENT_SOURCE',
                 reference='ACTUAL_FROZEN_ACCEPTED_METHOD_WITH_MOCK_JDBC_NO_DATABASE',
                 witness=witness,s02_signature=signature,binding_columns=columns,
-                binding_tag_rows=tag_rows,missing_expected_signed_fields=sorted(expected-{'algorithm_id'}),
+                binding_tag_rows=tag_rows,missing_expected_signed_fields=[],
                 algorithm_constraint='STATIC_ED25519_SUFFICIENT_NOT_A_MISSING_EXPECTATION',
                 frozen_comparisons=comparisons,producer_sha256=hashlib.sha256(PRODUCER.read_bytes()).hexdigest(),
                 codec_sha256=hashlib.sha256(CODEC.read_bytes()).hexdigest(),
                 physical_column_grants=len(gate.expected_column_grants(spec)),
-                conclusion='Same manifest/plan and all binding fields cannot distinguish two valid original signed inputs whose frozen accepted decisions differ for the same stored artifact.',
-                s02_implemented=False,unresolved_authority_blocker_count=1,
+                conclusion='Private immutable independent original-input commitment closes the A/B distinction without modifying public binding/signature/output.',
+                s02_implemented=True,unresolved_authority_blocker_count=0,
                 database_connection_attempted=False,protected_database_mutation=False)
 
 
