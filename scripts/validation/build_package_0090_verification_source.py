@@ -9,7 +9,8 @@ MARKER='-- Public S05/S06: guarded original-bound frozen verification.'
 END='-- End public S05/S06.'
 OWNER='flooow_offline_verification_owner'
 TYPES=('uuid','bytea','uuid','text','uuid','int8','uuid','uuid','bytea','bytea')
-NAMES=('binding_id','plan_fingerprint','expected_incarnation_id','surface_version','attempt_id','generation','execution_id','instance_id','possession_secret','envelope')
+BASE_NAMES=('binding_id','plan_fingerprint','expected_incarnation_id','surface_version','attempt_id','generation','execution_id','instance_id','possession_secret')
+NAMES={'S05':BASE_NAMES+('envelope',),'S06':BASE_NAMES+('verified_envelope',)}
 WRAPPERS={'S05':'offline_begin_verification','S06':'offline_persist_verification'}
 FROZEN={'S05':'s2a_begin_attestation_verification','S06':'s2a_persist_attestation_verification_result'}
 
@@ -90,7 +91,7 @@ def build_one(source,spec,stage):
     body+=deny(' OR '.join('input_'+name+' IS DISTINCT FROM '+value for name,value in bound.items()))
     body+=deny(original_manifest(inputs)+'<>header_record.canonical_manifest_bytes')
     body+='    original_match := public.'+MATCH+'($1,$2,$3,$4,input_p_manifest_digest,input_p_algorithm_id,input_p_signer_key_id,input_p_signer_key_fingerprint,input_p_signature_bytes);\n'+deny('original_match IS NOT TRUE')
-    args=lambda fields:','.join('input_'+n for n,t in fields)
+    args=lambda fields:','.join('input_'+n+'::pg_catalog.'+t for n,t in fields)
     begin_outputs=frozen_tuple(spec,'S05','OUTPUT')
     body+='    SELECT '+','.join('v.'+n for n,t in begin_outputs)+' INTO STRICT snapshot FROM public.s2a_begin_attestation_verification('+args(inputs[:29])+') v;\n'
     body+=deny('pg_catalog.num_nonnulls('+','.join('snapshot.'+n for n,t in begin_outputs)+')<>'+str(len(begin_outputs)))
@@ -123,7 +124,7 @@ def build_one(source,spec,stage):
     body+=final_guard()+'    RETURN output_bytes;\n'
     body+="EXCEPTION WHEN OTHERS THEN\n    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\nEND;\n"
     signature=','.join('pg_catalog.'+t for t in TYPES);name=WRAPPERS[stage]
-    return 'CREATE FUNCTION public.'+name+'(\n    '+',\n    '.join(n+' pg_catalog.'+t for n,t in zip(NAMES,TYPES))+'''
+    return 'CREATE FUNCTION public.'+name+'(\n    '+',\n    '.join(n+' pg_catalog.'+t for n,t in zip(NAMES[stage],TYPES))+'''
 ) RETURNS pg_catalog.bytea
 LANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT
 SET search_path=pg_catalog,pg_temp

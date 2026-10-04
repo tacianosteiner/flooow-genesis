@@ -85,7 +85,7 @@ def augment(sql,ctx):
         out={n:None for n,t in outs};out.update(outcome='READY' if int(stage[1:])%2 else 'APPLIED',result_operation_id=values['p_operation_id'],result_intent_fingerprint='11'*32,result_receipt_fingerprint='12'*32,result_effect_time=row['verified_at'])
         for n,v in accepted.items():
             if 'result_'+n in out:out['result_'+n]=v
-        sql+='CREATE FUNCTION public.'+name+'('+','.join(n+' pg_catalog.'+t for n,t in ins)+') RETURNS TABLE('+','.join(n+' pg_catalog.'+t for n,t in outs)+') LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $stub$ SELECT '+','.join('NULL::pg_catalog.'+t if out[n] is None else verification.sql_value(out[n],t) for n,t in outs)+' $stub$;\nREVOKE ALL ON FUNCTION public.'+name+'('+','.join('pg_catalog.'+t for n,t in ins)+') FROM PUBLIC;\n'
+        sql+='CREATE FUNCTION public.'+name+'('+','.join(n+' pg_catalog.'+t for n,t in ins)+') RETURNS TABLE('+','.join(n+' pg_catalog.'+t for n,t in outs)+') LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $stub$ SELECT '+','.join('NULL::pg_catalog.'+t if out[n] is None else ("CASE WHEN EXISTS(SELECT 1 FROM public.offline_stage_receipt WHERE stage='INITIAL_CREDENTIAL_APPLIED') THEN 'ALREADY_APPLIED' ELSE 'APPLIED' END" if stage=='S10' and n=='outcome' else verification.sql_value(out[n],t)) for n,t in outs)+' $stub$;\nREVOKE ALL ON FUNCTION public.'+name+'('+','.join('pg_catalog.'+t for n,t in ins)+') FROM PUBLIC;\n'
         golden_input=encode_fields(stage+'/INPUT',ins,values);golden_output=encode_fields(stage+'/OUTPUT',outs,out)
         goldens[stage]={'input_hex':golden_input.hex(),'output_hex':golden_output.hex()}
     sql+=issuance.build(source,spec)
@@ -100,9 +100,13 @@ def augment(sql,ctx):
         return 'DO $golden$ BEGIN IF '+call+' IS DISTINCT FROM decode('+quote(expected.hex())+",'hex') THEN RAISE EXCEPTION 'TRANSPORT_GOLDEN_MISMATCH'; END IF; END $golden$;\n"
     sql+='INSERT INTO public.offline_delivery(binding_id,generation,state,lock_token) VALUES('+quote(binding)+",1,'NOT_CREATED',0);\n"
     for stage,name in issuance.WRAPPERS.items():sql+=entry(stage,name,issuance.TYPES,('bytea',))
-    for stage in ('S07','S08','S09','S10'):
+    from package_0090_s10_transport import caller_decoder_sql
+    sql+=caller_decoder_sql()
+    for stage in ('S07','S08','S09'):
         data=bytes.fromhex(goldens[stage]['input_hex']);call='public.test_'+stage.lower()+'(decode('+quote(data.hex())+",'hex'))"
         sql+='SET SESSION AUTHORIZATION test_issuer;\n'+assert_call(call,bytes.fromhex(goldens[stage]['output_hex']))+assert_call('public.test_'+stage.lower()+'(decode('+quote((data+b'\x00').hex())+",'hex'))",denied=True)+'RESET SESSION AUTHORIZATION;\n'
+    s10_call='public.test_s10(decode('+quote(goldens['S10']['input_hex'])+",'hex'))"
+    sql+='SET SESSION AUTHORIZATION test_issuer;\nSELECT encode('+s10_call+",'hex') AS s10_fresh \\gset\nSELECT 'S10_OUTER_FRESH='||:'s10_fresh';\nSELECT public.test_s10_caller_decode(decode(:'s10_fresh','hex')) AS transported_fresh_uuid \\gset\nSELECT encode("+s10_call+",'hex') AS s10_replay \\gset\nSELECT 'S10_OUTER_REPLAY='||:'s10_replay';\nSELECT public.test_s10_caller_decode(decode(:'s10_replay','hex')) IS NULL AS replay_no_fresh;\nRESET SESSION AUTHORIZATION;\n"
     sql+="DO $origin$ BEGIN IF (SELECT count(*) FROM public.offline_stage_receipt)<>3 OR (SELECT state FROM public.offline_delivery)<>'CREATED_NOT_DELIVERABLE' THEN RAISE EXCEPTION 'ISSUANCE_ORIGIN_MISSING'; END IF; END $origin$;\n"
     # P/Q are transport stubs here; their complete source/native evidence is separate.
     for name,types,body in [('offline_lock_bound_principal',control.BASE_TYPES,'SELECT true'),('offline_internal_readiness',('uuid','bytea','uuid','text','bytea','bytea','bytea','bytea'),'SELECT $8')]:
@@ -133,10 +137,10 @@ def augment(sql,ctx):
     parts+=['decode('+quote(pf_bytes[last:].hex())+",'hex')"];receipt_sql='||'.join(parts)
     sql+='CREATE FUNCTION public.test_claim() RETURNS bytea LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $entry$ SELECT public.offline_claim_attempt(h.binding_id,h.plan_fingerprint,h.deployment_incarnation_id,h.offline_surface_version,1::bigint,'+quote(execution)+'::uuid,'+quote(instance)+"::uuid,decode("+quote(secret)+",'hex'),"+receipt_sql+') FROM public.offline_binding_header h $entry$; GRANT EXECUTE ON FUNCTION public.test_claim() TO test_executor;\n'
     sql+="CREATE TABLE public.test_claim_bytes(data bytea); DO $claim$ DECLARE first bytea;again bytea; BEGIN SET SESSION AUTHORIZATION test_executor; first:=public.test_claim(); again:=public.test_claim(); RESET SESSION AUTHORIZATION; IF first IS DISTINCT FROM again THEN RAISE EXCEPTION 'CLAIM_RENEWED'; END IF; INSERT INTO public.test_claim_bytes VALUES(first); END $claim$;\n"
-    # The test entry privately supplies the durable fresh receipt (no service SELECT).
-    sql+='CREATE FUNCTION public.test_delivery() RETURNS bytea LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $entry$ SELECT public.test_s14('+quote(ids['credential_id'])+','+quote(ids['credential_operation_id'])+",s.receipt_id) FROM public.offline_stage_receipt s WHERE s.stage='INITIAL_CREDENTIAL_APPLIED' $entry$; GRANT EXECUTE ON FUNCTION public.test_delivery() TO test_executor;\n"
-    sql+='SET SESSION AUTHORIZATION test_executor;\nINSERT INTO public.test_delivery_bytes SELECT public.test_delivery();\nRESET SESSION AUTHORIZATION;\n'
-    sql+="DO $once$ DECLARE first bytea;again bytea;BEGIN SELECT data INTO first FROM public.test_delivery_bytes; SET SESSION AUTHORIZATION test_executor; again:=public.test_delivery(); RESET SESSION AUTHORIZATION; IF substring(first,1,octet_length(first)-1)<>substring(again,1,octet_length(again)-1) OR get_byte(first,octet_length(first)-1)<>1 OR get_byte(again,octet_length(again)-1)<>0 THEN RAISE EXCEPTION 'DELIVERY_PERMISSION_RENEWED'; END IF; END $once$;\n"
+    # Exact S10 caller bytes -> pure caller codec -> psql client UUID -> S14.
+    delivery_call='public.test_s14('+quote(ids['credential_id'])+','+quote(ids['credential_operation_id'])+",:'transported_fresh_uuid'::uuid)"
+    sql+='SET SESSION AUTHORIZATION test_executor;\nINSERT INTO public.test_delivery_bytes SELECT '+delivery_call+';\nSELECT '+delivery_call+';\nRESET SESSION AUTHORIZATION;\n'
+    sql+='SET SESSION AUTHORIZATION test_executor;\n'+assert_call('public.test_s14('+quote(ids['credential_id'])+','+quote(ids['credential_operation_id'])+',NULL::uuid)',denied=True)+'RESET SESSION AUTHORIZATION;\n'
     sql+='CREATE FUNCTION public.test_report() RETURNS bytea LANGUAGE sql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $entry$ SELECT public.test_s15(d.delivery_receipt_id,\'DELIVERY_ACKNOWLEDGED\',d.attempted_at,\'COMPLETE\') FROM public.offline_delivery d $entry$; GRANT EXECUTE ON FUNCTION public.test_report() TO test_executor;\nCREATE TABLE public.test_report_bytes(data bytea); DO $report$ DECLARE first bytea;again bytea; BEGIN SET SESSION AUTHORIZATION test_executor; first:=public.test_report(); again:=public.test_report(); RESET SESSION AUTHORIZATION; IF first IS DISTINCT FROM again THEN RAISE EXCEPTION \'REPORT_RECORDED_CLOCK_RENEWED\'; END IF; INSERT INTO public.test_report_bytes VALUES(first); END $report$;\n'
     for stage in ('S11','S12'):
         sql+='SET SESSION AUTHORIZATION test_issuer;\n'+assert_call('public.test_'+stage.lower()+'(decode('+quote(goldens[stage]['input_hex'])+",'hex'))",bytes.fromhex(goldens[stage]['output_hex']))+'RESET SESSION AUTHORIZATION;\n'
@@ -224,16 +228,29 @@ def review():
                 size={'uuid':16,'int8':8,'int4':4,'timestamptz':8,'bool':1}.get(kind)
                 if size is not None and len(value)!=size:raise ValueError('Typed output length')
                 if kind=='bool' and value not in (b'\x00',b'\x01'):raise ValueError('Noncanonical boolean')
+        from package_0090_s10_transport import decode as independent_s10_decode
+        fresh_bytes=bytes.fromhex(re.search(r'S10_OUTER_FRESH=(\w+)',output)[1]);replay_bytes=bytes.fromhex(re.search(r'S10_OUTER_REPLAY=(\w+)',output)[1])
+        fresh=independent_s10_decode(fresh_bytes);replay=independent_s10_decode(replay_bytes)
+        if fresh['fresh_applied_receipt_id'] is None or replay['fresh_applied_receipt_id'] is not None:raise ValueError('S10 fresh/replay contract')
+        if str(fresh['execution_id'])!=captured['execution'] or str(fresh['instance_id'])!=captured['instance']:raise ValueError('S10 execution scope')
+        if fresh['frozen_receipt']!=bytes.fromhex(captured['mutation_goldens']['S10']['output_hex']):raise ValueError('Frozen receipt altered')
+        public['S10']=fresh_bytes
+        captured['mutation_goldens']['S10']['replay_output_hex']=replay_bytes.hex()
+        captured['mutation_goldens']['S10']['private_frozen_output_hex']=captured['mutation_goldens']['S10']['output_hex']
+        captured['s10_s14_transport']='PASS_UNASSISTED_CLIENT_BYTES_UUID_NO_CONTROL_TABLE_LOOKUP'
+        captured['s10_replay_null']='PASS_NO_FRESH_PERMISSION'
         fp,admission=re.search(r'MUTATION_BINDING=(\w+):([0-9a-f-]+)',output).groups();oracle=captured['decision_oracle']
         values=[uuid.UUID(captured['binding']).bytes,bytes.fromhex(fp),uuid.UUID(captured['incarnation']).bytes,b'0090-v1',uuid.UUID(captured['attempt']).bytes,struct.pack('>q',1),uuid.UUID(captured['execution']).bytes,uuid.UUID(captured['instance']).bytes,uuid.UUID(admission).bytes,oracle['caller_request'],oracle['server_facts'],oracle['accepted_snapshot']]
         digest=hashlib.sha256(frame('FLOOOW/OFFLINE-FIELD-PROOF/DECISION-PREPARATION/V1',[present(v) for v in values])).digest()
         expected=frame('FLOOOW/OFFLINE-FIELD-PROOF/S17/OUTPUT/V1',[present(oracle['caller_request']),present(digest),present(oracle['accepted_snapshot'])])
         if public['S17']!=expected:raise ValueError('Independent private preparation commitment golden mismatch')
-        goldens=captured['mutation_goldens'];goldens.update({s:{'output_hex':v.hex()} for s,v in public.items()});goldens['S17']['input_hex']=oracle['caller_request'].hex();goldens['S18']={'input_hex':expected.hex(),'output_hex':oracle['output18'].hex()}
+        goldens=captured['mutation_goldens']
+        for stage,value in public.items():goldens.setdefault(stage,{}).update(output_hex=value.hex())
+        goldens['S17']['input_hex']=oracle['caller_request'].hex();goldens['S18']={'input_hex':expected.hex(),'output_hex':oracle['output18'].hex()}
         artifact={'scope':'ISOLATED_MOCK_FROZEN_TRANSPORTS','goldens':goldens,'private_test_only':{'server_facts_hex':oracle['server_facts'].hex(),'accepted_snapshot_hex':oracle['accepted_snapshot'].hex(),'preparation_digest_hex':digest.hex()},'output_oracle':'INDEPENDENT_PYTHON_FRAMING_AND_FULL_PRIVATE_PREPARATION_COMMITMENT'}
         (gate.ROOT/'docs/evidence/PACKAGE-0090-S07-S18-TRANSPORT-GOLDENS.json').write_text(json.dumps(artifact,indent=2)+'\n')
     result=verification.review(extension=extend,observer=observe)
-    return {'status':'PASS_ACTUAL_S07_S18_WITH_EXPLICIT_STUB_DEPENDENCIES','source_bodies':'ACTUAL_I_E','independent_private_apply_oracle':'ALL_54_FACTS_AND_19_SNAPSHOT_ARGUMENTS','actual_current_writer_oracle':captured['actual_writer_oracle'],'frozen_pure_identity_helpers':'UNCHANGED_V035_SQL','s17_s18_sql_transaction':'SAME_CONNECTION_SAME_READ_COMMITTED_TRANSACTION','v043_source_sha256':hashlib.sha256((gate.ROOT/gate.V043).read_text().encode()).hexdigest(),'v043_executed':False,'protected_database_connection':False,'production_policy':False,'limitations':['Frozen V041/V042 operational transports and P/Q/progress dependencies are stubs; actual writer/JCA uses mock JDBC rows. This is not frozen SQL semantic parity, the new adapter integration or deployed full ACL certification.'],'base_verification':result}
+    return {'status':'PASS_ACTUAL_S07_S18_WITH_EXPLICIT_STUB_DEPENDENCIES','source_bodies':'ACTUAL_I_E','s10_s14_transport':captured['s10_s14_transport'],'s10_replay_null':captured['s10_replay_null'],'independent_private_apply_oracle':'ALL_54_FACTS_AND_19_SNAPSHOT_ARGUMENTS','actual_current_writer_oracle':captured['actual_writer_oracle'],'frozen_pure_identity_helpers':'UNCHANGED_V035_SQL','s17_s18_sql_transaction':'SAME_CONNECTION_SAME_READ_COMMITTED_TRANSACTION','v043_source_sha256':hashlib.sha256((gate.ROOT/gate.V043).read_text().encode()).hexdigest(),'v043_executed':False,'protected_database_connection':False,'production_policy':False,'limitations':['Frozen V041/V042 operational transports and P/Q/progress dependencies are stubs; actual writer/JCA uses mock JDBC rows. This is not frozen SQL semantic parity, the new adapter integration or deployed full ACL certification.'],'base_verification':result}
 
 if __name__=='__main__':
     result=review();(gate.ROOT/'docs/evidence/PACKAGE-0090-S07-S18-ISOLATED-REVIEW.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

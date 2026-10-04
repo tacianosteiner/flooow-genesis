@@ -8,8 +8,9 @@ MARKER='-- Public S07-S12: guarded durable verification lineage and frozen issua
 END='-- End public S07-S12.'
 OWNER='flooow_offline_issuance_owner'
 TYPES=('uuid','bytea','uuid','text','uuid','int8','uuid','uuid','bytea','bytea')
-NAMES=('binding_id','plan_fingerprint','expected_incarnation_id','surface_version','attempt_id','generation','execution_id','instance_id','possession_secret','envelope')
-WRAPPERS={'S07':'offline_begin_principal','S08':'offline_apply_principal','S09':'offline_begin_initial_credential','S10':'offline_apply_initial_credential','S11':'offline_begin_permission_grant','S12':'offline_apply_permission_grant'}
+BASE_NAMES=('binding_id','plan_fingerprint','expected_incarnation_id','surface_version','attempt_id','generation','execution_id','instance_id','possession_secret')
+NAMES={s:BASE_NAMES+(n,) for s,n in zip(('S07','S08','S09','S10','S11','S12'),('principal_request','verified_principal_request','credential_request','verified_credential_request','grant_request','verified_grant_request'))}
+WRAPPERS={'S07':'offline_begin_principal','S08':'offline_apply_principal','S09':'offline_begin_initial_credential','S10':'offline_apply_initial_credential','S11':'offline_begin_grant','S12':'offline_apply_grant'}
 FROZEN={'S07':'s2a_v042_begin_attested_principal_verification','S08':'s2a_v042_apply_attested_principal','S09':'s2a_v042_begin_attested_initial_credential_verification','S10':'s2a_v042_apply_attested_initial_credential','S11':'s2a_v042_begin_attested_grant_verification','S12':'s2a_v042_apply_attested_grant'}
 STAGES={'S07':'PRINCIPAL_APPLIED','S08':'PRINCIPAL_APPLIED','S09':'INITIAL_CREDENTIAL_APPLIED','S10':'INITIAL_CREDENTIAL_APPLIED','S11':'GRANT_APPLIED','S12':'GRANT_APPLIED'}
 
@@ -34,6 +35,9 @@ def build_one(source,spec,stage):
     final_attempt_record record;
     output_bytes pg_catalog.bytea;
     stage_receipt_id pg_catalog.uuid;
+    public_fresh_receipt_id pg_catalog.uuid;
+    public_delivery_state pg_catalog.text;
+    frozen_output_bytes pg_catalog.bytea;
 '''
     stage_columns='s.binding_id,s.attempt_id,s.generation,s.execution_id,s.instance_id,s.stage,s.receipt_id,s.operation_id,s.frozen_receipt,s.effect_time'
     body+='    SELECT '+stage_columns+" INTO STRICT verification_receipt FROM public.offline_stage_receipt s WHERE s.binding_id=$1 AND s.attempt_id=$5 AND s.generation=$6 AND s.stage='ATTESTATION_VERIFIED';\n"
@@ -62,7 +66,7 @@ def build_one(source,spec,stage):
     body+=deny(' OR '.join('input_'+n+' IS DISTINCT FROM '+v for n,v in bound.items()))
     body+=deny(original_manifest(frozen_tuple(spec,'S05','INPUT'))+'<>header_record.canonical_manifest_bytes')
     begin_inputs=frozen_tuple(spec,begin_stage,'INPUT');begin_outputs=frozen_tuple(spec,begin_stage,'OUTPUT')
-    args=lambda fields:','.join('input_'+n for n,t in fields)
+    args=lambda fields:','.join('input_'+n+'::pg_catalog.'+t for n,t in fields)
     body+='    SELECT '+','.join('v.'+n for n,t in begin_outputs)+' INTO STRICT snapshot FROM public.'+FROZEN[begin_stage]+'('+args(begin_inputs)+') v;\n'
     body+=deny("snapshot.outcome NOT IN ('READY','ALREADY_APPLIED') OR snapshot.result_operation_id IS DISTINCT FROM header_record."+operation+' OR snapshot.result_manifest_digest IS DISTINCT FROM verified_result_manifest_digest OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM verified_result_accepted_proof_fingerprint OR snapshot.result_verified_at IS DISTINCT FROM verified_result_verified_at OR snapshot.result_canonical_manifest_bytes IS DISTINCT FROM header_record.canonical_manifest_bytes')
     body+=final_guard()
@@ -76,6 +80,7 @@ def build_one(source,spec,stage):
         applied=encode(stage,outputs).replace('pg_catalog.convert_to(result.outcome,',"pg_catalog.convert_to('APPLIED',")
         replay=encode(stage,outputs).replace('pg_catalog.convert_to(result.outcome,',"pg_catalog.convert_to('ALREADY_APPLIED',")
         body+=deny('prior_receipt.execution_id<>$7 OR prior_receipt.instance_id<>$8 OR prior_receipt.operation_id IS DISTINCT FROM header_record.'+operation+' OR (prior_receipt.frozen_receipt<>'+applied+' AND prior_receipt.frozen_receipt<>'+replay+') OR prior_receipt.effect_time IS DISTINCT FROM result.result_effect_time')
+        if stage=='S10':body+=deny("result.outcome<>'ALREADY_APPLIED'")
         body+='    stage_receipt_id := prior_receipt.receipt_id;\n    ELSE\n'
         if stage=='S10':body+=deny("result.outcome<>'APPLIED' OR delivery_record.state<>'NOT_CREATED'")
         body+='    stage_receipt_id := pg_catalog.gen_random_uuid();\n    INSERT INTO public.offline_stage_receipt(binding_id,attempt_id,generation,execution_id,instance_id,stage,receipt_id,operation_id,frozen_receipt,effect_time) VALUES($1,$5,$6,$7,$8,\''+STAGES[stage]+"',stage_receipt_id,header_record."+operation+',output_bytes,result.result_effect_time);\n    END IF;\n'
@@ -85,9 +90,12 @@ def build_one(source,spec,stage):
         IF NOT FOUND THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED'; END IF;
     ELSE
 '''+deny('delivery_record.fresh_applied_receipt_id IS DISTINCT FROM stage_receipt_id')+'    END IF;\n'
+    if stage=='S10':
+        body+='    frozen_output_bytes := output_bytes;\n    public_fresh_receipt_id := CASE WHEN result.outcome=\'APPLIED\' THEN stage_receipt_id ELSE NULL END;\n    SELECT d.state INTO STRICT public_delivery_state FROM public.offline_delivery d WHERE d.binding_id=$1;\n'
+        body+='    output_bytes := '+encode('S10',[('frozen_output_bytes','bytea'),('public_fresh_receipt_id','uuid'),('execution_id','uuid'),('instance_id','uuid'),('public_delivery_state','text')],'').replace('pg_catalog.uuid_send(execution_id)','pg_catalog.uuid_send($7)').replace('pg_catalog.uuid_send(instance_id)','pg_catalog.uuid_send($8)')+';\n'
     body+=final_guard()+'    RETURN output_bytes;\nEXCEPTION WHEN OTHERS THEN\n    RAISE EXCEPTION USING ERRCODE=\'P0017\',MESSAGE=\'ACCESS_DENIED\';\nEND;\n'
     name=WRAPPERS[stage];signature=','.join('pg_catalog.'+t for t in TYPES)
-    return 'CREATE FUNCTION public.'+name+'(\n    '+',\n    '.join(n+' pg_catalog.'+t for n,t in zip(NAMES,TYPES))+') RETURNS pg_catalog.bytea\nLANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT\nSET search_path=pg_catalog,pg_temp\nAS $offline_'+stage.lower()+'$\n'+decl+body+'$offline_'+stage.lower()+'$;\nALTER FUNCTION public.'+name+'('+signature+') OWNER TO '+OWNER+';\nREVOKE ALL ON FUNCTION public.'+name+'('+signature+') FROM PUBLIC;\n'
+    return 'CREATE FUNCTION public.'+name+'(\n    '+',\n    '.join(n+' pg_catalog.'+t for n,t in zip(NAMES[stage],TYPES))+') RETURNS pg_catalog.bytea\nLANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT\nSET search_path=pg_catalog,pg_temp\nAS $offline_'+stage.lower()+'$\n'+decl+body+'$offline_'+stage.lower()+'$;\nALTER FUNCTION public.'+name+'('+signature+') OWNER TO '+OWNER+';\nREVOKE ALL ON FUNCTION public.'+name+'('+signature+') FROM PUBLIC;\n'
 
 def build(source,spec):
     code=MARKER+'\n'+''.join(build_one(source,spec,s) for s in WRAPPERS)

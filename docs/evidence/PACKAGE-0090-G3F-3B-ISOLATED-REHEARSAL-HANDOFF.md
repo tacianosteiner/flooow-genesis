@@ -1,3 +1,11 @@
+Current 2026-10-04 closure update: S01-S18/P/Q/Z and private dependencies are
+source-composed; deterministic H01/H03/M01/M02/M03/L01 corrections passed the
+independent SPEC/AST check and 191 offline tests. See
+[phase A closure](PACKAGE-0090-PHASE-A-CLOSURE.json). H02 adapter integration
+is the active next gate. M04 installed/frozen/concurrency proof is still required.
+The earlier remaining-wrapper/fixture wording below is historical. No interlock
+removal, migration execution or G3F.4 authorization is supplied by this update.
+
 # Package 0090 isolated rehearsal handoff — preparation only
 
 Date: 2026-10-03 (America/Sao_Paulo).

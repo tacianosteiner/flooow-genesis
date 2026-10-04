@@ -17,7 +17,7 @@ MARKER='-- Public S17-S18: private decision facts and original unchanged snapsho
 END='-- End public S17-S18.'
 WRAPPERS={'S17':'offline_prepare_attested_decision','S18':'offline_apply_attested_decision'}
 TYPES={s:control.BASE_TYPES+('uuid','bytea') for s in WRAPPERS}
-NAMES=control.BASE_NAMES+('admission_id','decision_request')
+NAMES={'S17':control.BASE_NAMES+('admission_id','decision_request'),'S18':control.BASE_NAMES+('admission_id','verified_decision_request')}
 FROZEN={'BEGIN':'s2a_v042_begin_attested_decision_verification','APPLY':'s2a_v042_apply_attested_decision',**control.FROZEN,'PROGRESS':'transaction_identity_progress_lock','INTENT':'transaction_identity_intent','SEMANTIC':'transaction_identity_fingerprint'}
 REQUEST=[('decision_id','uuid'),('source_order_reference','text'),('marketplace_order_id','uuid'),('kind','text'),('reason','text'),('provenance','text'),('correlation_id','uuid'),('supersedes_decision_id','uuid')]
 REQUEST_BOUNDS={'source_order_reference':(1,256),'kind':(9,9),'reason':(21,21),'provenance':(1,1024)}
@@ -138,7 +138,7 @@ def build_one(source,spec,stage):
     body+=derive_facts(fields)
     body+='    server_facts := '+encode('',fields[:54],'facts_',domain_kind='DECISION-SERVER-FACTS')+';\n'
     begin_values=['facts_p_organization_id','facts_p_principal_id','facts_p_grant_id','facts_p_grant_revision','facts_p_decision_id','facts_p_decision_omie_connection_id','facts_p_decision_source_order_reference','facts_p_decision_marketplace_order_id']+['facts_'+n for n,t in fields[32:54]]
-    body+='    SELECT '+','.join('v.'+n for n,t in begin_outputs)+' INTO STRICT snapshot FROM public.'+FROZEN['BEGIN']+'('+','.join(begin_values)+') v;\n'
+    body+='    SELECT '+','.join('v.'+n for n,t in begin_outputs)+' INTO STRICT snapshot FROM public.'+FROZEN['BEGIN']+'('+','.join(v+'::pg_catalog.'+t for v,(n,t) in zip(begin_values,frozen_signature(FROZEN['BEGIN'])[0]))+') v;\n'
     body+="    IF snapshot.outcome='ALREADY_APPLIED' THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;\n"
     body+=deny("snapshot.outcome IS DISTINCT FROM 'READY' OR snapshot.result_decision_id IS DISTINCT FROM header_record.decision_id OR snapshot.result_manifest_id IS DISTINCT FROM header_record.manifest_id OR snapshot.result_canonical_manifest_bytes IS DISTINCT FROM header_record.canonical_manifest_bytes OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM verified_result_accepted_proof_fingerprint OR snapshot.result_verified_at IS DISTINCT FROM verified_result_verified_at")
     body+=deny('pg_catalog.num_nonnulls('+','.join('snapshot.result_'+n for n,t in SNAPSHOT)+')<>20')
@@ -156,7 +156,7 @@ def build_one(source,spec,stage):
         body+=deny('preparation_digest IS DISTINCT FROM '+digest)
         expected=lambda n:'accepted_'+n[len('p_expected_'):] if n!='p_expected_evidence_binding_fingerprint' else 'accepted_signed_evidence_binding_fingerprint'
         outputs=frozen_tuple(spec,'S18','OUTPUT')
-        body+='    SELECT '+','.join('v.'+n for n,t in outputs)+' INTO STRICT result FROM public.'+FROZEN['APPLY']+'('+','.join(['facts_'+n for n,t in fields[:54]]+[expected(n) for n,t in fields[54:]])+') v;\n'
+        body+='    SELECT '+','.join('v.'+n for n,t in outputs)+' INTO STRICT result FROM public.'+FROZEN['APPLY']+'('+','.join(v+'::pg_catalog.'+t for v,(n,t) in zip(['facts_'+n for n,t in fields[:54]]+[expected(n) for n,t in fields[54:]],fields))+') v;\n'
         body+=deny("result.outcome IS DISTINCT FROM 'APPLIED' OR result.result_decision_id IS DISTINCT FROM header_record.decision_id OR result.result_decision_semantic_fingerprint IS DISTINCT FROM facts_p_decision_semantic_fingerprint OR pg_catalog.num_nonnulls("+','.join('result.'+n for n,t in outputs)+')<>4')+final_guard()+control.admission_valid()
         body+='    output_bytes := '+encode('S18',outputs)+';\n'
         body+='''    INSERT INTO public.offline_stage_receipt(binding_id,attempt_id,generation,execution_id,instance_id,stage,receipt_id,operation_id,frozen_receipt,effect_time)
@@ -173,7 +173,7 @@ def build_one(source,spec,stage):
 '''+deny('database_now>=LEAST(header_record.expires_at,attempt_record.expires_at,execution_record.expires_at,admission_record.expires_at) OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[1]')+'    RETURN output_bytes;\n'
     body+="EXCEPTION WHEN OTHERS THEN\n    IF SQLSTATE='P0017' AND SQLERRM='REPLAY_INSPECTION_REQUIRED' THEN RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='REPLAY_INSPECTION_REQUIRED'; END IF;\n    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\nEND;\n"
     signature=','.join('pg_catalog.'+t for t in TYPES[stage]);name=WRAPPERS[stage]
-    return 'CREATE FUNCTION public.'+name+'(\n    '+',\n    '.join(n+' pg_catalog.'+t for n,t in zip(NAMES,TYPES[stage]))+') RETURNS pg_catalog.bytea\nLANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT\nSET search_path=pg_catalog,pg_temp\nAS $offline_'+stage.lower()+'$\n'+decl+body+'$offline_'+stage.lower()+'$;\nALTER FUNCTION public.'+name+'('+signature+') OWNER TO '+OWNER+';\nREVOKE ALL ON FUNCTION public.'+name+'('+signature+') FROM PUBLIC;\n'
+    return 'CREATE FUNCTION public.'+name+'(\n    '+',\n    '.join(n+' pg_catalog.'+t for n,t in zip(NAMES[stage],TYPES[stage]))+') RETURNS pg_catalog.bytea\nLANGUAGE plpgsql VOLATILE SECURITY DEFINER CALLED ON NULL INPUT\nSET search_path=pg_catalog,pg_temp\nAS $offline_'+stage.lower()+'$\n'+decl+body+'$offline_'+stage.lower()+'$;\nALTER FUNCTION public.'+name+'('+signature+') OWNER TO '+OWNER+';\nREVOKE ALL ON FUNCTION public.'+name+'('+signature+') FROM PUBLIC;\n'
 
 def build(source,spec):
     code=MARKER+'\n'+''.join(build_one(source,spec,s) for s in WRAPPERS)

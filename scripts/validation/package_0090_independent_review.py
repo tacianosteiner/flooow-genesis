@@ -27,9 +27,16 @@ def typ(t):
 def identity(o):
     return names(o['objname']) + '(' + ','.join(typ(t['TypeName']) for t in o.get('objargs', [])) + ')'
 
-def main():
+def require_exact(result):
+    contracts=result['public_contracts']
+    if len(contracts)!=18 or not all(c.get('argument_names_match') and c.get('governed_metadata_match') for c in contracts.values()):raise ValueError('Normative public manifest mismatch')
+    if len(result['delegated_calls'])!=15 or not all(c['arity_match'] and c['order_match'] and c['types_match'] and c['explicit_casts'] for c in result['delegated_calls']):raise ValueError('Frozen explicit cast/vector mismatch')
+    if result['counts']!={'public_contracts':18,'public_wrappers':18,'executor':6,'columns':1040,'execute':32,'schema_usage':8}:raise ValueError('Unexpected inventory')
+    if any(result['column_acl'].values()) or any(result['function_acl'].values()) or any(result['schema_acl'].values()) or result['unsafe_grants'] or result['frozen_differences']:raise ValueError('Authority inventory mismatch')
+
+def main(source_override=None, output=None, baseline=None, require=False):
     path = next(MIGRATIONS.glob('V043*'))
-    source = path.read_text(encoding='utf-8-sig')
+    source = source_override if source_override is not None else path.read_text(encoding='utf-8-sig')
     spec = SPEC.read_text(encoding='utf-8-sig')
     statements = [r['stmt'] for r in json.loads(parser.parse_sql_json(source))['stmts']]
     definitions, bodies, owner_map, revokes, function_grants, schema_grants, column_grants = {}, {}, {}, [], [], [], []
@@ -202,7 +209,7 @@ def main():
             expected_execute.add((signature,OWNERS[owner]))
     expected_execute.add(('offline_crypto.canonical_spki_ed25519_verify(pg_catalog.bytea,pg_catalog.bytea,pg_catalog.bytea)',OWNERS['V']))
     expected_schema={('public',owner,'usage') for owner in OWNERS.values()}|{('offline_crypto',OWNERS['V'],'usage')}
-    result=dict(baseline='9ba136cd4920d2710d6a886f0eea7cee938c3b2a',method='INDEPENDENT_SQL_AST_AND_NORMATIVE_MARKDOWN_NO_GENERATOR_IMPORTS',
+    result=dict(baseline=baseline or subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),method='INDEPENDENT_SQL_AST_AND_NORMATIVE_MARKDOWN_NO_GENERATOR_IMPORTS',
         source_sha256=hashlib.sha256(source.encode()).hexdigest(),statement_count=len(statements),
         first_statement=statements[0],public_contracts=contracts,definitions=definitions,
         counts=dict(public_contracts=len(contracts),public_wrappers=sum(not any(t in f['name'] for t in ('internal','offline_lock')) for f in definitions.values()),executor=sum(c['slot']=='EXECUTOR' for c in contracts.values()),columns=len(actual),execute=len(function_grants),schema_usage=len(schema_grants)),
@@ -210,8 +217,13 @@ def main():
         function_execute=function_grants,function_acl=dict(missing=sorted(expected_execute-set(function_grants)),extra=sorted(set(function_grants)-expected_execute),duplicates=len(function_grants)-len(set(function_grants)),public_unauthorized=sum(r=='PUBLIC' for k,r in function_grants),service_direct_private=sum(r not in OWNERS.values() for k,r in function_grants)),
         schema_usage=schema_grants,schema_acl=dict(missing=sorted(expected_schema-set(schema_grants)),extra=sorted(set(schema_grants)-expected_schema)),unsafe_grants=unsafe_grants,
         frozen_source_sha256=frozen,frozen_differences=frozen_differences,frozen_comparison='GIT_CANONICAL_LF_VS_19131bb9cd655312252c8c83f0f78e7c0742274f',frozen_tuple_reviews=tuple_reviews,delegated_calls=delegated_calls,installed_acl_proof='NOT_EXECUTED',role_membership_effective_acl='REQUIRES_ISOLATED_CATALOG_PROOF')
-    target=ROOT/'docs/evidence/PACKAGE-0090-INDEPENDENT-SOURCE-REVIEW.json'
+    if require:require_exact(result)
+    target=Path(output) if output else ROOT/'docs/evidence/PACKAGE-0090-CURRENT-INDEPENDENT-SOURCE-REVIEW.json'
     target.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(dict(counts=result['counts'],column_acl=result['column_acl'],unsafe_grants=len(unsafe_grants),contract_signature_or_argument_mismatches=[k for k,v in contracts.items() if not v.get('argument_names_match')]),indent=2))
+    return result
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    import argparse
+    cli=argparse.ArgumentParser();cli.add_argument('--require-exact',action='store_true');cli.add_argument('--output');cli.add_argument('--baseline');a=cli.parse_args()
+    main(output=a.output,baseline=a.baseline,require=a.require_exact)
