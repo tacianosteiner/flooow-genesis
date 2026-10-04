@@ -115,7 +115,7 @@ def actual_column_grants(statements):
                     if name!=OWNERS['V'] or name in private_usage:raise ValueError('Only V exact private USAGE')
                     private_usage.add(name)
                     continue
-                if name not in q.USAGE or name in schema_usage:raise ValueError('Unapproved/duplicate schema USAGE')
+                if name not in q.USAGE | {OWNERS['V']} or name in schema_usage:raise ValueError('Unapproved/duplicate schema USAGE')
                 schema_usage.add(name)
             continue
         if grant["objtype"] != "OBJECT_TABLE":
@@ -141,7 +141,8 @@ def actual_column_grants(statements):
                             raise ValueError("Duplicate physical column grant")
                         grants.add(item)
     q_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_internal_readiness'}}] for s in statements)
-    if schema_usage != (q.USAGE if q_present else set()):
+    original_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':'offline_internal_matches_original_signed_attestation'}}] for s in statements)
+    if schema_usage != ((q.USAGE if q_present else set()) | ({OWNERS['V']} if original_present else set())):
         raise ValueError('Exact Q/A/E public USAGE prerequisites missing')
     from build_package_0090_v_bridge_source import NAME as v_name
     v_present=any(s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':v_name}}] for s in statements)
@@ -217,7 +218,7 @@ def closure_gaps(source, spec):
     # No source-only report promotes these implementation gaps to runtime evidence.
     missing = []
     # 18 public signatures + P/Q/Z/V bridge + the narrowly approved ADMIN trigger.
-    closed_function_count = 23
+    closed_function_count = 24
     if len(re.findall(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_", source)) != closed_function_count:
         missing.append("Operational public wrappers remain incomplete; P/Q/Z/V and S01-S04 have bounded review only")
     if not re.search(r"(?im)^CREATE(?: OR REPLACE)? FUNCTION public\.offline_internal_readiness\(", source):

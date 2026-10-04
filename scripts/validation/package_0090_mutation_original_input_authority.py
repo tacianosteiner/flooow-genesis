@@ -29,31 +29,23 @@ def audit():
     isolated=json.loads((gate.ROOT/'docs/evidence/PACKAGE-0090-S02-ISOLATED-PREDICATE-REVIEW.json').read_text())
     if isolated['status']!='PASS' or isolated['ab_matrix']!={'expected_A_stored_A':True,'expected_A_stored_B':False,'expected_B_stored_A':False,'expected_B_stored_B':True}:
         raise ValueError('Real SQL/native witness missing')
+    from build_package_0090_original_match_source import NAME, TYPES, GRANTS
+    from package_0090_original_match_source import check
+    fn=next(s['CreateFunctionStmt'] for s in statements if s.get('CreateFunctionStmt',{}).get('funcname')==[{'String':{'sval':'public'}},{'String':{'sval':NAME}}])
+    check(fn,source)
+    helper_review=json.loads((gate.ROOT/'docs/evidence/PACKAGE-0090-MUTATION-ORIGINAL-MATCH-REVIEW.json').read_text())
+    if helper_review['status']!='PASS_ISOLATED_HELPER':raise ValueError('Helper isolated evidence missing')
     return dict(gate='G3F.3B_MUTATION_ORIGINAL_SIGNED_INPUT_CONSUMER_AUTHORITY',
-        status='HOLD_NO_APPROVED_MUTABLE_ORIGINAL_INPUT_PREDICATE',unresolved_authority_blocker_count=1,
-        boundary='S05/S06 before treating a caller signed envelope as the registered original input',
-        physical_grant_count=len(grants),expected_relation='public.offline_expected_signed_attestation',
-        approved_operational_expected_reads=expected_reads,
+        status='CLOSED_APPROVED_PRIVATE_V_PREDICATE',unresolved_authority_blocker_count=0,
+        approved_operational_expected_reads=expected_reads,physical_grant_count=len(grants),
         v_i_e_expected_reads=[],s02_available_to_mutable_guard=False,
-        s02_restrictions=['AUDITOR_SESSION_USER','REPEATABLE_READ','READ_ONLY'],
-        mutable_restrictions=['VERIFIER_ISSUER_EXECUTOR_SESSION_USER','READ_COMMITTED','READ_WRITE'],
-        witness=isolated['ab_matrix'],same_binding_and_manifest=True,same_plan=isolated['frozen_witness']['PLAN_EQUAL']=='true',
         native_validity_cannot_identify_registered_original=True,
-        rationale='Cryptographically valid B cannot be promoted to the independently registered original A. Only S02 may read/compare the original tuple. Its R guard cannot be invoked as an authorization oracle from mutable V/I/E transactions. Frozen V041/V042 lack this new commitment. No approved mutable predicate bridges the gap; caller values or stored accepted rows cannot supply their own original expectation.',
-        recommended_bounded_handoff={
-            'owner':'flooow_offline_control_owner',
-            'capability':'One private original-input equality predicate for V/S05-S06 only',
-            'proposed_signature':'public.offline_internal_matches_original_signed_attestation(uuid,bytea,uuid,text,text,text,uuid,text,bytea) RETURNS boolean',
-            'properties':'STABLE SECURITY DEFINER CALLED ON NULL INPUT; fixed search_path=pg_catalog,pg_temp; no defaults/variadic',
-            'inputs':'authenticated binding tuple plus manifest_digest,algorithm_id,signer_key_id,signer_key_fingerprint,signature_bytes',
-            'output':'boolean only; no raw original values or commitment returned',
-            'guards':'Independent exact VERIFIER session OID/name/binding authentication; no AUDITOR R bypass; exact canonical/digest/header/tuple checks',
-            'acl':'ADMIN implicit control reads; exact non-grantable EXECUTE to V only; PUBLIC/service direct access none; no V table reads',
-            'effect':'V validates the independently registered original before frozen lookup/persistence; I/E rely only on the verified bound stage lineage',
-            'requires':'Explicit narrow ADMIN function ownership/EXECUTE/consumer contract amendment; not self-authorized by existing S02_ONLY reads'},
-        frozen_v041_sha256=hashlib.sha256(frozen.encode('utf-8')).hexdigest(),
-        implemented_s05_stub=False,authority_widened=False,v043_executed=False,protected_database_connection=False,
-        limitations=['Information-flow/authority boundary proof, not a claim that an unimplemented mutable wrapper was exploited.'])
+        private_match_helper=NAME,private_match_execute=sorted(GRANTS),helper_review=helper_review['status'],
+        original_ab_matrix=helper_review['matrix'],implemented_s05_stub=False,
+        authority_widened=False,approved_private_comparison_added=True,
+        v043_executed=False,protected_database_connection=False,
+        next_gate='S05_S06_COMPLETE_IMPLEMENTATION',
+        limitations=['Helper isolated proof is separate from complete mutation wrapper runtime closure.'])
 
 if __name__=='__main__':
     report=audit();(gate.ROOT/'docs/evidence/PACKAGE-0090-MUTATION-ORIGINAL-INPUT-AUTHORITY.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

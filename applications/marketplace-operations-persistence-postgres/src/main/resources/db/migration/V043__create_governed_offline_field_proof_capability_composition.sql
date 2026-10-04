@@ -5124,7 +5124,7 @@ BEGIN
     -- Fixed named inventories; reachable application extras are included, never hidden.
     SELECT pg_catalog.array_agg(p.oid ORDER BY p.oid) INTO function_oids
       FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
-     WHERE (n.nspname='public' AND p.proname=ANY(ARRAY['command_authorization_organization_lock','offline_apply_attested_decision','offline_apply_grant','offline_apply_initial_credential','offline_apply_principal','offline_authenticate_command','offline_begin_grant','offline_begin_initial_credential','offline_begin_principal','offline_begin_verification','offline_claim_attempt','offline_inspect','offline_internal_expected_attestation_guard','offline_internal_readiness','offline_internal_verify_authority_intent','offline_lock_bound_principal','offline_persist_verification','offline_preflight','offline_prepare_attested_decision','offline_read_history','offline_reconcile','s2a_begin_attestation_verification','s2a_persist_attestation_verification_result','s2a_v042_apply_attested_decision','s2a_v042_apply_attested_grant','s2a_v042_apply_attested_initial_credential','s2a_v042_apply_attested_principal','s2a_v042_authority_intent','s2a_v042_authority_receipt','s2a_v042_begin_attested_decision_verification','s2a_v042_begin_attested_grant_verification','s2a_v042_begin_attested_initial_credential_verification','s2a_v042_begin_attested_principal_verification','s2a_v042_frame','s2a_v042_instant','s2a_v042_text','transaction_identity_fingerprint','transaction_identity_grant_fingerprint','transaction_identity_hash','transaction_identity_intent','transaction_identity_progress_lock']::pg_catalog.text[]))
+     WHERE (n.nspname='public' AND p.proname=ANY(ARRAY['command_authorization_organization_lock','offline_apply_attested_decision','offline_apply_grant','offline_apply_initial_credential','offline_apply_principal','offline_authenticate_command','offline_begin_grant','offline_begin_initial_credential','offline_begin_principal','offline_begin_verification','offline_claim_attempt','offline_inspect','offline_internal_expected_attestation_guard','offline_internal_matches_original_signed_attestation','offline_internal_readiness','offline_internal_verify_authority_intent','offline_lock_bound_principal','offline_persist_verification','offline_preflight','offline_prepare_attested_decision','offline_read_history','offline_reconcile','s2a_begin_attestation_verification','s2a_persist_attestation_verification_result','s2a_v042_apply_attested_decision','s2a_v042_apply_attested_grant','s2a_v042_apply_attested_initial_credential','s2a_v042_apply_attested_principal','s2a_v042_authority_intent','s2a_v042_authority_receipt','s2a_v042_begin_attested_decision_verification','s2a_v042_begin_attested_grant_verification','s2a_v042_begin_attested_initial_credential_verification','s2a_v042_begin_attested_principal_verification','s2a_v042_frame','s2a_v042_instant','s2a_v042_text','transaction_identity_fingerprint','transaction_identity_grant_fingerprint','transaction_identity_hash','transaction_identity_intent','transaction_identity_progress_lock']::pg_catalog.text[]))
         OR (n.nspname='offline_crypto' AND p.proname IN ('hmac','timing_safe_equal32','canonical_spki_ed25519_verify'))
         OR (n.nspname!~'^pg_' AND n.nspname<>'information_schema' AND
             EXISTS(SELECT 1 FROM pg_catalog.unnest(protected_oids[1:11]) q(oid)
@@ -6689,7 +6689,6 @@ GRANT USAGE ON SCHEMA public TO flooow_offline_readiness_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_audit_owner;
 GRANT USAGE ON SCHEMA public TO flooow_offline_execution_owner;
 
-
 -- Approved V Ed25519 bridge: no A/private-native access.
 -- Existing crypto dependency inspection above requires D-only native ACLs
 -- before the newly approved two V grants below. This is no general ACL repair.
@@ -8109,3 +8108,124 @@ REVOKE ALL ON FUNCTION public.offline_reconcile(pg_catalog.uuid,pg_catalog.bytea
 GRANT EXECUTE ON FUNCTION public.transaction_identity_intent(public.marketplace_transaction_identity_decision) TO flooow_offline_audit_owner;
 GRANT EXECUTE ON FUNCTION public.transaction_identity_fingerprint(public.marketplace_transaction_identity_decision) TO flooow_offline_audit_owner;
 -- End public S03.
+
+-- Private mutation original-input comparison: approved 2026-10-04.
+CREATE FUNCTION public.offline_internal_matches_original_signed_attestation(
+    binding_id pg_catalog.uuid,
+    plan_fingerprint pg_catalog.bytea,
+    incarnation_id pg_catalog.uuid,
+    surface pg_catalog.text,
+    manifest_digest pg_catalog.text,
+    algorithm_id pg_catalog.text,
+    signer_key_id pg_catalog.uuid,
+    signer_key_fingerprint pg_catalog.text,
+    signature_bytes pg_catalog.bytea
+) RETURNS pg_catalog.bool
+LANGUAGE plpgsql STABLE SECURITY DEFINER CALLED ON NULL INPUT
+SET search_path=pg_catalog,pg_temp
+AS $offline_original_match$
+DECLARE
+    header_record record;
+    original_record record;
+    canonical_bytes pg_catalog.bytea;
+    caller_record record;
+    slot_cursor pg_catalog.int4;
+    slot_length pg_catalog.int8;
+    slot_oid pg_catalog.int8;
+    slot_name_length pg_catalog.int8;
+    slot_name pg_catalog.text;
+    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];
+    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];
+    slot_number pg_catalog.int4;
+    byte_number pg_catalog.int4;
+BEGIN
+    IF $1 IS NULL OR $2 IS NULL OR $3 IS NULL OR $4 IS NULL OR $5 IS NULL OR $6 IS NULL OR $7 IS NULL OR $8 IS NULL OR $9 IS NULL
+       OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid
+       OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid
+       OR pg_catalog.octet_length($2)<>32 OR $4<>'0090-v1' THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    SELECT h.binding_id,h.plan_fingerprint,h.deployment_incarnation_id,
+           h.offline_surface_version,h.identity_slots,h.manifest_digest
+      INTO STRICT header_record FROM public.offline_binding_header h
+     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2
+       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;
+    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.
+    IF pg_catalog.octet_length(header_record.identity_slots) < 4
+       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\x00000004'::pg_catalog.bytea THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+    slot_cursor := 4;
+    FOR slot_number IN 1..4 LOOP
+        slot_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);
+        END LOOP;
+        slot_cursor := slot_cursor+4;
+        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor
+           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oid := 0; slot_name_length := 0;
+        FOR byte_number IN 0..3 LOOP
+            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);
+            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);
+        END LOOP;
+        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,
+                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');
+        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,
+               r.rolcreatedb,r.rolreplication,r.rolbypassrls
+          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;
+        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit
+           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb
+           OR caller_record.rolreplication OR caller_record.rolbypassrls
+           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m
+                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        IF slot_number=1 AND slot_name <> SESSION_USER THEN
+            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+        END IF;
+        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);
+        slot_names := pg_catalog.array_append(slot_names,slot_name);
+        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;
+    END LOOP;
+    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN
+        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+    END IF;
+
+    BEGIN
+        SELECT o.binding_id,o.manifest_digest,o.algorithm_id,o.signer_key_id,o.signer_key_fingerprint,o.signature_bytes,o.canonical_expected_attestation,o.commitment_digest
+          INTO STRICT original_record FROM public.offline_expected_signed_attestation o
+         WHERE o.binding_id=$1;
+        canonical_bytes := pg_catalog.int4send(pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')))||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int2send(1::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.binding_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.binding_id)||pg_catalog.int2send(2::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.manifest_digest,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.manifest_digest,'UTF8')||pg_catalog.int2send(3::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.algorithm_id,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.algorithm_id,'UTF8')||pg_catalog.int2send(4::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.signer_key_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.signer_key_id)||pg_catalog.int2send(5::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(original_record.signature_bytes))||pg_catalog.decode('01','hex')||original_record.signature_bytes;
+        RETURN (original_record.canonical_expected_attestation=canonical_bytes
+            AND pg_catalog.octet_length(original_record.commitment_digest)=32
+            AND original_record.commitment_digest=pg_catalog.sha256(canonical_bytes)
+            AND original_record.manifest_digest ~ '^[0-9a-f]{64}$'
+            AND original_record.manifest_digest=pg_catalog.encode(header_record.manifest_digest,'hex')
+            AND original_record.algorithm_id='Ed25519'
+            AND original_record.signer_key_id<>'00000000-0000-0000-0000-000000000000'::pg_catalog.uuid
+            AND original_record.signer_key_fingerprint ~ '^[0-9a-f]{64}$'
+            AND pg_catalog.octet_length(original_record.signature_bytes)=64
+            AND original_record.manifest_digest=$5 AND original_record.algorithm_id=$6
+            AND original_record.signer_key_id=$7 AND original_record.signer_key_fingerprint=$8
+            AND original_record.signature_bytes=$9) IS TRUE;
+    EXCEPTION WHEN OTHERS THEN
+        RETURN false;
+    END;
+EXCEPTION WHEN OTHERS THEN
+    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+END;
+$offline_original_match$;
+ALTER FUNCTION public.offline_internal_matches_original_signed_attestation(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea) OWNER TO flooow_offline_control_owner;
+REVOKE ALL ON FUNCTION public.offline_internal_matches_original_signed_attestation(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.offline_internal_matches_original_signed_attestation(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea) TO flooow_offline_verification_owner;
+GRANT USAGE ON SCHEMA public TO flooow_offline_verification_owner;
+-- End private mutation original-input comparison.

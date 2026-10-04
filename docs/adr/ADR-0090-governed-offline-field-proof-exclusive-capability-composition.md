@@ -447,3 +447,44 @@ manifest/algorithm/key/fingerprint/signature exactly, builds the preimage from
 the expected key tuple, freshly verifies Ed25519 and recomputes the accepted
 proof fingerprint while preserving all frozen signer/window/cardinality checks
 and accepted() error-to-false behavior. Source evidence does not certify runtime.
+
+## Mutation original signed input consumer approval ? 2026-10-04
+
+Authority: FLOOOW PACKAGE 0090 TECHNICAL GOVERNANCE APPROVAL MUTATION
+ORIGINAL SIGNED INPUT CONSUMER AUTHORITY, baseline
+`d3f881cbb1e88c875753b4815ccb90d56d61c425`.
+
+Approve exactly one private ADMIN-owned comparison dependency:
+`public.offline_internal_matches_original_signed_attestation(pg_catalog.uuid,pg_catalog.bytea,pg_catalog.uuid,pg_catalog.text,pg_catalog.text,pg_catalog.text,pg_catalog.uuid,pg_catalog.text,pg_catalog.bytea) RETURNS pg_catalog.bool`.
+Arguments are binding_id, plan_fingerprint, incarnation_id, surface,
+manifest_digest, algorithm_id, signer_key_id, signer_key_fingerprint,
+signature_bytes, in that order. STABLE SECURITY DEFINER CALLED ON NULL INPUT,
+plpgsql, search_path=pg_catalog,pg_temp, no defaults/variadic, DML or locks.
+ADMIN owns this function using its implicit control reads. This narrowly
+supersedes the no-ADMIN-function restriction for this exact predicate only.
+
+V receives exact EXECUTE without grant option and public schema USAGE necessary
+for its static dependency calls; neither grants CREATE or table SELECT.
+PUBLIC, A, I, E and service logins receive no explicit helper EXECUTE.
+The S02 original relation's eight A column grants remain S02_ONLY unchanged.
+Physical column grants remain 1040; this new function grant is counted separately.
+
+The helper independently authenticates the immutable VERIFIER slot using
+SESSION_USER, exact OID/name/live attributes/membership and complete slot framing.
+It binds the first four arguments to the header before original lookup. Wrong
+session, foreign scope, bound tuple mismatch and any NULL argument produce
+sanitized P0017 ACCESS_DENIED. Within that authenticated scope, exact-one original
+lookup, canonical six-tag encoding, SHA-256 commitment, header manifest digest,
+Ed25519/non-NIL/hex/signature64 invariants and exact caller comparisons are
+mandatory. Missing, multiple, corrupt or different original returns false;
+no original values or metadata are returned. No normalization or accepted-row
+expectation is permitted.
+
+S05/S06 must require the helper result IS TRUE before any frozen V041 lookup,
+persistence or effect progression. Existing mutable guards, possession, lock
+order, frozen semantics, receipts and transaction boundaries remain mandatory.
+This predicate establishes no execution authorization, receipt or possession.
+I/E receive no helper access and rely only on verified durable V stage lineage.
+Native verification and trusted adapter JCA remain independently mandatory.
+V001-V042 and the unconditional V043 interlock remain unchanged; no protected
+PostgreSQL, production policy/roles, G3G or main publication is authorized.

@@ -1,10 +1,7 @@
 {
   "gate": "G3F.3B_MUTATION_ORIGINAL_SIGNED_INPUT_CONSUMER_AUTHORITY",
-  "status": "HOLD_NO_APPROVED_MUTABLE_ORIGINAL_INPUT_PREDICATE",
-  "unresolved_authority_blocker_count": 1,
-  "boundary": "S05/S06 before treating a caller signed envelope as the registered original input",
-  "physical_grant_count": 1040,
-  "expected_relation": "public.offline_expected_signed_attestation",
+  "status": "CLOSED_APPROVED_PRIVATE_V_PREDICATE",
+  "unresolved_authority_blocker_count": 0,
   "approved_operational_expected_reads": [
     [
       "flooow_offline_audit_owner",
@@ -39,46 +36,43 @@
       "signer_key_id"
     ]
   ],
+  "physical_grant_count": 1040,
   "v_i_e_expected_reads": [],
   "s02_available_to_mutable_guard": false,
-  "s02_restrictions": [
-    "AUDITOR_SESSION_USER",
-    "REPEATABLE_READ",
-    "READ_ONLY"
-  ],
-  "mutable_restrictions": [
-    "VERIFIER_ISSUER_EXECUTOR_SESSION_USER",
-    "READ_COMMITTED",
-    "READ_WRITE"
-  ],
-  "witness": {
-    "expected_A_stored_A": true,
-    "expected_A_stored_B": false,
-    "expected_B_stored_A": false,
-    "expected_B_stored_B": true
-  },
-  "same_binding_and_manifest": true,
-  "same_plan": true,
   "native_validity_cannot_identify_registered_original": true,
-  "rationale": "Cryptographically valid B cannot be promoted to the independently registered original A. Only S02 may read/compare the original tuple. Its R guard cannot be invoked as an authorization oracle from mutable V/I/E transactions. Frozen V041/V042 lack this new commitment. No approved mutable predicate bridges the gap; caller values or stored accepted rows cannot supply their own original expectation.",
-  "recommended_bounded_handoff": {
-    "owner": "flooow_offline_control_owner",
-    "capability": "One private original-input equality predicate for V/S05-S06 only",
-    "proposed_signature": "public.offline_internal_matches_original_signed_attestation(uuid,bytea,uuid,text,text,text,uuid,text,bytea) RETURNS boolean",
-    "properties": "STABLE SECURITY DEFINER CALLED ON NULL INPUT; fixed search_path=pg_catalog,pg_temp; no defaults/variadic",
-    "inputs": "authenticated binding tuple plus manifest_digest,algorithm_id,signer_key_id,signer_key_fingerprint,signature_bytes",
-    "output": "boolean only; no raw original values or commitment returned",
-    "guards": "Independent exact VERIFIER session OID/name/binding authentication; no AUDITOR R bypass; exact canonical/digest/header/tuple checks",
-    "acl": "ADMIN implicit control reads; exact non-grantable EXECUTE to V only; PUBLIC/service direct access none; no V table reads",
-    "effect": "V validates the independently registered original before frozen lookup/persistence; I/E rely only on the verified bound stage lineage",
-    "requires": "Explicit narrow ADMIN function ownership/EXECUTE/consumer contract amendment; not self-authorized by existing S02_ONLY reads"
+  "private_match_helper": "offline_internal_matches_original_signed_attestation",
+  "private_match_execute": [
+    [
+      "public",
+      "offline_internal_matches_original_signed_attestation",
+      [
+        "uuid",
+        "bytea",
+        "uuid",
+        "text",
+        "text",
+        "text",
+        "uuid",
+        "text",
+        "bytea"
+      ],
+      "flooow_offline_verification_owner"
+    ]
+  ],
+  "helper_review": "PASS_ISOLATED_HELPER",
+  "original_ab_matrix": {
+    "original_A_caller_A": true,
+    "original_A_caller_B": false,
+    "original_B_caller_A": false,
+    "original_B_caller_B": true
   },
-  "frozen_v041_sha256": "4f2c7dc6f9eddfc0d751206f2a0d7a6f51d92cb90345620da121ec0338b75024",
   "implemented_s05_stub": false,
   "authority_widened": false,
+  "approved_private_comparison_added": true,
   "v043_executed": false,
   "protected_database_connection": false,
+  "next_gate": "S05_S06_COMPLETE_IMPLEMENTATION",
   "limitations": [
-    "Information-flow/authority boundary proof, not a claim that an unimplemented mutable wrapper was exploited."
+    "Helper isolated proof is separate from complete mutation wrapper runtime closure."
   ]
 }

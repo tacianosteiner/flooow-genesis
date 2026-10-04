@@ -24,14 +24,16 @@ def check(statements, expected_columns, source=None):
     import package_0090_expected_attestation_source as expected
     import package_0090_s02_source as s02
     import package_0090_s03_source as s03
+    import package_0090_original_match_source as original
     definitions = [s['CreateFunctionStmt'] for s in statements if 'CreateFunctionStmt' in s]
     by_name = {strings(f['funcname']): f for f in definitions}
-    if len(by_name) != len(definitions) or set(by_name) - {('public',P_NAME), ('public',z.NAME),('public',q.NAME),('public',s01.NAME),('public','offline_read_history'),('public',v.NAME),('public',expected.NAME),('public',s02.NAME),('public',s03.NAME)}:
+    if len(by_name) != len(definitions) or set(by_name) - {('public',P_NAME), ('public',z.NAME),('public',q.NAME),('public',s01.NAME),('public','offline_read_history'),('public',v.NAME),('public',expected.NAME),('public',s02.NAME),('public',s03.NAME),('public',original.NAME)}:
         raise ValueError('Unreviewed or duplicate capability definition')
     expected_execute = EXECUTE | (z.GRANTS if ('public',z.NAME) in by_name else set()) | (q.GRANTS if ('public',q.NAME) in by_name else set())
     if ('public',v.NAME) in by_name:expected_execute |= v.GRANTS
     if ('public',s02.NAME) in by_name:expected_execute |= s02.GRANTS
     if ('public',s03.NAME) in by_name:expected_execute |= s03.GRANTS
+    if ('public',original.NAME) in by_name:expected_execute |= original.GRANTS
     grants = set(); revokes = set(); owners = {}
     p_statements = []
     for statement in statements:
@@ -51,6 +53,7 @@ def check(statements, expected_columns, source=None):
             if name==('public',expected.NAME):expected_types,expected_owner=expected.TYPES,expected.OWNER
             if name==('public',s02.NAME):expected_types,expected_owner=s02.TYPES,s02.OWNER
             if name==('public',s03.NAME):expected_types,expected_owner=s03.TYPES,s03.OWNER
+            if name==('public',original.NAME):expected_types,expected_owner=original.TYPES,original.OWNER
             if vector!=tuple(('pg_catalog',t) for t in expected_types) or owner['newowner'].get('rolename')!=expected_owner:
                 raise ValueError('Capability ownership/signature mismatch')
             owners[name] = expected_owner
@@ -87,6 +90,7 @@ def check(statements, expected_columns, source=None):
     if ('public',expected.NAME) in by_name:expected_revokes.add(('public',expected.NAME,expected.TYPES))
     if ('public',s02.NAME) in by_name:expected_revokes.add(('public',s02.NAME,s02.TYPES))
     if ('public',s03.NAME) in by_name:expected_revokes.add(('public',s03.NAME,s03.TYPES))
+    if ('public',original.NAME) in by_name:expected_revokes.add(('public',original.NAME,original.TYPES))
     if grants!=expected_execute or revokes!=expected_revokes or set(owners)!=set(by_name):
         raise ValueError('Exact capability EXECUTE/ownership closure mismatch')
     result = check_p(p_statements,expected_columns)
@@ -98,6 +102,7 @@ def check(statements, expected_columns, source=None):
     if ('public',expected.NAME) in by_name:result.update(expected.check(statements,source))
     if ('public',s02.NAME) in by_name:result.update(s02.check(by_name[('public',s02.NAME)],expected_columns,source))
     if ('public',s03.NAME) in by_name:result.update(s03.check(by_name[('public',s03.NAME)],expected_columns,source))
+    if ('public',original.NAME) in by_name:result.update(original.check(by_name[('public',original.NAME)],source))
     return result
 
 
