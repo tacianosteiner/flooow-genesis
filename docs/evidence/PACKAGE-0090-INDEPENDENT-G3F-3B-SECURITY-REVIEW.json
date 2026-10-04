@@ -1,0 +1,153 @@
+{
+  "REVIEW_BASELINE": "9ba136cd4920d2710d6a886f0eea7cee938c3b2a",
+  "INITIAL_LOCAL_HEAD": "9ba136cd4920d2710d6a886f0eea7cee938c3b2a",
+  "INITIAL_REMOTE_HEAD": "9ba136cd4920d2710d6a886f0eea7cee938c3b2a",
+  "INITIAL_LOCAL_EQUALS_REMOTE": "YES",
+  "INITIAL_WORKTREE": "CLEAN",
+  "PUBLIC_SURFACE_REVIEW": "FAIL_16_OF_18_NORMATIVE_NAME_TYPE_SIGNATURES; 9_OF_18_EXACT_INPUT_NAME_CONTRACTS",
+  "SECURITY_DEFINER_REVIEW": "PASS_STATIC_24_DEFINITIONS",
+  "TABLE_COLUMN_ACL_REVIEW": "PASS_STATIC_1040_MISSING_0_EXTRA_0_GRANT_OPTION_0",
+  "FUNCTION_EXECUTE_ACL_REVIEW": "PASS_STATIC_32_EXACT_PRIVATE_DEPENDENCY_GRANTS_MISSING_0_EXTRA_0",
+  "SCHEMA_USAGE_REVIEW": "PASS_STATIC_8_MISSING_0_EXTRA_0",
+  "TRANSITIVE_AUTHORITY_REVIEW": "PARTIAL_DECLARED_PRIVATE_GRAPH_CONFORMS_PUBLIC_SURFACE_AND_ADAPTER_GAPS",
+  "NATIVE_CRYPTO_REVIEW": "PASS_PINNED_BUILD_51_ACCEPTANCE_VECTORS_10_OPERATIONAL_INJECTIONS_ASAN_UBSAN_EXPORT_DEPENDENCY_HARDENING",
+  "ORIGINAL_INPUT_BINDING_REVIEW": "PASS_BOUNDED_BOTH_A_B_PATHS",
+  "TRANSACTION_LOCK_REVIEW": "PARTIAL_STATIC_ORDER_AND_ISOLATED_STUB_ROLLBACK_PASS_REAL_FROZEN_CONCURRENCY_PENDING",
+  "FROZEN_V041_V042_PARITY_REVIEW": "PARTIAL_VECTORS_AND_15_CALL_SITES_PASS_S10_PUBLIC_TRANSPORT_FAIL_OPERATIONAL_NOT_PROVABLE_WITHOUT_RUNTIME",
+  "ADAPTER_INTEGRATION_REVIEW": "FAIL_LEGACY_CALL_PATHS_NO_GOVERNED_TRANSPORT_ADMISSION_BRIDGE",
+  "MIGRATION_SAFETY_REVIEW": "HOLD_INTERLOCK_REMAINS_FIRST_NO_EXECUTION",
+  "TEST_INDEPENDENCE_REVIEW": "PARTIAL_189_METHODS_AUDITED_SHARED_ORACLE_AND_PRIVILEGED_FIXTURE_GAPS",
+  "BLOCKER_COUNT": 0,
+  "HIGH_COUNT": 3,
+  "MEDIUM_COUNT": 4,
+  "LOW_COUNT": 1,
+  "G3F_3B_IMPLEMENTATION_SECURITY_REVIEW": "HOLD",
+  "NEXT_GATE": "G3F.3B_SOURCE_FINDINGS_AND_ADAPTER_SCOPE_CLOSURE",
+  "source_sha256": "9d8d4cd9bebfa8b6af865619a462fc35d555e617f73752bbdf21950c4fd18db8",
+  "native_candidate_binary_sha256": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+  "public_wrapper_signature_count": 18,
+  "public_wrapper_contract_count": 18,
+  "executor_signature_count": 6,
+  "frozen_42": "PASS_CANONICAL_GIT_LF_UNCHANGED",
+  "source_changes": false,
+  "native_changes": false,
+  "adapter_changes": false,
+  "v043_executed": false,
+  "interlock_removed": false,
+  "protected_database_connection": false,
+  "g3g": false,
+  "production_policy_or_secrets": false,
+  "review_reruns": [
+    "NATIVE_BUILD_VECTORS_FAULTS_SANITIZERS",
+    "AUDIT_AND_MUTATION_A_B",
+    "ACTUAL_I_E_BODIES_WITH_EXPLICIT_STUBS"
+  ],
+  "full_189_suite_rerun_this_review": false,
+  "findings": [
+    {
+      "id": "G3F3B-H01",
+      "severity": "HIGH",
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "function": "offline_begin_permission_grant / offline_apply_permission_grant",
+      "invariant": "SPEC21.1 requires offline_begin_grant / offline_apply_grant; exact name/type signatures only.",
+      "scenario": "Normative clients and catalog allowlists cannot resolve S11/S12; unapproved alternate names occupy those positions.",
+      "source_only_correction_deterministic": true,
+      "new_authority_required": false,
+      "disposition": "REQUIRED_BEFORE_REHEARSAL"
+    },
+    {
+      "id": "G3F3B-H02",
+      "severity": "HIGH",
+      "file": [
+        "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresAcceptedAttestationVerifier.kt",
+        "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresAttestedCommandAuthorityIssuer.kt",
+        "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresTransactionIdentityWriter.kt",
+        "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresCommandAuthorization.kt"
+      ],
+      "function": "verify / issuePrincipal-bindInitialCredential-grantPermission / recordAttested / authenticate",
+      "invariant": "Wrapper-only four-slot service authority and governed B/T/E transport/admission integration.",
+      "scenario": "Adapters call direct frozen scalar functions and raw relations; approved service ACL denies the ceremony. Merely renaming calls cannot bind or parse new bytea contracts.",
+      "source_only_correction_deterministic": false,
+      "new_authority_required": "NO_SQL_WIDENING_ALLOWED; ADAPTER_FACTORY_SCOPE_MUST_BE_RECORDED_AND_ANY_NEW_BOUNDARY_RESOLVED",
+      "disposition": "REQUIRED_BEFORE_REHEARSAL; STOP_AT_INTEGRATION_FINDING"
+    },
+    {
+      "id": "G3F3B-H03",
+      "severity": "HIGH",
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "function": "offline_apply_initial_credential",
+      "invariant": "SPEC21.1 line497 requires outer frozen receipt/fresh receipt UUID/execution/instance/delivery envelope.",
+      "scenario": "Actual output has APPLIED/operation UUID/two fingerprints/time; service cannot obtain the random stage UUID required by S14. Test-only privileged helper masks this.",
+      "source_only_correction_deterministic": true,
+      "new_authority_required": false,
+      "disposition": "REQUIRED_BEFORE_REHEARSAL"
+    },
+    {
+      "id": "G3F3B-M01",
+      "severity": "MEDIUM",
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "function": "S06-S12/S16/S18 input parameter names",
+      "invariant": "Exact proargnames and named argument contract in SPEC21.1.",
+      "scenario": "Named calls/catalog equality fail despite correct positional primitive types.",
+      "source_only_correction_deterministic": true,
+      "new_authority_required": false,
+      "disposition": "REQUIRED_BEFORE_REHEARSAL"
+    },
+    {
+      "id": "G3F3B-M02",
+      "severity": "MEDIUM",
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "function": "15 V041/V042 delegated call sites",
+      "invariant": "SPEC21.1 requires explicit internal argument casts.",
+      "scenario": "Typed local declarations currently select correct vectors; mandatory explicit cast contract is not implemented.",
+      "source_only_correction_deterministic": true,
+      "new_authority_required": false,
+      "disposition": "REQUIRED_BEFORE_REHEARSAL"
+    },
+    {
+      "id": "G3F3B-M03",
+      "severity": "MEDIUM",
+      "file": [
+        "scripts/validation/package_0090_verification_source.py",
+        "scripts/validation/test_package_0090_executor_source.py",
+        "scripts/validation/test_package_0090_issuance_source.py",
+        "scripts/validation/package_0090_mutation_isolated_review.py"
+      ],
+      "function": "check / generated reference tests / test_delivery harness",
+      "invariant": "Independent normative surface/output and actual service transport evidence before closure.",
+      "scenario": "Shared WRAPPERS/generator AST and privileged fixture agree on H01/H03 instead of rejecting them.",
+      "source_only_correction_deterministic": true,
+      "new_authority_required": false,
+      "disposition": "REQUIRED_BEFORE_REHEARSAL"
+    },
+    {
+      "id": "G3F3B-M04",
+      "severity": "MEDIUM",
+      "file": [
+        "scripts/validation/package_0090_mutation_isolated_review.py",
+        "scripts/validation/package_0090_verification_isolated_review.py"
+      ],
+      "function": "review; frozen transport/P/Q/progress stubs",
+      "invariant": "Separate actual frozen/installed ACL/cold claim/concurrency proof required, mocks insufficient.",
+      "scenario": "Stub success does not establish frozen trigger/lock/replay/rollback behavior or all18 cross-organization and effective role denials.",
+      "source_only_correction_deterministic": false,
+      "new_authority_required": "SEPARATE_BOUNDED_ISOLATED_REHEARSAL_EXECUTION_AUTHORIZATION",
+      "disposition": "ACCEPTABLE_TO_VALIDATE_IN_ISOLATED_RUNTIME_AFTER_SOURCE_CLOSURE"
+    },
+    {
+      "id": "G3F3B-L01",
+      "severity": "LOW",
+      "file": [
+        "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "docs/evidence/PACKAGE-0090-G3F-3B-ISOLATED-REHEARSAL-HANDOFF.md"
+      ],
+      "function": "descriptive header/historical handoff",
+      "invariant": "Current review provenance and descriptive scope should be accurate.",
+      "scenario": "Earlier incomplete/S01-S04 wording obscures current composition; actual interlock still safely denies execution.",
+      "source_only_correction_deterministic": true,
+      "new_authority_required": false,
+      "disposition": "DOCUMENTATION_CORRECTION_WITH_CLOSURE"
+    }
+  ],
+  "checkpoint_heads": "Final commit/fetch equality is reported with the Git checkpoint; a self-containing commit SHA is not embedded in its own artifact."
+}
