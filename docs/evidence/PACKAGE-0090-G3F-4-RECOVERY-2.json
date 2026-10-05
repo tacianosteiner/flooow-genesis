@@ -1,0 +1,50 @@
+{
+  "baseline": "33bc82b4e2417aef7394dd0fe4557d3e9285b7f1",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "scope": "REHEARSAL_ONLY",
+  "G3F_4_TEMPORAL_BOUNDS_REVIEW": "PASS",
+  "FIXTURE_2_QUALIFICATION": "FAIL",
+  "G3F4_H01": "OPEN",
+  "G3F_4_ISOLATED_POSTGRES18_REHEARSAL": "HOLD",
+  "counts": {
+    "BLOCKER": 0,
+    "HIGH": 1,
+    "MEDIUM": 0,
+    "LOW": 0
+  },
+  "NEXT_GATE": "G3F_4_REHEARSAL_TIMING_FAILURE_AND_08006_DIAGNOSIS",
+  "disposable_project": "flooow-0090-g3f4-cc2941797db3",
+  "disposable_volume": "flooow-0090-g3f4-cc2941797db3-data",
+  "postgres_image_digest": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+  "production_policy_changed": false,
+  "fixture_1_mutated": false,
+  "sql_authority_changed": false,
+  "acl_changed": false,
+  "wrapper_semantics_changed": false,
+  "protected_database_connection": "NO",
+  "protected_volume_mount": "NO",
+  "production_secret_use": "NO",
+  "G3G_executed": false,
+  "main_merged": false,
+  "container_end_state": "STOPPED",
+  "plaintext_credentials_erased": true,
+  "status": "NOT_EXECUTED_TIMING_GATE_STOP",
+  "prerequisite": "FIXTURE_2_QUALIFICATION_PASS",
+  "findings": [
+    {
+      "id": "G3F4-H01",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "reason": "Observed cold reconnect maximum exceeds both absolute limit and final 2x margin; load4 JDBC SQLSTATE08006 additionally interrupted expanded measurement. No SQL authorization defect or network root cause is inferred.",
+      "observed_max_us": 428349.0,
+      "transport_failure_sqlstate": "08006",
+      "required_before": "G3F_FINAL",
+      "classification": "FIXTURE_TIMING_AND_RUNTIME_EVIDENCE_GAP"
+    }
+  ],
+  "restarts_after_real_durable_effects": 0,
+  "preserved_identifiers": null,
+  "preserved_original_deadlines": null,
+  "receipt_renewal_count": null,
+  "historical_prerequisite_restart_is_not_full_recovery": true
+}
