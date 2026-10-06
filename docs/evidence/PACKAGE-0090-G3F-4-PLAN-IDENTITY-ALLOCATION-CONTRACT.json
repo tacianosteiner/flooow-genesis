@@ -1,0 +1,260 @@
+{
+  "gate": "G3F_4_BINDING_PLAN_AUTHORITY_CLOSURE",
+  "decision": "PASS",
+  "baseline": "ab0549dfaa891b67905e307a3c049301fad48f3b",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "scope": "PLAN_AUTHORITY_IDENTITY_REPLAY_IDEMPOTENCY_CAUSALITY_CONTRACT_ONLY",
+  "authorization": {
+    "path": "C:\\Users\\xmz_r\\.codex\\attachments\\7ff7d776-d0dd-4a9f-be09-4221cc6e25ba\\Pasted text.txt",
+    "sha256": "a9de7b128e3183dd1f1c3955210413a44c6c68a8190c7100ce0a9b1765f95b66"
+  },
+  "sources": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92"
+    },
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9"
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+      "sha256": "e1abfb285e59bd3d5926ecb0e9be1fd21a9eef363ef478120cb0fc40908dcd80"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "sha256": "3bfc5f7c95d235235ff8444453523a6a757980b464bff60ad5150e622d2f1ae1"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V037__add_controlled_command_authority_provisioning.sql",
+      "sha256": "c19a45d17774450747e1f4f6ad50745a085b37b621abbe1937f134bf688604ce"
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/ExecuteAttestedFieldProof.kt",
+      "sha256": "1850bfbbbbc1f76870e50439f52703845326d909b0825c83f951a7f5c122bb55"
+    }
+  ],
+  "existing_authority": "PLAN_BINDING_ADMIN",
+  "no_runtime_authorization_from_this_contract": true,
+  "DB_mutations": 0,
+  "new_ID_values_generated": 0,
+  "key_generation": 0,
+  "signature_count": 0,
+  "authority_derivation": {
+    "authority": "PLAN_BINDING_ADMIN",
+    "source_chain": [
+      {
+        "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "section": "1",
+        "fact": "ADMIN is separate reviewed administration; PLAN_BINDING_ADMIN activates/recovers/records results, not operational service authority."
+      },
+      {
+        "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "section": "2",
+        "fact": "Provisioning explicitly initializes records. REGISTERED is administrative non-operational scope; ADMIN activation is separate."
+      },
+      {
+        "source": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "section": "Immutable Plan Binding",
+        "fact": "One plan has one immutable binding within an incarnation; binding/run/plan and future command-operation identities are bound, with permanent slot/tombstone uniqueness."
+      },
+      {
+        "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "section": "4",
+        "fact": "Permanent binding_id and (incarnation,plan_id) uniqueness, full38-tag scope, no rebind/restore remapping."
+      },
+      {
+        "source": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+        "section": "type comment + constructor",
+        "fact": "Recovery identity allocated before any durable effect; all eight legacy IDs nonnil/distinct. Existing contract does not require precreated command rows."
+      },
+      {
+        "source": "C:\\Users\\xmz_r\\.codex\\attachments\\7ff7d776-d0dd-4a9f-be09-4221cc6e25ba\\Pasted text.txt",
+        "section": "4,9,13,15",
+        "fact": "Current bounded closure directs use of existing Trusted Plan/Binding Admin and one final-ceremony allocation event; UUIDv4 is an engineering generation rule within this existing authority, not a new authority/registry."
+      }
+    ],
+    "authority_sufficiency": "The trusted administrative actor may allocate nonsecret planned identities and validate immutable source scope. Issuing credential/grant, signing, authentication/admission and execution remain independently guarded capabilities. UUID creation cannot make any of those true.",
+    "trust_limit": "Trusted ADMIN is architectural authority, not an added SQL role or proof against malicious host superuser. No new separation-of-duties claim."
+  },
+  "allocation": {
+    "event": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+    "authority": "PLAN_BINDING_ADMIN",
+    "event_kind": "One existing final ceremony preparatory allocation step; no new coordinator, service, authority table or database row",
+    "causal_position": [
+      "Verify independent frozen host/domain/manifest/slot/permission scope and existing admin authorization",
+      "Once per new logical preparation, reserve ten independent IDs before any new signing/governance/binding/command durable effect",
+      "Check nonnil/version4, all mutually distinct including previously allocated org/connections/order/governance/manifest/correlation IDs, and no scoped prior registration/domain/operation/tombstone collision",
+      "Freeze identities and explicit purpose/scope in existing nonsecret immutable ceremony input/recovery plan context; validate legacy projection separately; reject partial or mixed allocations",
+      "Manifest/correlation retain their previously closed creation rules; no second generation on retries",
+      "Materialize derived codecs only when all their actual future inputs exist; full binding and40-field temporal/readiness contracts remain prerequisites to signing"
+    ],
+    "collision_rule": "Reject allocation/ceremony as a unit; no opportunistic regeneration of one colliding ID. A new approved logical event after a proven abandoned/closed preparation uses a new entire set.",
+    "single_generation_rule": "Exactly once per accepted event; pre-effect allocation is a nonsecret identity reservation, not a durable DB plan row or credential/grant/decision effect. No ten values generated now.",
+    "scope": {
+      "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+      "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+      "organization": "2fe2d63f-272e-45c9-abfd-247e69fb7a11",
+      "evidence_binding_fingerprint": "4e78b3ec645685d88325e1ad6ca104bfc6e3698a23d652c2fd07fe3c804b14fb",
+      "permission": "TRANSACTION_IDENTITY_DECISION_WRITE",
+      "environment": "G3F4_ISOLATED_DISPOSABLE_REHEARSAL_ONLY",
+      "complete_header_context": "All38 source fields plus retained canonical bytes/fingerprint; time fields remain open, no placeholder plan/header materialized."
+    },
+    "identities": [
+      {
+        "FIELD": "binding_id",
+        "SEMANTICS": "One permanent registration of one complete plan to one deployment/incarnation, organization, exact target, signed input and four permanent login slots. Not one server attempt: the same binding can have governed higher-generation attempts without changing binding/plan/run IDs.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "run_id",
+        "SEMANTICS": "One planned field-proof run/recovery identity carried by the legacy execution plan into the binding scope; not deployment, binding generation, server attempt, launcher instance or execution possession identity.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "plan_id",
+        "SEMANTICS": "Identity of the independent complete SPEC0090 immutable registration plan, unique together with deployment incarnation. Not a member of the legacy plan.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "principal_id",
+        "SEMANTICS": "Reserved identity for a fresh governed command principal in the exact organization/connection scope; existing V042 issuance later creates the row.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "credential_id",
+        "SEMANTICS": "Reserved command authority credential identity for exact planned principal, distinct from provider control secrets/signing/preflight keys; canonical initial revision/lifecycle remain V042 effects.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "grant_id",
+        "SEMANTICS": "Reserved identity for exact planned principal/permission grant; permission fixed TRANSACTION_IDENTITY_DECISION_WRITE; row/revision issued later by canonical V042 capability.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "decision_id",
+        "SEMANTICS": "Reserved identity of the exact future controlled transaction-identity command; not decision authority and not decision/head effect.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "principal_operation_id",
+        "SEMANTICS": "PRINCIPAL immutable operation idempotency identity scoped by organization and exact principal/manifest/correlation/intent.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "credential_operation_id",
+        "SEMANTICS": "INITIAL_CREDENTIAL immutable operation idempotency identity scoped by organization and exact principal/credential/initial-revision/manifest/correlation/intent.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      },
+      {
+        "FIELD": "grant_operation_id",
+        "SEMANTICS": "GRANT immutable operation idempotency identity scoped by organization and exact principal/credential revision/grant/permission/manifest/correlation/intent.",
+        "AUTHORITY": "PLAN_BINDING_ADMIN for reservation; canonical issuer/executor remains sole effect authority where applicable",
+        "GENERATION_EVENT": "FINAL_CEREMONY_IDENTITY_ALLOCATION",
+        "GENERATION_ALGORITHM": "One fresh independent UUIDv4 per field, OS CSPRNG (122 random bits in RFC UUIDv4); no hash-derived/UUID-derived identities",
+        "CURRENT_STATUS": "CLOSED_FINAL_CEREMONY_GENERATED",
+        "PHYSICAL_VALUE": null,
+        "REPLAY_RULE": "Exact already-attributed logical allocation retains IDs; new independent allocation uses all fresh IDs. Unknown lineage denies regeneration and requires QUERY-FIRST.",
+        "VALUE_CREATED_THIS_GATE": false
+      }
+    ],
+    "decision_before_authority": "NO: reservation only after existing PLAN_BINDING_ADMIN authority is established. Reservation may precede future credential/grant/admission rows, because identity is not command authority. No decision ID allocated or decision row created here.",
+    "operation_row_later": "Existing command_authority_operation PK(organization_id,operation_id), V042 advisory lock and exact rederived intent+receipt+effect joins distinguish same retry/conflict. Reservation writes no such receipt now.",
+    "no_revision_subsystem": "binding schema1, legacy VERSION1 and contract strings remain their existing constants. No plan revision table or renewal mechanism."
+  },
+  "all_identity_contracts_closed": true,
+  "physical_ID_count_created": 0,
+  "DECISION_ID_CREATED_BEFORE_AUTHORITY": "NO",
+  "no_domain_rows_or_secret_custody_changes": true,
+  "mechanisms_removed": [
+    "New plan/run coordinator",
+    "New authority/revision/idempotency registry/table",
+    "Separate approval authority for each UUID",
+    "Random UUID generation now to make fields appear closed"
+  ],
+  "security_necessity": [
+    {
+      "mechanism": "Reuse existing PLAN_BINDING_ADMIN only",
+      "SECURITY_PROPERTY_GAINED": "AUTHORITY_BOUNDARY",
+      "new_subsystem": false
+    },
+    {
+      "mechanism": "One once-only scoped ten-ID allocation event, with UUIDv4 and collision rejection",
+      "SECURITY_PROPERTY_GAINED": "IDENTITY_COLLISION_SAFETY",
+      "new_subsystem": false
+    },
+    {
+      "mechanism": "Permanent registration keys/tombstones and query-first for ambiguous acknowledgment",
+      "SECURITY_PROPERTY_GAINED": "REPLAY_SAFETY",
+      "new_subsystem": false
+    },
+    {
+      "mechanism": "Reuse canonical operation PK/request/intent/receipt exactness",
+      "SECURITY_PROPERTY_GAINED": "IDEMPOTENCY",
+      "new_subsystem": false
+    },
+    {
+      "mechanism": "Establish existing authority before reserving identities; preserve manifest/source/effect order",
+      "SECURITY_PROPERTY_GAINED": "CAUSALITY",
+      "new_subsystem": false
+    }
+  ]
+}

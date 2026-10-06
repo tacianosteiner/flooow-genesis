@@ -1,0 +1,96 @@
+{
+  "gate": "G3F_4_BINDING_PLAN_AUTHORITY_CLOSURE",
+  "decision": "PASS",
+  "baseline": "ab0549dfaa891b67905e307a3c049301fad48f3b",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "scope": "PLAN_AUTHORITY_IDENTITY_REPLAY_IDEMPOTENCY_CAUSALITY_CONTRACT_ONLY",
+  "authorization": {
+    "path": "C:\\Users\\xmz_r\\.codex\\attachments\\7ff7d776-d0dd-4a9f-be09-4221cc6e25ba\\Pasted text.txt",
+    "sha256": "a9de7b128e3183dd1f1c3955210413a44c6c68a8190c7100ce0a9b1765f95b66"
+  },
+  "sources": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92"
+    },
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9"
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+      "sha256": "e1abfb285e59bd3d5926ecb0e9be1fd21a9eef363ef478120cb0fc40908dcd80"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "sha256": "3bfc5f7c95d235235ff8444453523a6a757980b464bff60ad5150e622d2f1ae1"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V037__add_controlled_command_authority_provisioning.sql",
+      "sha256": "c19a45d17774450747e1f4f6ad50745a085b37b621abbe1937f134bf688604ce"
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/ExecuteAttestedFieldProof.kt",
+      "sha256": "1850bfbbbbc1f76870e50439f52703845326d909b0825c83f951a7f5c122bb55"
+    }
+  ],
+  "existing_authority": "PLAN_BINDING_ADMIN",
+  "no_runtime_authorization_from_this_contract": true,
+  "DB_mutations": 0,
+  "new_ID_values_generated": 0,
+  "key_generation": 0,
+  "signature_count": 0,
+  "matrix": [
+    {
+      "case": "retry_before_any_durable_write",
+      "classification": "REUSE if same fully known allocation; otherwise REGENERATE only as new attributable event",
+      "rule": "Before allocation no identities exist to reuse. Known accepted allocation + byte-identical immutable context -> reuse exact set. Proven no accepted allocation -> initial/new entire allocation; unknown history -> DENY/QUERY-FIRST, never claim absent=zero."
+    },
+    {
+      "case": "retry_after_identity_allocation_before_signing",
+      "classification": "REUSE",
+      "rule": "Same existing allocation event/purpose/IDs and source context, no relevant durable effect/expiry or changed immutable input -> retain all ten. Context change is a new preparation, never a fieldwise repair. No new signature/window minted here."
+    },
+    {
+      "case": "retry_after_signer_governance_registration",
+      "classification": "QUERY-FIRST",
+      "rule": "Classify exact original nonsecret plan/allocation and canonical receipts before retry. Do not regenerate IDs or erase their root. Reuse is identity classification only, not permission to continue signing or reopen retired governance; crash cleanup remains later gate."
+    },
+    {
+      "case": "retry_after_signing",
+      "classification": "QUERY-FIRST; DENY re-sign/expired replay",
+      "rule": "IDs identify the original logical signed input; never regenerate one ID and pair it with the old signature. Query exact stored state. No expired signature, retired-key reuse, or new signing/window authority inferred from identity continuity."
+    },
+    {
+      "case": "retry_after_binding_transaction_rollback",
+      "classification": "REUSE only for exact known logical registration; otherwise DENY",
+      "rule": "A confirmed complete rollback with exact same immutable registration bytes and independently still-valid ceremony authority may retain original IDs; no new signed envelope/secret/window minted to retry. Lack of still-valid authority or changed bytes ends continuation. A later new event only after old root is proven closed uses a whole fresh identity set; no cleanup design added."
+    },
+    {
+      "case": "retry_after_ambiguous_commit",
+      "classification": "QUERY-FIRST; DENY blind write/regeneration",
+      "rule": "Inspect exact binding_id and (incarnation,plan_id), immutable38-field values/hash/retained original and existing receipts under already authorized trusted ADMIN. Exact complete registration -> acknowledgment/replay inspection only; conflict -> DENY; uncertain absence -> DENY. No UPSERT, no second registration/effect and no automatic regeneration."
+    }
+  ],
+  "idempotency": {
+    "plan_key": "(deployment_incarnation_id,plan_id)",
+    "registration_key": "binding_id",
+    "logical_preparation_identity": "Existing final ceremony accepted allocation context identified by (incarnation,plan_id,run_id,binding_id) and exact allocated ID set/immutable approved scope. No extra ceremony-attempt UUID/table.",
+    "server_attempt_separate": "offline_attempt.attempt_id plus generation and execution/instance ownership are later server/launcher identities; never equated to plan_id or run_id. Same binding may support governed later generations without a new plan identity.",
+    "operation_keys": "(organization_id,principal_operation_id), (organization_id,credential_operation_id), (organization_id,grant_operation_id), with exact V042 request/intent/receipt lineage",
+    "classification": "Same frozen allocation/context and exact semantic request is a logical retry. Changed immutable context, a proven closed/abandoned root followed by newly authorized preparation, or a different plan_id is a new logical allocation/ceremony. An operational generation change alone is not a new binding or plan. Unknown lineage denies both mutation and regeneration.",
+    "no_idempotency_table": "Existing immutable registration uniqueness/tombstones and command operation receipts suffice. Pre-effect context uses existing plan/input recovery representation; its crash persistence mechanics remain separate, no new storage system here.",
+    "fingerprint_role": "Derived commitment to complete semantic38-field plan; not independent authority or replacement for primary/unique keys. Equality alone never makes a replay executable."
+  },
+  "PLAN_IDENTITY_REPLAY_MATRIX": "PASS_DESIGN",
+  "PLAN_IDEMPOTENCY_CLOSED": true,
+  "no_UUID_reuse_as_authority": true,
+  "no_automatic_ID_regeneration": true,
+  "no_new_retry_table": true,
+  "operational_attempt_vs_preparation": "The logical ceremony preparation identity is not a new server attempt_id; server attempt/generation/execution/ownership stays SPEC0090 section6. A new operational attempt can retain the same binding under existing recovery authority.",
+  "recovery_limit": "QUERY-FIRST is an identity/replay condition, not an implemented crash cleanup/recovery coordinator. Expired signatures, retired keys and delivery loss remain governed later; no resumption guarantee here."
+}

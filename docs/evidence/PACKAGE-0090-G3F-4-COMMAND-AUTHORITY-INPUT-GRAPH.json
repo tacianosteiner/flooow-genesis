@@ -1,0 +1,154 @@
+{
+  "gate": "G3F_4_BINDING_PLAN_AND_REGISTRATION_INPUT_CLOSURE",
+  "decision": "HOLD",
+  "baseline": "ab0549dfaa891b67905e307a3c049301fad48f3b",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "scope": "READ_ONLY_CONTRACT_REVIEW_NO_DB_WRITES_NO_KEYS_NO_NEW_IDS",
+  "authorization": {
+    "path": "C:\\Users\\xmz_r\\.codex\\attachments\\fa38ec36-d0cf-469d-9ee1-cf97aaa4ef5a\\Pasted text.txt",
+    "sha256": "cd82b95093297ee0b62153fe2704134cf16615fa4c4040545e9e60260b0e6b1e"
+  },
+  "primary_sources": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line": null
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+      "sha256": "e1abfb285e59bd3d5926ecb0e9be1fd21a9eef363ef478120cb0fc40908dcd80",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalAttestationCanonicalCodec.kt",
+      "sha256": "74763cd4b0c3ab49b3f2c882f724df3ec10561f9aaa452c7b29fd1d6a943b26d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresApprovalGovernance.kt",
+      "sha256": "442b9fe79b023e0d7a36134d9c7cf717335a5418c249af8ddcc42521ccb3863d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalGovernance.kt",
+      "sha256": "bb71114ceb00501499adefe1ce3a1418cdb2a0e36d71fdf5f44fa54773a246dc",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresAcceptedAttestationVerifier.kt",
+      "sha256": "0ae90611d56a8127379b33c9e29b67d9330391f531c2583e13860189ca76b3a4",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+      "sha256": "58753e9d702169311f5ea74099f89e5068d982ef9c30d0e1da275b4e40b6bedd",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+      "sha256": "3ff1421dd56de17270a9c44054055c0c1afc91f855d903697268088a53f1182d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "sha256": "3bfc5f7c95d235235ff8444453523a6a757980b464bff60ad5150e622d2f1ae1",
+      "line": null
+    }
+  ],
+  "source_evidence_fingerprint": "4e78b3ec645685d88325e1ad6ca104bfc6e3698a23d652c2fd07fe3c804b14fb",
+  "watchdog_high": "OPEN",
+  "G3F4_H01": "OPEN",
+  "classification": "REHEARSAL_STRUCTURAL_PROOF_NOT_REAL_FIELD_PROOF",
+  "nodes": [
+    {
+      "node": "principal",
+      "table": "command_principal",
+      "EXISTS_NOW": false,
+      "CREATED_PRE_SIGNING": false,
+      "CREATED_DURING_FINAL_CEREMONY": false,
+      "ID_ALLOCATION_DURING_FINAL_CEREMONY": "PROPOSED_WITH_MISSING_ALLOCATION_CONTRACT",
+      "CREATED_LATER_OPERATIONAL_FIELD_PROOF": "Only after separately governed READY/session/watchdog/ACTIVE prerequisites; no Room activation in binding transaction",
+      "AUTHORITY": "Existing attested V042 capabilities plus exact V043 issuer/executor guard; no new role/capability implied",
+      "CREATION_PATH": "AttestedCommandAuthorityIssuer.issuePrincipal -> V042 attested principal BEGIN/JCA/APPLY, through V043 issuer wrappers",
+      "PREREQUISITES": [
+        "V041 accepted attestation",
+        "current signer authority",
+        "exact signed scope",
+        "fresh principal operation ID",
+        "READY/ACTIVE guarded execution"
+      ]
+    },
+    {
+      "node": "credential",
+      "table": "command_credential_revision",
+      "EXISTS_NOW": false,
+      "CREATED_PRE_SIGNING": false,
+      "CREATED_DURING_FINAL_CEREMONY": false,
+      "ID_ALLOCATION_DURING_FINAL_CEREMONY": "PROPOSED_WITH_MISSING_ALLOCATION_CONTRACT",
+      "CREATED_LATER_OPERATIONAL_FIELD_PROOF": "Only after separately governed READY/session/watchdog/ACTIVE prerequisites; no Room activation in binding transaction",
+      "AUTHORITY": "Existing attested V042 capabilities plus exact V043 issuer/executor guard; no new role/capability implied",
+      "CREATION_PATH": "AttestedCommandAuthorityIssuer.bindInitialCredential -> V042 initial credential BEGIN/JCA/APPLY, through V043 issuer wrappers",
+      "PREREQUISITES": [
+        "canonical exact principal",
+        "initial credential operation ID",
+        "process-memory fc1 credential and derived verifier",
+        "same canonical credential origin/delivery custody"
+      ]
+    },
+    {
+      "node": "grant",
+      "table": "command_permission_grant",
+      "EXISTS_NOW": false,
+      "CREATED_PRE_SIGNING": false,
+      "CREATED_DURING_FINAL_CEREMONY": false,
+      "ID_ALLOCATION_DURING_FINAL_CEREMONY": "PROPOSED_WITH_MISSING_ALLOCATION_CONTRACT",
+      "CREATED_LATER_OPERATIONAL_FIELD_PROOF": "Only after separately governed READY/session/watchdog/ACTIVE prerequisites; no Room activation in binding transaction",
+      "AUTHORITY": "Existing attested V042 capabilities plus exact V043 issuer/executor guard; no new role/capability implied",
+      "CREATION_PATH": "AttestedCommandAuthorityIssuer.issueGrant -> V042 grant BEGIN/JCA/APPLY, through V043 issuer wrappers",
+      "PREREQUISITES": [
+        "principal",
+        "credential revision",
+        "delivery ACKNOWLEDGED",
+        "permission TRANSACTION_IDENTITY_DECISION_WRITE",
+        "grant operation ID"
+      ]
+    },
+    {
+      "node": "decision",
+      "table": "marketplace_transaction_identity_decision/head",
+      "EXISTS_NOW": false,
+      "CREATED_PRE_SIGNING": false,
+      "CREATED_DURING_FINAL_CEREMONY": false,
+      "ID_ALLOCATION_DURING_FINAL_CEREMONY": "PROPOSED_WITH_MISSING_ALLOCATION_CONTRACT",
+      "CREATED_LATER_OPERATIONAL_FIELD_PROOF": "Only after separately governed READY/session/watchdog/ACTIVE prerequisites; no Room activation in binding transaction",
+      "AUTHORITY": "Existing attested V042 capabilities plus exact V043 issuer/executor guard; no new role/capability implied",
+      "CREATION_PATH": "V043 executor authentication/admission/prepare/JCA/apply -> existing V042 attested transaction identity writer",
+      "PREREQUISITES": [
+        "principal/credential/grant",
+        "current owned execution/possession/admission",
+        "unchanged canonical source evidence",
+        "accepted signed authority",
+        "fresh allocated decision ID"
+      ]
+    }
+  ],
+  "source_of_absence": "Fresh read-only canonical snapshot; relevant command tables remain empty",
+  "credential_domain": "Command authority fc1 identity/revision and derived verifier distinct from destroyed ML/Omie control secrets, S2A Ed25519 key, HMAC preflight key and execution possession secret. No new command secret this gate.",
+  "credential_lifecycle": "V042 canonical initial revision and exact receipt; one-time protectedTTY delivery, grant/auth/admission under own guard; loss means manual review/no replacement. Raw secret process custody, derived verifier only permitted domain persistence in future authorized execution, never here.",
+  "grant_permission": "TRANSACTION_IDENTITY_DECISION_WRITE",
+  "operation_ID_semantics": {
+    "principal_operation_id": "PRINCIPAL canonical operation receipt, atomic with principal+attestation consumption",
+    "credential_operation_id": "INITIAL_CREDENTIAL receipt, atomic with initial verifier revision; AlreadyApplied cannot authorize secret reconstruction/redelivery",
+    "grant_operation_id": "GRANT receipt, exact principal/credential revision/permission request; scope-digest conflict denies"
+  },
+  "decision_generation": "Future identity allocation alone precedes key/effects; actual final decision occurs only controlled admitted later command",
+  "command_authority_inputs_closed": false,
+  "new_DB_capability_required": false,
+  "instance_allocation_authority_closed": false,
+  "scope_boundary": "Request authorizes this review only. Prior rehearsal signing policy permits approval attestation, not bypass of operational V043 READY/admission to directly seed command rows. Existing wrappers preserve authority; no raw domain SQL proposal."
+}
