@@ -1,0 +1,853 @@
+{
+  "schema": "PACKAGE0090_GOVERNED_ENROLLMENT_ENTRYPOINT_REVIEW_V1",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "baseline": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+  "decision": "HOLD_CANONICAL_BASELINE_BINDING_AND_COMPLETE_ADMISSION_CONTRACT_MISSING",
+  "return": {
+    "SELECTED_ENROLLMENT_ENTRYPOINT": "POSTGRES_LOGIN_EVENT_NATIVE_HANDLER_DESIGN_ONLY",
+    "CLIENT_AUTH_HOOK_CAN_DERIVE_ROLE_OID": "NO_FINAL_NATIVE_AUTHENTICATED_ROLE_YET",
+    "CLIENT_AUTH_HOOK_CAN_DERIVE_DATABASE_OID": "NO_FINAL_NATIVE_DATABASE_YET",
+    "CLIENT_AUTH_HOOK_HAS_STABLE_BACKEND_PROCESS": "YES_SOURCE",
+    "CLIENT_AUTH_HOOK_CAN_PIDFD_OPEN_SELF": "YES_SOURCE_KERNEL_PROPERTY_HOOK_RUNTIME_NOT_RUN",
+    "CLIENT_AUTH_HOOK_CAN_CONNECT_UNIX_SOCKET": "NOT_PROVEN_AT_AUTH_HOOK_RUNTIME",
+    "SLOT_BINDING_SOURCE": "V043_OFFLINE_BINDING_HEADER_IDENTITY_SLOTS_SPEC4_ADR0090",
+    "SLOT_BINDING_KEY": "AUTHENTICATED_ROLE_OID_AND_EXACT_NAME_IN_UNIQUE_VALIDATED_IMMUTABLE_SLOT",
+    "CANONICAL_ROLE_SLOT_BINDING": "HOLD_NO_BASELINE_HEADER_ASSIGNMENTS",
+    "INCARNATION_BINDING_SOURCE": "IMMUTABLE_HEADER_PROTECTED_READINESS_APPROVED_HOST_INCARNATION",
+    "INCARNATION_BINDING_KEY": "HEADER_DEPLOYMENT_ID_AND_DEPLOYMENT_INCARNATION_ID_MATCH_READINESS_INCARNATION_ID",
+    "CANONICAL_INCARNATION_BINDING": "HOLD_LIVE_BACKEND_TO_INCARNATION_UNBOUND",
+    "POSTMASTER_GENERATION_SOURCE": "PgStartTime_CORROBORATION_AND_RETAINED_ANCHOR_RECEIVER_EPOCH_DESIGN_NOT_CLOSED",
+    "POSTMASTER_RESTART_INVALIDATES_ENROLLMENTS": "REQUIRED_NOT_RUNTIME_PROVEN",
+    "SERVER_DERIVED_BACKEND_START": "MyStartTimestamp_CALLER_CONTROLLED_NO",
+    "SERVER_DERIVED_IDENTITY": "SOURCE_FIELDS_IDENTIFIED_RUNTIME_HOLD",
+    "ENTRYPOINT_LIFECYCLE_COVERAGE": "LOGIN_EVENT_SOURCE_DIRECTION_RUNTIME_HOLD",
+    "ENROLLMENT_FAIL_CLOSED": "DESIGN_REQUIRED_RUNTIME_NOT_PROVEN",
+    "DATABASE_AUTHORITY_DELTA": "PRIVATE_NATIVE_HANDLER_ADMIN_LOGIN_EVENT_REGISTRATION_REQUIRED_NOT_INSTALLED",
+    "DEPLOYMENT_TRUST_DELTA": "TRUSTED_NATIVE_BRIDGE_RECEIVER_AND_POSSIBLE_EPOCH_BOOTSTRAP_NOT_DEPLOYED",
+    "ENTRYPOINT_AUTHORITY_DELTA": "NONE",
+    "ENROLLMENT_FUNCTION_CALLER_SET": "SERVER_LOGIN_EVENT_DISPATCH_ONLY_CURRENT_CANONICALLY_BOUND_SET_EMPTY",
+    "SERVICE_EXECUTE_DELTA": "NONE",
+    "ENROLLMENT_HANDSHAKE": "SYNCHRONOUS_ACCEPT_OR_DENY_REQUIRED_ACK_BUDGET_BINDING_NOT_CLOSED",
+    "ENROLLMENT_REPLAY_PROTECTION": "RECEIVER_ISSUED_ANCHOR_SCOPED_CONTEXT_DESIGN_NOT_IMPLEMENTED",
+    "DUPLICATE_ENROLLMENT_POLICY": "SAME_ANCHOR_IDEMPOTENT_DISTINCT_ANCHORS_PER_SLOT_CONCURRENCY_POLICY_REQUIRED",
+    "CONNECTION_CLOSE_INVALIDATION": "PIDFD_DEATH_REQUIRED_POSTGRES_RUNTIME_NOT_RUN",
+    "NEW_AUTHORITY_CONTRACT": "NOT_CLOSED",
+    "DESIGN_SECURITY_REVIEW": "HOLD",
+    "WATCHDOG_DEPLOYMENT_HIGH": "OPEN",
+    "G3F4_H01": "OPEN",
+    "BLOCKER_COUNT": 0,
+    "HIGH_COUNT": 2,
+    "MEDIUM_COUNT": 0,
+    "LOW_COUNT": 0,
+    "LOCAL_HEAD": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+    "REMOTE_HEAD": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+    "LOCAL_EQUALS_REMOTE": "YES",
+    "WORKTREE": "DIRTY_AUTHORIZED_UNCOMMITTED",
+    "NEXT_GATE": "G3F_4_ENROLLMENT_BINDING_CONTRACT_CLOSURE"
+  },
+  "prior_inventory": [
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-IDENTITY-SIGNAL-CLOSURE.md",
+      "size": 13495,
+      "sha256": "57b6fb92b71c2bff1910cd745ba7bc9dc935e4f072e96c6ec77d1ee1b744100c",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "identity-bound signaling Phase A"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-IDENTITY-SIGNAL-REVIEW.json",
+      "size": 17783,
+      "sha256": "1b159acadfb3f86b63d20f46ae50267ef42da7c0b7a8ccdcffc17f0c7cdad010",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "identity-bound signaling Phase A"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-IDENTITY-SIGNAL-RUNTIME.json",
+      "size": 642341,
+      "sha256": "f0067665ae37d4e4a56c98604a7e7f72465cc0b4b386a6436ce5b0934373e0b6",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "identity-bound signaling Phase A"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-AUTHORITY-REVIEW.json",
+      "size": 692996,
+      "sha256": "b5165e1199147939336654739261389a47e96a42d6385eb8598cefe5be5a2baa",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "watchdog deployment closure"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-DEPLOYMENT-CLOSURE.md",
+      "size": 16917,
+      "sha256": "858f26755b1d81043f38e96f62c6672ed816f51287571f6c4860cd4b6eb385cb",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "watchdog deployment closure"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-FAILURE-MATRIX.json",
+      "size": 11294,
+      "sha256": "4e4b90dc0aaf552449098fdb179807dfa05550a89c11279524f96caf70ca228b",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "watchdog deployment closure"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-RUNTIME.json",
+      "size": 8154,
+      "sha256": "97eb1391c509b33a6ce1c902b6b73cd67c399d6c6fc22754942ab217145930e8",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "watchdog deployment closure"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-SELF-ENROLLED-ANCHOR-PROOF.md",
+      "size": 16705,
+      "sha256": "e45122541346e7ab1a872a54f6e5290af0823b38a7b11bbdbe8e6b47b4891431",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "independently enrolled process anchor Phase A"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-SELF-ENROLLED-ANCHOR-REVIEW.json",
+      "size": 25565,
+      "sha256": "9bff9f1f1f0ee845652aac1d02261511b1956d354b29095c2055aadb27cdde63",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "independently enrolled process anchor Phase A"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-SELF-ENROLLED-ANCHOR-RUNTIME.json",
+      "size": 578932,
+      "sha256": "d7cd3aa05e5bb0ea184596c4d2236e817048b413bd6ece554b02c7477944462b",
+      "purpose": "watchdog contract evidence",
+      "originating_gate": "independently enrolled process anchor Phase A"
+    },
+    {
+      "path": "scripts/validation/package_0090_pidfd_phase_a.py",
+      "size": 8212,
+      "sha256": "4be567642f9e6fb10a4aa4f874f0a1df7cb78ba87f5d4c83fb5df67d8b635991",
+      "purpose": "read-only analysis tooling",
+      "originating_gate": "identity-bound signaling Phase A"
+    },
+    {
+      "path": "scripts/validation/package_0090_self_enrolled_pidfd_probe.c",
+      "size": 10047,
+      "sha256": "584e6827fb7a2db391087fd7678b446ffccbc48a783dbc8efd5ec30d34edc11b",
+      "purpose": "read-only analysis tooling",
+      "originating_gate": "independently enrolled process anchor Phase A"
+    },
+    {
+      "path": "scripts/validation/package_0090_self_enrolled_pidfd_proof.py",
+      "size": 7664,
+      "sha256": "8cb0c8a03a380def3793b6fcd256fa08913715f9107fd121e85d42fa3bec1aa3",
+      "purpose": "read-only analysis tooling",
+      "originating_gate": "independently enrolled process anchor Phase A"
+    },
+    {
+      "path": "scripts/validation/package_0090_watchdog_boundary_review.py",
+      "size": 33595,
+      "sha256": "c29aed2e0265bab45a263414b8190e658fd1da7d282db0a05d4a77c4817753da",
+      "purpose": "read-only analysis tooling",
+      "originating_gate": "watchdog deployment closure"
+    }
+  ],
+  "incoming_count_reconciliation": {
+    "prompt_count": 9,
+    "actual_count": 14,
+    "difference": 5,
+    "difference_origin": "Immediately preceding independently enrolled anchor proof: 3 evidence files + C/Python analysis tooling",
+    "all_prior_preserved": true,
+    "unrelated_file_count": 0
+  },
+  "source_inventory": [
+    {
+      "path": "src/backend/access/common/session.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/access/common/session.c",
+      "revision": "REL_18_4",
+      "sha256": "b38919a471a90e0e6a9eda9da2ac6489159c43e6dc5b754809aee71da7ef60f9",
+      "bytes": 6506,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/backend/commands/event_trigger.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/commands/event_trigger.c",
+      "revision": "REL_18_4",
+      "sha256": "2d4b566785240cfb56fa19425670e88821630db55376c3db6f7fae05f5e2e83c",
+      "bytes": 68170,
+      "raw_line_anchors": {
+        "create_requires_superuser": [
+          130,
+          135
+        ],
+        "login_event_dispatch": [
+          897,
+          929
+        ],
+        "fmgr_call_no_arguments": [
+          1108,
+          1115
+        ]
+      }
+    },
+    {
+      "path": "src/backend/executor/execMain.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/executor/execMain.c",
+      "revision": "REL_18_4",
+      "sha256": "33b97337fa23a649c5e7a092e1bd405a54e8503529236c62c9d5bb93a1774a8d",
+      "bytes": 99609,
+      "raw_line_anchors": {
+        "executor_dispatch": [
+          122,
+          137
+        ]
+      }
+    },
+    {
+      "path": "src/backend/libpq/auth.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/libpq/auth.c",
+      "revision": "REL_18_4",
+      "sha256": "94252cb1e2c49b0ddb15f6596d0abf8056c84493de07cc81439da4c5b07018f1",
+      "bytes": 88960,
+      "raw_line_anchors": {
+        "ClientAuthentication_hook": [
+          663,
+          667
+        ]
+      }
+    },
+    {
+      "path": "src/backend/postmaster/launch_backend.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/postmaster/launch_backend.c",
+      "revision": "REL_18_4",
+      "sha256": "35eda8c96f36a0097ffec7710647fb3cd76f0446d180e5156757426a3cd2d84a",
+      "bytes": 31223,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/backend/tcop/backend_startup.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/tcop/backend_startup.c",
+      "revision": "REL_18_4",
+      "sha256": "fea1363100ce7a37cbd4ab14dadfea3756d42ec2ec5be86f175d6d32fcd62622",
+      "bytes": 34774,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/backend/tcop/postgres.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/tcop/postgres.c",
+      "revision": "REL_18_4",
+      "sha256": "9fb62275b1badf94d01ab351337b60410cd9b3ab1fe63fa9f23d6d2185a21061",
+      "bytes": 146121,
+      "raw_line_anchors": {
+        "InitPostgres": [
+          4293,
+          4296
+        ],
+        "login_event_before_loop": [
+          4372,
+          4377
+        ],
+        "ReadyForQuery": [
+          4687,
+          4687
+        ]
+      }
+    },
+    {
+      "path": "src/backend/tcop/utility.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/tcop/utility.c",
+      "revision": "REL_18_4",
+      "sha256": "c2ccb6d8813ab87b466befc0e9fe57f8ae7b28523643c38471faf31b0374aed0",
+      "bytes": 93413,
+      "raw_line_anchors": {
+        "utility_dispatch": [
+          518,
+          523
+        ],
+        "transaction_utility": [
+          597,
+          597
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/adt/timestamp.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/adt/timestamp.c",
+      "revision": "REL_18_4",
+      "sha256": "003212fcdb8f3b718bfae30b91a92b6d353844ea7d039e2f627afc80db42b94a",
+      "bytes": 177777,
+      "raw_line_anchors": {
+        "postmaster_start_time": [
+          1627,
+          1629
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/cache/evtcache.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/cache/evtcache.c",
+      "revision": "REL_18_4",
+      "sha256": "aedbc054ba92c5e009c133e2dc7dd8ce38762ecc12e4bcb1d1bcf5b2f31a9354",
+      "bytes": 7649,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/backend/utils/fmgr/dfmgr.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/fmgr/dfmgr.c",
+      "revision": "REL_18_4",
+      "sha256": "adf7207f1d1c179e5e9f470716c367ae393612f5088d17880ae3feeb4b178514",
+      "bytes": 20064,
+      "raw_line_anchors": {
+        "already_loaded_file_scan": [
+          198,
+          206
+        ],
+        "PG_init": [
+          295,
+          299
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/init/globals.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/init/globals.c",
+      "revision": "REL_18_4",
+      "sha256": "30f29db3cfd5c473b32611383de22e402564836e3462afb7bab93f8e0ed679a5",
+      "bytes": 5313,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/backend/utils/init/miscinit.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/init/miscinit.c",
+      "revision": "REL_18_4",
+      "sha256": "54bdb859c143a6c70d86067ccf2e124f59aa0852e5705bb653652e41a60af39a",
+      "bytes": 55988,
+      "raw_line_anchors": {
+        "authenticated_role_assignment": [
+          798,
+          842
+        ],
+        "library_loaders": [
+          1903,
+          1924
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/init/postinit.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/init/postinit.c",
+      "revision": "REL_18_4",
+      "sha256": "abcf80637b153d3aa6f0d2b600943af0a2b4d9a393d05a844db91f8b6b66d0d7",
+      "bytes": 44280,
+      "raw_line_anchors": {
+        "process_visibility": [
+          730,
+          742
+        ],
+        "auth_before_role": [
+          900,
+          901
+        ],
+        "final_database": [
+          1105,
+          1130
+        ],
+        "preload_before_final_status": [
+          1227,
+          1236
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/misc/guc.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/misc/guc.c",
+      "revision": "REL_18_4",
+      "sha256": "3021d40bb4e920a56fbc5e9452e32903a7364d7ce0aece65be70aa3c34c1274e",
+      "bytes": 194714,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/backend/utils/misc/guc_tables.c",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/misc/guc_tables.c",
+      "revision": "REL_18_4",
+      "sha256": "0bb4e1837ed72104c24cd72e027c969213577c1f50bb6d92ea50f437b708f9cd",
+      "bytes": 145909,
+      "raw_line_anchors": {
+        "event_triggers_context": [
+          2119,
+          2123
+        ],
+        "preload_contexts": [
+          4475,
+          4502
+        ]
+      }
+    },
+    {
+      "path": "src/include/access/session.h",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/access/session.h",
+      "revision": "REL_18_4",
+      "sha256": "7c44944e553c3cfed43d40e9fd0f85e98898b97f2a2fe6dcdae3a475b2f085e1",
+      "bytes": 1267,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/include/executor/executor.h",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/executor/executor.h",
+      "revision": "REL_18_4",
+      "sha256": "7cd51a5473f238de2bdd6a1c824019b839f1ea71f1e99e29ab7c2f2003942bcd",
+      "bytes": 29509,
+      "raw_line_anchors": {
+        "ExecutorStart_hook": [
+          75,
+          76
+        ]
+      }
+    },
+    {
+      "path": "src/include/libpq/auth.h",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/libpq/auth.h",
+      "revision": "REL_18_4",
+      "sha256": "976773a9612d289da53c43129ef0438a57904cdd19ffa2ca3d6d2b00104ec241",
+      "bytes": 2136,
+      "raw_line_anchors": {
+        "hook_signature": [
+          40,
+          41
+        ]
+      }
+    },
+    {
+      "path": "src/include/miscadmin.h",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/miscadmin.h",
+      "revision": "REL_18_4",
+      "sha256": "597e33af3a463e98e900e9c20e949a48dfd0b20420d31f7db1d1eab58d4a89d3",
+      "bytes": 20175,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/include/utils/timestamp.h",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/utils/timestamp.h",
+      "revision": "REL_18_4",
+      "sha256": "860c60f27f6d8f675fd5d8aa815f5535bf5fe2a76e6ec03809eda482dfa8176e",
+      "bytes": 5181,
+      "raw_line_anchors": {
+        "PgStartTime": [
+          99,
+          99
+        ]
+      }
+    }
+  ],
+  "repository_authority_sources": [
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9",
+      "line_anchors": [
+        27,
+        31,
+        35,
+        115,
+        117
+      ]
+    },
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+      "line_anchors": [
+        56,
+        58,
+        70,
+        76,
+        88,
+        96,
+        245
+      ]
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line_anchors": [
+        479,
+        482,
+        483,
+        511,
+        911,
+        912,
+        913
+      ]
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/GovernedJdbc.kt",
+      "sha256": "6274b34f8884632503e3b5796d143c06fdaa02a5d8154d9c00173cbb18194017",
+      "line_anchors": [
+        12,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresDataSources.kt",
+      "sha256": "3111a5095ccf3ab8bda131b3fe282d48ea9cbcf2b60ae0d548ffe7e904efffe5",
+      "line_anchors": [
+        7,
+        8
+      ]
+    }
+  ],
+  "availability_matrix": [
+    {
+      "field": "pid/getpid",
+      "AUTH_HOOK": "YES",
+      "POST_AUTH_INIT": "YES",
+      "FIRST_QUERY_HOOK": "YES",
+      "SQL_FUNCTION": "YES",
+      "source": "MyProcPid and current process"
+    },
+    {
+      "field": "database_oid",
+      "AUTH_HOOK": "NOT_FINAL",
+      "POST_AUTH_INIT": "YES",
+      "FIRST_QUERY_HOOK": "YES",
+      "SQL_FUNCTION": "YES",
+      "source": "MyDatabaseId finalized in InitPostgres"
+    },
+    {
+      "field": "authenticated_role_oid",
+      "AUTH_HOOK": "NOT_ESTABLISHED",
+      "POST_AUTH_INIT": "YES",
+      "FIRST_QUERY_HOOK": "YES",
+      "SQL_FUNCTION": "YES",
+      "source": "InitializeSessionUserId/GetAuthenticatedUserId"
+    },
+    {
+      "field": "session_user",
+      "AUTH_HOOK": "NOT_ESTABLISHED",
+      "POST_AUTH_INIT": "YES",
+      "FIRST_QUERY_HOOK": "YES_REVALIDATE",
+      "SQL_FUNCTION": "YES_REVALIDATE",
+      "source": "GetSessionUserId"
+    },
+    {
+      "field": "current_user",
+      "AUTH_HOOK": "NOT_ESTABLISHED",
+      "POST_AUTH_INIT": "YES_EFFECTIVE_NOT_AUTHORITY",
+      "FIRST_QUERY_HOOK": "MUTABLE_EFFECTIVE",
+      "SQL_FUNCTION": "DEFINER_EFFECTIVE",
+      "source": "GetUserId"
+    },
+    {
+      "field": "backend_type",
+      "AUTH_HOOK": "YES",
+      "POST_AUTH_INIT": "YES",
+      "FIRST_QUERY_HOOK": "YES",
+      "SQL_FUNCTION": "YES",
+      "source": "MyBackendType; require B_BACKEND"
+    },
+    {
+      "field": "backend_start",
+      "AUTH_HOOK": "YES",
+      "POST_AUTH_INIT": "YES",
+      "FIRST_QUERY_HOOK": "YES",
+      "SQL_FUNCTION": "YES",
+      "source": "MyStartTimestamp"
+    },
+    {
+      "field": "application_name",
+      "AUTH_HOOK": "NOT_FINAL_STARTUP",
+      "POST_AUTH_INIT": "CALLER_CONTROLLED",
+      "FIRST_QUERY_HOOK": "CALLER_CONTROLLED",
+      "SQL_FUNCTION": "CALLER_CONTROLLED",
+      "source": "startup GUC; never authority"
+    },
+    {
+      "field": "database_name",
+      "AUTH_HOOK": "REQUESTED_ONLY",
+      "POST_AUTH_INIT": "FINAL",
+      "FIRST_QUERY_HOOK": "FINAL",
+      "SQL_FUNCTION": "FINAL",
+      "source": "database lock/recheck"
+    },
+    {
+      "field": "postmaster_start_pid",
+      "AUTH_HOOK": "METADATA_AVAILABLE",
+      "POST_AUTH_INIT": "METADATA_AVAILABLE",
+      "FIRST_QUERY_HOOK": "METADATA_AVAILABLE",
+      "SQL_FUNCTION": "METADATA_AVAILABLE",
+      "source": "PgStartTime/PostmasterPid; not sufficient epoch"
+    },
+    {
+      "field": "deployment_incarnation",
+      "AUTH_HOOK": "NO_NATIVE_AUTO_BINDING",
+      "POST_AUTH_INIT": "GOVERNED_LOOKUP_REQUIRED",
+      "FIRST_QUERY_HOOK": "GOVERNED_LOOKUP_REQUIRED",
+      "SQL_FUNCTION": "GOVERNED_LOOKUP_REQUIRED",
+      "source": "immutable header/protected readiness/host evidence"
+    },
+    {
+      "field": "activity_role_database",
+      "AUTH_HOOK": "NOT_PUBLISHED",
+      "POST_AUTH_INIT": "NOT_YET_FINAL",
+      "FIRST_QUERY_HOOK": "FRESH_OBSERVATION",
+      "SQL_FUNCTION": "FRESH_OBSERVATION",
+      "source": "pgstat_bestart_final after session preload"
+    }
+  ],
+  "matrix_scope": {
+    "post_auth_init": "session-preload point; selected login-event point additionally has final activity role/database publication",
+    "YES": "Source availability only; no prototype/runtime enrollment result"
+  },
+  "entrypoint_candidates": [
+    {
+      "name": "SQL_enroll_self",
+      "new_service_EXECUTE": true,
+      "omission": "Caller controlled",
+      "identity": "Final native fields possible",
+      "coverage": "Post admission only",
+      "decision": "REJECT_LESS_AUTHORITY_AUTOMATIC_CANDIDATE_IDENTIFIED"
+    },
+    {
+      "name": "ClientAuthentication_hook",
+      "new_service_EXECUTE": false,
+      "identity": "Final authenticated role/database not established",
+      "coverage": "Pre admission too early",
+      "decision": "REJECT_FULL_IDENTITY_BINDING_AT_CALLBACK"
+    },
+    {
+      "name": "ExecutorStart_hook",
+      "new_service_EXECUTE": false,
+      "identity": "Final fields",
+      "coverage": "Utility/BEGIN/idle gap",
+      "decision": "REJECT_COMPLETE_ADMISSION_COVERAGE"
+    },
+    {
+      "name": "shared_preloaded_query_and_utility_hooks",
+      "new_service_EXECUTE": false,
+      "identity": "Final command-time fields",
+      "coverage": "Does not precede connection admission",
+      "decision": "REJECT_PRE_ADMISSION_REQUIREMENT"
+    },
+    {
+      "name": "session_preload_PG_init",
+      "new_service_EXECUTE": false,
+      "identity": "Final native fields; final activity publication later",
+      "coverage": "Pre admission",
+      "decision": "NOT_SELECTED_SYNCHRONOUS_EXTERNAL_ACTIVITY_VALIDATION_DEPENDENCY_AND_LIBRARY_CACHE"
+    },
+    {
+      "name": "application_call",
+      "new_service_EXECUTE": true,
+      "identity": "Only via native server implementation",
+      "coverage": "Adapter path only; startup SQL before acquisition possible",
+      "decision": "REJECT_UNIVERSAL_SERVER_ADMISSION"
+    },
+    {
+      "name": "login_event_native_handler",
+      "new_service_EXECUTE": false,
+      "identity": "Final native fields and published activity IDs",
+      "coverage": "After InitPostgres, before client loop/ReadyForQuery",
+      "decision": "SELECT_DESIGN_DIRECTION_NOT_INSTALLATION_OR_RUNTIME_PASS"
+    }
+  ],
+  "authority_classification": {
+    "selected": "NONE",
+    "scope": "No new service invocation authority; automatic native login event dispatch, not a claim that deployment/database configuration is unchanged",
+    "admin_database_objects_proposed": [
+      "private_native_event_trigger_handler",
+      "ADMIN_owned_login_event_ALWAYS"
+    ],
+    "objects_installed": [],
+    "PUBLIC_EXECUTE_added": false,
+    "service_EXECUTE_added": false,
+    "preload_configuration_changed": false,
+    "trigger_configuration_changed": false
+  },
+  "canonical_binding": {
+    "representation_exists": true,
+    "source": "V043.offline_binding_header.identity_slots",
+    "key": "Authenticated OID+exact name in canonical purpose/OID/name record",
+    "purposes": {
+      "1": "VERIFIER",
+      "2": "ISSUER",
+      "3": "EXECUTOR",
+      "4": "AUDITOR"
+    },
+    "mutability": "Immutable/permanent login assignment including tombstones; live catalog attributes rechecked",
+    "authority": "SERVICE_IDENTITY_ADMIN allocation + PLAN_BINDING_ADMIN binding governance",
+    "current_binding_header_count": 0,
+    "current_validated_enrollment_roster": [],
+    "role_name_regex_inference": false,
+    "new_mapping_created": false
+  },
+  "incarnation_binding": {
+    "source": "Header deployment_id/deployment_incarnation_id + protected offline_readiness + independently approved host deployment/incarnation evidence",
+    "readiness_key": "incarnation_id",
+    "header_tuple_immutable": true,
+    "readiness_mutable_by_ADMIN": true,
+    "normal_restart_retains_incarnation": true,
+    "current_role_to_incarnation_binding_proven": false,
+    "caller_UUID_accepted_as_authority": false,
+    "single_readiness_row_promoted_to_mapping": false
+  },
+  "missing_contract": [
+    "Canonical enrollment roster and absence policy: distinguish missing governed allocation from unrelated normal-runtime login without role-name inference",
+    "Current baseline authenticated OID/name -> immutable slot/header -> protected current deployment/incarnation plus approved host evidence",
+    "Exact nonpersistent server/receiver epoch and PID-namespace topology; timestamps/PID/system_identifier alone insufficient",
+    "Finite synchronous ACK deadline and frame limits with explicitly governed authority/derivation; no numeric policy reinterpretation",
+    "Native handler owner/ACL/call-context/configuration-bypass proof and complete runtime admission denial"
+  ],
+  "handshake_draft": {
+    "backend_identity_args_from_caller": [],
+    "request": "Self-created pidfd + server-native backend identity",
+    "receiver_validation": "Retained supplied/kernel sender/kernel peer anchors + UID + fresh ADMIN READ COMMITTED identity/canonical binding + liveness",
+    "response": "Receiver-issued ACCEPT(enrollment_id,digest) or typed DENY",
+    "admission": "Only after matching ACCEPT; errors explicitly FATAL",
+    "ACK_deadline": "GOVERNED_SOURCE_NOT_CLOSED_NO_NUMBER_CHOSEN",
+    "fire_and_forget": false,
+    "no_PID_fallback": true,
+    "status": "NOT_CLOSED_NOT_IMPLEMENTED"
+  },
+  "digest_draft": {
+    "domain": "FLOOOW/OFFLINE-WATCHDOG/ENROLLMENT/V1",
+    "framing": "u32be domain length/domain/u16be count; ascending u16be tags/u32be lengths",
+    "fields": [
+      "protocol_version",
+      "database_oid",
+      "authenticated_role_oid",
+      "role_name_exact_utf8",
+      "slot_purpose",
+      "backend_pid",
+      "backend_start",
+      "postmaster_start",
+      "binding_uuid",
+      "deployment_uuid",
+      "incarnation_uuid",
+      "receiver_server_epoch_correlation"
+    ],
+    "fd_number_is_authority": false,
+    "secrets_included": false,
+    "codec_freeze": "NO_REVIEW_DRAFT_EPOCH_LIMITS_UNRESOLVED"
+  },
+  "duplicate_policy": {
+    "same_process_same_metadata_equivalent_descriptors": "IDEMPOTENT_CLOSE_REDUNDANT",
+    "different_process_same_slot": "Separate live anchors; allowed concurrency must be governed, never assume one",
+    "stale_incarnation": "Invalidate",
+    "cleanup": "Primary pidfd death, not client deregistration"
+  },
+  "generation": {
+    "sources": "PgStartTime/PostmasterPid/system_identifier are corroborative metadata",
+    "sufficient_as_strict_epoch_alone": false,
+    "retained_backend_anchor": "Dead old anchor cannot redirect to new backend",
+    "restart_test_run": false,
+    "complete_restart_protocol": "NOT_CLOSED"
+  },
+  "runtime_tests": [
+    {
+      "name": "correct_role_slot",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "wrong_role",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "unmanaged_role",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "correct_incarnation",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "stale_incarnation",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "DB_restart_old_enrollment_dead",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "backend_close_dead_fd",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "new_backend_distinct_enrollment",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "no_caller_identity",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "receiver_unavailable_fail_connection",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    },
+    {
+      "name": "socket_spoof",
+      "status": "NOT_RUN_DESIGN_PREREQUISITE_OPEN"
+    }
+  ],
+  "fresh_readonly_evidence": {
+    "bindings": null,
+    "binding_header_count": 0,
+    "readiness": [
+      {
+        "deployment_id": "2430bd66-ee5b-49e9-aaf9-9dc1fbd9b547",
+        "incarnation_id": "fa105a00-acf1-4ddf-846b-08096978637d",
+        "state": "NOT_READY",
+        "policy_version": "fixture-1",
+        "policy_digest": "e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d",
+        "watchdog_checked_at": "2026-10-05T12:31:38.407207+00:00",
+        "watchdog_healthy": false
+      }
+    ],
+    "preload_configuration": [
+      {
+        "name": "local_preload_libraries",
+        "setting": "",
+        "context": "user",
+        "source": "default"
+      },
+      {
+        "name": "session_preload_libraries",
+        "setting": "",
+        "context": "superuser",
+        "source": "default"
+      },
+      {
+        "name": "shared_preload_libraries",
+        "setting": "",
+        "context": "postmaster",
+        "source": "default"
+      }
+    ],
+    "parameter_acl": null,
+    "control_system": {
+      "system_identifier": 7693118332665065516,
+      "pg_control_version": 1800,
+      "catalog_version_no": 202506291
+    }
+  },
+  "runtime_prototype_installed": false,
+  "integrity": {
+    "fingerprint_pre": "d697579bb78f8ecffbeb1407a100a2ef400bebd761967bfa6af8059c1379632c",
+    "fingerprint_post": "d697579bb78f8ecffbeb1407a100a2ef400bebd761967bfa6af8059c1379632c",
+    "authority_equal": true,
+    "role_attributes_memberships_ownership_ACL_defaultACL_policy_migrations_equal": true,
+    "parameter_ACL_preload_binding_readiness_equal": true,
+    "fourteen_prior_hashes_equal": true,
+    "tracked_hashes_equal": true,
+    "container_stopped": true,
+    "plaintext_credentials_erased": true,
+    "password_rotation": false,
+    "new_fixture_installed": false,
+    "temporal_bounds_changed": false,
+    "destructive_signal_count": 0
+  },
+  "independent_review": {
+    "method": "Separate lifecycle/counterexample/authority comparison against exact REL_18_4 source and fresh disposable read-only evidence; no separate-reviewer claim",
+    "result": "HOLD",
+    "entrypoint_direction": "Native login event resolves late identity/pre-admission timing without new service EXECUTE",
+    "remaining": "Canonical baseline allocation and executable admission/restart authority contract missing"
+  },
+  "checkpoint": {
+    "commit": false,
+    "push": false,
+    "reason": "Section24 complete PASS precondition not satisfied"
+  }
+}

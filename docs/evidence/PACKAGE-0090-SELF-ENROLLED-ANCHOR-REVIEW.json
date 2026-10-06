@@ -1,0 +1,707 @@
+{
+  "schema": "PACKAGE0090_SELF_ENROLLED_ANCHOR_SECURITY_PROOF_V1",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "baseline": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+  "decision": "KERNEL_SOCKET_PASS_COMPLETE_DESIGN_HOLD",
+  "return": {
+    "SELF_PIDFD_OPEN_BINDS_CALLING_PROCESS": "YES",
+    "SCM_RIGHTS_ANCHOR_TRANSFER": "PASS",
+    "SCM_RIGHTS_RECEIVER_INDEPENDENT_REFERENCE": "YES",
+    "SO_PEERCRED_BINDING": "PASS_CONNECT_TIME_OS_IDENTITY_ONLY",
+    "SERVER_DERIVED_IDENTITY": "HOLD_POSTGRES_ENROLLMENT_ENTRYPOINT_NOT_PROVEN",
+    "KERNEL_PROCESS_ANCHOR": "PIDFD",
+    "PID_REUSE_REDIRECTION": "IMPOSSIBLE_BY_PROVEN_KERNEL_CONTRACT",
+    "BACKEND_EXIT_FAIL_CLOSED": "PASS_STANDALONE_POSTGRES_NOT_RUN",
+    "ENROLLMENT_REPLAY_PROTECTION": "DESIGN_REQUIRED_NOT_RUNTIME_PROVEN",
+    "DUPLICATE_ENROLLMENT_POLICY": "IDEMPOTENT_SAME_ANCHOR_DISTINCT_LIVE_ANCHORS_PER_SLOT_NOT_IMPLEMENTED",
+    "INCARNATION_CHANGE_INVALIDATION": "INVALIDATE_CLOSE_ALL_PRIOR_EPOCH_HANDLES_NOT_IMPLEMENTED",
+    "TRUST_BOUNDARY_DELTA": "IMPLEMENTATION_OF_EXISTING_WATCHDOG_BOUNDARY_PROPOSED_NOT_CLOSED",
+    "NEW_AUTHORITY_REQUIRED": "YES_FOR_SQL_CALLABLE_SERVICE_ENROLLMENT",
+    "NEW_DATABASE_PRIVILEGE_REQUIRED": "YES_FOR_SQL_API_ZERO_EXEC_HOOK_ALTERNATIVE_NOT_PROVEN",
+    "ENROLLMENT_FUNCTION_CALLER_SET": "NONE_CANONICALLY_BOUND_CURRENT_BASELINE",
+    "SERVICE_EXECUTE_DELTA": "PROPOSED_NOT_GRANTED",
+    "CONNECTION_LIFETIME_INTEGRATION": "ONE_ENROLLMENT_PER_PHYSICAL_BACKEND_BEFORE_GOVERNED_WORK_HOOK_NOT_PROVEN",
+    "SELF_PIDFD_IDENTITY_BINDING": "PASS_KERNEL_SELF_PROCESS",
+    "PEER_CREDENTIAL_BINDING": "PASS_KERNEL_HOLD_POSTGRES_ROLE",
+    "PID_REUSE_RACE_CLOSED": "PASS_RETAINED_PROCESS_ANCHOR_ONLY",
+    "NO_PID_ONLY_FALLBACK": "PASS",
+    "DESIGN_SECURITY_REVIEW": "HOLD",
+    "IDENTITY_SIGNAL_MECHANISM": "SELF_ENROLLED_PIDFD_VIA_UNIX_FD_TRANSFER_CANDIDATE",
+    "ATOMIC_IDENTITY_PROPERTY": "CLOSED_BY_SELF_CREATED_KERNEL_PROCESS_HANDLE_PROCESS_SCOPE_ONLY",
+    "WATCHDOG_DEPLOYMENT_HIGH": "OPEN",
+    "G3F4_H01": "OPEN",
+    "BLOCKER_COUNT": 0,
+    "HIGH_COUNT": 2,
+    "MEDIUM_COUNT": 0,
+    "LOW_COUNT": 0,
+    "LOCAL_HEAD": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+    "REMOTE_HEAD": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+    "LOCAL_EQUALS_REMOTE": "YES",
+    "WORKTREE": "DIRTY_AUTHORIZED_UNCOMMITTED",
+    "NEXT_GATE": "GOVERNED_ENROLLMENT_ENTRYPOINT_AND_DEPLOYMENT_SLOT_BINDING_AUTHORITY_REVIEW"
+  },
+  "prior_inventory": [
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-IDENTITY-SIGNAL-CLOSURE.md",
+      "size": 13495,
+      "sha256": "57b6fb92b71c2bff1910cd745ba7bc9dc935e4f072e96c6ec77d1ee1b744100c",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-IDENTITY-SIGNAL-REVIEW.json",
+      "size": 17783,
+      "sha256": "1b159acadfb3f86b63d20f46ae50267ef42da7c0b7a8ccdcffc17f0c7cdad010",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-IDENTITY-SIGNAL-RUNTIME.json",
+      "size": 642341,
+      "sha256": "f0067665ae37d4e4a56c98604a7e7f72465cc0b4b386a6436ce5b0934373e0b6",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-AUTHORITY-REVIEW.json",
+      "size": 692996,
+      "sha256": "b5165e1199147939336654739261389a47e96a42d6385eb8598cefe5be5a2baa",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-DEPLOYMENT-CLOSURE.md",
+      "size": 16917,
+      "sha256": "858f26755b1d81043f38e96f62c6672ed816f51287571f6c4860cd4b6eb385cb",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-FAILURE-MATRIX.json",
+      "size": 11294,
+      "sha256": "4e4b90dc0aaf552449098fdb179807dfa05550a89c11279524f96caf70ca228b",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "docs/evidence/PACKAGE-0090-G3F-4-WATCHDOG-RUNTIME.json",
+      "size": 8154,
+      "sha256": "97eb1391c509b33a6ce1c902b6b73cd67c399d6c6fc22754942ab217145930e8",
+      "purpose": "watchdog contract evidence"
+    },
+    {
+      "path": "scripts/validation/package_0090_pidfd_phase_a.py",
+      "size": 8212,
+      "sha256": "4be567642f9e6fb10a4aa4f874f0a1df7cb78ba87f5d4c83fb5df67d8b635991",
+      "purpose": "read-only analysis tooling"
+    },
+    {
+      "path": "scripts/validation/package_0090_watchdog_boundary_review.py",
+      "size": 33595,
+      "sha256": "c29aed2e0265bab45a263414b8190e658fd1da7d282db0a05d4a77c4817753da",
+      "purpose": "read-only analysis tooling"
+    }
+  ],
+  "unrelated_file_count": 0,
+  "source_inventory": [
+    {
+      "path": "include/net/scm.h",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/include/net/scm.h",
+      "sha256": "cb25a2647fbfec403f71c838bc36c3bccc568d4b00b69452aa8666ee67d207f0",
+      "bytes": 2933
+    },
+    {
+      "path": "include/uapi/asm-generic/socket.h",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/include/uapi/asm-generic/socket.h",
+      "sha256": "23df5ed2dca8ae80ec5ae21f05b5b6a0d4138bab7851a3e0da087e0b73df3c55",
+      "bytes": 4116
+    },
+    {
+      "path": "include/uapi/linux/socket.h",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/include/uapi/linux/socket.h",
+      "sha256": "6658c25f28788d981b271895219981487560cfee6390031682167f18af83a293",
+      "bytes": 1055
+    },
+    {
+      "path": "linux/include/linux/socket.h",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/include/linux/socket.h",
+      "sha256": "be4fced57587c50436643cdcdafc786e4d5628a1dc8992ac0aa552ae6a9bd18e",
+      "bytes": 15898
+    },
+    {
+      "path": "linux/net/core/sock.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/net/core/sock.c",
+      "sha256": "42d20ab6d561aab6b827f4674478253e251929b0d67d38a1d4b25abcf5df0c77",
+      "bytes": 112771
+    },
+    {
+      "path": "net/core/scm.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/net/core/scm.c",
+      "sha256": "e66ffbd376d67bce8b0f7c12c45ea9fb6a5fb300c20c0fa02a86c08dfe954078",
+      "bytes": 12706
+    },
+    {
+      "path": "net/unix/af_unix.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/net/unix/af_unix.c",
+      "sha256": "2edb8c05faaaee7bd73f21c225a5f394c21adb2f7eddb7a1c29976c388d6570a",
+      "bytes": 94154
+    },
+    {
+      "path": "pg/src/backend/tcop/postgres.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/tcop/postgres.c",
+      "sha256": "9fb62275b1badf94d01ab351337b60410cd9b3ab1fe63fa9f23d6d2185a21061",
+      "bytes": 146121
+    },
+    {
+      "path": "pg/src/backend/utils/init/miscinit.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/init/miscinit.c",
+      "sha256": "54bdb859c143a6c70d86067ccf2e124f59aa0852e5705bb653652e41a60af39a",
+      "bytes": 55988
+    },
+    {
+      "path": "pg/src/include/miscadmin.h",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/miscadmin.h",
+      "sha256": "597e33af3a463e98e900e9c20e949a48dfd0b20420d31f7db1d1eab58d4a89d3",
+      "bytes": 20175
+    }
+  ],
+  "reused_source_inventory": [
+    {
+      "path": "linux/fs/pidfs.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/fs/pidfs.c",
+      "sha256": "249d553ba8a69e12bb4c9ac6e94c06415ddc9cf7c6e7bdfb4a114314c357ee02",
+      "byte_count": 28598,
+      "raw_line_anchors": {
+        "pidfs_add_pid_identity": [
+          101,
+          136
+        ],
+        "pidfd_info_pid_parent": [
+          394,
+          409
+        ]
+      }
+    },
+    {
+      "path": "linux/include/uapi/linux/pidfd.h",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/include/uapi/linux/pidfd.h",
+      "sha256": "bf26cf9017bdf4ec2376993642626a112a0b6f7efaa0fa448356a36c3b7433d1",
+      "byte_count": 4258,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "linux/kernel/exit.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/kernel/exit.c",
+      "sha256": "0b80d6d1087dc07d8754bf27c402588eda6148d97d5142e075b9e200da46c3fa",
+      "byte_count": 50558,
+      "raw_line_anchors": {
+        "release_task": [
+          244,
+          286
+        ]
+      }
+    },
+    {
+      "path": "linux/kernel/pid.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/kernel/pid.c",
+      "sha256": "c42a4f56e3939c47b7af58390f98815bd1d64cf423c5be224eed74656e8a7e99",
+      "byte_count": 22671,
+      "raw_line_anchors": {
+        "free_pid_namespace_unlink": [
+          117,
+          148
+        ],
+        "pidfd_open_numeric_resolution": [
+          646,
+          664
+        ]
+      }
+    },
+    {
+      "path": "linux/kernel/signal.c",
+      "revision": "v6.18",
+      "url": "https://raw.githubusercontent.com/torvalds/linux/v6.18/kernel/signal.c",
+      "sha256": "074166696c837c48ba5edc1fcefa4dd3e4b0736b2093545b0824a3f60f9c18e5",
+      "byte_count": 134558,
+      "raw_line_anchors": {
+        "kill_pid_info_type": [
+          1449,
+          1468
+        ],
+        "pidfd_send_signal_fd_resolution": [
+          4065,
+          4114
+        ]
+      }
+    },
+    {
+      "path": "pg/src/include/storage/procnumber.h",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/storage/procnumber.h",
+      "sha256": "41f27e3a5223e646ef7fa0cdd480a3a84175298f2bff417dad4945de50b371d3",
+      "byte_count": 2124,
+      "raw_line_anchors": {
+        "reusable_slot_identifier": [
+          18,
+          24
+        ]
+      }
+    },
+    {
+      "path": "src/backend/postmaster/postmaster.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/postmaster/postmaster.c",
+      "sha256": "467a6d6deb8f31d1fa599b854511207923a252f02b7d5cbcc878caece577eefb",
+      "byte_count": 133372,
+      "raw_line_anchors": {
+        "waitpid_before_dispatch": [
+          2243,
+          2243
+        ],
+        "CleanupBackend_dispatch": [
+          2520,
+          2520
+        ],
+        "detachment_check": [
+          2598,
+          2628
+        ],
+        "HandleChildCrash": [
+          2772,
+          2792
+        ]
+      }
+    },
+    {
+      "path": "src/backend/storage/ipc/ipc.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/storage/ipc/ipc.c",
+      "sha256": "dc9a1be6a1c8841894d48df18f84f002ab535dbf74767897aff87028c5b768f4",
+      "byte_count": 14518,
+      "raw_line_anchors": {
+        "proc_exit": [
+          111,
+          157
+        ],
+        "callback_LIFO": [
+          282,
+          284
+        ]
+      }
+    },
+    {
+      "path": "src/backend/storage/ipc/procarray.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/storage/ipc/procarray.c",
+      "sha256": "4d9cc6a35244e1cb74ce41304f41f8b7da38e7d15c6e2d0247b16366efd5aef7",
+      "byte_count": 166699,
+      "raw_line_anchors": {
+        "ProcArrayAdd": [
+          468,
+          477
+        ],
+        "ProcArrayRemove": [
+          565,
+          578
+        ],
+        "BackendPidGetProc": [
+          3196,
+          3209
+        ],
+        "BackendPidGetProcWithLock": [
+          3219,
+          3235
+        ]
+      }
+    },
+    {
+      "path": "src/backend/storage/ipc/procsignal.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/storage/ipc/procsignal.c",
+      "sha256": "0b9d544f66a8f485eb564171f757a6be9d580ac499b0165f04c08892d3f00066",
+      "byte_count": 24770,
+      "raw_line_anchors": {
+        "SendCancelRequest": [
+          733,
+          803
+        ]
+      }
+    },
+    {
+      "path": "src/backend/storage/ipc/signalfuncs.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/storage/ipc/signalfuncs.c",
+      "sha256": "cbf1118ce81db1e6e332dd08c2ff344820c370f98be98e45832231160026ac1a",
+      "byte_count": 9889,
+      "raw_line_anchors": {
+        "pg_signal_backend": [
+          51,
+          126
+        ]
+      }
+    },
+    {
+      "path": "src/backend/storage/lmgr/proc.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/storage/lmgr/proc.c",
+      "sha256": "08cce606fa2012752a9cc3367e468e57ec09f5b2501bf3612a92dff7c269b9f4",
+      "byte_count": 65010,
+      "raw_line_anchors": {
+        "private_ProcStructLock": [
+          75,
+          75
+        ],
+        "InitProcess": [
+          429,
+          552
+        ],
+        "InitProcessPhase2": [
+          580,
+          592
+        ],
+        "RemoveProcFromArray": [
+          908,
+          911
+        ],
+        "ProcKill": [
+          919,
+          1027
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/activity/backend_status.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/activity/backend_status.c",
+      "sha256": "5ae2973ca1f4debe3ecd912786886d534dd5ea5c579b34736cfc317aa4a3feed",
+      "byte_count": 39241,
+      "raw_line_anchors": {
+        "pgstat_beinit": [
+          245,
+          253
+        ],
+        "pgstat_bestart_initial": [
+          269,
+          304
+        ],
+        "pgstat_beshutdown_hook": [
+          509,
+          525
+        ],
+        "pgstat_read_current_status_cached_copy": [
+          836,
+          837
+        ]
+      }
+    },
+    {
+      "path": "src/backend/utils/init/postinit.c",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/backend/utils/init/postinit.c",
+      "sha256": "abcf80637b153d3aa6f0d2b600943af0a2b4d9a393d05a844db91f8b6b66d0d7",
+      "byte_count": 44280,
+      "raw_line_anchors": {
+        "InitPostgres_callback_order": [
+          730,
+          733
+        ]
+      }
+    },
+    {
+      "path": "src/include/storage/proc.h",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/storage/proc.h",
+      "sha256": "3b06f6f3d8d4cd6be8a2a266ee3960c03fff14cbfc6b89e5f268ae6232210465",
+      "byte_count": 20757,
+      "raw_line_anchors": {}
+    },
+    {
+      "path": "src/include/utils/backend_status.h",
+      "revision": "REL_18_4",
+      "url": "https://raw.githubusercontent.com/postgres/postgres/REL_18_4/src/include/utils/backend_status.h",
+      "sha256": "335e47796513536959d3288caf7019739a4fb1c6dc8d7eeb2f4b1e41a82c01bc",
+      "byte_count": 10260,
+      "raw_line_anchors": {}
+    }
+  ],
+  "repository_authority_sources": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92"
+    },
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9"
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109"
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/GovernedJdbc.kt",
+      "sha256": "6274b34f8884632503e3b5796d143c06fdaa02a5d8154d9c00173cbb18194017"
+    }
+  ],
+  "independent_review": {
+    "method": "Separate claim/counterexample review against pinned source, binary disassembly and actual controlled runtime; no second-human/agent-review claim",
+    "self_open": "PASS_CALLER_MUST_BE_EXECUTING_NO_LATER_PROCESS_CONTINUATION",
+    "transfer": "PASS_REFERENCED_FILE_NOT_NUMERIC_PID_REACQUISITION",
+    "connect_time_peer_pid": "OS_METADATA_ONLY_NOT_SOLE_SENDER_AUTHORITY",
+    "message_sender_anchor": "REQUIRE_KERNEL_SCM_PIDFD_MATCHING_SO_PEERPIDFD_AND_RIGHTS_PIDFD",
+    "database_role_slot_incarnation_binding": "HOLD_MISSING_CANONICAL_MAPPING_AND_PRIVILEGE_ENTRYPOINT",
+    "complete_gate": "HOLD"
+  },
+  "standalone_tests": [
+    {
+      "variant": 0,
+      "subject_pid": 92,
+      "peer_pid": 92,
+      "message_pid": 92,
+      "rights_count": 1,
+      "same_anchor": true,
+      "decision": "ANCHOR_MATCH",
+      "live_signal_zero_result": 0,
+      "live_errno": 0,
+      "dead_poll": 1,
+      "dead_signal_zero_result": -1,
+      "dead_errno": 3,
+      "churn_count": 128,
+      "numeric_pid_reuse_count": 0,
+      "forged_credentials_errno": 0
+    },
+    {
+      "variant": 1,
+      "subject_pid": 221,
+      "peer_pid": 221,
+      "message_pid": 221,
+      "rights_count": 1,
+      "same_anchor": true,
+      "decision": "ANCHOR_MATCH",
+      "live_signal_zero_result": -1,
+      "live_errno": 3,
+      "dead_poll": 1,
+      "dead_signal_zero_result": -1,
+      "dead_errno": 3,
+      "churn_count": 128,
+      "numeric_pid_reuse_count": 0,
+      "forged_credentials_errno": 0
+    },
+    {
+      "variant": 2,
+      "subject_pid": 350,
+      "peer_pid": 350,
+      "message_pid": 350,
+      "rights_count": 1,
+      "same_anchor": false,
+      "decision": "DENY_SUBSTITUTED_OR_EXTRA_FD",
+      "live_signal_zero_result": -2,
+      "live_errno": 0,
+      "dead_poll": 1,
+      "dead_signal_zero_result": -1,
+      "dead_errno": 3,
+      "churn_count": 128,
+      "numeric_pid_reuse_count": 0,
+      "forged_credentials_errno": 0
+    },
+    {
+      "variant": 3,
+      "subject_pid": 479,
+      "peer_pid": 479,
+      "message_pid": 479,
+      "rights_count": 2,
+      "same_anchor": false,
+      "decision": "DENY_SUBSTITUTED_OR_EXTRA_FD",
+      "live_signal_zero_result": -2,
+      "live_errno": 0,
+      "dead_poll": 1,
+      "dead_signal_zero_result": -1,
+      "dead_errno": 3,
+      "churn_count": 128,
+      "numeric_pid_reuse_count": 0,
+      "forged_credentials_errno": 0
+    },
+    {
+      "variant": 4,
+      "subject_pid": 608,
+      "peer_pid": 608,
+      "message_pid": 608,
+      "rights_count": 1,
+      "same_anchor": true,
+      "decision": "ANCHOR_MATCH",
+      "live_signal_zero_result": 0,
+      "live_errno": 0,
+      "dead_poll": 1,
+      "dead_signal_zero_result": -1,
+      "dead_errno": 3,
+      "churn_count": 128,
+      "numeric_pid_reuse_count": 0,
+      "forged_credentials_errno": 1
+    }
+  ],
+  "destructive_signal_count": 0,
+  "pid_reuse": {
+    "attempted": true,
+    "controlled_churn_count": 640,
+    "actual_reuse_observed": false,
+    "safety_basis": "Kernel retained struct pid/file reference; not non-reproduction"
+  },
+  "postgres_runtime": {
+    "prototype_installed": false,
+    "enrollment_test_run": false,
+    "backend_exit_pidfd_test_run": false,
+    "reason": "Complete canonical binding and permitted enrollment entrypoint not established; no new service EXECUTE/persistence inferred from standalone authorization"
+  },
+  "authority_gap": {
+    "canonical_binding_header_count": 0,
+    "readiness": [
+      {
+        "deployment_id": "2430bd66-ee5b-49e9-aaf9-9dc1fbd9b547",
+        "incarnation_id": "fa105a00-acf1-4ddf-846b-08096978637d",
+        "state": "NOT_READY",
+        "policy_version": "fixture-1",
+        "policy_digest": "e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d",
+        "watchdog_checked_at": "2026-10-05T12:31:38.407207+00:00",
+        "watchdog_healthy": false
+      }
+    ],
+    "current_eligible_caller_set": [],
+    "existing_populated_authority_source": "V043 immutable header identity_slots plus protected readiness and approved host incarnation; ADMIN can read existing records",
+    "caller_uuid_trusted": false,
+    "private_rehearsal_record_promoted_to_canonical_binding": false,
+    "proposed_SQL_API": "offline_watchdog_enroll_self() RETURNS text; no caller identity/target/path arguments; not installed",
+    "new_SQL_EXECUTE_required": true,
+    "new_SQL_EXECUTE_granted": false,
+    "future_caller_derivation": "Exact canonically bound four-purpose role OID/name set, live non-superuser attributes, no memberships; coverage follows SPEC18 for all bounded service transactions",
+    "zero_EXECUTE_alternative": "Passive authenticated server startup hook; identity initialization timing, pre-BEGIN coverage and canonical binding not proved",
+    "new_persistence_intrinsically_required": false,
+    "new_binding_provisioning_performed": false,
+    "trust_bridge": "Physical realization of existing SPEC18 independent trusted watchdog; final entrypoint/authorization contract unclosed"
+  },
+  "socket": {
+    "preferred": "PATHNAME_AF_UNIX_SOCK_SEQPACKET",
+    "proposed_directory": "/run/flooow-watchdog",
+    "owner_uid": 999,
+    "owner_gid": 999,
+    "directory_mode": "0700",
+    "socket_mode": "0600",
+    "abstract_rejected": "No filesystem permission control",
+    "application_or_host_socket_mounts_allowed": false,
+    "current_standalone_socket_shared_with_host": false,
+    "kernel_peer_anchor_required": true,
+    "kernel_message_anchor_required": true,
+    "production_mount_and_privilege_isolation_review": "NOT_RUN",
+    "unsupported_ABI": "DENY_ENROLLMENT_CLOSE_FDS_NO_SIGNAL"
+  },
+  "freshness": {
+    "watchdog_isolation": "SHORT_READ_COMMITTED_TRANSACTIONS",
+    "long_lived_REPEATABLE_READ": "FORBIDDEN",
+    "backend_status_local_cache": "CLEAR_BEFORE_EACH_FRESH_OBSERVATION",
+    "anchor_liveness": "POLL_BEFORE_AND_AFTER_CATALOG_BINDING; READABLE_MEANS_GONE",
+    "pre_action_authorization": "Separate current-incarnation/managed-slot/policy/recovery validation under existing administrative serialization; unimplemented"
+  },
+  "race_cases": [
+    {
+      "case": "A",
+      "boundary": "exit_before_self_open",
+      "safe_outcome": "Dead caller cannot execute syscall for later PID owner",
+      "status": "SOURCE"
+    },
+    {
+      "case": "B",
+      "boundary": "exit_after_open_before_send",
+      "safe_outcome": "No accepted enrollment; close local descriptors on exit",
+      "status": "SOURCE_DESIGN"
+    },
+    {
+      "case": "C",
+      "boundary": "exit_during_send",
+      "safe_outcome": "Queued fd remains A; reject dead anchor",
+      "status": "SOURCE_EARLY_EXIT_CORROBORATION"
+    },
+    {
+      "case": "D",
+      "boundary": "exit_after_receive",
+      "safe_outcome": "TARGET_ALREADY_GONE; close/remove; never PID reacquire",
+      "status": "STANDALONE_RUNTIME_PASS"
+    },
+    {
+      "case": "E",
+      "boundary": "reuse_before_DB_validation",
+      "safe_outcome": "Retained A never B; dead check denies",
+      "status": "KERNEL_SOURCE_REUSE_NOT_OBSERVED"
+    },
+    {
+      "case": "F",
+      "boundary": "reuse_after_DB_validation",
+      "safe_outcome": "Descriptor may signal only A or fail",
+      "status": "KERNEL_SOURCE_NO_DESTRUCTIVE_TEST"
+    },
+    {
+      "case": "G",
+      "boundary": "reconnect_replay",
+      "safe_outcome": "New epoch/challenge; peer/message/supplied anchors match",
+      "status": "DESIGN_NOT_TESTED"
+    },
+    {
+      "case": "H",
+      "boundary": "same_backend_duplicate",
+      "safe_outcome": "Idempotent same anchor; close extra fds",
+      "status": "DESIGN_NOT_TESTED"
+    },
+    {
+      "case": "I",
+      "boundary": "same_slot_new_backend",
+      "safe_outcome": "Bounded set of live anchors; no overwrite",
+      "status": "DESIGN_NOT_TESTED"
+    },
+    {
+      "case": "J",
+      "boundary": "incarnation_change",
+      "safe_outcome": "Invalidate and close all prior epoch enrollments",
+      "status": "DESIGN_NOT_TESTED"
+    }
+  ],
+  "binary_review": {
+    "pidfd_open_syscall_number_present": true,
+    "pidfd_send_signal_syscall_number_present": true,
+    "kill_symbol_present": false,
+    "sendmsg_present": true,
+    "recvmsg_present": true,
+    "fstat_present": true,
+    "scope": "CONTROLLED_STANDALONE_PROBE_NOT_POSTGRES_ENROLLMENT_EXTENSION"
+  },
+  "connection_lifetime": {
+    "one_enrollment_per": "PHYSICAL_BACKEND_NOT_TRANSACTION",
+    "required_before": "FIRST_GOVERNED_WORK",
+    "pooling_added": false,
+    "pooling_required_for_identity": false,
+    "production_overhead_measured": false,
+    "operational_pooling_need": "NOT_DEMONSTRATED"
+  },
+  "integrity": {
+    "fingerprint_pre": "d697579bb78f8ecffbeb1407a100a2ef400bebd761967bfa6af8059c1379632c",
+    "fingerprint_post": "d697579bb78f8ecffbeb1407a100a2ef400bebd761967bfa6af8059c1379632c",
+    "authority_state_equal": true,
+    "role_identity_attributes_memberships_ownership_ACL_defaultACL_policy_migrations_unchanged": true,
+    "tracked_files_unchanged": true,
+    "nine_prior_files_unchanged": true,
+    "container_stopped": true,
+    "plaintext_credential_files_erased": true,
+    "password_rotation_performed": false,
+    "fixture_installed": false,
+    "temporal_bounds_changed": false
+  },
+  "checkpoint": {
+    "commit_performed": false,
+    "push_performed": false,
+    "reason": "Section24 complete security proof PASS condition not satisfied; retained validated kernel evidence explicitly"
+  }
+}

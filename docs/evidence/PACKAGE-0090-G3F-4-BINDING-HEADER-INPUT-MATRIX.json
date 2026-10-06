@@ -1,0 +1,893 @@
+{
+  "gate": "G3F_4_CANONICAL_BINDING_PREREQUISITE_DATA_SCOPE_CLOSURE",
+  "baseline": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+  "decision": "HOLD",
+  "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+  "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+  "approval_artifact_sha256": "84a0afd98f68a25c360e7b3e2056e92c9c9d945f364bf9d8931a730908d752de",
+  "observed_at": "2026-10-05T20:20:30.703041+00:00",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+  "source_sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+  "spec": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+  "spec_sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+  "no_database_write": true,
+  "HEADER_REQUIRED_FIELDS": 40,
+  "canonical_framed_fields": 38,
+  "additional_stored_fields": [
+    "plan_fingerprint",
+    "canonical_manifest_bytes"
+  ],
+  "fields": [
+    {
+      "FIELD": "binding_schema_version",
+      "TYPE": "integer",
+      "SOURCE": "canonical SPEC0090 section4 + deployed codec version contract",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 1,
+      "source_status": "CLOSED_FIXED_CONTRACT",
+      "observed_value": 1,
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical SPEC0090 section4 + deployed codec version contract",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "binding_id",
+      "TYPE": "uuid",
+      "SOURCE": "MISSING exact independently allocated immutable PLAN_BINDING_ADMIN registration input.binding_id",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 2,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "MISSING exact independently allocated immutable PLAN_BINDING_ADMIN registration input.binding_id",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "deployment_id",
+      "TYPE": "uuid",
+      "SOURCE": "frozen_approval.identity.deployment_id",
+      "AUTHORITY": "TRUSTED_HOST_DEPLOYMENT_ADMIN",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 3,
+      "source_status": "CLOSED_APPROVED_IDENTITY",
+      "observed_value": "8f05fc47-d043-47c7-8130-c50890717f3e",
+      "value_absent_means": null,
+      "causal_chain": [
+        "frozen_approval.identity.deployment_id",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "deployment_incarnation_id",
+      "TYPE": "uuid",
+      "SOURCE": "frozen_approval.identity.incarnation_id",
+      "AUTHORITY": "TRUSTED_HOST_DEPLOYMENT_ADMIN",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 4,
+      "source_status": "CLOSED_APPROVED_IDENTITY",
+      "observed_value": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+      "value_absent_means": null,
+      "causal_chain": [
+        "frozen_approval.identity.incarnation_id",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "run_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.runId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 5,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.runId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "plan_id",
+      "TYPE": "uuid",
+      "SOURCE": "MISSING exact independently allocated immutable PLAN_BINDING_ADMIN registration input.plan_id",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 6,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "MISSING exact independently allocated immutable PLAN_BINDING_ADMIN registration input.plan_id",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "execution_plan_version",
+      "TYPE": "integer",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.version",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 7,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.version",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "organization_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.organizationId",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 8,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.organizationId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "manifest_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.manifestId",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 9,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.manifestId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "manifest_digest",
+      "TYPE": "bytea",
+      "SOURCE": "SHA256(exact canonical_manifest_bytes from SAME independently_supplied_original.manifest)",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": true,
+      "REQUIRED": true,
+      "canonical_tag": 10,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "SHA256(exact canonical_manifest_bytes from SAME independently_supplied_original.manifest)",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "canonical_manifest_hash",
+      "TYPE": "bytea",
+      "SOURCE": "SHA256(exact canonical_manifest_bytes from SAME independently_supplied_original.manifest)",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": true,
+      "REQUIRED": true,
+      "canonical_tag": 11,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "SHA256(exact canonical_manifest_bytes from SAME independently_supplied_original.manifest)",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "canonical_manifest_encoding_version",
+      "TYPE": "integer",
+      "SOURCE": "canonical SPEC0090 section4 + deployed codec version contract",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 12,
+      "source_status": "CLOSED_FIXED_CONTRACT",
+      "observed_value": 1,
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical SPEC0090 section4 + deployed codec version contract",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "mercado_livre_connection_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.mercadoLivreConnectionId",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 13,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.mercadoLivreConnectionId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "omie_connection_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.omieConnectionId",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 14,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.omieConnectionId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "marketplace_order_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.marketplaceOrderId",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 15,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.marketplaceOrderId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "source_order_reference",
+      "TYPE": "text",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.sourceOrderReference",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 16,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.sourceOrderReference",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "integration_reference",
+      "TYPE": "text",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.integrationReference",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 17,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.integrationReference",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "permission",
+      "TYPE": "text",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.permission",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 18,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.permission",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "reason",
+      "TYPE": "text",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.reason",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 19,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.reason",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "provenance",
+      "TYPE": "text",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.provenance",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 20,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.provenance",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "principal_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.principalId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 21,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.principalId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "credential_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.credentialId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 22,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.credentialId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "grant_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.grantId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 23,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.grantId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "decision_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.decisionId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 24,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.decisionId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "correlation_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.correlationId",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 25,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.correlationId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "principal_operation_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.principalOperationId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 26,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.principalOperationId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "credential_operation_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.initialCredentialOperationId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 27,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.initialCredentialOperationId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "grant_operation_id",
+      "TYPE": "uuid",
+      "SOURCE": "independently_supplied_OfflineFieldProofExecutionPlan.grantOperationId",
+      "AUTHORITY": "Existing pre-effect immutable execution-plan allocation; distinct nonnil IDs validated",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 28,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_OfflineFieldProofExecutionPlan.grantOperationId",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "issued_at",
+      "TYPE": "timestamp with time zone",
+      "SOURCE": "MISSING attributable immutable PLAN_BINDING_ADMIN binding-registration issuance instant (not preflight clock or host approval time)",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 29,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "MISSING attributable immutable PLAN_BINDING_ADMIN binding-registration issuance instant (not preflight clock or host approval time)",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "valid_from",
+      "TYPE": "timestamp with time zone",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.approvalWindowStart",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 30,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.approvalWindowStart",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "expires_at",
+      "TYPE": "timestamp with time zone",
+      "SOURCE": "independently_supplied_original.SignedApprovalAttestation.manifest.approvalWindowEnd",
+      "AUTHORITY": "Existing domain approval/signer lineage, independently of host approval",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 31,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "independently_supplied_original.SignedApprovalAttestation.manifest.approvalWindowEnd",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "identity_slots",
+      "TYPE": "bytea",
+      "SOURCE": "canonical_installed_role_allocation verified against live pg_roles",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": true,
+      "REQUIRED": true,
+      "canonical_tag": 32,
+      "source_status": "CLOSED_VERIFIED_ALLOCATION",
+      "observed_value": [
+        {
+          "slot": "AUDITOR",
+          "role_name": "g3f4_auditor_cc2941797db3",
+          "role_oid": 19616
+        },
+        {
+          "slot": "VERIFIER",
+          "role_name": "g3f4_verifier_cc2941797db3",
+          "role_oid": 19621
+        },
+        {
+          "slot": "ISSUER",
+          "role_name": "g3f4_issuer_cc2941797db3",
+          "role_oid": 19624
+        },
+        {
+          "slot": "EXECUTOR",
+          "role_name": "g3f4_executor_cc2941797db3",
+          "role_oid": 19631
+        }
+      ],
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical_installed_role_allocation verified against live pg_roles",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "offline_surface_version",
+      "TYPE": "text",
+      "SOURCE": "canonical SPEC0090 section4 + deployed codec version contract",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 33,
+      "source_status": "CLOSED_FIXED_CONTRACT",
+      "observed_value": "0090-v1",
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical SPEC0090 section4 + deployed codec version contract",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "deadline_policy_version",
+      "TYPE": "text",
+      "SOURCE": "frozen_approval.target.policy.version",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 34,
+      "source_status": "CLOSED_APPROVED_POLICY",
+      "observed_value": "fixture-1",
+      "value_absent_means": null,
+      "causal_chain": [
+        "frozen_approval.target.policy.version",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "deadline_policy_digest",
+      "TYPE": "bytea",
+      "SOURCE": "frozen_approval.target.policy.digest",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 35,
+      "source_status": "CLOSED_APPROVED_POLICY",
+      "observed_value": "e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d",
+      "value_absent_means": null,
+      "causal_chain": [
+        "frozen_approval.target.policy.digest",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "admission_contract_version",
+      "TYPE": "text",
+      "SOURCE": "canonical SPEC0090 section4 + deployed codec version contract",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 36,
+      "source_status": "CLOSED_FIXED_CONTRACT",
+      "observed_value": "1",
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical SPEC0090 section4 + deployed codec version contract",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "delivery_contract_version",
+      "TYPE": "text",
+      "SOURCE": "canonical SPEC0090 section4 + deployed codec version contract",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 37,
+      "source_status": "CLOSED_FIXED_CONTRACT",
+      "observed_value": "1",
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical SPEC0090 section4 + deployed codec version contract",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "reconciliation_contract_version",
+      "TYPE": "text",
+      "SOURCE": "canonical SPEC0090 section4 + deployed codec version contract",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": false,
+      "REQUIRED": true,
+      "canonical_tag": 38,
+      "source_status": "CLOSED_FIXED_CONTRACT",
+      "observed_value": "1",
+      "value_absent_means": null,
+      "causal_chain": [
+        "canonical SPEC0090 section4 + deployed codec version contract",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "plan_fingerprint",
+      "TYPE": "bytea",
+      "SOURCE": "SHA256(SPEC0090 section4 exact domain-separated38-tag frame)",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": true,
+      "REQUIRED": true,
+      "canonical_tag": null,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "SHA256(SPEC0090 section4 exact domain-separated38-tag frame)",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    },
+    {
+      "FIELD": "canonical_manifest_bytes",
+      "TYPE": "bytea",
+      "SOURCE": "ApprovalManifestCanonicalCodec.canonicalManifestBytes(SAME independently_supplied_original.manifest)",
+      "AUTHORITY": "PLAN_BINDING_ADMIN validates independent source; service cannot authorize field",
+      "CALLER_CONTROLLED": "NO_AUTHORITY_FROM_OPERATIONAL_CALLER; transport does not authorize",
+      "IMMUTABLE": true,
+      "DERIVED": true,
+      "REQUIRED": true,
+      "canonical_tag": null,
+      "source_status": "UNRESOLVED_CANONICAL_INSTANCE",
+      "observed_value": null,
+      "value_absent_means": "evidence unresolved; no insert payload/placeholder",
+      "causal_chain": [
+        "ApprovalManifestCanonicalCodec.canonicalManifestBytes(SAME independently_supplied_original.manifest)",
+        "trusted independent validation",
+        "immutable ADMIN registration"
+      ],
+      "validation": "All local constraints retained in dependency graph; canonical encoding, original-manifest equality, exact allocation/policy/host, plan ID validation and38-tag recomputation remain mandatory"
+    }
+  ],
+  "HEADER_COMPLETE_INPUTS_CLOSED": "NO",
+  "unresolved_fields": [
+    "binding_id",
+    "run_id",
+    "plan_id",
+    "execution_plan_version",
+    "organization_id",
+    "manifest_id",
+    "manifest_digest",
+    "canonical_manifest_hash",
+    "mercado_livre_connection_id",
+    "omie_connection_id",
+    "marketplace_order_id",
+    "source_order_reference",
+    "integration_reference",
+    "permission",
+    "reason",
+    "provenance",
+    "principal_id",
+    "credential_id",
+    "grant_id",
+    "decision_id",
+    "correlation_id",
+    "principal_operation_id",
+    "credential_operation_id",
+    "grant_operation_id",
+    "issued_at",
+    "valid_from",
+    "expires_at",
+    "plan_fingerprint",
+    "canonical_manifest_bytes"
+  ],
+  "no_source_self_authorizes": true,
+  "registered_header_rows_observed": 0,
+  "search_scope": "Canonical source, strict input loader, all existing Package0090 artifacts/fixtures and current disposable control catalog; not a claim about unavailable external inputs",
+  "evidence_rejected": [
+    {
+      "artifact": "PACKAGE-0090-G3F-3B-CODEC-GOLDENS.json",
+      "reason": "VECTOR1/2/3 signed_acceptance_proof=false; synthetic IDs/roles, not approved complete registration"
+    },
+    {
+      "artifact": "PACKAGE-0090-S02-ORIGINAL-INPUT-GOLDENS.json",
+      "reason": "Actual isolated A/B SignedApprovalAttestation examples, but TEST_ONLY mocked JDBC/RFC8032 seeds; expired historical window and no approved matching complete registration. New host incarnation alone does not invalidate identical domain signature."
+    },
+    {
+      "artifact": "historical negative timing readiness/key",
+      "reason": "Expressly prohibited pair; x01 history/ACL not canonical manifest source"
+    }
+  ],
+  "next_input_closure": "Freeze one complete non-secret original/manifest + execution-plan + ADMIN binding/plan IDs/issuance/generation, with attributable existing domain authority and exact header mapping. Validate signer lineage/time and original byte equality. Do not generate these values merely to satisfy SQL."
+}

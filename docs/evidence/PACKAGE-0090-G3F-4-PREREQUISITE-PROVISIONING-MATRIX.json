@@ -1,0 +1,292 @@
+{
+  "gate": "G3F_4_CANONICAL_BINDING_PREREQUISITE_DATA_SCOPE_CLOSURE",
+  "baseline": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+  "decision": "HOLD",
+  "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+  "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+  "approval_artifact_sha256": "84a0afd98f68a25c360e7b3e2056e92c9c9d945f364bf9d8931a730908d752de",
+  "observed_at": "2026-10-05T20:20:30.703041+00:00",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+  "source_sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+  "spec": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+  "spec_sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+  "no_database_write": true,
+  "minimum_new_row_set": {
+    "offline_readiness": 1,
+    "offline_preflight_key": 1,
+    "offline_expected_signed_attestation": 1,
+    "offline_binding_header": 1,
+    "offline_binding_lifecycle": 1,
+    "offline_attempt_pointer": 1,
+    "offline_delivery": 1,
+    "offline_reconciliation": 1,
+    "offline_ceremony_result": 1,
+    "identity_slot_SQL_rows": 0,
+    "embedded_identity_slots": 4,
+    "offline_deadline_policy": 0,
+    "offline_attempt": 0,
+    "offline_execution": 0,
+    "offline_admission": 0,
+    "offline_stage_receipt": 0,
+    "offline_diagnostic_evidence": 0
+  },
+  "minimum_new_SQL_row_count": 9,
+  "SQL_FK_only_minimum": 4,
+  "why_five_more": "SPEC0090 section2 explicitly initializes records; missing lifecycle/pointer/delivery/reconciliation/ceremony is not initial state. No attempt/execution/admission/stage_receipt row before claim/effect.",
+  "required_rows": [
+    {
+      "object": "public.offline_readiness",
+      "new_rows": 1,
+      "classification": "READINESS_RUNTIME_STATE",
+      "initial_state": {
+        "state": "NOT_READY",
+        "watchdog_healthy": false,
+        "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+        "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f"
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_preflight_key",
+      "new_rows": 1,
+      "classification": "CRYPTOGRAPHIC_KEY_MATERIAL_METADATA",
+      "initial_state": {
+        "key_state": "ACTIVE",
+        "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+        "material": "32 fresh independent CSPRNG bytes, private; NOT GENERATED",
+        "lineage_id": "fresh nonnil per-incarnation lineage, NOT ALLOCATED"
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:974",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_expected_signed_attestation",
+      "new_rows": 1,
+      "classification": "ATTESTATION",
+      "initial_state": "Requires complete canonically sourced input; absent, no fabricated row",
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:2474",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_binding_header",
+      "new_rows": 1,
+      "classification": "BINDING",
+      "initial_state": "Requires complete canonically sourced input; absent, no fabricated row",
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_binding_lifecycle",
+      "new_rows": 1,
+      "classification": "READINESS_RUNTIME_STATE",
+      "initial_state": {
+        "state": "REGISTERED",
+        "lock_token": 0
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_attempt_pointer",
+      "new_rows": 1,
+      "classification": "READINESS_RUNTIME_STATE",
+      "initial_state": {
+        "current_attempt_id": null,
+        "claim_permitted": false,
+        "lock_token": 0,
+        "generation": "positive trusted ADMIN allocation NOT RESOLVED"
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_delivery",
+      "new_rows": 1,
+      "classification": "READINESS_RUNTIME_STATE",
+      "initial_state": {
+        "state": "NOT_CREATED",
+        "lock_token": 0,
+        "generation": "same approved generation as pointer, NOT RESOLVED",
+        "all_nullable_columns": null
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_reconciliation",
+      "new_rows": 1,
+      "classification": "READINESS_RUNTIME_STATE",
+      "initial_state": {
+        "state": "NOT_STARTED",
+        "evidence_digest": null,
+        "recorded_at": null
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_ceremony_result",
+      "new_rows": 1,
+      "classification": "READINESS_RUNTIME_STATE",
+      "initial_state": {
+        "result": "NONE",
+        "evidence_digest": null,
+        "recorded_at": null
+      },
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    },
+    {
+      "object": "public.offline_deadline_policy",
+      "new_rows": 0,
+      "classification": "POLICY",
+      "initial_state": "Requires complete canonically sourced input; absent, no fabricated row",
+      "creation_path": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+      "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:15",
+      "data_instance_provisionable": false
+    }
+  ],
+  "existing_external_prerequisites": [
+    {
+      "classification": "APPROVAL",
+      "object": "immutable approved host artifact",
+      "new_rows": 0
+    },
+    {
+      "classification": "IDENTITY",
+      "object": "four installed service role OID/name pairs",
+      "new_rows": 0
+    },
+    {
+      "classification": "AUDIT/EVIDENCE",
+      "object": "captured nonsecret catalog/history/ACL manifests and this gate evidence",
+      "new_SQL_rows": 0
+    }
+  ],
+  "key": {
+    "KEY_OBJECT": "public.offline_preflight_key",
+    "KEY_PURPOSE": "HMAC_SHA256_PREFLIGHT_RECEIPT_ONLY",
+    "KEY_IDENTITY": "(approved incarnation_id, fresh lineage_id, positive-u32 key_version)",
+    "KEY_ORIGIN": "Existing SPEC0090 section22.3 trusted ADMIN-approved independent CSPRNG",
+    "KEY_PROVISIONING_PATH": "EXISTING_GOVERNED_PATH",
+    "KEY_PROVISIONING_AUTHORITY": "Existing trusted ADMIN direct private control DML, no new owner/service authority",
+    "material_kind": "ACTUAL_32_BYTE_CRYPTOGRAPHIC_MATERIAL + PRIVATE_FINGERPRINT_METADATA; not signing key",
+    "existing_key_reuse": "NO; only observed material belongs to historical expressly excluded incarnation",
+    "KEY_PREREQUISITE_CLOSED": "YES_CONTRACT_AUTHORITY_ONLY; ROW_NOT_PROVISIONED",
+    "generation_performed": false,
+    "secret_capture_performed": false,
+    "approved_incarnation_row_count": 0
+  },
+  "original_attestation": {
+    "ORIGINAL_ATTESTATION_OBJECT": "Independent SignedApprovalAttestation; registered commitment public.offline_expected_signed_attestation",
+    "ORIGINAL_ATTESTATION_IDENTITY": "No attestation_id column. SQL PK=binding_id; original tuple=(canonical manifest digest, Ed25519, signerKeyId, signerKeyFingerprint, exact64signaturebytes)",
+    "ORIGINAL_ATTESTATION_SOURCE": "SPEC0090 original-input amendment + SPEC0088/ApprovalManifest/ApprovalAttestationCanonicalCodec; independently supplied original, never accepted/signer/snapshot reconstruction",
+    "ORIGINAL_ATTESTATION_AUTHORITY": "Existing governed domain approval/signing and authorized signer lineage, not TRUSTED_HOST_DEPLOYMENT_ADMIN",
+    "ORIGINAL_ATTESTATION_CREATION_PATH": "Existing supplied-original parsing/canonicalization + trusted ADMIN header-then-expected plain INSERT atomic registration; no approved manufacture/signing ceremony executed",
+    "ATTESTATION_PROVISIONING_PATH": "EXISTING_GOVERNED_PATH_FOR_REGISTRATION; canonical original input missing",
+    "ORIGINAL_ATTESTATION_EXPECTED_CONTEXT": "Exact manifest22fields/retainedbytes/digest + algorithm/signingkeyID/fingerprint/signature; expected commitment adds exact binding_id under separate domain",
+    "signature_directly_binds": [
+      "canonical domain approval manifest22fields",
+      "Ed25519 algorithm",
+      "domain signerKeyId",
+      "domain signerKeyFingerprint",
+      "manifestDigest"
+    ],
+    "signature_does_not_directly_bind": [
+      "deployment_id",
+      "incarnation_id",
+      "database",
+      "host",
+      "preflight_HMAC_key",
+      "deadline_policy",
+      "runtime_role_allocation",
+      "header plan/binding identity"
+    ],
+    "binding_vs_signature": "SQL commitment binds original to binding_id; immutable header carries separate host/policy/roles/plan; neither host approval nor matching FK proves domain authority",
+    "new_incarnation_alone_requires_new_signature": false,
+    "ATTESTATION_REUSE_ALLOWED": "UNDETERMINED_EXACT_CONTEXT_MISSING",
+    "requested_binary_verdict_not_asserted": "Neither YES_EXACT_CONTEXT_MATCH nor NO_NEW_ATTESTATION_REQUIRED is established: no complete proposed domain input exists. Fail-closed rule forbids inferring equality or mandatory fresh signature from a host-incarnation change. Historical fixture reuse is denied for this proposed registration.",
+    "historical_reuse_for_current_gate": "DENY_NO_EXACT_CONTEXT_PROOF",
+    "new_expected_commitment_row_required": true,
+    "ORIGINAL_ATTESTATION_PREREQUISITE_CLOSED": "NO_CANONICAL_INSTANCE; SOURCE_AND_REGISTRATION_CONTRACT_TRACED",
+    "approved_incarnation_expected_row_count": 0,
+    "fresh_signing_ceremony_authorized_in_this_gate": false
+  },
+  "READINESS_ROW_REQUIRED": "YES",
+  "READINESS_CREATE_PATH": "EXISTING_GOVERNED_PATH_DIRECT_TRUSTED_ADMIN_INSERT",
+  "READINESS_CREATE_AUTHORITY": "Existing trusted ADMIN; no grant/role/SQL writer required",
+  "READINESS_INITIAL_STATE_FAIL_CLOSED": "YES_CONTRACT_LEGAL_NOT_READY_FALSE",
+  "readiness_additional_required_inputs": [
+    "approved pair",
+    "matching fresh active-key version",
+    "fixture-1 version/digest",
+    "exact canonical nonempty history_manifest and acl_manifest from observed approved catalog",
+    "attributable finite watchdog check instant with unhealthy=false operational verdict; no fabricated test instant"
+  ],
+  "initial_ready_required": false,
+  "provisioning_paths": {
+    "readiness": "EXISTING_GOVERNED_PATH",
+    "key": "EXISTING_GOVERNED_PATH",
+    "attestation_registration": "EXISTING_GOVERNED_PATH",
+    "header": "EXISTING_GOVERNED_PATH",
+    "embedded_slots": "EXISTING_GOVERNED_PATH",
+    "initial_control_state": "EXISTING_GOVERNED_PATH"
+  },
+  "ALL_REQUIRED_PROVISIONING_PATHS": "EXISTING_GOVERNED_PATH_FOR_DATA_CREATION; INDEPENDENT_COMPLETE_INPUT_UNRESOLVED",
+  "NEW_DATABASE_ROLE_REQUIRED": "NO_FOR_EXISTING_REGISTRATION_GRAPH",
+  "NEW_DATABASE_PRIVILEGE_REQUIRED": "NO_FOR_EXISTING_REGISTRATION_GRAPH",
+  "NEW_SERVICE_PRIVILEGE_REQUIRED": "NO_FOR_EXISTING_REGISTRATION_GRAPH",
+  "NEW_SQL_FUNCTION_REQUIRED": "NO_FOR_EXISTING_REGISTRATION_GRAPH",
+  "NEW_SIGNING_KEY_REQUIRED": "NO_FOR_EXISTING_REGISTRATION_GRAPH",
+  "NEW_APPROVAL_AUTHORITY_REQUIRED": "NO_FOR_EXISTING_REGISTRATION_GRAPH",
+  "no_new_authority_in_graph": true,
+  "conditional_execution_predicate": {
+    "graph_complete": true,
+    "existing_data_creation_paths": true,
+    "no_new_authority_in_graph": true,
+    "all_prerequisite_identities_canonically_sourced": false,
+    "authorized_to_execute_now": false
+  },
+  "actual_new_row_set": {
+    "offline_readiness": 0,
+    "offline_preflight_key": 0,
+    "offline_expected_signed_attestation": 0,
+    "offline_binding_header": 0,
+    "offline_binding_lifecycle": 0,
+    "offline_attempt_pointer": 0,
+    "offline_delivery": 0,
+    "offline_reconciliation": 0,
+    "offline_ceremony_result": 0,
+    "identity_slot_SQL_rows": 0,
+    "embedded_identity_slots": 0,
+    "offline_deadline_policy": 0,
+    "offline_attempt": 0,
+    "offline_execution": 0,
+    "offline_admission": 0,
+    "offline_stage_receipt": 0,
+    "offline_diagnostic_evidence": 0
+  },
+  "actual_SQL_insert_count": 0,
+  "causal_order": [
+    "Verify immutable approval, target, exact role allocation, fixture-1 and complete canonical original/plan/registration input before BEGIN.",
+    "BEGIN one reviewed ADMIN transaction; no SET ROLE, grants, repair, UPSERT or function creation.",
+    "Insert NOT_READY readiness and fresh ACTIVE preflight key in either order in the same transaction: both mutual FKs INITIALLY DEFERRED. Use canonical nonempty observed history/ACL bytes and actual administrative failed/unqualified watchdog observation, never x01 placeholders.",
+    "Insert complete header after readiness exists (header FK1 immediate; fixture-1 already exists).",
+    "Insert expected original attestation after header (forward FK and trigger require header immediately; reverse FK deferred to commit).",
+    "Insert lifecycle REGISTERED, pointer no attempt/claim false, delivery NOT_CREATED, reconciliation NOT_STARTED and ceremony NONE after header. Same approved positive ADMIN generation in pointer/delivery; no invented default. Four identity slots are already in header.identity_slots, not extra SQL rows.",
+    "Validate deferred constraints and full canonical context; commit only complete permitted graph, otherwise rollback all. No activation/READY, execution, admission, effects or diagnostic rows."
+  ],
+  "approved_pair_usage": "Only frozen pair permitted where required; historical negative rows retained as evidence, never copied into proposed row set",
+  "ALL_PREREQUISITES_MATCH_APPROVED_DEPLOYMENT": "PROPOSED_HOST_COORDINATES_YES; COMPLETE_INSTANCE_UNRESOLVED",
+  "ALL_PREREQUISITES_MATCH_APPROVED_INCARNATION": "PROPOSED_HOST_COORDINATES_YES; COMPLETE_INSTANCE_UNRESOLVED"
+}

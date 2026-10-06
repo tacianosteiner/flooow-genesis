@@ -1,0 +1,144 @@
+{
+  "gate": "G3F_4_BINDING_HEADER_INPUT_CONTRACT_CLOSURE",
+  "decision": "HOLD",
+  "baseline": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+  "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+  "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+  "approval_artifact_sha256": "84a0afd98f68a25c360e7b3e2056e92c9c9d945f364bf9d8931a730908d752de",
+  "source_contracts": [
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line": null
+    },
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+      "line": null
+    },
+    {
+      "path": "docs/specifications/SPEC-0088-s2a-canonical-approval-manifest-and-verification-contract.md",
+      "sha256": "f19670eded166531dfe80c310148538d123a1e683261f175bb1863d4e09e93a5",
+      "line": null
+    },
+    {
+      "path": "docs/specifications/SPEC-0089-s2a-attestation-consumption-and-attested-command-authority.md",
+      "sha256": "70beeaaa86075ea31795660e521c1fff9b5c364e9ff3477281de6070a9fd9566",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalManifest.kt",
+      "sha256": "a18349903cc84641b4e41f05ae40a1453cae3f09a0a1e3985558dbcc9bf8f5ea",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalAttestationCanonicalCodec.kt",
+      "sha256": "74763cd4b0c3ab49b3f2c882f724df3ec10561f9aaa452c7b29fd1d6a943b26d",
+      "line": null
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+      "sha256": "e1abfb285e59bd3d5926ecb0e9be1fd21a9eef363ef478120cb0fc40908dcd80",
+      "line": null
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofInput.kt",
+      "sha256": "553f04d703f3d0d8519009e29bc02c7b85088d3674ddefc3aa2c03bba7daeeee",
+      "line": null
+    },
+    {
+      "path": "docs/adr/ADR-0088-s2a-signed-approval-attestation-boundary.md",
+      "sha256": "190163409415eb9a7598b707c71ea0312d6552a26c5ae950f1e9750a288438b4",
+      "line": null
+    },
+    {
+      "path": "docs/adr/ADR-0089-s2a-attestation-consumption-and-attested-command-authority.md",
+      "sha256": "4c1641831d1017ca8f0bfa3d36e7afdb0c8f47d371f0229741f0c530ab52387c",
+      "line": null
+    },
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9",
+      "line": null
+    }
+  ],
+  "scope": "CONTRACT_ONLY_READ_ONLY_NO_CANONICAL_VALUES_CREATED",
+  "observed_database_time": "2026-10-05T21:05:48.645799+00:00",
+  "observed_time_is_not_header_issued_at": true,
+  "TIMESTAMP_INPUTS_CLOSED": "NO",
+  "header_timestamp_count": 3,
+  "timestamps": [
+    {
+      "TIMESTAMP_FIELD": "issued_at",
+      "SEMANTIC_EVENT": "Binding-header issuance metadata; exact ADMIN event not frozen",
+      "classification": "ADMIN_ISSUANCE_TIME_CANDIDATE_NOT_NORMATIVELY_FULLY_DEFINED",
+      "CLOCK_AUTHORITY": "UNRESOLVED",
+      "CANONICAL_SOURCE": "UNRESOLVED;VALUE_PENDING_CANONICAL_CEREMONY",
+      "REPRODUCIBLE": "NO_CURRENT_INSTANCE_OR_FULLY_DEFINED_EVENT",
+      "SIGNED_DOMAIN_MEMBER": false,
+      "constraints": "finite microsecond instant; DDL issued_at<expires_at; M additionally issued_at<=valid_from; no NOW/default assignment"
+    },
+    {
+      "TIMESTAMP_FIELD": "valid_from",
+      "SEMANTIC_EVENT": "Binding mutation-validity lower bound, distinct from signed approvalWindowStart",
+      "classification": "VALID_FROM",
+      "CLOCK_AUTHORITY": "UNRESOLVED_SELECTION_SOURCE;DB_CLOCK_FOR_ELIGIBILITY_COMPARISON_ONLY",
+      "CANONICAL_SOURCE": "Exact reviewed ADMIN binding-window source unresolved; do not assert equality to signed window",
+      "REPRODUCIBLE": "NO",
+      "SIGNED_DOMAIN_MEMBER": false,
+      "constraints": "finite; DDL valid_from<expires_at; M requires issued_at<=valid_from; independent domain approval window/current policy still required"
+    },
+    {
+      "TIMESTAMP_FIELD": "expires_at",
+      "SEMANTIC_EVENT": "Immutable binding validity upper bound, distinct from signed approvalWindowEnd and preflight expiry",
+      "classification": "VALID_UNTIL",
+      "CLOCK_AUTHORITY": "UNRESOLVED_SELECTION_SOURCE;DB_CLOCK_FOR_ELIGIBILITY_COMPARISON_ONLY",
+      "CANONICAL_SOURCE": "Exact reviewed ADMIN binding-window source unresolved; do not copy fixture or derive from current time",
+      "REPRODUCIBLE": "NO",
+      "SIGNED_DOMAIN_MEMBER": false,
+      "constraints": "finite; policy BINDING_VALIDITY bounds duration; independent canonical authority windows bound effect/admission"
+    }
+  ],
+  "ADMIN_ISSUED_AT_FIELD": "public.offline_binding_header.issued_at",
+  "ADMIN_ISSUED_AT_EVENT": "UNRESOLVED_EXACT_BINDING_ISSUANCE_EVENT;VALUE_PENDING_CANONICAL_CEREMONY",
+  "ADMIN_ISSUED_AT_CLOCK_AUTHORITY": "UNRESOLVED_NOT_PREFLIGHT_CLOCK_RULE",
+  "ADMIN_ISSUED_AT_CANONICAL_SOURCE": "OPEN_NO_CANONICAL_EVENT_ARTIFACT",
+  "other_instants_not_header_sources": [
+    "Host approval created_at/approved_at",
+    "Expected-input signature has no signed signing-time field",
+    "s2a accepted verified_at/recorded_at",
+    "Readiness watchdog_checked_at",
+    "Policy effective_from",
+    "Transaction/DB commit time",
+    "Preflight receipt Q-issued_at and Q-derived expires_at"
+  ],
+  "preflight_rule_not_header_rule": "SPEC0090 21.2/21.3 clock_timestamp()+explicit policy TTL applies nine-tag HMAC preflight receipt only, not header issuance or binding window",
+  "signed_window_fields": [
+    "approvalWindowStart",
+    "approvalWindowEnd"
+  ],
+  "signature_time_not_present": true,
+  "source_evidence": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+      "line": 588
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line": 573
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line": 8498
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalAttestationCanonicalCodec.kt",
+      "sha256": "74763cd4b0c3ab49b3f2c882f724df3ec10561f9aaa452c7b29fd1d6a943b26d",
+      "line": 32
+    }
+  ],
+  "no_timestamp_created": true
+}

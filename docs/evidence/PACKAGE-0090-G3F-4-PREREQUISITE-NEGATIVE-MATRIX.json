@@ -1,0 +1,112 @@
+{
+  "gate": "G3F_4_CANONICAL_BINDING_PREREQUISITE_DATA_SCOPE_CLOSURE",
+  "baseline": "401a5e313efbec9a4100af8b6b6e237fffb4ca38",
+  "decision": "HOLD",
+  "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+  "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+  "approval_artifact_sha256": "84a0afd98f68a25c360e7b3e2056e92c9c9d945f364bf9d8931a730908d752de",
+  "observed_at": "2026-10-05T20:20:30.703041+00:00",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+  "source_sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+  "spec": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+  "spec_sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+  "no_database_write": true,
+  "PREREQUISITE_NEGATIVE_MATRIX": "PASS_DESIGN",
+  "runtime_result": "NOT_RUN_HOLD_CANONICAL_INPUT_MISSING",
+  "cases": [
+    {
+      "case": "wrong deployment",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Approval/header/readiness exact pair check before BEGIN; SQL lacks composite deployment FK, so referential success insufficient",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong incarnation",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Exact frozen incarnation plus readiness/key/host marker review and header FK1; no reassignment",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "old timing fixture deployment",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Reject prohibited historical pair, independent approved-host input check",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "old timing fixture incarnation",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Reject historical readiness/key lineage and negative placeholder manifests",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong key",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Exact fresh-incarnation lineage/version/CSPRNG/no-reuse proof and mutual FK; HMAC key is separate from domain signer key",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong attestation",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Compare SAME original manifest/digest/signature tuple; commitment guard rejects inconsistent tuple; cryptographic/source proof additionally required",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "foreign attestation",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Compare all signed manifest economic/governance/context fields and authorized signer lineage before registration",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "stale attestation",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Existing domain authority/validity/revocation and bound-time policy; do not extend signed windows. Expired data can be retained immutably but cannot establish current operational eligibility.",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong policy",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Exact independently approved fixture-1/version/digest/canonical29fieldbytes; FK alone insufficient",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong database",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Verify g3f4 OID16384 + cluster system identifier and exact host/image/volume against frozen artifact before transaction",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong allocation digest",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Recompute canonical installed allocation digest and exact four live OID/name/attribute/membership pairs; do not infer from header",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "wrong header field source",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Reject unapproved/fixture/self-derived/convenient values; every40field must map to independent canonical source",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    },
+    {
+      "case": "missing required prerequisite",
+      "expected": "REJECT_NO_INVALID_ROWS_SURVIVE",
+      "enforcement": "Fail preflight source review; reject missing immediate/deferred FK target or missing explicitly initialized state; force all deferred checks before rollback",
+      "runtime_status": "NOT_RUN",
+      "test_design": "Once a canonical valid baseline exists, independently mutate only this source/context, verify rejection at its specified layer; run within a transaction/savepoint, force deferred constraints where applicable, unconditionally rollback and compare nonsecret complete-data fingerprint. Host-source checks must be tested outside SQL too; no claim every wrong value is a DDL error."
+    }
+  ],
+  "case_count": 13,
+  "no_fake_runtime_PASS": true,
+  "cleanup_required": "Rollback every test, including failures; no altered approval artifact, signer key creation, READY or temporal changes."
+}
