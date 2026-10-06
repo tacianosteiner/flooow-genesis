@@ -1,0 +1,1079 @@
+{
+  "gate": "G3F_4_FINAL_CEREMONY_RECOVERY_CLOSURE",
+  "decision": "PASS_DESIGN",
+  "baseline": "05fc44e474aa3a3ad1a461912d56b0196e7150d0",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "scope": "DESIGN_REVIEW_ONLY_ISOLATED_REHEARSAL_NO_RUNTIME_AUTHORIZATION",
+  "UUID_values_generated": 0,
+  "key_generation": 0,
+  "signature_count": 0,
+  "DB_mutations": 0,
+  "recovery_writes": 0,
+  "container_started": false,
+  "READINESS_READY": "NO",
+  "WATCHDOG_OPERATIONAL": "NO",
+  "SESSION_ADMISSION": "NO",
+  "WATCHDOG_DEPLOYMENT_HIGH": "OPEN",
+  "G3F4_H01": "OPEN",
+  "G3F_4": "HOLD",
+  "HEADER_FIELD_COUNT": 40,
+  "HEADER_CONTRACTS_CLOSED": 37,
+  "HEADER_STILL_OPEN": [
+    "issued_at",
+    "valid_from",
+    "expires_at"
+  ],
+  "source_storage_fingerprint": "4e78b3ec645685d88325e1ad6ca104bfc6e3698a23d652c2fd07fe3c804b14fb",
+  "frozen_scope": {
+    "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+    "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+    "organization": "2fe2d63f-272e-45c9-abfd-247e69fb7a11",
+    "evidence_binding_fingerprint": "4e78b3ec645685d88325e1ad6ca104bfc6e3698a23d652c2fd07fe3c804b14fb",
+    "permission": "TRANSACTION_IDENTITY_DECISION_WRITE",
+    "environment": "G3F4_ISOLATED_DISPOSABLE_REHEARSAL_ONLY",
+    "complete_header_context": "All38 source fields plus retained canonical bytes/fingerprint; time fields remain open, no placeholder plan/header materialized."
+  },
+  "authority": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+  "runtime_evidence_scope": "No current DB snapshot. Previously captured source/domain/runtime state is historical evidence, not a new runtime or timing claim.",
+  "FINAL_CEREMONY_PHASES": [
+    {
+      "PHASE": "A",
+      "NAME": "Preflight validation",
+      "DURABLE_WRITE": "NO",
+      "SECRET_EXISTS": "NO signer private key",
+      "RETRYABLE": "Read-only validation; STOP until time/window/watchdog and complete inputs separately close",
+      "AUTHORITY_CHANGE": "NONE",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Verify immutable deployment approval, frozen domain allocation/source fingerprint, exact four login slots, version-pinned policy/history/ACL and 37 closed header contracts. Recovery disposition for previous roots must be proven first. No operational READY."
+    },
+    {
+      "PHASE": "B",
+      "NAME": "Final identity allocation",
+      "DURABLE_WRITE": "NO DB write; existing nonsecret immutable ceremony-input custody",
+      "SECRET_EXISTS": "NO signer private key",
+      "RETRYABLE": "Never regenerate a subset. Before effects only an exact still-running preparation can retain the entire root. Failed preparation is abandoned before a new complete set.",
+      "AUTHORITY_CHANGE": "NONE; reservations do not issue credentials or grants",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Use prior FINAL_CEREMONY_IDENTITY_ALLOCATION: ten independent identities plus existing governed manifest/correlation and signer allocations. Freeze public scope/IDs before effects; no extra recovery/attempt UUID."
+    },
+    {
+      "PHASE": "C",
+      "NAME": "Ephemeral signer preparation and staged canonical governance",
+      "DURABLE_WRITE": "Two uncommitted V040 public rows inside T_REG only",
+      "SECRET_EXISTS": "One process-local signer private key until E; public SPKI/lineage only in DB",
+      "RETRYABLE": "Abort uncommitted root as a unit; any possibly committed write requires authoritative query",
+      "AUTHORITY_CHANGE": "ACTIVE key + ENABLED bounded authority staged; become durable only with entire registration",
+      "COMMIT_BOUNDARY": "T_REG shared with F; no C-only commit",
+      "OPERATION": "After A/B and future temporal closure, BEGIN T_REG on the existing trusted ADMIN connection; immediately acquire existing organization/key/authority-scope locks in canonical order before key generation or writes. Obtain approved DB clock inputs, generate one ephemeral Ed25519 key, validate public SPKI and independently governed bounded authority; call existing V040 canonical append functions on that same connection (locks are reentrant). Save public semantic inputs in existing frozen ceremony-input context before first write. No calls to the separate-connection Kotlin convenience adapters."
+    },
+    {
+      "PHASE": "D",
+      "NAME": "Manifest materialization",
+      "DURABLE_WRITE": "NO additional durable effect; T_REG remains open",
+      "SECRET_EXISTS": "Signer private key in memory",
+      "RETRYABLE": "Abort/fresh entire root; no timestamp substitution or renewal",
+      "AUTHORITY_CHANGE": "NONE",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Encode exact existing 22-field ApprovalManifest and derived digest/preimage from actual allocated identities, source evidence and future-approved DB-derived window. Timestamp mapping is not selected by this gate."
+    },
+    {
+      "PHASE": "E",
+      "NAME": "One signature and independent local verification",
+      "DURABLE_WRITE": "NO additional DB effect; retain public original only in existing ceremony-input context",
+      "SECRET_EXISTS": "Signer private key through single SIGN; destroy before F after local verification completes",
+      "RETRYABLE": "Failed ceremony signature reuse DENY. Public verification/reconciliation needs no private key.",
+      "AUTHORITY_CHANGE": "NONE; local JCA validity is not V041 acceptance",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Sign exactly once in memory; independently verify canonical preimage, approved scope and public SPKI with JCA; retain exact public original and commitments; immediately destroy/release signer-private buffers in finally. Fail closed if custody cannot be bounded. Do not call V041 trusted-verifier/consumer or V043 operational wrappers."
+    },
+    {
+      "PHASE": "F",
+      "NAME": "Complete registration and one atomic commit",
+      "DURABLE_WRITE": "Exactly 11 newly staged rows: 2 V040 + 9 V043",
+      "SECRET_EXISTS": "NO signer private key; separate governed ADMIN preflight-HMAC key domain remains subject to its existing custody contract",
+      "RETRYABLE": "COMMIT outcome unknown -> QUERY_FIRST. Exact committed root -> return exact existing state. Confirmed rollback -> abandon/fresh.",
+      "AUTHORITY_CHANGE": "T_REG makes bounded public signer governance and REGISTERED non-operational binding durable together; no command authority or admission",
+      "COMMIT_BOUNDARY": "T_REG: ONE",
+      "OPERATION": "Within the already-open same transaction: complete fresh NOT_READY/readiness + preflight-key rows; complete 40-field header first; exact original expected attestation second; five lifecycle/control rows; explicitly verify complete 11-row write set and exact approved inputs; SET CONSTRAINTS ALL IMMEDIATE; fresh DB window check under future time contract; COMMIT once. No missing control rows, UPSERT, placeholder, accepted evidence, commands, sessions or READY."
+    },
+    {
+      "PHASE": "G",
+      "NAME": "Post-commit reconciliation and terminal governance closure",
+      "DURABLE_WRITE": "T_CLOSE: one existing-governance append transaction only at independently proven terminal event",
+      "SECRET_EXISTS": "NO signer private key; normal continuation already destroyed it at E",
+      "RETRYABLE": "QUERY_FIRST on every unknown T_CLOSE outcome; already exact DISABLED/RETIRED -> no-op",
+      "AUTHORITY_CHANGE": "DISABLED successor then RETIRED key successor; never reactivate or rewrite history",
+      "COMMIT_BOUNDARY": "T_CLOSE: ONE conditional/later boundary, separate from registration",
+      "OPERATION": "Return exact durable registration after query, preserving NOT_READY. Do not retire immediately if later independently authorized V041/V042 effects remain pending. At final authorized effect/admission-consumption COMMIT, or proven abort/expiry/abandonment, existing ADMIN performs public-only terminal cleanup and verifies denial. No indefinite ENABLED orphan; on restart/next preparation reconcile outstanding roots before any signing or admission."
+    }
+  ],
+  "FINAL_CEREMONY_PHASES_CLOSED": "YES",
+  "commit_boundary_counts": {
+    "DURABLE_COMMIT_BOUNDARY_COUNT": 2,
+    "count_scope": "A-G registration plus eventual terminal signer closure; no later operational verifier/issuance/decision transactions included in this registration-only design",
+    "BEFORE_BINDING_REGISTRATION_SUCCESS": 1,
+    "EVENTUAL_TERMINAL_GOVERNANCE_CLOSURE": 1,
+    "CONFIRMED_PRECOMMIT_ABORT": 0,
+    "CURRENT_CONVENIENCE_ADAPTER_REGISTRATION_PATH": 3,
+    "CURRENT_CONVENIENCE_ADAPTER_WITH_TERMINAL_CLOSURE": 4,
+    "CURRENT_GATE_DB_COMMIT_COUNT": 0,
+    "read_only_query_transactions": "End normally without durable writes; not counted as mutation boundaries",
+    "external_terminal_dependencies": "Later V041 acceptance, V042 principal/credential/grant/decision, V043 consumption/delivery/reconciliation have independently guarded commits and existing receipts. They are not authorized here and cannot be included silently in T_REG or inferred complete. Q15-Q26 detect them; terminal cleanup waits for their independently proven end."
+  },
+  "DURABLE_COMMIT_BOUNDARIES": [
+    {
+      "BOUNDARY_ID": "T_REG",
+      "OBJECTS_COMMITTED": [
+        "s2a_signer_key_revision ACTIVE initial revision",
+        "s2a_signer_authority_revision ENABLED initial bounded revision",
+        "readiness",
+        "key",
+        "attestation",
+        "header",
+        "lifecycle",
+        "pointer",
+        "delivery",
+        "reconciliation",
+        "ceremony_result"
+      ],
+      "WHY_SEPARATE_TRANSACTION_REQUIRED": "No separate signer precommit is required. All 11 rows share one trusted ADMIN caller transaction. Existing immutable deadline policy/deployment/domain approvals are prerequisites, not new commits.",
+      "CAN_MERGE_WITH_NEXT": "NO: T_CLOSE must preserve an authorized interval for later V041/V042 mutations; immediate retirement would deny those effects.",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "RECOVERY_QUERY": "Q1-Q26 plus exact public canonical predicates after original writer is quiescent; see ambiguous-commit artifact"
+    },
+    {
+      "BOUNDARY_ID": "T_CLOSE",
+      "OBJECTS_COMMITTED": [
+        "DISABLED signer authority successor when authority exists",
+        "RETIRED signer key successor when key remains ACTIVE"
+      ],
+      "WHY_SEPARATE_TRANSACTION_REQUIRED": "After positive registration, retirement must wait for terminal authorized effect or independently classified abort/expiry. For legacy orphan cleanup it follows proven absence of binding/effects. This is existing governance, not a new recovery ledger.",
+      "CAN_MERGE_WITH_NEXT": "No additional closure boundary. Disable and retire share one transaction, except already terminal rows are no-ops.",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "RECOVERY_QUERY": "Q13-Q14 lineage/effective-state inspection plus full root query. A lost cleanup acknowledgment is queried before appending any successor."
+    }
+  ],
+  "SIGNER_GOVERNANCE_MUST_PRECOMMIT": "NO",
+  "precommit_proof": {
+    "selected_path": "Local JCA signature verification using exact planned public SPKI/canonical scope; expected-original V043 registration, not durable V041 acceptance. Existing V040 functions have no internal COMMIT and can share T_REG with complete V043 provisioning.",
+    "dedicated_V041_adapter_alternative": "YES for committed visibility when using PostgresAcceptedAttestationVerifier on its separate DataSource connection before binding: V041 begin reads effective ACTIVE public key and current ENABLED authority. That pre-acceptance adds a durable accepted row and is excluded from registration-only path.",
+    "existing_Kotlin_adapter_limit": "PostgresApprovalGovernance.transact owns a connection and commits EACH append. Two existing method calls cannot be labeled one T_REG. Same-connection composition of the existing canonical SQL functions is the selected future design; no application composer has been implemented, executed or runtime-qualified here.",
+    "no_authority_shortcut": "Local verification cannot create s2a_accepted_attestation or replace its later dedicated verifier. Trusted ADMIN may provision existing reviewed header/original records without new role/ACL/schema."
+  },
+  "AMBIGUOUS_COMMIT_RECOVERY_QUERY_SET": [
+    {
+      "QUERY_ID": "Q1",
+      "TABLE": "offline_binding_header",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Find exact binding plus allocated-identity conflicts, including foreign organization cross-matches; any cross-match under another root denies replay",
+      "LOOKUP": "binding_id=:binding_id OR (deployment_incarnation_id=:incarnation_id AND plan_id=:plan_id) OR run_id=:run_id OR manifest_id=:manifest_id OR principal_id=:principal_id OR credential_id=:credential_id OR grant_id=:grant_id OR decision_id=:decision_id OR principal_operation_id=:principal_operation_id OR credential_operation_id=:credential_operation_id OR grant_operation_id=:grant_operation_id",
+      "PUBLIC_COLUMNS": [
+        "binding_schema_version",
+        "binding_id",
+        "deployment_id",
+        "deployment_incarnation_id",
+        "run_id",
+        "plan_id",
+        "execution_plan_version",
+        "organization_id",
+        "manifest_id",
+        "manifest_digest",
+        "canonical_manifest_hash",
+        "canonical_manifest_encoding_version",
+        "mercado_livre_connection_id",
+        "omie_connection_id",
+        "marketplace_order_id",
+        "source_order_reference",
+        "integration_reference",
+        "permission",
+        "reason",
+        "provenance",
+        "principal_id",
+        "credential_id",
+        "grant_id",
+        "decision_id",
+        "correlation_id",
+        "principal_operation_id",
+        "credential_operation_id",
+        "grant_operation_id",
+        "issued_at",
+        "valid_from",
+        "expires_at",
+        "identity_slots",
+        "offline_surface_version",
+        "deadline_policy_version",
+        "deadline_policy_digest",
+        "admission_contract_version",
+        "delivery_contract_version",
+        "reconciliation_contract_version",
+        "plan_fingerprint",
+        "canonical_manifest_bytes"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 479
+      },
+      "SQL_TEMPLATE": "SELECT binding_schema_version,binding_id,deployment_id,deployment_incarnation_id,run_id,plan_id,execution_plan_version,organization_id,manifest_id,manifest_digest,canonical_manifest_hash,canonical_manifest_encoding_version,mercado_livre_connection_id,omie_connection_id,marketplace_order_id,source_order_reference,integration_reference,permission,reason,provenance,principal_id,credential_id,grant_id,decision_id,correlation_id,principal_operation_id,credential_operation_id,grant_operation_id,issued_at,valid_from,expires_at,identity_slots,offline_surface_version,deadline_policy_version,deadline_policy_digest,admission_contract_version,delivery_contract_version,reconciliation_contract_version,plan_fingerprint,canonical_manifest_bytes FROM public.offline_binding_header WHERE binding_id=:binding_id OR (deployment_incarnation_id=:incarnation_id AND plan_id=:plan_id) OR run_id=:run_id OR manifest_id=:manifest_id OR principal_id=:principal_id OR credential_id=:credential_id OR grant_id=:grant_id OR decision_id=:decision_id OR principal_operation_id=:principal_operation_id OR credential_operation_id=:credential_operation_id OR grant_operation_id=:grant_operation_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q2",
+      "TABLE": "offline_expected_signed_attestation",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Exact six-tag commitment and original public signature; not accepted attestation",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "manifest_digest",
+        "algorithm_id",
+        "signer_key_id",
+        "signer_key_fingerprint",
+        "signature_bytes",
+        "canonical_expected_attestation",
+        "commitment_digest"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 4198
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,manifest_digest,algorithm_id,signer_key_id,signer_key_fingerprint,signature_bytes,canonical_expected_attestation,commitment_digest FROM public.offline_expected_signed_attestation WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q3",
+      "TABLE": "offline_binding_lifecycle",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Every required control row and full existing state; missing after header is invariant violation",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "state",
+        "lock_token"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 582
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,state,lock_token FROM public.offline_binding_lifecycle WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q4",
+      "TABLE": "offline_attempt_pointer",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Every required control row and full existing state; missing after header is invariant violation",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "current_attempt_id",
+        "generation",
+        "claim_permitted",
+        "lock_token"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 594
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,current_attempt_id,generation,claim_permitted,lock_token FROM public.offline_attempt_pointer WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q5",
+      "TABLE": "offline_delivery",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Every required control row and full existing state; missing after header is invariant violation",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "execution_id",
+        "instance_id",
+        "credential_id",
+        "initial_operation_id",
+        "fresh_applied_receipt_id",
+        "state",
+        "delivery_receipt_id",
+        "attempted_at",
+        "operation_deadline",
+        "observed_at",
+        "observation_code",
+        "recorded_at",
+        "lock_token"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 674
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,attempt_id,generation,execution_id,instance_id,credential_id,initial_operation_id,fresh_applied_receipt_id,state,delivery_receipt_id,attempted_at,operation_deadline,observed_at,observation_code,recorded_at,lock_token FROM public.offline_delivery WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q6",
+      "TABLE": "offline_reconciliation",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Every required control row and full existing state; missing after header is invariant violation",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "state",
+        "evidence_digest",
+        "recorded_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 868
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,state,evidence_digest,recorded_at FROM public.offline_reconciliation WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q7",
+      "TABLE": "offline_ceremony_result",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Every required control row and full existing state; missing after header is invariant violation",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "result",
+        "evidence_digest",
+        "recorded_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 890
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,result,evidence_digest,recorded_at FROM public.offline_ceremony_result WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q8",
+      "TABLE": "offline_readiness",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Exact deployment/policy/history/ACL, NOT_READY, watchdog=false; metadata only",
+      "LOOKUP": "incarnation_id=:incarnation_id",
+      "PUBLIC_COLUMNS": [
+        "deployment_id",
+        "incarnation_id",
+        "state",
+        "active_key_version",
+        "policy_version",
+        "policy_digest",
+        "history_manifest",
+        "acl_manifest",
+        "watchdog_checked_at",
+        "watchdog_healthy"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 911
+      },
+      "SQL_TEMPLATE": "SELECT deployment_id,incarnation_id,state,active_key_version,policy_version,policy_digest,history_manifest,acl_manifest,watchdog_checked_at,watchdog_healthy FROM public.offline_readiness WHERE incarnation_id=:incarnation_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q9",
+      "TABLE": "offline_preflight_key",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "All preflight-key lineage/version/state/fingerprint metadata; NEVER key_material",
+      "LOOKUP": "incarnation_id=:incarnation_id",
+      "PUBLIC_COLUMNS": [
+        "incarnation_id",
+        "lineage_id",
+        "key_version",
+        "key_state",
+        "key_material_fingerprint"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 940
+      },
+      "SQL_TEMPLATE": "SELECT incarnation_id,lineage_id,key_version,key_state,key_material_fingerprint FROM public.offline_preflight_key WHERE incarnation_id=:incarnation_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q10",
+      "TABLE": "offline_deadline_policy",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Exact existing canonical policy and digest, no policy or timing mutation",
+      "LOOKUP": "policy_version=:deadline_policy_version",
+      "PUBLIC_COLUMNS": [
+        "policy_version",
+        "policy_digest",
+        "canonical_policy",
+        "effective_from"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 964
+      },
+      "SQL_TEMPLATE": "SELECT policy_version,policy_digest,canonical_policy,effective_from FROM public.offline_deadline_policy WHERE policy_version=:deadline_policy_version",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q11",
+      "TABLE": "offline_attempt",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Detect any later attempt, never allocate recovery attempt UUID",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "state",
+        "claimed_at",
+        "expires_at",
+        "lock_token"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 612
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,attempt_id,generation,state,claimed_at,expires_at,lock_token FROM public.offline_attempt WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q12",
+      "TABLE": "offline_execution",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Detect later execution ownership, never infer an admission from registration",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "execution_id",
+        "instance_id",
+        "executor_oid",
+        "state",
+        "possession_digest",
+        "claimed_at",
+        "expires_at",
+        "claim_receipt_id",
+        "lock_token"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 636
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,attempt_id,generation,execution_id,instance_id,executor_oid,state,possession_digest,claimed_at,expires_at,claim_receipt_id,lock_token FROM public.offline_execution WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q13",
+      "TABLE": "s2a_signer_key_revision",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "All public key revisions, predecessor hashes, effective and terminal state; reject foreign organization collision",
+      "LOOKUP": "(organization_id=:organization_id AND signer_key_id=:signer_key_id) OR signer_key_id=:signer_key_id",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "signer_key_id",
+        "revision",
+        "signer_subject_id",
+        "algorithm_id",
+        "subject_public_key_info_der",
+        "signer_key_fingerprint",
+        "state",
+        "valid_from",
+        "effective_at",
+        "supersedes_revision",
+        "lineage_fingerprint",
+        "reason",
+        "provenance",
+        "correlation_id",
+        "recorded_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "line": 20
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,signer_key_id,revision,signer_subject_id,algorithm_id,subject_public_key_info_der,signer_key_fingerprint,state,valid_from,effective_at,supersedes_revision,lineage_fingerprint,reason,provenance,correlation_id,recorded_at FROM public.s2a_signer_key_revision WHERE (organization_id=:organization_id AND signer_key_id=:signer_key_id) OR signer_key_id=:signer_key_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q14",
+      "TABLE": "s2a_signer_authority_revision",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "All exact authority chain predecessors/successors; source-approved scope and leaf cardinality, not just initial ID",
+      "LOOKUP": "(organization_id=:organization_id AND signer_subject_id=:signer_subject_id AND signer_key_id=:signer_key_id AND approval_action='S2A_FIELD_PROOF_APPROVAL' AND permission='TRANSACTION_IDENTITY_DECISION_WRITE') OR signer_authority_id=:signer_authority_id",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "signer_authority_id",
+        "revision",
+        "signer_subject_id",
+        "signer_authorizing_institution_id",
+        "signer_role",
+        "signer_key_id",
+        "signer_key_revision",
+        "signer_key_fingerprint",
+        "approval_action",
+        "permission",
+        "valid_from",
+        "valid_until",
+        "state",
+        "supersedes_signer_authority_id",
+        "signer_authority_fingerprint",
+        "reason",
+        "provenance",
+        "approval_source_id",
+        "correlation_id",
+        "decided_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "line": 64
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,signer_authority_id,revision,signer_subject_id,signer_authorizing_institution_id,signer_role,signer_key_id,signer_key_revision,signer_key_fingerprint,approval_action,permission,valid_from,valid_until,state,supersedes_signer_authority_id,signer_authority_fingerprint,reason,provenance,approval_source_id,correlation_id,decided_at FROM public.s2a_signer_authority_revision WHERE (organization_id=:organization_id AND signer_subject_id=:signer_subject_id AND signer_key_id=:signer_key_id AND approval_action='S2A_FIELD_PROOF_APPROVAL' AND permission='TRANSACTION_IDENTITY_DECISION_WRITE') OR signer_authority_id=:signer_authority_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q15",
+      "TABLE": "s2a_accepted_attestation",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Detect any later V041 accepted proof; zero expected at registration",
+      "LOOKUP": "(organization_id=:organization_id AND manifest_id=:manifest_id) OR manifest_id=:manifest_id",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "manifest_id",
+        "artifact_version",
+        "schema_version",
+        "canonicalization_version",
+        "canonical_manifest_bytes",
+        "manifest_digest",
+        "canonical_signature_preimage_bytes",
+        "algorithm_id",
+        "signer_key_id",
+        "signer_key_revision",
+        "signer_key_fingerprint",
+        "signer_key_lineage_fingerprint",
+        "subject_public_key_info_der",
+        "signature_bytes",
+        "signer_authority_id",
+        "signer_authority_revision",
+        "signer_authority_fingerprint",
+        "verified_at",
+        "accepted_proof_fingerprint",
+        "recorded_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+        "line": 317
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,manifest_id,artifact_version,schema_version,canonicalization_version,canonical_manifest_bytes,manifest_digest,canonical_signature_preimage_bytes,algorithm_id,signer_key_id,signer_key_revision,signer_key_fingerprint,signer_key_lineage_fingerprint,subject_public_key_info_der,signature_bytes,signer_authority_id,signer_authority_revision,signer_authority_fingerprint,verified_at,accepted_proof_fingerprint,recorded_at FROM public.s2a_accepted_attestation WHERE (organization_id=:organization_id AND manifest_id=:manifest_id) OR manifest_id=:manifest_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q16",
+      "TABLE": "s2a_attestation_consumption",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Detect later consumption, canonical identity correlation required",
+      "LOOKUP": "(organization_id=:organization_id AND manifest_id=:manifest_id) OR principal_id=:principal_id",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "manifest_id",
+        "manifest_digest",
+        "principal_id",
+        "correlation_id",
+        "consumed_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "line": 93
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,manifest_id,manifest_digest,principal_id,correlation_id,consumed_at FROM public.s2a_attestation_consumption WHERE (organization_id=:organization_id AND manifest_id=:manifest_id) OR principal_id=:principal_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q17",
+      "TABLE": "command_principal",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Exact principal/provider scope and any foreign org conflict; zero initial registration effect",
+      "LOOKUP": "principal_id=:principal_id",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "principal_id",
+        "mercado_livre_connection_id",
+        "omie_connection_id",
+        "reason",
+        "provenance",
+        "correlation_id",
+        "decided_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V034__create_command_authorization.sql",
+        "line": 2
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,principal_id,mercado_livre_connection_id,omie_connection_id,reason,provenance,correlation_id,decided_at FROM public.command_principal WHERE principal_id=:principal_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q18",
+      "TABLE": "command_credential_revision",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "All planned credential revision metadata; NEVER secret_verifier",
+      "LOOKUP": "credential_id=:credential_id OR (organization_id=:organization_id AND principal_id=:principal_id)",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "principal_id",
+        "credential_id",
+        "revision",
+        "supersedes_revision",
+        "state",
+        "reason",
+        "provenance",
+        "correlation_id",
+        "decided_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V034__create_command_authorization.sql",
+        "line": 19
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,principal_id,credential_id,revision,supersedes_revision,state,reason,provenance,correlation_id,decided_at FROM public.command_credential_revision WHERE credential_id=:credential_id OR (organization_id=:organization_id AND principal_id=:principal_id)",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q19",
+      "TABLE": "command_permission_grant",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Grant scope and successor lineage; zero initial registration effect",
+      "LOOKUP": "grant_id=:grant_id OR (organization_id=:organization_id AND principal_id=:principal_id)",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "principal_id",
+        "grant_id",
+        "permission",
+        "state",
+        "revision",
+        "supersedes_grant_id",
+        "reason",
+        "provenance",
+        "correlation_id",
+        "decided_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V034__create_command_authorization.sql",
+        "line": 41
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,principal_id,grant_id,permission,state,revision,supersedes_grant_id,reason,provenance,correlation_id,decided_at FROM public.command_permission_grant WHERE grant_id=:grant_id OR (organization_id=:organization_id AND principal_id=:principal_id)",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q20",
+      "TABLE": "command_authority_operation",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Canonical operation/manifest/intent/receipt joins; duplicate matching UUID is not sufficient proof",
+      "LOOKUP": "(organization_id=:organization_id AND (operation_id IN (:principal_operation_id,:credential_operation_id,:grant_operation_id) OR attestation_manifest_id=:manifest_id OR principal_id=:principal_id)) OR operation_id IN (:principal_operation_id,:credential_operation_id,:grant_operation_id)",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "operation_id",
+        "operation",
+        "principal_id",
+        "credential_id",
+        "credential_revision",
+        "grant_id",
+        "grant_revision",
+        "permission",
+        "state",
+        "intent_fingerprint",
+        "receipt_fingerprint",
+        "correlation_id",
+        "decided_at",
+        "attestation_manifest_id"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V037__add_controlled_command_authority_provisioning.sql",
+        "line": 17
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,operation_id,operation,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,state,intent_fingerprint,receipt_fingerprint,correlation_id,decided_at,attestation_manifest_id FROM public.command_authority_operation WHERE (organization_id=:organization_id AND (operation_id IN (:principal_operation_id,:credential_operation_id,:grant_operation_id) OR attestation_manifest_id=:manifest_id OR principal_id=:principal_id)) OR operation_id IN (:principal_operation_id,:credential_operation_id,:grant_operation_id)",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q21",
+      "TABLE": "marketplace_transaction_identity_decision",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Actual later decision effect and full provenance, not reserved decision ID",
+      "LOOKUP": "decision_id=:decision_id OR (organization_id=:organization_id AND principal_id=:principal_id)",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "decision_id",
+        "omie_connection_id",
+        "source_order_reference",
+        "marketplace_order_id",
+        "kind",
+        "reason",
+        "revision",
+        "supersedes_decision_id",
+        "ml_connection_id",
+        "ml_capability",
+        "ml_progress_version",
+        "ml_record_ordinal",
+        "external_order_id",
+        "currency",
+        "omie_capability",
+        "omie_progress_version",
+        "omie_record_ordinal",
+        "omie_semantic_fingerprint",
+        "provider_revision_local",
+        "principal_id",
+        "credential_id",
+        "credential_revision",
+        "grant_id",
+        "grant_revision",
+        "permission",
+        "authorization_semantic_version",
+        "authorization_fingerprint",
+        "intent_fingerprint",
+        "decision_semantic_fingerprint",
+        "provenance",
+        "correlation_id",
+        "decided_at"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "line": 2
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,decision_id,omie_connection_id,source_order_reference,marketplace_order_id,kind,reason,revision,supersedes_decision_id,ml_connection_id,ml_capability,ml_progress_version,ml_record_ordinal,external_order_id,currency,omie_capability,omie_progress_version,omie_record_ordinal,omie_semantic_fingerprint,provider_revision_local,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,authorization_semantic_version,authorization_fingerprint,intent_fingerprint,decision_semantic_fingerprint,provenance,correlation_id,decided_at FROM public.marketplace_transaction_identity_decision WHERE decision_id=:decision_id OR (organization_id=:organization_id AND principal_id=:principal_id)",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q22",
+      "TABLE": "marketplace_transaction_identity_head",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Compare against frozen existing domain head: no new root effect expected at registration; existing unrelated source head is not a new ceremony effect",
+      "LOOKUP": "(organization_id=:organization_id AND omie_connection_id=:omie_connection_id AND source_order_reference=:source_order_reference AND marketplace_order_id=:marketplace_order_id) OR decision_id=:decision_id",
+      "PUBLIC_COLUMNS": [
+        "organization_id",
+        "omie_connection_id",
+        "source_order_reference",
+        "marketplace_order_id",
+        "decision_id",
+        "kind"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "line": 56
+      },
+      "SQL_TEMPLATE": "SELECT organization_id,omie_connection_id,source_order_reference,marketplace_order_id,decision_id,kind FROM public.marketplace_transaction_identity_head WHERE (organization_id=:organization_id AND omie_connection_id=:omie_connection_id AND source_order_reference=:source_order_reference AND marketplace_order_id=:marketplace_order_id) OR decision_id=:decision_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q23",
+      "TABLE": "offline_admission",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "No durable admission, no session admission; detect later terminal consumption separately",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "admission_id",
+        "deployment_id",
+        "incarnation_id",
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "execution_id",
+        "instance_id",
+        "executor_oid",
+        "credential_id",
+        "credential_revision",
+        "principal_id",
+        "organization_id",
+        "grant_id",
+        "grant_revision",
+        "authorization_fingerprint",
+        "permission",
+        "authenticated_at",
+        "expires_at",
+        "durable_state",
+        "consumed_decision_id",
+        "consumed_at",
+        "lock_token"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 762
+      },
+      "SQL_TEMPLATE": "SELECT admission_id,deployment_id,incarnation_id,binding_id,attempt_id,generation,execution_id,instance_id,executor_oid,credential_id,credential_revision,principal_id,organization_id,grant_id,grant_revision,authorization_fingerprint,permission,authenticated_at,expires_at,durable_state,consumed_decision_id,consumed_at,lock_token FROM public.offline_admission WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q24",
+      "TABLE": "offline_stage_receipt",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Canonical later stage receipts, no inferred command outcome",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "execution_id",
+        "instance_id",
+        "stage",
+        "receipt_id",
+        "operation_id",
+        "frozen_receipt",
+        "effect_time"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 832
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,attempt_id,generation,execution_id,instance_id,stage,receipt_id,operation_id,frozen_receipt,effect_time FROM public.offline_stage_receipt WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q25",
+      "TABLE": "offline_diagnostic_evidence",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Existing administrative diagnostic multiset only; not new recovery table/journal or authority",
+      "LOOKUP": "binding_id=:binding_id",
+      "PUBLIC_COLUMNS": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "snapshot_digest",
+        "classification",
+        "recorded_at",
+        "recorder_identity"
+      ],
+      "SOURCE": {
+        "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "line": 983
+      },
+      "SQL_TEMPLATE": "SELECT binding_id,attempt_id,generation,snapshot_digest,classification,recorded_at,recorder_identity FROM public.offline_diagnostic_evidence WHERE binding_id=:binding_id",
+      "EXECUTED": false
+    },
+    {
+      "QUERY_ID": "Q26",
+      "TABLE": "pg_database / pg_control_system",
+      "AUTHORITY": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+      "PURPOSE": "Before any recovery, bind connection to exact disposable rehearsal instance; no protected DB guessing",
+      "SQL_TEMPLATE": "SELECT current_database() AS database_name,(SELECT oid FROM pg_catalog.pg_database WHERE datname=current_database()) AS database_oid,(SELECT system_identifier FROM pg_catalog.pg_control_system()) AS system_identifier,current_setting('server_version_num') AS server_version_num,version() AS database_version,clock_timestamp() AS observed_database_wall_clock",
+      "EXPECTED": {
+        "database_name": "g3f4",
+        "database_oid": 16384,
+        "system_identifier": "7693118332665065516",
+        "server_version_num": "180004"
+      },
+      "EXECUTED": false
+    }
+  ],
+  "SINGLE_FRESH_SNAPSHOT_SQL_TEMPLATE": "SELECT pg_catalog.jsonb_build_object(\n  'Q1', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_schema_version,binding_id,deployment_id,deployment_incarnation_id,run_id,plan_id,execution_plan_version,organization_id,manifest_id,manifest_digest,canonical_manifest_hash,canonical_manifest_encoding_version,mercado_livre_connection_id,omie_connection_id,marketplace_order_id,source_order_reference,integration_reference,permission,reason,provenance,principal_id,credential_id,grant_id,decision_id,correlation_id,principal_operation_id,credential_operation_id,grant_operation_id,issued_at,valid_from,expires_at,identity_slots,offline_surface_version,deadline_policy_version,deadline_policy_digest,admission_contract_version,delivery_contract_version,reconciliation_contract_version,plan_fingerprint,canonical_manifest_bytes FROM public.offline_binding_header WHERE binding_id=:binding_id OR (deployment_incarnation_id=:incarnation_id AND plan_id=:plan_id) OR run_id=:run_id OR manifest_id=:manifest_id OR principal_id=:principal_id OR credential_id=:credential_id OR grant_id=:grant_id OR decision_id=:decision_id OR principal_operation_id=:principal_operation_id OR credential_operation_id=:credential_operation_id OR grant_operation_id=:grant_operation_id) AS r),\n  'Q2', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,manifest_digest,algorithm_id,signer_key_id,signer_key_fingerprint,signature_bytes,canonical_expected_attestation,commitment_digest FROM public.offline_expected_signed_attestation WHERE binding_id=:binding_id) AS r),\n  'Q3', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,state,lock_token FROM public.offline_binding_lifecycle WHERE binding_id=:binding_id) AS r),\n  'Q4', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,current_attempt_id,generation,claim_permitted,lock_token FROM public.offline_attempt_pointer WHERE binding_id=:binding_id) AS r),\n  'Q5', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,attempt_id,generation,execution_id,instance_id,credential_id,initial_operation_id,fresh_applied_receipt_id,state,delivery_receipt_id,attempted_at,operation_deadline,observed_at,observation_code,recorded_at,lock_token FROM public.offline_delivery WHERE binding_id=:binding_id) AS r),\n  'Q6', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,state,evidence_digest,recorded_at FROM public.offline_reconciliation WHERE binding_id=:binding_id) AS r),\n  'Q7', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,result,evidence_digest,recorded_at FROM public.offline_ceremony_result WHERE binding_id=:binding_id) AS r),\n  'Q8', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT deployment_id,incarnation_id,state,active_key_version,policy_version,policy_digest,history_manifest,acl_manifest,watchdog_checked_at,watchdog_healthy FROM public.offline_readiness WHERE incarnation_id=:incarnation_id) AS r),\n  'Q9', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT incarnation_id,lineage_id,key_version,key_state,key_material_fingerprint FROM public.offline_preflight_key WHERE incarnation_id=:incarnation_id) AS r),\n  'Q10', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT policy_version,policy_digest,canonical_policy,effective_from FROM public.offline_deadline_policy WHERE policy_version=:deadline_policy_version) AS r),\n  'Q11', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,attempt_id,generation,state,claimed_at,expires_at,lock_token FROM public.offline_attempt WHERE binding_id=:binding_id) AS r),\n  'Q12', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,attempt_id,generation,execution_id,instance_id,executor_oid,state,possession_digest,claimed_at,expires_at,claim_receipt_id,lock_token FROM public.offline_execution WHERE binding_id=:binding_id) AS r),\n  'Q13', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,signer_key_id,revision,signer_subject_id,algorithm_id,subject_public_key_info_der,signer_key_fingerprint,state,valid_from,effective_at,supersedes_revision,lineage_fingerprint,reason,provenance,correlation_id,recorded_at FROM public.s2a_signer_key_revision WHERE (organization_id=:organization_id AND signer_key_id=:signer_key_id) OR signer_key_id=:signer_key_id) AS r),\n  'Q14', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,signer_authority_id,revision,signer_subject_id,signer_authorizing_institution_id,signer_role,signer_key_id,signer_key_revision,signer_key_fingerprint,approval_action,permission,valid_from,valid_until,state,supersedes_signer_authority_id,signer_authority_fingerprint,reason,provenance,approval_source_id,correlation_id,decided_at FROM public.s2a_signer_authority_revision WHERE (organization_id=:organization_id AND signer_subject_id=:signer_subject_id AND signer_key_id=:signer_key_id AND approval_action='S2A_FIELD_PROOF_APPROVAL' AND permission='TRANSACTION_IDENTITY_DECISION_WRITE') OR signer_authority_id=:signer_authority_id) AS r),\n  'Q15', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,manifest_id,artifact_version,schema_version,canonicalization_version,canonical_manifest_bytes,manifest_digest,canonical_signature_preimage_bytes,algorithm_id,signer_key_id,signer_key_revision,signer_key_fingerprint,signer_key_lineage_fingerprint,subject_public_key_info_der,signature_bytes,signer_authority_id,signer_authority_revision,signer_authority_fingerprint,verified_at,accepted_proof_fingerprint,recorded_at FROM public.s2a_accepted_attestation WHERE (organization_id=:organization_id AND manifest_id=:manifest_id) OR manifest_id=:manifest_id) AS r),\n  'Q16', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,manifest_id,manifest_digest,principal_id,correlation_id,consumed_at FROM public.s2a_attestation_consumption WHERE (organization_id=:organization_id AND manifest_id=:manifest_id) OR principal_id=:principal_id) AS r),\n  'Q17', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,principal_id,mercado_livre_connection_id,omie_connection_id,reason,provenance,correlation_id,decided_at FROM public.command_principal WHERE principal_id=:principal_id) AS r),\n  'Q18', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,principal_id,credential_id,revision,supersedes_revision,state,reason,provenance,correlation_id,decided_at FROM public.command_credential_revision WHERE credential_id=:credential_id OR (organization_id=:organization_id AND principal_id=:principal_id)) AS r),\n  'Q19', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,principal_id,grant_id,permission,state,revision,supersedes_grant_id,reason,provenance,correlation_id,decided_at FROM public.command_permission_grant WHERE grant_id=:grant_id OR (organization_id=:organization_id AND principal_id=:principal_id)) AS r),\n  'Q20', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,operation_id,operation,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,state,intent_fingerprint,receipt_fingerprint,correlation_id,decided_at,attestation_manifest_id FROM public.command_authority_operation WHERE (organization_id=:organization_id AND (operation_id IN (:principal_operation_id,:credential_operation_id,:grant_operation_id) OR attestation_manifest_id=:manifest_id OR principal_id=:principal_id)) OR operation_id IN (:principal_operation_id,:credential_operation_id,:grant_operation_id)) AS r),\n  'Q21', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,decision_id,omie_connection_id,source_order_reference,marketplace_order_id,kind,reason,revision,supersedes_decision_id,ml_connection_id,ml_capability,ml_progress_version,ml_record_ordinal,external_order_id,currency,omie_capability,omie_progress_version,omie_record_ordinal,omie_semantic_fingerprint,provider_revision_local,principal_id,credential_id,credential_revision,grant_id,grant_revision,permission,authorization_semantic_version,authorization_fingerprint,intent_fingerprint,decision_semantic_fingerprint,provenance,correlation_id,decided_at FROM public.marketplace_transaction_identity_decision WHERE decision_id=:decision_id OR (organization_id=:organization_id AND principal_id=:principal_id)) AS r),\n  'Q22', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT organization_id,omie_connection_id,source_order_reference,marketplace_order_id,decision_id,kind FROM public.marketplace_transaction_identity_head WHERE (organization_id=:organization_id AND omie_connection_id=:omie_connection_id AND source_order_reference=:source_order_reference AND marketplace_order_id=:marketplace_order_id) OR decision_id=:decision_id) AS r),\n  'Q23', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT admission_id,deployment_id,incarnation_id,binding_id,attempt_id,generation,execution_id,instance_id,executor_oid,credential_id,credential_revision,principal_id,organization_id,grant_id,grant_revision,authorization_fingerprint,permission,authenticated_at,expires_at,durable_state,consumed_decision_id,consumed_at,lock_token FROM public.offline_admission WHERE binding_id=:binding_id) AS r),\n  'Q24', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,attempt_id,generation,execution_id,instance_id,stage,receipt_id,operation_id,frozen_receipt,effect_time FROM public.offline_stage_receipt WHERE binding_id=:binding_id) AS r),\n  'Q25', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT binding_id,attempt_id,generation,snapshot_digest,classification,recorded_at,recorder_identity FROM public.offline_diagnostic_evidence WHERE binding_id=:binding_id) AS r),\n  'Q26', (SELECT coalesce(pg_catalog.jsonb_agg(pg_catalog.to_jsonb(r)), '[]'::pg_catalog.jsonb) FROM (SELECT current_database() AS database_name,(SELECT oid FROM pg_catalog.pg_database WHERE datname=current_database()) AS database_oid,(SELECT system_identifier FROM pg_catalog.pg_control_system()) AS system_identifier,current_setting('server_version_num') AS server_version_num,version() AS database_version,clock_timestamp() AS observed_database_wall_clock) AS r)\n) AS nonsecret_recovery_snapshot",
+  "PARAMETERS": "Bind all :names from existing immutable nonsecret ceremony input/public receipts. These are review templates, not shell substitution or executable credentials. No actual IDs allocated now.",
+  "immutable_input_custody": "Freeze allocated identities and public governance semantic inputs as existing immutable preparation components before writes. After E, retain the exact public signed envelope/commitments as their existing immutable original-input component; do not rewrite earlier frozen artifacts, fill placeholders or persist private material. This is the prior ceremony-input representation, not a new coordinator/journal. Missing component or failed custody verification -> HOLD.",
+  "SERIALIZATION": {
+    "prerequisite": "No live same-root preparation may write anew; original transaction/connection ended under existing ADMIN custody. Advisory lock acquisition after first canonical append waits for its commit/rollback; absence before a possible future first write is insufficient without original-writer quiescence.",
+    "isolation": "READ COMMITTED; single snapshot SELECT AFTER the lock statements have completed; no snapshot before waiting",
+    "lock_order": [
+      "SELECT organization_id,status FROM public.integration_organization WHERE organization_id=:organization_id FOR SHARE",
+      "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('s2a-governance/signer-key/1:'||CAST(:organization_id AS text)||':'||CAST(:signer_key_id AS text),0))",
+      "SELECT pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('s2a-governance/signer-authority-scope/1:'||CAST(:organization_id AS text)||':'||CAST(:signer_subject_id AS text)||':'||CAST(:signer_key_id AS text)||':S2A_FIELD_PROOF_APPROVAL:TRANSACTION_IDENTITY_DECISION_WRITE',0))"
+    ],
+    "scope": "Existing canonical lock namespaces and current ADMIN custody; no new coordinator/lock service/PID signaling. Later operational effects must be independently quiescent/guarded before terminal disposition. No bounded polling interval proves absence.",
+    "SQL_EXECUTED": false
+  },
+  "COMMITTED_VALID_PREDICATE": [
+    "P1: Original writer is quiescent, exact disposable DB identity is independently verified, and the fresh authoritative snapshot follows acquisition of existing key/authority transaction locks. No in-flight same-root writer may later commit after absence is declared.",
+    "P2: Exactly one header by binding_id and exactly the same one by (incarnation,plan_id); all ten allocation IDs, run/manifest/correlation, deployment/incarnation, organization, source target/connections/references, four permanent slots, versions and all previously closed input rules match the complete frozen approved root. All public conflict cross-matches refer only to this exact root.",
+    "P3: Decode/rederive exact 38-field canonical binding/plan fingerprint and retained canonical manifest hash/digest from the actual 40-field header and approved bytes. Compare all three time fields to the future-approved frozen context without inventing values, reissuing or extending them. Decode original 22-field manifest and independently rederive source evidence fingerprint against retained frozen source authority.",
+    "P4: Exactly one expected original by binding_id, same digest/Ed25519/key identity/key fingerprint/exact signature bytes as frozen input; six-tag canonical commitment and SHA256 recompute exactly. Public SPKI is original Ed25519 SPKI; recompute signature preimage and independently verify signature with public key. This proves recorded original, not V041 acceptance or fresh operational permission.",
+    "P5: Exact initial public key/authority revisions exist with expected immutable semantic fields and recomputed predecessor/lineage/authority fingerprints. Complete successor chains have one non-conflicting leaf. Terminal successors may exist after valid registration; they cannot make historical registration absent. Current ACTIVE/ENABLED is checked separately for any later mutation and is never inferred from initial rows.",
+    "P6: All nine minimum V043 rows exist and are mutually bound: readiness, preflight-key metadata, header, expected original, lifecycle, pointer, delivery, reconciliation, result. Preflight lineage/version/fingerprint matches approved ADMIN context; active key version/policy/digest/history/ACL/deployment match readiness. No recovery query exports HMAC material.",
+    "P7: At initial registration lifecycle REGISTERED/lock_token=0; pointer current_attempt_id NULL/claim_permitted=false/lock_token=0 with governed positive generation; delivery NOT_CREATED and origin/secret delivery fields NULL with same generation; reconciliation NOT_STARTED/no digest/no recorded time; result NONE/no digest/no recorded time. Readiness NOT_READY/watchdog_healthy=false. No attempt/execution/admission/stage receipt, accepted proof, consumption, principal/credential/grant/operation or decision attributable to this root. Compare any preexisting source head to frozen baseline, not an assumed zero.",
+    "P8: Initial controls missing or conflicting are INVARIANT_VIOLATION. Actual later controls/receipts/effects must instead be validated under their existing guarded lifecycle and domain reconciliation; return exact historical registration plus separately classified current state, never reset to initial state or infer absence/success of commands.",
+    "P9: Full 11-row write-set completeness was explicitly checked before SET CONSTRAINTS ALL IMMEDIATE and COMMIT. Constraints ensure header/original mutual FK and readiness-key cycles; source does not supply reverse FKs forcing every control row. Atomicity of the selected complete transaction is not proof of completeness of arbitrary trusted ADMIN SQL.",
+    "P10: Positive registration remains historical COMMITTED_VALID even when the window has since expired or governance has been terminally retired. Return existing exact registration with executable=false and current denial. Never rerun, resign, extend timestamps, create command authority or set READY."
+  ],
+  "COMMITTED_VALID_SCOPE": "Exact canonical historical registration, not proof of elapsed commit timing, window feasibility, V041 acceptance, readiness, command success or current execution authority. The still-open time/window gates separately govern admissibility; an expired recovered root is always denied for fresh effects.",
+  "PARTIAL_COMMITTED_STATE_POLICY": "FAIL_CLOSED_AND_ESCALATE",
+  "BINDING_TX_PARTIAL_DURABILITY": "IMPOSSIBLE_BY_TRANSACTION_ATOMICITY",
+  "atomicity_scope": "Only the selected single-connection complete 11-row T_REG with successful full-write-set validation. Unconfirmed COMMIT is unknown, not rollback. Arbitrary partial ADMIN provisioning can omit control rows; detect and HOLD rather than pretending all completeness follows from FKs.",
+  "COMMITTED_BINDING_REPLAY": "RETURN_EXISTING_EXACT_STATE",
+  "POST_DURABLE_FAILURE_RETRY": "QUERY_FIRST",
+  "ALLOCATION_ABANDONMENT_RULE": "Existing immutable nonsecret preparation context + original writer quiescence + authoritative absence of all allocated registration/effects + verified terminal orphan governance if any. Document disposition as non-authoritative external evidence; no DB tombstone/table. Missing context or unknown result -> HOLD. A committed root is never abandoned as though absent.",
+  "ALLOCATION_ABANDONMENT_AUTHORITY": "Existing PLAN_BINDING_ADMIN; existing approval-governance capability for orphan neutralization",
+  "identity_families": [
+    {
+      "FIELDS": [
+        "binding_id",
+        "run_id",
+        "plan_id",
+        "principal_id",
+        "credential_id",
+        "grant_id",
+        "decision_id",
+        "principal_operation_id",
+        "credential_operation_id",
+        "grant_operation_id"
+      ],
+      "UNINTERRUPTED_PRE_EFFECT_PREPARATION": "REUSE entire exact frozen set only while same live preparation remains valid",
+      "ANY_POST_WRITE_OR_UNKNOWN_COMMIT": "QUERY_FIRST",
+      "PROVEN_FAILED_ABSENT_OR_NEUTRALIZED_ROOT": "ABANDON_AND_FRESH_SET",
+      "COMMITTED_EXACT": "REUSE only for read/query of exact existing state; no INSERT/re-sign",
+      "WRONG_SCOPE_OR_UNKNOWN_DISPOSITION": "HOLD; no regeneration",
+      "PARTIAL_ID_SET_REGENERATION": "FORBIDDEN"
+    }
+  ],
+  "WINDOW_EXPIRY_RECOVERY_POLICY": "ABORT / QUERY_FIRST if outcome unknown / CLEAN_EXACT_ORPHAN_GOVERNANCE_IF_REQUIRED / PROVE_DISPOSITION / START_FRESH_AUTHORIZED_CEREMONY. Exact committed expired root remains historical success with execution denied; no extension, changed timestamp or stale signature reuse.",
+  "RECOVERY_ALGORITHM": [
+    "1. Establish existing ADMIN authority, exact disposable host/container/DB identity and immutable allocated-root context. Missing public context, conflicting scope, unknown lineage or unavailable DB -> HOLD; no new root, guessed identity, key or signature.",
+    "2. Fence further use of the same frozen preparation through existing ADMIN custody. Establish original writer/connection quiescence. BEGIN recovery inspection READ COMMITTED; organization FOR SHARE, existing key advisory lock, existing authority-scope advisory lock in canonical order. No kill-by-PID or new lock namespace. Locks/pending writer unresolved -> HOLD/QUERY_FIRST.",
+    "3. After lock acquisition completes, execute Q1-Q26 as one fresh-snapshot SELECT. Never use a repeatable-read snapshot taken before waiting. Bind parameters from retained immutable root; normalize bytes as exact binary/hex, UTC microseconds, sorted rows by existing primary keys. Recompute public canonical commitments and inspect all authority/operation lineage.",
+    "4. If all committed predicates hold: return existing exact historical registration and current non-operational state. Do not rerun T_REG or reuse signature for a new submission. If later guarded effects are present, report them through existing domain reconciliation and prohibit fresh root until that domain disposition is proven.",
+    "5. If binding/header/original/control is a proper nonempty subset or exact identity conflicts: INVARIANT_VIOLATION / HOLD / existing ADMIN escalation. No automatic repair, UPSERT, delete, reset or subset regeneration.",
+    "6. If whole registration/effect root is absent after quiescence, and no new readiness/key state was committed by this root: prove no durable registration. External immutable non-authoritative evidence documents logical abandonment under PLAN_BINDING_ADMIN. Drop ephemeral material; then and only then allocate a whole fresh set for a newly authorized ceremony.",
+    "7. If only exact signer governance is durable and retained preparation evidence proves the legacy separate-commit path, with no binding/accepted/consumption/command state attributable to it: locked existing approval governance appends DISABLED authority successor first, then immediate-effective RETIRED key successor, one T_CLOSE. Public-only query verifies terminal lineage and denial; record existing nonsecret evidence, then permit abandoned/fresh whole root. A signer-only subset after the selected single T_REG, or unknown original path, is an invariant violation/HOLD rather than assumed legacy orphan.",
+    "8. If an orphan/cleanup state has accepted/command effects, foreign rows, future-dated conflicting revisions, multiple leaves, inactive organization or unknown cleanup outcome: preserve evidence and deny new signing/admission/root; query canonical existing domain receipts and trusted ADMIN governance. Never infer undo of committed effects. Lost cleanup COMMIT -> repeat inspection, not append blindly.",
+    "9. Expiry before confirmed commit: rollback if original transaction still known open; otherwise query first. If absent -> abandon, clean any exact orphans, fresh authorized ceremony. If exact committed -> return historical success/current expired denial, then public terminal cleanup when terminal disposition is proven. No timestamp or signature renewal.",
+    "10. End read-only inspection normally, or commit only the existing approved governance closure when separately authorized in the future execution gate. This gate executes none of these SQL templates or writes."
+  ],
+  "RECOVERY_ALGORITHM_DETERMINISTIC": "YES",
+  "AMBIGUOUS_COMMIT_RECOVERY_CLOSED": "YES",
+  "COMMITTED_BINDING_REPLAY_CLOSED": "YES",
+  "WINDOW_EXPIRY_RECOVERY_CLOSED": "YES",
+  "observed_policy_projections_not_new_state_machine": "COMMITTED_VALID, absent, orphan and invariant-violation are review classifications of existing rows, not persisted enums, tables or a coordinator.",
+  "sources": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line": null
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+      "sha256": "e1abfb285e59bd3d5926ecb0e9be1fd21a9eef363ef478120cb0fc40908dcd80",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalAttestationCanonicalCodec.kt",
+      "sha256": "74763cd4b0c3ab49b3f2c882f724df3ec10561f9aaa452c7b29fd1d6a943b26d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresApprovalGovernance.kt",
+      "sha256": "442b9fe79b023e0d7a36134d9c7cf717335a5418c249af8ddcc42521ccb3863d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalGovernance.kt",
+      "sha256": "bb71114ceb00501499adefe1ce3a1418cdb2a0e36d71fdf5f44fa54773a246dc",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresAcceptedAttestationVerifier.kt",
+      "sha256": "0ae90611d56a8127379b33c9e29b67d9330391f531c2583e13860189ca76b3a4",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+      "sha256": "58753e9d702169311f5ea74099f89e5068d982ef9c30d0e1da275b4e40b6bedd",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+      "sha256": "3ff1421dd56de17270a9c44054055c0c1afc91f855d903697268088a53f1182d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "sha256": "3bfc5f7c95d235235ff8444453523a6a757980b464bff60ad5150e622d2f1ae1",
+      "line": null
+    },
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalGovernanceFingerprint.kt",
+      "sha256": "54a036e9e738252127317525cfe0d6f1b138834a380dfac2927591e860175353",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V034__create_command_authorization.sql",
+      "sha256": "8745476ccc76d6d0b9b100489f317f6cead44afd0072998401d94c3b595bc5d9",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+      "sha256": "697cb21228ceb0237462c59fa70db9d92e673c7e8b034dfc68964ccd01703030",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V037__add_controlled_command_authority_provisioning.sql",
+      "sha256": "c19a45d17774450747e1f4f6ad50745a085b37b621abbe1937f134bf688604ce",
+      "line": null
+    }
+  ],
+  "source_checks": [
+    {
+      "check": "s2a_append_signer_key_revision_CALLER_TRANSACTION_NO_INTERNAL_COMMIT",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "s2a_append_signer_authority_revision_CALLER_TRANSACTION_NO_INTERNAL_COMMIT",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "KEY_PK_AND_RETIRED_STATE",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "AUTHORITY_NEW_SUCCESSOR_ID_REQUIRED",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "AUTHORITY_IMMUTABLE_WINDOW",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "V041_CURRENT_KEY_ACTIVE",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "V041_REPLAY_SELECTS_HISTORICAL_AUTHORITY",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "V041_NEW_AUTHORITY_ENABLED_WINDOW",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "V042_CURRENT_EFFECTIVE_KEY_ACTIVE",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "V042_CURRENT_AUTHORITY_ENABLED",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "V043_REVERSE_FK_DEFERRED",
+      "result": "PASS_SOURCE_REVIEW"
+    },
+    {
+      "check": "EXPECTED_ORIGINAL_HAS_NO_ACCEPTED_ATTESTATION_OR_GOVERNANCE_PRECOMMIT_DEPENDENCY",
+      "result": "PASS_SOURCE_REVIEW"
+    }
+  ],
+  "design_validation": {
+    "kind": "DETERMINISTIC_DESIGN_REVIEW_NOT_RUNTIME",
+    "prior_artifacts_read_and_preserved": 160,
+    "tracked_baseline_count": 1251,
+    "source_contract_checks": 12,
+    "crash_points": 17,
+    "adversarial_scenarios": 18,
+    "presence_scope_quiescence_cases": 6144,
+    "safe_public_queries": 26,
+    "key_authority_eligibility_states": 4,
+    "selected_registration_commits": 1,
+    "total_registration_plus_terminal_closure_commits": 2,
+    "UUID_generated": 0,
+    "keys_generated": 0,
+    "signatures": 0,
+    "database_connections": 0,
+    "database_writes": 0,
+    "result": "PASS_DESIGN"
+  }
+}

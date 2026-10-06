@@ -1,0 +1,650 @@
+{
+  "gate": "G3F_4_FINAL_CEREMONY_RECOVERY_CLOSURE",
+  "decision": "PASS_DESIGN",
+  "baseline": "05fc44e474aa3a3ad1a461912d56b0196e7150d0",
+  "branch": "checkpoint/package-0090-cloud-handoff",
+  "scope": "DESIGN_REVIEW_ONLY_ISOLATED_REHEARSAL_NO_RUNTIME_AUTHORIZATION",
+  "UUID_values_generated": 0,
+  "key_generation": 0,
+  "signature_count": 0,
+  "DB_mutations": 0,
+  "recovery_writes": 0,
+  "container_started": false,
+  "READINESS_READY": "NO",
+  "WATCHDOG_OPERATIONAL": "NO",
+  "SESSION_ADMISSION": "NO",
+  "WATCHDOG_DEPLOYMENT_HIGH": "OPEN",
+  "G3F4_H01": "OPEN",
+  "G3F_4": "HOLD",
+  "HEADER_FIELD_COUNT": 40,
+  "HEADER_CONTRACTS_CLOSED": 37,
+  "HEADER_STILL_OPEN": [
+    "issued_at",
+    "valid_from",
+    "expires_at"
+  ],
+  "source_storage_fingerprint": "4e78b3ec645685d88325e1ad6ca104bfc6e3698a23d652c2fd07fe3c804b14fb",
+  "frozen_scope": {
+    "deployment_id": "8f05fc47-d043-47c7-8130-c50890717f3e",
+    "incarnation_id": "83ad4115-4be5-44c6-b0e5-24fd0f068d6f",
+    "organization": "2fe2d63f-272e-45c9-abfd-247e69fb7a11",
+    "evidence_binding_fingerprint": "4e78b3ec645685d88325e1ad6ca104bfc6e3698a23d652c2fd07fe3c804b14fb",
+    "permission": "TRANSACTION_IDENTITY_DECISION_WRITE",
+    "environment": "G3F4_ISOLATED_DISPOSABLE_REHEARSAL_ONLY",
+    "complete_header_context": "All38 source fields plus retained canonical bytes/fingerprint; time fields remain open, no placeholder plan/header materialized."
+  },
+  "authority": "EXISTING_TRUSTED_REVIEWED_ADMIN / PLAN_BINDING_ADMIN; existing approval-governance capability for canonical V040 appends",
+  "runtime_evidence_scope": "No current DB snapshot. Previously captured source/domain/runtime state is historical evidence, not a new runtime or timing claim.",
+  "FINAL_CEREMONY_PHASES": [
+    {
+      "PHASE": "A",
+      "NAME": "Preflight validation",
+      "DURABLE_WRITE": "NO",
+      "SECRET_EXISTS": "NO signer private key",
+      "RETRYABLE": "Read-only validation; STOP until time/window/watchdog and complete inputs separately close",
+      "AUTHORITY_CHANGE": "NONE",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Verify immutable deployment approval, frozen domain allocation/source fingerprint, exact four login slots, version-pinned policy/history/ACL and 37 closed header contracts. Recovery disposition for previous roots must be proven first. No operational READY."
+    },
+    {
+      "PHASE": "B",
+      "NAME": "Final identity allocation",
+      "DURABLE_WRITE": "NO DB write; existing nonsecret immutable ceremony-input custody",
+      "SECRET_EXISTS": "NO signer private key",
+      "RETRYABLE": "Never regenerate a subset. Before effects only an exact still-running preparation can retain the entire root. Failed preparation is abandoned before a new complete set.",
+      "AUTHORITY_CHANGE": "NONE; reservations do not issue credentials or grants",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Use prior FINAL_CEREMONY_IDENTITY_ALLOCATION: ten independent identities plus existing governed manifest/correlation and signer allocations. Freeze public scope/IDs before effects; no extra recovery/attempt UUID."
+    },
+    {
+      "PHASE": "C",
+      "NAME": "Ephemeral signer preparation and staged canonical governance",
+      "DURABLE_WRITE": "Two uncommitted V040 public rows inside T_REG only",
+      "SECRET_EXISTS": "One process-local signer private key until E; public SPKI/lineage only in DB",
+      "RETRYABLE": "Abort uncommitted root as a unit; any possibly committed write requires authoritative query",
+      "AUTHORITY_CHANGE": "ACTIVE key + ENABLED bounded authority staged; become durable only with entire registration",
+      "COMMIT_BOUNDARY": "T_REG shared with F; no C-only commit",
+      "OPERATION": "After A/B and future temporal closure, BEGIN T_REG on the existing trusted ADMIN connection; immediately acquire existing organization/key/authority-scope locks in canonical order before key generation or writes. Obtain approved DB clock inputs, generate one ephemeral Ed25519 key, validate public SPKI and independently governed bounded authority; call existing V040 canonical append functions on that same connection (locks are reentrant). Save public semantic inputs in existing frozen ceremony-input context before first write. No calls to the separate-connection Kotlin convenience adapters."
+    },
+    {
+      "PHASE": "D",
+      "NAME": "Manifest materialization",
+      "DURABLE_WRITE": "NO additional durable effect; T_REG remains open",
+      "SECRET_EXISTS": "Signer private key in memory",
+      "RETRYABLE": "Abort/fresh entire root; no timestamp substitution or renewal",
+      "AUTHORITY_CHANGE": "NONE",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Encode exact existing 22-field ApprovalManifest and derived digest/preimage from actual allocated identities, source evidence and future-approved DB-derived window. Timestamp mapping is not selected by this gate."
+    },
+    {
+      "PHASE": "E",
+      "NAME": "One signature and independent local verification",
+      "DURABLE_WRITE": "NO additional DB effect; retain public original only in existing ceremony-input context",
+      "SECRET_EXISTS": "Signer private key through single SIGN; destroy before F after local verification completes",
+      "RETRYABLE": "Failed ceremony signature reuse DENY. Public verification/reconciliation needs no private key.",
+      "AUTHORITY_CHANGE": "NONE; local JCA validity is not V041 acceptance",
+      "COMMIT_BOUNDARY": "NONE",
+      "OPERATION": "Sign exactly once in memory; independently verify canonical preimage, approved scope and public SPKI with JCA; retain exact public original and commitments; immediately destroy/release signer-private buffers in finally. Fail closed if custody cannot be bounded. Do not call V041 trusted-verifier/consumer or V043 operational wrappers."
+    },
+    {
+      "PHASE": "F",
+      "NAME": "Complete registration and one atomic commit",
+      "DURABLE_WRITE": "Exactly 11 newly staged rows: 2 V040 + 9 V043",
+      "SECRET_EXISTS": "NO signer private key; separate governed ADMIN preflight-HMAC key domain remains subject to its existing custody contract",
+      "RETRYABLE": "COMMIT outcome unknown -> QUERY_FIRST. Exact committed root -> return exact existing state. Confirmed rollback -> abandon/fresh.",
+      "AUTHORITY_CHANGE": "T_REG makes bounded public signer governance and REGISTERED non-operational binding durable together; no command authority or admission",
+      "COMMIT_BOUNDARY": "T_REG: ONE",
+      "OPERATION": "Within the already-open same transaction: complete fresh NOT_READY/readiness + preflight-key rows; complete 40-field header first; exact original expected attestation second; five lifecycle/control rows; explicitly verify complete 11-row write set and exact approved inputs; SET CONSTRAINTS ALL IMMEDIATE; fresh DB window check under future time contract; COMMIT once. No missing control rows, UPSERT, placeholder, accepted evidence, commands, sessions or READY."
+    },
+    {
+      "PHASE": "G",
+      "NAME": "Post-commit reconciliation and terminal governance closure",
+      "DURABLE_WRITE": "T_CLOSE: one existing-governance append transaction only at independently proven terminal event",
+      "SECRET_EXISTS": "NO signer private key; normal continuation already destroyed it at E",
+      "RETRYABLE": "QUERY_FIRST on every unknown T_CLOSE outcome; already exact DISABLED/RETIRED -> no-op",
+      "AUTHORITY_CHANGE": "DISABLED successor then RETIRED key successor; never reactivate or rewrite history",
+      "COMMIT_BOUNDARY": "T_CLOSE: ONE conditional/later boundary, separate from registration",
+      "OPERATION": "Return exact durable registration after query, preserving NOT_READY. Do not retire immediately if later independently authorized V041/V042 effects remain pending. At final authorized effect/admission-consumption COMMIT, or proven abort/expiry/abandonment, existing ADMIN performs public-only terminal cleanup and verifies denial. No indefinite ENABLED orphan; on restart/next preparation reconcile outstanding roots before any signing or admission."
+    }
+  ],
+  "commit_boundary_counts": {
+    "DURABLE_COMMIT_BOUNDARY_COUNT": 2,
+    "count_scope": "A-G registration plus eventual terminal signer closure; no later operational verifier/issuance/decision transactions included in this registration-only design",
+    "BEFORE_BINDING_REGISTRATION_SUCCESS": 1,
+    "EVENTUAL_TERMINAL_GOVERNANCE_CLOSURE": 1,
+    "CONFIRMED_PRECOMMIT_ABORT": 0,
+    "CURRENT_CONVENIENCE_ADAPTER_REGISTRATION_PATH": 3,
+    "CURRENT_CONVENIENCE_ADAPTER_WITH_TERMINAL_CLOSURE": 4,
+    "CURRENT_GATE_DB_COMMIT_COUNT": 0,
+    "read_only_query_transactions": "End normally without durable writes; not counted as mutation boundaries",
+    "external_terminal_dependencies": "Later V041 acceptance, V042 principal/credential/grant/decision, V043 consumption/delivery/reconciliation have independently guarded commits and existing receipts. They are not authorized here and cannot be included silently in T_REG or inferred complete. Q15-Q26 detect them; terminal cleanup waits for their independently proven end."
+  },
+  "CRASH_POINT_MATRIX": [
+    {
+      "CRASH_POINT": "C0",
+      "BOUNDARY": "before identity allocation",
+      "DURABLE_STATE": "No allocated root and no new root DB effect",
+      "PRIVATE_KEY_STATE": "Not born",
+      "SIGNER_KEY_STATE": "ABSENT",
+      "SIGNER_AUTHORITY_STATE": "ABSENT",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "ABSENT",
+      "RETRY_ACTION": "Repeat read-only preflight; future authorized whole allocation only",
+      "QUERY_FIRST_REQUIRED": "NO if known no writer/key/DB effect; otherwise YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "NO; existing ADMIN proceeds under existing gate authority",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "NO_SET"
+    },
+    {
+      "CRASH_POINT": "C1",
+      "BOUNDARY": "after identity allocation, before key generation",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Not born",
+      "SIGNER_KEY_STATE": "ABSENT",
+      "SIGNER_AUTHORITY_STATE": "ABSENT",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "ABSENT",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "NO if known no writer/key/DB effect; otherwise YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "NO additional escalation if same existing ADMIN proves pre-effect disposition",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C2",
+      "BOUNDARY": "after key generation, before key governance write",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Lost on process death; no restart possession assumed",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C3",
+      "BOUNDARY": "after key revision commit",
+      "DURABLE_STATE": "Initial public key committed; authority absent",
+      "PRIVATE_KEY_STATE": "Lost on process death; no restart possession assumed",
+      "SIGNER_KEY_STATE": "ACTIVE initial committed revision; inspect exact current/effective lineage",
+      "SIGNER_AUTHORITY_STATE": "ABSENT; prove no successor/authority/command collision",
+      "BINDING_STATE": "ABSENT only after full query and original-writer quiescence",
+      "ATTESTATION_STATE": "No binding original/accepted proof expected; any actual accepted/consumption/command effects -> HOLD and existing domain recovery",
+      "RETRY_ACTION": "QUERY_FIRST full root/public lineage; disable exact authority if present, retire exact key, verify effective denial, record nonsecret evidence, abandon whole root, fresh only after proven disposition",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "UNREACHABLE_AS_INDEPENDENT_COMMIT; covered legacy separate-connection convenience API/deviation",
+      "IDENTITY_DISPOSITION": "QUERY_FIRST"
+    },
+    {
+      "CRASH_POINT": "C4",
+      "BOUNDARY": "after authority revision commit",
+      "DURABLE_STATE": "Initial public key committed and initial authority committed",
+      "PRIVATE_KEY_STATE": "Lost on process death; no restart possession assumed",
+      "SIGNER_KEY_STATE": "ACTIVE initial committed revision; inspect exact current/effective lineage",
+      "SIGNER_AUTHORITY_STATE": "ENABLED committed exact bounded initial authority; usable exposure until locked terminal closure",
+      "BINDING_STATE": "ABSENT only after full query and original-writer quiescence",
+      "ATTESTATION_STATE": "No binding original/accepted proof expected; any actual accepted/consumption/command effects -> HOLD and existing domain recovery",
+      "RETRY_ACTION": "QUERY_FIRST full root/public lineage; disable exact authority if present, retire exact key, verify effective denial, record nonsecret evidence, abandon whole root, fresh only after proven disposition",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "UNREACHABLE_AS_INDEPENDENT_COMMIT; covered legacy separate-connection convenience API/deviation",
+      "IDENTITY_DISPOSITION": "QUERY_FIRST"
+    },
+    {
+      "CRASH_POINT": "C5",
+      "BOUNDARY": "after manifest materialization",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Lost on process death; no restart possession assumed",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C6",
+      "BOUNDARY": "after signature creation",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Lost on process death; no restart possession assumed",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C7",
+      "BOUNDARY": "after signature verification",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Already destroyed/released at E on normal path; crash during destruction -> lost, never recovered",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C8",
+      "BOUNDARY": "after binding transaction BEGIN",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Not born at actual selected T_REG BEGIN; all signing occurs later within this transaction",
+      "SIGNER_KEY_STATE": "ABSENT; no key append yet at immediate BEGIN boundary",
+      "SIGNER_AUTHORITY_STATE": "ABSENT; no authority append yet at immediate BEGIN boundary",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "ABSENT; no signature or expected original at immediate BEGIN boundary",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "uncommitted_stage": "Actual T_REG BEGIN at C before key generation; no separate BEGIN at F. Legacy binding-only BEGIN after signer precommits is a deviation and requires the full orphan/commit query-first classification.",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C9",
+      "BOUNDARY": "after readiness/preflight prerequisites",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Signer private key already destroyed at E; separate preflight-HMAC custody is not signer custody",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "uncommitted_stage": "Two complete readiness/preflight rows staged",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C10",
+      "BOUNDARY": "after V043 header insert",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Signer private key already destroyed at E; separate preflight-HMAC custody is not signer custody",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "uncommitted_stage": "Header staged first; reverse expected-original FK still deferred",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C11",
+      "BOUNDARY": "after expected original attestation insert",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Signer private key already destroyed at E; separate preflight-HMAC custody is not signer custody",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "uncommitted_stage": "Expected original staged; forward header FK immediate",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C12",
+      "BOUNDARY": "after lifecycle/control rows",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Signer private key already destroyed at E; separate preflight-HMAC custody is not signer custody",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "uncommitted_stage": "All five controls staged; full 11-row set explicit validation required",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C13",
+      "BOUNDARY": "after SET CONSTRAINTS ALL IMMEDIATE",
+      "DURABLE_STATE": "No new root DB state after confirmed original transaction rollback/quiescence; immutable nonsecret allocated input may survive",
+      "PRIVATE_KEY_STATE": "Signer private key already destroyed at E; separate preflight-HMAC custody is not signer custody",
+      "SIGNER_KEY_STATE": "ABSENT after rollback; any staged ACTIVE public row was uncommitted",
+      "SIGNER_AUTHORITY_STATE": "ABSENT after rollback; any staged ENABLED public row was uncommitted",
+      "BINDING_STATE": "ABSENT after confirmed rollback; no in-flight absence inference",
+      "ATTESTATION_STATE": "No accepted proof; any materialized public signature is failed-root evidence only, not reusable",
+      "RETRY_ACTION": "Prove original writer ended and no allocated durable registration/effects; document existing-root abandonment; drop ephemeral state; only then whole fresh authorized ceremony",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "uncommitted_stage": "All constraints checked, but no commit/durable registration yet",
+      "IDENTITY_DISPOSITION": "ABANDON_AND_FRESH_SET_AFTER_PROOF"
+    },
+    {
+      "CRASH_POINT": "C14",
+      "BOUNDARY": "after COMMIT sent but result unknown",
+      "DURABLE_STATE": "UNKNOWN: entire T_REG absent or committed; never infer rollback from disconnect",
+      "PRIVATE_KEY_STATE": "Destroyed at E; process death cannot make key recoverable",
+      "SIGNER_KEY_STATE": "UNKNOWN with transaction outcome; query complete public lineage",
+      "SIGNER_AUTHORITY_STATE": "UNKNOWN with transaction outcome; query complete public lineage",
+      "BINDING_STATE": "UNKNOWN until fresh exact Q1-Q26 snapshot",
+      "ATTESTATION_STATE": "Expected original committed iff complete T_REG committed; accepted/command rows remain zero unless separate later guarded activity occurred",
+      "RETRY_ACTION": "Quiesce original writer; existing locks then fresh exact identity query. Exact complete -> return existing historical registration; absent -> abandon/fresh; legacy orphan -> terminal cleanup; partial/conflicting -> HOLD; still unknown -> QUERY_FIRST/HOLD",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "Only a whole fresh set after proven old-root disposition; no subset regeneration",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE",
+      "IDENTITY_DISPOSITION": "QUERY_FIRST"
+    },
+    {
+      "CRASH_POINT": "C15",
+      "BOUNDARY": "after confirmed COMMIT before private-key cleanup",
+      "DURABLE_STATE": "Complete exact T_REG committed (2 V040 + 9 V043), conditional on predicates; current state must still be queried",
+      "PRIVATE_KEY_STATE": "Already destroyed at E on selected path; at C15 deviation normal continuation destroys immediately, crash loses key; no retry key persistence",
+      "SIGNER_KEY_STATE": "Initial ACTIVE committed public key, or later exact terminal successors; current mutation permission not inferred",
+      "SIGNER_AUTHORITY_STATE": "Initial ENABLED finite-window committed authority, or later exact DISABLED successor; no indefinite orphan permitted",
+      "BINDING_STATE": "Exactly one historical registered binding; query current state; do not rerun",
+      "ATTESTATION_STATE": "Exact original expected commitment/signature committed; no inference of V041 acceptance/consumption",
+      "RETRY_ACTION": "QUERY_FIRST and return existing exact historical registration, preserving non-operational state. Cleanup only at proven terminal final effect/abort/expiry, with public lineage. No signature submission or new allocation for unknown existing domain effects.",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "NO for this committed binding; any subsequent independent ceremony requires separately proven closed disposition and whole fresh root",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "C15 excess-key-custody interval eliminated by destruction at E; defensive crash contract covered",
+      "IDENTITY_DISPOSITION": "QUERY_FIRST"
+    },
+    {
+      "CRASH_POINT": "C16",
+      "BOUNDARY": "after confirmed COMMIT before signer retirement/disable",
+      "DURABLE_STATE": "Complete exact T_REG committed (2 V040 + 9 V043), conditional on predicates; current state must still be queried",
+      "PRIVATE_KEY_STATE": "Already destroyed at E on selected path; at C15 deviation normal continuation destroys immediately, crash loses key; no retry key persistence",
+      "SIGNER_KEY_STATE": "Initial ACTIVE committed public key, or later exact terminal successors; current mutation permission not inferred",
+      "SIGNER_AUTHORITY_STATE": "Initial ENABLED finite-window committed authority, or later exact DISABLED successor; no indefinite orphan permitted",
+      "BINDING_STATE": "Exactly one historical registered binding; query current state; do not rerun",
+      "ATTESTATION_STATE": "Exact original expected commitment/signature committed; no inference of V041 acceptance/consumption",
+      "RETRY_ACTION": "QUERY_FIRST and return existing exact historical registration, preserving non-operational state. Cleanup only at proven terminal final effect/abort/expiry, with public lineage. No signature submission or new allocation for unknown existing domain effects.",
+      "QUERY_FIRST_REQUIRED": "YES",
+      "REGENERATE_IDS_ALLOWED": "NO for this committed binding; any subsequent independent ceremony requires separately proven closed disposition and whole fresh root",
+      "REUSE_SIGNATURE_ALLOWED": "NO",
+      "MANUAL_INTERVENTION_REQUIRED": "Existing trusted ADMIN inspection/disposition; escalation if unknown/conflicting/partial state. No new recovery admin.",
+      "SELECTED_GRAPH_REACHABILITY": "REACHABLE until later proven terminal cleanup",
+      "IDENTITY_DISPOSITION": "QUERY_FIRST"
+    }
+  ],
+  "CRASH_POINT_COUNT": 17,
+  "SELECTED_REACHABLE_CRASH_ORDER": [
+    "C0",
+    "C1",
+    "C8",
+    "C2",
+    "C5",
+    "C6",
+    "C7",
+    "C9",
+    "C10",
+    "C11",
+    "C12",
+    "C13",
+    "C14",
+    "C16"
+  ],
+  "CRASH_NUMBERING_NOTE": "User C labels are retained; chosen transaction begins before key/manifest/signing. C3/C4 independent commits and C15 excess custody are excluded from selected path and explicitly analyzed as legacy/deviation cases.",
+  "PRE_DURABLE_FAILURE_RECOVERY": "DROP_EPHEMERAL_STATE_AND_RETRY_WITH_FRESH_CEREMONY",
+  "POST_DURABLE_FAILURE_RETRY": "QUERY_FIRST",
+  "PARTIAL_ID_SET_REGENERATION": "FORBIDDEN",
+  "FAILED_CEREMONY_SIGNATURE_REUSE": "DENY",
+  "ATOMIC_GRAPH_CONDITION": "Only one T_REG actual ADMIN connection; no convenience-adapter precommit, no separately committed readiness/preflight subset, no V041 acceptance before binding. All 11 planned rows are validated before one COMMIT.",
+  "TEMPORAL_CONTRACT": "OPEN; no timestamp mapping, deadline profile change, fixture installation, window qualification or runtime timing claim in this gate.",
+  "ADVERSARIAL_MATRIX": [
+    {
+      "SCENARIO": "duplicate retry",
+      "EXPECTED": "Exact committed root is returned from query; no INSERT/re-sign/operation issuance",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "foreign plan_id",
+      "EXPECTED": "Header lookup cross-match or frozen allocation inequality -> HOLD; no plan remapping",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "foreign binding_id",
+      "EXPECTED": "Both binding primary identity and unique incarnation/plan match required; conflict -> HOLD",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "old expired signature",
+      "EXPECTED": "Deny reuse/renewal; query old commit before disposition; exact old commit remains historical registration only",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "orphan active authority",
+      "EXPECTED": "Chosen single T_REG prevents independent governance orphan; legacy exact orphan -> locked DISABLED then RETIRED then verify before fresh root",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "retired key + enabled authority",
+      "EXPECTED": "Deny new V041/V042 effects via current effective key; append exact DISABLED terminal authority if governed predecessor permits; do not reactivate key",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "active key + disabled authority",
+      "EXPECTED": "Deny new effects via authority state; public-only retire key; never allocate replacement authority inside old root",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "ambiguous commit",
+      "EXPECTED": "No absence until writer quiescence/locks/fresh complete snapshot; unknown stays HOLD; complete root returns existing",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "partial impossible state",
+      "EXPECTED": "Missing header/original or any required controls -> invariant violation/HOLD; no fill-in repair",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "wrong deployment/incarnation",
+      "EXPECTED": "Exact frozen host approval and header/readiness identities required; deny cross-incarnation replay",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "wrong organization",
+      "EXPECTED": "Full public row/scope/canonical evidence joins; foreign matching allocated UUID -> HOLD, no cleanup outside exact authority",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "historical fixture identity",
+      "EXPECTED": "Prior fixture/provider/reference hashes are provenance only; any historical/substituted root or mixed allocation denied",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "cleanup commit acknowledgment lost",
+      "EXPECTED": "Query successors first; exact DISABLED/RETIRED -> no-op; never blind new revision or successor UUID",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "stale absence snapshot while COMMIT waits",
+      "EXPECTED": "READ COMMITTED snapshot is taken only after locks return and writer is quiescent; no repeatable-read pre-lock snapshot",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "accepted proof or command effect under an alleged orphan",
+      "EXPECTED": "Existing domain reconciliation required; no infer undo/delete/abandonment or automatic fresh root",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "missing public allocation context after crash",
+      "EXPECTED": "HOLD/manual existing ADMIN reconstruction from immutable primary inputs/rows; no guessed IDs/new ceremony",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "inactive organization or future-dated conflicting lineage",
+      "EXPECTED": "Canonical cleanup unavailable or not effective -> HOLD; no role/ACL/time widening",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    },
+    {
+      "SCENARIO": "committed registration followed by retired governance",
+      "EXPECTED": "Return exact historical registration/current denial; retained accepted historical replay is not fresh authority",
+      "RESULT": "PASS_DESIGN",
+      "EXECUTED": false
+    }
+  ],
+  "RECOVERY_ADVERSARIAL_MATRIX": "PASS_DESIGN",
+  "sources": [
+    {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "d12acc86cbed8d56cd774f427b79dce26258a36ac65a7d78bf2cb1fb37fd9a92",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+      "sha256": "3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109",
+      "line": null
+    },
+    {
+      "path": "applications/command-authority-ceremony/src/main/kotlin/io/flooow/ceremony/OfflineFieldProofExecutionPlan.kt",
+      "sha256": "e1abfb285e59bd3d5926ecb0e9be1fd21a9eef363ef478120cb0fc40908dcd80",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalAttestationCanonicalCodec.kt",
+      "sha256": "74763cd4b0c3ab49b3f2c882f724df3ec10561f9aaa452c7b29fd1d6a943b26d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresApprovalGovernance.kt",
+      "sha256": "442b9fe79b023e0d7a36134d9c7cf717335a5418c249af8ddcc42521ccb3863d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalGovernance.kt",
+      "sha256": "bb71114ceb00501499adefe1ce3a1418cdb2a0e36d71fdf5f44fa54773a246dc",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/kotlin/io/flooow/marketplace/persistence/postgres/PostgresAcceptedAttestationVerifier.kt",
+      "sha256": "0ae90611d56a8127379b33c9e29b67d9330391f531c2583e13860189ca76b3a4",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+      "sha256": "58753e9d702169311f5ea74099f89e5068d982ef9c30d0e1da275b4e40b6bedd",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+      "sha256": "3ff1421dd56de17270a9c44054055c0c1afc91f855d903697268088a53f1182d",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "sha256": "3bfc5f7c95d235235ff8444453523a6a757980b464bff60ad5150e622d2f1ae1",
+      "line": null
+    },
+    {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sha256": "e1c26d2f202684d5ace54408c83a0fcf100085864270f0c32cb077b9398566a9",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations/src/main/kotlin/io/flooow/marketplace/operations/authorization/ApprovalGovernanceFingerprint.kt",
+      "sha256": "54a036e9e738252127317525cfe0d6f1b138834a380dfac2927591e860175353",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V034__create_command_authorization.sql",
+      "sha256": "8745476ccc76d6d0b9b100489f317f6cead44afd0072998401d94c3b595bc5d9",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+      "sha256": "697cb21228ceb0237462c59fa70db9d92e673c7e8b034dfc68964ccd01703030",
+      "line": null
+    },
+    {
+      "path": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V037__add_controlled_command_authority_provisioning.sql",
+      "sha256": "c19a45d17774450747e1f4f6ad50745a085b37b621abbe1937f134bf688604ce",
+      "line": null
+    }
+  ],
+  "design_validation": {
+    "kind": "DETERMINISTIC_DESIGN_REVIEW_NOT_RUNTIME",
+    "prior_artifacts_read_and_preserved": 160,
+    "tracked_baseline_count": 1251,
+    "source_contract_checks": 12,
+    "crash_points": 17,
+    "adversarial_scenarios": 18,
+    "presence_scope_quiescence_cases": 6144,
+    "safe_public_queries": 26,
+    "key_authority_eligibility_states": 4,
+    "selected_registration_commits": 1,
+    "total_registration_plus_terminal_closure_commits": 2,
+    "UUID_generated": 0,
+    "keys_generated": 0,
+    "signatures": 0,
+    "database_connections": 0,
+    "database_writes": 0,
+    "result": "PASS_DESIGN"
+  }
+}
