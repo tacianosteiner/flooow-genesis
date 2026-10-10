@@ -10,6 +10,10 @@ This is a proposed documentation contract, not runtime, data-access, model-execu
 
 ## Ordered future work and completion evidence
 
+The first dataset is FLOOOW Product Intelligence Benchmark v1, with `COHORT_ID=REDMOTO_INITIAL_REAL_WORLD_COHORT`, `COHORT_ROLE=REFERENCE_VALIDATION` and `CORE_DEPENDENCY=NO`. REDMOTO_IS_INITIAL_VALIDATION_COHORT=YES; REDMOTO_IS_CORE_DEPENDENCY=NO. Redmoto is the initial validation instance, not a required dataset or platform primitive. Follow the [tenant-neutrality contract](../TENANT-NEUTRALITY-AND-REFERENCE-COHORT-CONTRACT.md) and [addendum](../POST-MVP-ROADMAP-ADDENDUM-TENANT-NEUTRALITY.md).
+
+Before production-wide promotion or a generalized FLOOOW capability claim, require CROSS_COHORT_GENERALIZATION_GATE: reference cohort pass, an independently qualified second cohort pass, assessed cross-cohort variance, documented out-of-domain limits and Tenant Neutrality Gate PASS. No gate has passed in this documentation mission. The second cohort is selected on rights-cleared evidence and relevance; premium beverages are a candidate, not a mandatory dependency. Vertical adapters specialize evidence and attributes while preserving generic relations, truth, authority, lineage and reconciliation.
+
 | Stage | Deliverable and stop condition |
 |---|---|
 | 0 | Room V1 immutable operational proof; absent proof blocks dataset foundation execution |

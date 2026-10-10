@@ -40,7 +40,19 @@ This orders dependencies, not delivery dates or current completion claims. Room 
 
 Every new capability follows DISCOVER -> DATA CONTRACT -> BASELINE -> BENCHMARK -> ADVERSARIAL -> SHADOW -> PILOT -> PROMOTION GATE -> ROOM UPGRADE. No large rewrite of Room V1. Capital is earned by evidence; every future tranche needs CAPITAL_REQUIRED, MAXIMUM_LOSS, EVIDENCE_REQUIRED, WHAT_MUST_BE_TRUE, KILL_RULE and NEXT_BEST_INFORMATION. No public investment marketplace is authorized.
 
-## Preserved sources and design
+## Tenant neutrality — architectural invariant
+
+The [Tenant Neutrality contract](TENANT-NEUTRALITY-AND-REFERENCE-COHORT-CONTRACT.md) and [roadmap addendum](POST-MVP-ROADMAP-ADDENDUM-TENANT-NEUTRALITY.md) govern all future post-MVP designs. Reference businesses are validation cohorts only; no reference business is a mandatory core dependency. REFERENCE BUSINESS != PLATFORM; REFERENCE COHORT != CORE DEPENDENCY; VERTICAL EVIDENCE != UNIVERSAL SEMANTICS.
+
+The benchmark remains FLOOOW Product Intelligence Benchmark v1. Redmoto is a REFERENCE_IMPLEMENTATION, INITIAL_VALIDATION_COHORT and REAL_WORLD_LAB, not platform identity, mandatory tenant, mandatory dataset or domain primitive. FLOOOW Opportunity Engine may use `validation_lab=REDMOTO_REFERENCE_LAB`; the lab does not define the engine.
+
+Before claiming a generalized capability, the CROSS_COHORT_GENERALIZATION_GATE requires REFERENCE_COHORT_PASS=YES, SECOND_COHORT_PASS=YES, CROSS_COHORT_VARIANCE_ASSESSED=YES, OUT_OF_DOMAIN_LIMITS_DOCUMENTED=YES and TENANT_NEUTRALITY_GATE=PASS. These are required future evidence, not achieved results. Premium Beverage Intelligence is a possible second cohort, not a mandatory second cohort or platform dependency. The earlier sequence identifies research labs and priorities, not tenant prerequisites for core operation.
+
+Use FLOOOW CORE -> VERTICAL ADAPTER -> TENANT CONFIGURATION. Generic primitives are defined in the contract; tenant/vertical evidence and configuration cannot redefine canonical truth, authority, evidence lineage or reconciliation semantics. All six core-generalization checks in the contract must pass before cohort-specific concepts enter core.
+
+Registration audit: before writes, CURRENT_BRANCH=research/post-mvp-intelligence-program; LOCAL_HEAD=ORIGIN_POST_MVP_BRANCH_HEAD=b2d9f279c7b17055765c3cb4039b9589edf33068; ORIGIN_MAIN_HEAD=77d482c97a663a527dcacc85036c7577dfc92782; TRACKED_DIRTY_COUNT=0; STAGED_COUNT=0; UNTRACKED_COUNT=0. Fetch passed. Standalone sources were found in Downloads and matched both ZIP entries exactly (ZIP_FOUND=YES; HASH_CONFLICT=NO). Contract SHA256: `37126954a0f21adf24e991d774bd2cd1512bcee17b101c6557f9ccdc01823430`; addendum SHA256: `580224a2ffc3acf04c1a96eaa4d277deb5211142e92f0f84ba3991f78aa61e12`. Both are preserved byte-for-byte. Existing research contained no ambiguous Redmoto benchmark/engine names or brand-specific core primitives; forbidden strings in the imported documents are explicitly negative examples. Historical imports remain unchanged. No implementation authority is granted.
+
+## Preserved source links
 
 - [Exact supplied execution blueprint](FLOOOW-POST-MVP-ENGINEERING-EXECUTION-PLAN-v1.md).
 - [Import audit and interpretation boundary](ARTIFACT-PRESERVATION-AUDIT.md).
