@@ -87,6 +87,15 @@ The responsibility boundary is:
 These intelligence concepts remain downstream consumers until separately governed
 contracts authorize their implementation.
 
+### Opportunity Capital Foundry research reference
+
+The [Opportunity Capital Foundry V2 research path](OPPORTUNITY-CAPITAL-FOUNDRY.md)
+preserves opportunity qualification, staged capital evidence, creator/distribution
+readiness and outcome learning. It is documentation-only, outside the current MVP
+and Package 0090 critical path. It authorizes no implementation, migration, social
+integration, investment marketplace or capital execution, and does not alter the
+economic-truth boundary or the accepted production sequence above.
+
 ## External technical review and production-infrastructure guardrail
 
 External experts, benchmark companies, investors, competitors, research,
