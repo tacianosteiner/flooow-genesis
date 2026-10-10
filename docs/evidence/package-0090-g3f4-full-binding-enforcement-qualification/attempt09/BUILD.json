@@ -1,0 +1,185 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "--detach",
+      "--name",
+      "flooow-0090-full-6800161",
+      "--label",
+      "flooow.scope=0090-full-binding-enforcement",
+      "--network",
+      "none",
+      "--cpus",
+      "1",
+      "--memory",
+      "768m",
+      "--security-opt",
+      "seccomp=C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\docs\\evidence\\package-0090-g3f4-disposable-native-qualification\\SECCOMP-TEST.json",
+      "--tmpfs",
+      "/tmp",
+      "--tmpfs",
+      "/run",
+      "--tmpfs",
+      "/var/lib/postgresql",
+      "--entrypoint",
+      "sleep",
+      "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "infinity"
+    ],
+    "exit": 0,
+    "stdout": "760befa6ddf7b3c65a9424e860bc4924105867b160d0b7d5b2b7f5fe083e6a05\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification",
+      "flooow-0090-full-6800161:/usr/local/src-full"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\AppData\\Local\\Temp\\flooow-native-qualification\\libpq-fe.h",
+      "flooow-0090-full-6800161:/usr/local/src-full/libpq-fe.h"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-full-6800161",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/login.c",
+      "-o",
+      "/usr/local/lib/flooow_test_login.so",
+      "-Wno-unused-parameter",
+      "-fPIC",
+      "-shared",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/include/postgresql/internal",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-full-6800161",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/receiver.c",
+      "-o",
+      "/usr/local/bin/flooow-test-receiver",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/local/src-full",
+      "-l:libpq.so.5",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-full-6800161",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/supervisor.c",
+      "-o",
+      "/usr/local/bin/flooow-test-supervisor",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-full-6800161",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/frame_tests.c",
+      "-o",
+      "/usr/local/bin/flooow-test-frame",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-full-6800161",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/boottime.c",
+      "-o",
+      "/usr/local/bin/boottime",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-full-6800161",
+      "/usr/local/bin/flooow-test-frame"
+    ],
+    "exit": 0,
+    "stdout": "{\"frame_parser_cases\":237,\"result\":\"PASS\",\"scope\":\"UTF8_NFC_ICU76\"}\n",
+    "stderr": ""
+  }
+]

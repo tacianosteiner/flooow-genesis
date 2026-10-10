@@ -1,0 +1,296 @@
+{
+  "input_head": "68001610df44dd17afc82a3d5ed575e8a0a59d71",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "FAIL",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "FAIL",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "FAIL",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_offline_binding_header",
+      "result": "FAIL",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n"
+      }
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_offline_binding_lifecycle",
+      "result": "FAIL",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n"
+      }
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_offline_attempt_pointer",
+      "result": "FAIL",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n"
+      }
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_flooow_test_binding",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "ERROR:  permission denied for table flooow_test_binding\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_status.json",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/status.json: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_approval.json",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/approval.json: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_attestation.json",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/attestation.json: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_gate.bin",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/gate.bin: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "REVOKED",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 316129.9
+      }
+    },
+    {
+      "group": "custody",
+      "name": "RETIRED",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 283521.7
+      }
+    },
+    {
+      "group": "custody",
+      "name": "STALE",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 317834.2
+      }
+    },
+    {
+      "group": "custody",
+      "name": "MISSING",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 289727.2
+      }
+    },
+    {
+      "group": "custody",
+      "name": "AMBIGUOUS",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 303554.6
+      }
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 609571604721900,
+      "end_ns": 609575177865400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237739567390
+    },
+    {
+      "start_ns": 609576640528900,
+      "end_ns": 609580115301100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237744389441
+    },
+    {
+      "start_ns": 609580115641500,
+      "end_ns": 609583919903000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237748267278
+    },
+    {
+      "start_ns": 609584025939800,
+      "end_ns": 609587299817300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237751679290
+    },
+    {
+      "start_ns": 609588084160000,
+      "end_ns": 609590168825800,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 237754550466
+    },
+    {
+      "start_ns": 609591001415200,
+      "end_ns": 609594312775400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237758692819
+    },
+    {
+      "start_ns": 609595075387900,
+      "end_ns": 609597198250800,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 237761625425
+    },
+    {
+      "start_ns": 609597991390500,
+      "end_ns": 609602093184300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237765784501
+    },
+    {
+      "start_ns": 609603085660800,
+      "end_ns": 609605252391900,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 237769667509
+    },
+    {
+      "start_ns": 609606139383900,
+      "end_ns": 609609339930100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237773840818
+    },
+    {
+      "start_ns": 609610137678900,
+      "end_ns": 609612210472500,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 237776623076
+    },
+    {
+      "start_ns": 609613112237100,
+      "end_ns": 609616260184400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 237780720426
+    },
+    {
+      "start_ns": 609616996096300,
+      "end_ns": 609619298962100,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 237783499653
+    },
+    {
+      "start_ns": 609620160355600,
+      "end_ns": 609622320836900,
+      "eligible": false,
+      "reason": "['docker', 'exec', '--user', '0', '-i']: cat: /run/flooow-external/approval.json: No such file or directory\n",
+      "gate_written_boottime_us": 237786594725
+    }
+  ],
+  "errors": [
+    "Traceback (most recent call last):\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 138, in main\n    tests()\n    ~~~~~^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 157, in tests\n    scenarios.run(sys.modules[__name__])\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\scenarios.py\", line 14, in run\n    q.mutate_external('/run/flooow-external/status.json',st,state)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 78, in mutate_external\n    original=ex('cat',path,user='0').stdout;rootfile(path,json.dumps(object_));observer_once();denial(group,name);rootfile(path,original);assert observer_once()\n                                                                                                                                                 ~~~~~~~~~~~~~^^\nAssertionError\n"
+  ],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 2000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "029bd64cf22543a77480cb187f8e3029aa89347be0126706c39d269b75e01001",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "168f32c601365d8603999d9376d373ef2a71fd2c60e4ba813460c0b8653ad0be  /usr/local/lib/flooow_test_login.so\n85e279385516d4a23fddc2f3f2091740b7d14ff6b67f094179377275c56d6c5e  /usr/local/bin/flooow-test-receiver\nb9f7d30e595e82e68758ae63e073fea68eba43f34b886e12e731dbd8ca6d1a47  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "f5237ccb0fbbebfe081b26a8bfe098742563b98701814dd3f7beb0394ce1b365",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "1973daf8f7c0f4b25c3cf04e29628161da882895a0c5450526042d93ae2faf86",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "login.c": "2bf5c66d7f9d0b11427119bde76326929a187dd096a1d488ab75ee34efd25b6f",
+    "prepare_sources.py": "90231dc3d5ae51d90dec13e5d9a272c52c0fba4249af503562fbb3bde0e0ed9a",
+    "protocol.h": "84dd6d3be1f438ba5f79b39e956d6a9e3ef206524e878ef58d8856ab8160e841",
+    "qualification.py": "28421748cad05596562c9e904714afd47f96c5d9cce928362bbfd3bcf061700e",
+    "receiver.c": "09c3ab53d54f305220f7104f4ae47bca5b4c5bb9e22fd9b5e03b34127ed16fb8",
+    "scenarios.py": "49d41ee3b2cbf0d910ec5563216f9ad646314027adf2997c3b9a9a74bc4f04b5",
+    "supervisor.c": "45fb8949611f298d85df62a97c9fdc6674dd57895b47b34ce82e0cb4f34c314e"
+  },
+  "owned_container_removed": true
+}

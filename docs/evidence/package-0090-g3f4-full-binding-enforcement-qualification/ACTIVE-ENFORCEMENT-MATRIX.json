@@ -1,0 +1,120 @@
+{
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "round": "attempt03",
+      "group": "enforcement",
+      "name": "approval_revoked",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 6429,
+        "unmanaged_initial_pid": 6399,
+        "catalog_disappeared": true,
+        "victim_stderr": "ERROR:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 2590725.3,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "enforcement",
+      "name": "independent_observer_unavailable",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 6668,
+        "unmanaged_initial_pid": 6636,
+        "catalog_disappeared": true,
+        "victim_stderr": "ERROR:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 5404192.0,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "enforcement",
+      "name": "cancel_failure_then_terminate",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 6965,
+        "unmanaged_initial_pid": 6930,
+        "catalog_disappeared": true,
+        "victim_stderr": "FATAL:  terminating connection due to administrator command\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 2718267.2,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "round": "attempt05",
+      "group": "enforcement",
+      "name": "both_signals_fail_still_deny_new",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 269231.2
+      }
+    },
+    {
+      "round": "attempt05",
+      "group": "enforcement",
+      "name": "terminate_failure_quarantine_retained_until_recovery",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "live_when_signals_suppressed": true,
+        "after_recovery_exit": 2,
+        "ownership_release": false,
+        "risk": "No bounded completion while signaling unavailable"
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "enforcement",
+      "name": "approval_revoked",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 6429,
+        "unmanaged_initial_pid": 6403,
+        "catalog_disappeared": true,
+        "victim_stderr": "ERROR:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 3358641.3,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "enforcement",
+      "name": "independent_observer_unavailable",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 6698,
+        "unmanaged_initial_pid": 6665,
+        "catalog_disappeared": true,
+        "victim_stderr": "ERROR:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 5387676.3,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "enforcement",
+      "name": "cancel_failure_then_terminate",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 6996,
+        "unmanaged_initial_pid": 6967,
+        "catalog_disappeared": true,
+        "victim_stderr": "FATAL:  terminating connection due to administrator command\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 2696609.3,
+        "signal_alone_not_proof": true
+      }
+    }
+  ],
+  "limitations": "Retained-anchor SIGINT then SIGTERM, kernel death plus fresh exact-session catalog disappearance. Selective unrelated-session witness for revocation; full supervisor/postmaster loss is coarse stack shutdown.",
+  "overlapping_rounds_are_not_unique_coverage": true
+}

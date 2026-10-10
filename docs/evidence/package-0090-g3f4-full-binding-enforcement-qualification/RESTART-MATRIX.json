@@ -1,0 +1,231 @@
+{
+  "cases": [
+    {
+      "round": "attempt03",
+      "group": "restart",
+      "name": "receiver_restart",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old_postmaster_stopped": true,
+        "fresh_admission": true,
+        "identity_survival": "deployment/incarnation/header unchanged; ephemeral joint epoch fresh from getrandom; old retained anchors dead",
+        "ownership": "OWNED"
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "restart",
+      "name": "supervisor_restart",
+      "result": "FAIL",
+      "detail": {
+        "old_postmaster_stopped": false,
+        "fresh_admission": false,
+        "identity_survival": "deployment/incarnation/header unchanged; ephemeral joint epoch fresh from getrandom; old retained anchors dead",
+        "ownership": "OWNED"
+      }
+    },
+    {
+      "round": "attempt05",
+      "group": "restart",
+      "name": "postmaster_database_stack_rebootstrap",
+      "result": "PASS_HANDLED",
+      "detail": "new atomic receiver/postmaster pair; same deployment/incarnation; fresh ephemeral epoch"
+    },
+    {
+      "round": "attempt06",
+      "group": "restart",
+      "name": "supervisor_loss_blocks_usable_session",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "postmaster_stopped": true,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n"
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "restart",
+      "name": "supervisor_restart_regression",
+      "result": "PASS_HANDLED",
+      "detail": "fresh kernel anchors and epoch; prior descriptor-reuse failure retained"
+    },
+    {
+      "round": "attempt06",
+      "group": "restart",
+      "name": "full_stack_after_pending_receiver_crash",
+      "result": "PASS_HANDLED",
+      "detail": "fresh bootstrap after loss"
+    },
+    {
+      "round": "attempt07",
+      "group": "restart",
+      "name": "final_receiver_supervisor_restart",
+      "result": "PASS_HANDLED",
+      "detail": "expected parent peer pidfd matches retained supervisor anchor; fresh epoch"
+    },
+    {
+      "round": "attempt08",
+      "group": "restart",
+      "name": "receiver_restart",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old_postmaster_stopped": true,
+        "fresh_admission": true,
+        "identity_survival": "deployment/incarnation/header unchanged; ephemeral joint epoch fresh from getrandom; old retained anchors dead",
+        "ownership": "OWNED"
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "restart",
+      "name": "supervisor_restart",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old_postmaster_stopped": true,
+        "fresh_admission": true,
+        "identity_survival": "deployment/incarnation/header unchanged; ephemeral joint epoch fresh from getrandom; old retained anchors dead",
+        "ownership": "OWNED"
+      }
+    }
+  ],
+  "generation_graph": [
+    {
+      "round": "attempt02",
+      "event": "receiver_armed",
+      "atomic_postmaster_anchor": true
+    },
+    {
+      "round": "attempt03",
+      "event": "receiver_armed",
+      "atomic_postmaster_anchor": true
+    },
+    {
+      "round": "attempt03",
+      "event": "receiver_armed",
+      "atomic_postmaster_anchor": true
+    },
+    {
+      "round": "attempt03",
+      "event": "receiver_armed",
+      "atomic_postmaster_anchor": true
+    },
+    {
+      "round": "attempt04",
+      "event": "receiver_armed",
+      "atomic_postmaster_anchor": true
+    },
+    {
+      "round": "attempt05",
+      "event": "receiver_armed",
+      "epoch": "dccb3712ad5371c7685e022a75468b16e7cf685f6bf2547313a4ede8283e4fc3",
+      "supervisor_inode": 4263818,
+      "postmaster_inode": 4263820,
+      "at_us": 238302706661
+    },
+    {
+      "round": "attempt05",
+      "event": "receiver_armed",
+      "epoch": "b20d4e8c2b4c0ce47971b3a01a5e0b91e481bd9c06f837af5177228474f8a251",
+      "supervisor_inode": 4266015,
+      "postmaster_inode": 4266017,
+      "at_us": 238323683172
+    },
+    {
+      "round": "attempt05",
+      "event": "receiver_armed",
+      "epoch": "f4b3b9897b97b48c48ec61afa729597da5480c48fe91af9e11dba6576fd2e531",
+      "supervisor_inode": 4266437,
+      "postmaster_inode": 4266439,
+      "at_us": 238327682119
+    },
+    {
+      "round": "attempt06",
+      "event": "receiver_armed",
+      "epoch": "b2742e3f8c5ec98049993754e6d7569f672b6c58eaec5092ae360505dc838d8f",
+      "supervisor_inode": 4269989,
+      "postmaster_inode": 4269991,
+      "at_us": 238410096607
+    },
+    {
+      "round": "attempt06",
+      "event": "receiver_armed",
+      "epoch": "1416dcd28e55a20deac49bf1fab55cee4c0709bce308bba11ceccd97a581d78d",
+      "supervisor_inode": 4273385,
+      "postmaster_inode": 4273387,
+      "at_us": 238441894729
+    },
+    {
+      "round": "attempt06",
+      "event": "receiver_armed",
+      "epoch": "38f0f48f06bbbdcdd749b24462b3862fd6a3208a1782284c90f8d24c18a5cc50",
+      "supervisor_inode": 4274185,
+      "postmaster_inode": 4274187,
+      "at_us": 238448741503
+    },
+    {
+      "round": "attempt07",
+      "event": "receiver_armed",
+      "epoch": "5209a80106a59eff04981083124d89bc24bff4c6aa5da7cb3a105f08b65acfa1",
+      "supervisor_inode": 4278540,
+      "postmaster_inode": 4278542,
+      "at_us": 238572064096
+    },
+    {
+      "round": "attempt07",
+      "event": "receiver_armed",
+      "epoch": "792416c3619b6bddbc03a48c969ff5b75d31b3076d7ed2e04672ccf2a1f486d1",
+      "supervisor_inode": 4280243,
+      "postmaster_inode": 4280245,
+      "at_us": 238586986981
+    },
+    {
+      "round": "attempt08",
+      "event": "receiver_armed",
+      "epoch": "2e6c01fd21e71f99a665bcb7ea2926d33e4ab463f784b2747ded139b0ffd7317",
+      "supervisor_inode": 4283625,
+      "postmaster_inode": 4283627,
+      "at_us": 238657803315
+    },
+    {
+      "round": "attempt08",
+      "event": "receiver_armed",
+      "epoch": "63548ce9a43d3e419b9a4ae93c21750695b4addc2237a2573eec6b22eedf4865",
+      "supervisor_inode": 4309476,
+      "postmaster_inode": 4309478,
+      "at_us": 238932477578
+    },
+    {
+      "round": "attempt08",
+      "event": "receiver_armed",
+      "epoch": "07637df50eafe22b3549556ee3160bb172a6e89c1aeef18c6b1a1db87661e69a",
+      "supervisor_inode": 4310261,
+      "postmaster_inode": 4310263,
+      "at_us": 238938860760
+    },
+    {
+      "round": "attempt09",
+      "event": "receiver_armed",
+      "epoch": "b6292226bfea0535378f31994cc6c455894ed9acdb56e1539618edc914309362",
+      "supervisor_inode": 4313256,
+      "postmaster_inode": 4313258,
+      "at_us": 238999419105
+    },
+    {
+      "round": "attempt10",
+      "event": "receiver_armed",
+      "epoch": "ab162e82d3a49e04332abaa82744600d00bab381b0ff2efef00f65ed03797cf9",
+      "supervisor_inode": 4317669,
+      "postmaster_inode": 4317671,
+      "at_us": 239092045404
+    }
+  ],
+  "survive": [
+    "synthetic deployment/incarnation/header identity",
+    "durable effect/ownership rows"
+  ],
+  "rotate": [
+    "atomic supervisor/receiver/postmaster anchors on stack restart",
+    "joint ephemeral epoch on receiver/postmaster/supervisor loss",
+    "backend pidfd on backend restart"
+  ],
+  "failure_preserved": "attempt03 supervisor self pidfd CLOEXEC/descriptor reuse; fixed by explicit inheritance plus socketpair peer pidfd comparison, regression passed in attempts06/07/08"
+}

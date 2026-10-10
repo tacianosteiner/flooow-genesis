@@ -1,0 +1,96 @@
+{
+  "cases": [
+    {
+      "round": "attempt03",
+      "group": "effect",
+      "name": "known_no_effect_after_authoritative_query",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "classification": "KNOWN_NO_EFFECT",
+        "query_count": "0",
+        "disconnect_inference": false
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "effect",
+      "name": "known_committed_query_first",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "classification": "KNOWN_COMMITTED",
+        "query_count": "1",
+        "automatic_replay": false
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "effect",
+      "name": "commit_response_lost_query_first",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "initial_classification": "UNKNOWN_REQUIRES_RECONCILIATION",
+        "after_query": "KNOWN_COMMITTED",
+        "query_count": "1",
+        "ownership": "OWNED",
+        "new_attempt": false,
+        "automatic_replay": false,
+        "limitation": "Docker client response deliberately discarded; transport-loss point relative to COMMIT not forced"
+      }
+    },
+    {
+      "round": "attempt05",
+      "group": "effect",
+      "name": "revocation_during_write_before_commit",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "classification_after_query": "KNOWN_NO_EFFECT",
+        "initial_classification": "UNKNOWN_REQUIRES_RECONCILIATION",
+        "query_count": "0",
+        "ownership": "OWNED",
+        "writer_stderr": "ERROR:  canceling statement due to user request\n",
+        "automatic_replay": false
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "effect",
+      "name": "known_no_effect_after_authoritative_query",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "classification": "KNOWN_NO_EFFECT",
+        "query_count": "0",
+        "disconnect_inference": false
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "effect",
+      "name": "known_committed_query_first",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "classification": "KNOWN_COMMITTED",
+        "query_count": "1",
+        "automatic_replay": false
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "effect",
+      "name": "commit_response_lost_query_first",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "initial_classification": "UNKNOWN_REQUIRES_RECONCILIATION",
+        "after_query": "KNOWN_COMMITTED",
+        "query_count": "1",
+        "ownership": "OWNED",
+        "new_attempt": false,
+        "automatic_replay": false,
+        "limitation": "Docker client response deliberately discarded; transport-loss point relative to COMMIT not forced"
+      }
+    }
+  ],
+  "ownership_retained": "PASS_SYNTHETIC_OWNED_ROW",
+  "terminal_ownership": "NOT_RUN_WITH_REASON: complete V043 claim/attempt/execution/domain wrappers not installed/executed",
+  "new_attempt_and_replay": "No automatic attempt/replay performed; normative recovery/terminal criteria remain HOLD",
+  "process_death_does_not_release": true
+}

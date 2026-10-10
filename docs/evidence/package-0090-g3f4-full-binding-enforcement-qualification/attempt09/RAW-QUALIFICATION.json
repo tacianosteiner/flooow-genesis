@@ -1,0 +1,142 @@
+{
+  "input_head": "68001610df44dd17afc82a3d5ed575e8a0a59d71",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "attestation",
+      "name": "valid_crypto_material_substitution_must_deny",
+      "result": "FAIL",
+      "detail": {
+        "observer_eligible": true,
+        "native_login_exit": 0,
+        "stderr": "",
+        "attack": "valid signature on different actual preimage while original metadata/header/custody unchanged",
+        "synthetic_signing": "TEST_ONLY_NONCANONICAL",
+        "requires_exact_material_commitment": true
+      }
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 610831036405600,
+      "end_ns": 610832713368300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 238997073046
+    },
+    {
+      "start_ns": 610834919595000,
+      "end_ns": 610836549302100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239001162472
+    },
+    {
+      "start_ns": 610836549541300,
+      "end_ns": 610838979460500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239003072732
+    },
+    {
+      "start_ns": 610839080179800,
+      "end_ns": 610840456528600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239005096724
+    },
+    {
+      "start_ns": 610841503429800,
+      "end_ns": 610842858580800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239007477199
+    },
+    {
+      "start_ns": 610843724311000,
+      "end_ns": 610845231044100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239009856759
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 5000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "760befa6ddf7b3c65a9424e860bc4924105867b160d0b7d5b2b7f5fe083e6a05",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "7ca3140d6fb8bf1562fd659a512f2286b96128ac47042de3513e6ef9978accfd  /usr/local/lib/flooow_test_login.so\nea6037a113887475c43538218f38883ae3df647ec4ab227a2b68bef2b17df68a  /usr/local/bin/flooow-test-receiver\nb93071184d773d74678be110730a2d644212bd1af352bf9b612870e119b7ab60  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "8cb07ca898a2516cc2416acda487d572d3c77b7cdeaf0e8d749e75e1904630de",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "1973daf8f7c0f4b25c3cf04e29628161da882895a0c5450526042d93ae2faf86",
+    "crypto_material_probe.py": "7ef5c236468b39872364d4135409ce32a3d6961046e20838c9137c576e8f9262",
+    "drain_probe.py": "72cdbe6fd0953dec028de10a129271fb0701e5f148b0fe5b10256fdf3eca16ef",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "login.c": "793f920726816e475c85c3568f2bb524223bf2b38089e23979d1a9dd6e03b56b",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "qualification.py": "d62f33d1829e5b5812f93d4ae84d7df03364525ff224defc598f6198f4fb55ea",
+    "README.md": "82d310a5dd6d1c50de6280c654724911a1b9d0155e4f3bc6bd6a079246ddfcf8",
+    "receiver.c": "b7651ecb429673558014a0748fd3f425389ba88a246f40de6fcbc8a258bd096d",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "scenarios.py": "49d41ee3b2cbf0d910ec5563216f9ad646314027adf2997c3b9a9a74bc4f04b5",
+    "supervisor.c": "e798e807da34b2faf57530d790e6b102874fc34928bb4b514dc9aff54eac16ec",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

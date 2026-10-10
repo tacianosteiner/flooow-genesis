@@ -1,0 +1,313 @@
+{
+  "cases": [
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "caller_setting_0",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "0\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "caller_setting_120",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "120ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "caller_setting_900",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "900ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "post_login_caller_timer_operates",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "ERROR:  canceling statement due to statement timeout\n"
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "recovery_after_partial-frame",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "recovery_after_drop-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "recovery_after_delay-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt03",
+      "group": "timeout",
+      "name": "recovery_after_catalog-stall",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_caller_setting_0",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "0\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_caller_setting_120",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "120ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_caller_setting_900",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "900ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_partial-frame",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 380627.0
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_recovery_partial-frame",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_drop-ack",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 315443.0
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_recovery_drop-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_delay-ack",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5320170.4
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_recovery_delay-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_catalog-stall",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5381546.7
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_recovery_catalog-stall",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_SPI_lock_stall",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  canceling statement due to user request\nCONTEXT:  SQL statement \"SELECT 1 FROM public.flooow_test_binding h JOIN pg_catalog.pg_roles r ON r.oid=h.role_oid WHERE h.role_oid=$1 AND h.role_name=$2 AND h.slot=$3 AND r.rolname=h.role_name AND r.rolcanlogin AND NOT r.rolinherit AND NOT r.rolsuper AND NOT r.rolcreaterole AND NOT r.rolcreatedb AND NOT r.rolreplication AND NOT r.rolbypassrls AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m WHERE m.member=r.oid OR m.roleid=r.oid)\"\n",
+        "elapsed_us": 5314692.2
+      }
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "instrumented_SPI_error_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "user timeout cleanup through PG_CATCH; backend cancellation did not change later sessions"
+    },
+    {
+      "round": "attempt06",
+      "group": "timeout",
+      "name": "receiver_crash_during_login",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "stdout": "",
+        "usable_statement_executed": false
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "caller_setting_0",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "0\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "caller_setting_120",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "120ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "caller_setting_900",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "900ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "post_login_caller_timer_operates",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "ERROR:  canceling statement due to statement timeout\n"
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "recovery_after_partial-frame",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "recovery_after_drop-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "recovery_after_delay-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "round": "attempt08",
+      "group": "timeout",
+      "name": "recovery_after_catalog-stall",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    }
+  ],
+  "native_snapshots": {
+    "attempt02": {
+      "preserved_yes": 0,
+      "preserved_no": 0
+    },
+    "attempt03": {
+      "preserved_yes": 0,
+      "preserved_no": 0
+    },
+    "attempt04": {
+      "preserved_yes": 0,
+      "preserved_no": 0
+    },
+    "attempt05": {
+      "preserved_yes": 7,
+      "preserved_no": 0
+    },
+    "attempt06": {
+      "preserved_yes": 14,
+      "preserved_no": 0
+    },
+    "attempt07": {
+      "preserved_yes": 8,
+      "preserved_no": 0
+    },
+    "attempt08": {
+      "preserved_yes": 32,
+      "preserved_no": 0
+    },
+    "attempt09": {
+      "preserved_yes": 5,
+      "preserved_no": 0
+    },
+    "attempt10": {
+      "preserved_yes": 5,
+      "preserved_no": 0
+    },
+    ".": {
+      "preserved_yes": 0,
+      "preserved_no": 0
+    }
+  },
+  "mechanism": "Dedicated USER_TIMEOUT with PG_TRY/PG_CATCH cleanup; no STATEMENT_TIMEOUT replacement. Accepted path compares SIGALRM handler/flags/mask, caller statement timer activity/deadline and inactive custom timer; idle ITIMER_REAL restoration checked. Denied backends exit; later fresh sessions tested.",
+  "limitations": "No exhaustive proof over every PostgreSQL extension-installed timer or handler. Recorded paths only."
+}

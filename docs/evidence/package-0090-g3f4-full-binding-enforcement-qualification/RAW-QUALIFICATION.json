@@ -1,0 +1,50 @@
+{
+  "input_head": "68001610df44dd17afc82a3d5ed575e8a0a59d71",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [],
+  "observations": [],
+  "errors": [
+    "Traceback (most recent call last):\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 109, in main\n    spki=bytes.fromhex(ex('sh','-c','openssl pkey -pubin -in /run/flooow-external/public.pem -outform DER | xxd -p -c 1000',user='0').stdout.strip())\n                       ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 21, in ex\n    def ex(*a,data=None,user='postgres',ok=True,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*a],data,ok,timeout)\n                                                                   ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 19, in cmd\n    if ok and r.returncode:raise RuntimeError(str(a[:5])+': '+r.stderr[-1800:])\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: ['docker', 'exec', '--user', '0', '-i']: sh: 1: xxd: not found\n\n"
+  ],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 2000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "58aae412e225ca9a55c1687d765ff719ee0b0d02ba14ea77eaca28454db437c7",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "168f32c601365d8603999d9376d373ef2a71fd2c60e4ba813460c0b8653ad0be  /usr/local/lib/flooow_test_login.so\n85e279385516d4a23fddc2f3f2091740b7d14ff6b67f094179377275c56d6c5e  /usr/local/bin/flooow-test-receiver\nb9f7d30e595e82e68758ae63e073fea68eba43f34b886e12e731dbd8ca6d1a47  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "1973daf8f7c0f4b25c3cf04e29628161da882895a0c5450526042d93ae2faf86",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "login.c": "2bf5c66d7f9d0b11427119bde76326929a187dd096a1d488ab75ee34efd25b6f",
+    "prepare_sources.py": "90231dc3d5ae51d90dec13e5d9a272c52c0fba4249af503562fbb3bde0e0ed9a",
+    "protocol.h": "84dd6d3be1f438ba5f79b39e956d6a9e3ef206524e878ef58d8856ab8160e841",
+    "qualification.py": "f2165d21d5922d9145579d35fe196ece0d315b06cdc796fd9259f195cdb82d91",
+    "receiver.c": "09c3ab53d54f305220f7104f4ae47bca5b4c5bb9e22fd9b5e03b34127ed16fb8",
+    "scenarios.py": "edb09aebe3fbd5e6fd2804e9e2ce9d6d28e7fbd4e55f7ed8fbd5707952bd932d",
+    "supervisor.c": "45fb8949611f298d85df62a97c9fdc6674dd57895b47b34ce82e0cb4f34c314e"
+  },
+  "owned_container_removed": true
+}

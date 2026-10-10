@@ -1,0 +1,113 @@
+{
+  "input_head": "68001610df44dd17afc82a3d5ed575e8a0a59d71",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 610078153722000,
+      "end_ns": 610079469027300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 238243982855
+    },
+    {
+      "start_ns": 610081194272500,
+      "end_ns": 610082832032200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 238247314630
+    },
+    {
+      "start_ns": 610082832369300,
+      "end_ns": 610084597077500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 238249090895
+    },
+    {
+      "start_ns": 610084698733700,
+      "end_ns": 610086422751200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 238250975191
+    }
+  ],
+  "errors": [
+    "Traceback (most recent call last):\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 140, in main\n    tests()\n    ~~~~~^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 161, in tests\n    importlib.import_module(module).run(sys.modules[__name__])\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\supplement.py\", line 6, in run\n    q.sql('CREATE ROLE \"caf\\u00e9\" LOGIN NOINHERIT;')\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 23, in sql\n    def sql(s,role='postgres',ok=True,timeout=30):return ex('psql','-X','-w','-h','/tmp/pgsock','-U',role,'-d','native_fixture','-At','-v','ON_ERROR_STOP=1',data=s,ok=ok,timeout=timeout)\n                                                         ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 22, in ex\n    def ex(*a,data=None,user='postgres',ok=True,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*a],data,ok,timeout)\n                                                                   ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_full_qualification\\qualification.py\", line 20, in cmd\n    if ok and r.returncode:raise RuntimeError(str(a[:5])+': '+r.stderr[-1800:])\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: ['docker', 'exec', '--user', 'postgres', '-i']: ERROR:  invalid byte sequence for encoding \"UTF8\": 0xe9 0x22 0x20\n\n"
+  ],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 5000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "ec770dfe1185869849f8fcf4a45db52508e25759863b015a8f7f8eeacdb20462",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "168f32c601365d8603999d9376d373ef2a71fd2c60e4ba813460c0b8653ad0be  /usr/local/lib/flooow_test_login.so\n870e8fbd482d6808d684b4b37508c3e413683e0e7b00c52ff46b1581dafc1ceb  /usr/local/bin/flooow-test-receiver\nb93071184d773d74678be110730a2d644212bd1af352bf9b612870e119b7ab60  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "8cb07ca898a2516cc2416acda487d572d3c77b7cdeaf0e8d749e75e1904630de",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "1973daf8f7c0f4b25c3cf04e29628161da882895a0c5450526042d93ae2faf86",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "login.c": "2bf5c66d7f9d0b11427119bde76326929a187dd096a1d488ab75ee34efd25b6f",
+    "prepare_sources.py": "42b3435b8c0a88733344f6b1bdaac6605c9f6bc0798461e268784498f50ace4c",
+    "protocol.h": "84dd6d3be1f438ba5f79b39e956d6a9e3ef206524e878ef58d8856ab8160e841",
+    "qualification.py": "b1ef1f1fe376706967d2c2cc01ad61f86f2777f740716798859a5a8ae827c019",
+    "receiver.c": "42c028e9370c4cea5ceaa6c763d9de6df00cd3a21229b8ced0c81c5dfaa396f1",
+    "scenarios.py": "49d41ee3b2cbf0d910ec5563216f9ad646314027adf2997c3b9a9a74bc4f04b5",
+    "supervisor.c": "e798e807da34b2faf57530d790e6b102874fc34928bb4b514dc9aff54eac16ec",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

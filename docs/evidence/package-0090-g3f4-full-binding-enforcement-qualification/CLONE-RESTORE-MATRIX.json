@@ -1,0 +1,141 @@
+{
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "round": "attempt03",
+      "group": "clone",
+      "name": "logical_restore_context",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 267238.8
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "clone",
+      "name": "physical_clone_context",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 295217.9
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "clone",
+      "name": "copied_header",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 373462.3
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "clone",
+      "name": "copied_attestation",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 277266.6
+      }
+    },
+    {
+      "round": "attempt03",
+      "group": "clone",
+      "name": "copied_approval",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 293306.1
+      }
+    },
+    {
+      "round": "attempt05",
+      "group": "clone",
+      "name": "actual_logical_restore_default_ineligible",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "restore_exit": 0,
+        "restore_stderr": "",
+        "login_stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n",
+        "external_original_context_copied": false,
+        "original_custody_not_clone_authority": true
+      }
+    },
+    {
+      "round": "attempt05",
+      "group": "clone",
+      "name": "actual_physical_clone_default_ineligible",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "2026-10-10 19:20:03.870 UTC [1198] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: inherited context absent\n2026-10-10 19:20:03.871 UTC [1198] LOG:  database system is shut down\n",
+        "copied_header_preserved": true,
+        "mandatory_external_bootstrap_missing": true
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "clone",
+      "name": "logical_restore_context",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 297424.0
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "clone",
+      "name": "physical_clone_context",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 443726.4
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "clone",
+      "name": "copied_header",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 325930.0
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "clone",
+      "name": "copied_attestation",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 290848.9
+      }
+    },
+    {
+      "round": "attempt08",
+      "group": "clone",
+      "name": "copied_approval",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 328607.3
+      }
+    }
+  ],
+  "limitations": "Actual logical dump/restore denies governed login on new DB identity; cold physical PGDATA copy denies startup without mandatory external inherited bootstrap. External context/artifact copies alone deny. Hostile trusted root administrator is outside threat model.",
+  "overlapping_rounds_are_not_unique_coverage": true
+}
