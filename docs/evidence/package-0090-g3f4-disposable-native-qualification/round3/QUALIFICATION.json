@@ -1,0 +1,553 @@
+{
+  "scope": "DISPOSABLE_NATIVE_MECHANISM_ONLY_NOT_PRODUCTION_OR_FULL_WATCHDOG_PASS",
+  "input_head": "bd840059f5a78d8e28a09a0ccc6463f3d5098663",
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "numeric_policy_adoption": false,
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "registry_entries": 128,
+    "death_poll_ms": 20,
+    "delay_fault_seconds": 6
+  },
+  "tests": [
+    {
+      "name": "native_login_test_verifier",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_verifier|native_fixture|304\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "native_login_test_issuer",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_issuer|native_fixture|313\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "native_login_test_executor",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_executor|native_fixture|322\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "native_login_test_auditor",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_auditor|native_fixture|330\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "pure_frame_parser",
+      "result": "PASS",
+      "detail": "{\"frame_parser_cases\":228,\"result\":\"PASS\",\"scope\":\"ASCII_FIXTURE_SUBSET\"}\n"
+    },
+    {
+      "name": "same_anchor_idempotent",
+      "result": "PASS",
+      "detail": {
+        "stderr": ""
+      }
+    },
+    {
+      "name": "wrong-deployment",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 310747.8
+      }
+    },
+    {
+      "name": "wrong-incarnation",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 283217.4
+      }
+    },
+    {
+      "name": "stale-epoch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 278946.5
+      }
+    },
+    {
+      "name": "wrong-database",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 278733.9
+      }
+    },
+    {
+      "name": "wrong-slot",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 305686.6
+      }
+    },
+    {
+      "name": "bad-version",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 457375.2
+      }
+    },
+    {
+      "name": "partial-frame",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 325484.6
+      }
+    },
+    {
+      "name": "socket_absent",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: unsafe or absent namespace\n",
+        "elapsed_us": 321833.0
+      }
+    },
+    {
+      "name": "unsafe_namespace_permissions",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: unsafe or absent namespace\n",
+        "elapsed_us": 322797.6
+      }
+    },
+    {
+      "name": "receiver_impersonation_anchor_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: unsafe or absent namespace\n",
+        "elapsed_us": 296303.3
+      }
+    },
+    {
+      "name": "SPI_lock_wait_bounded",
+      "result": "PASS",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  canceling statement due to statement timeout\nCONTEXT:  SQL statement \"SELECT 1 FROM public.flooow_test_binding h JOIN pg_catalog.pg_roles r ON r.oid=h.role_oid WHERE h.role_oid=$1 AND h.role_name=$2 AND h.slot=$3 AND r.rolname=h.role_name AND r.rolcanlogin AND NOT r.rolinherit AND NOT r.rolsuper AND NOT r.rolcreaterole AND NOT r.rolcreatedb AND NOT r.rolreplication AND NOT r.rolbypassrls AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m WHERE m.member=r.oid OR m.roleid=r.oid)\"\n",
+        "client_elapsed_us": 5272588.9
+      }
+    },
+    {
+      "name": "receiver_catalog_wait_bounded",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5263400.6
+      }
+    },
+    {
+      "name": "unguarded_database_connect_denied",
+      "result": "PASS",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  permission denied for database \"postgres\"\nDETAIL:  User does not have CONNECT privilege.\n"
+      }
+    },
+    {
+      "name": "distinct_live_anchors_same_slot",
+      "result": "PASS",
+      "detail": {
+        "exits": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "name": "role_membership_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 465081.9
+      }
+    },
+    {
+      "name": "no_direct_SQL_enrollment",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied for function flooow_test_login\n",
+        "elapsed_us": 413137.7
+      }
+    },
+    {
+      "name": "no_service_trigger_disable",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied to set parameter \"event_triggers\"\n",
+        "elapsed_us": 399763.2
+      }
+    },
+    {
+      "name": "no_service_replication_role_disable",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied to set parameter \"session_replication_role\"\n",
+        "elapsed_us": 395395.2
+      }
+    },
+    {
+      "name": "no_service_header_write",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied for table flooow_test_binding\n",
+        "elapsed_us": 325585.6
+      }
+    },
+    {
+      "name": "missing_header_login",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 329367.2
+      }
+    },
+    {
+      "name": "role_name_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n",
+        "elapsed_us": 308978.1
+      }
+    },
+    {
+      "name": "role_attribute_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 297465.3
+      }
+    },
+    {
+      "name": "lost_ACK",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 320380.9
+      }
+    },
+    {
+      "name": "late_ACK",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5313366.7
+      }
+    },
+    {
+      "name": "role_recreation_OID_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n",
+        "elapsed_us": 354917.7
+      }
+    },
+    {
+      "name": "backend_exit_invalidates_anchor",
+      "result": "PASS",
+      "detail": {
+        "event_count": 31
+      }
+    },
+    {
+      "name": "postmaster_restart_invalidates_generation",
+      "result": "PASS",
+      "detail": {
+        "log_tail": "ader absent or role invalid\n2026-10-10 18:39:10.420 UTC [890] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n2026-10-10 18:39:11.390 UTC [911] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n2026-10-10 18:39:12.245 UTC [932] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n2026-10-10 18:39:18.021 UTC [952] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n{\"event\":\"DENY\",\"role_oid\":16385,\"slot\":1,\"reason\":10,\"duplicate\":false,\"receive_us\":241,\"validation_us\":4904,\"reply_us\":6005281}\n2026-10-10 18:39:19.064 UTC [973] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n2026-10-10 18:39:19.941 UTC [274] LOG:  received fast shutdown request\n2026-10-10 18:39:19.941 UTC [274] LOG:  aborting any active transactions\n2026-10-10 18:39:19.944 UTC [274] LOG:  background worker \"logical replication launcher\" (PID 283) exited with exit code 1\n2026-10-10 18:39:19.946 UTC [278] LOG:  shutting down\n2026-10-10 18:39:19.946 UTC [278] LOG:  checkpoint starting: shutdown immediate\n2026-10-10 18:39:19.948 UTC [278] LOG:  checkpoint complete: wrote 32 buffers (0.2%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.001 s, total=0.002 s; sync files=30, longest=0.001 s, average=0.000 s; distance=78 kB, estimate=78 kB; lsn=0/1BBA530, redo lsn=0/1BBA530\n2026-10-10 18:39:19.954 UTC [274] LOG:  database system is shut down\n{\"event\":\"supervisor_generation_loss\",\"receiver_dead\":false,\"postmaster_dead\":true}\n{\"event\":\"control_generation_invalidated\"}\n{\"event\":\"supervisor_verified_child_drain\"}\n"
+      }
+    },
+    {
+      "name": "fresh_physical_login_after_rebootstrap",
+      "result": "PASS",
+      "detail": {
+        "before": "2026-10-10 18:38:32.20188+00",
+        "after": "2026-10-10 18:39:20.877087+00",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "receiver_crash_drains_live_backend",
+      "result": "PASS",
+      "detail": {
+        "stderr": "FATAL:  terminating connection due to administrator command\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n"
+      }
+    },
+    {
+      "name": "receiver_restart_exclusion",
+      "result": "PASS",
+      "detail": {
+        "tail": "vent\":\"ACCEPT\",\"role_oid\":16385,\"slot\":1,\"reason\":0,\"duplicate\":false,\"receive_us\":202,\"validation_us\":7016,\"reply_us\":7273}\n2026-10-10 18:39:21.767 UTC [1042] LOG:  FLOOOW_TEST_ENROLLMENT_ACCEPT role=16385 database=16384 total_us=10249\n{\"event\":\"backend_exit_invalidated\",\"slot\":1}\n{\"event\":\"ACCEPT\",\"role_oid\":16385,\"slot\":1,\"reason\":0,\"duplicate\":false,\"receive_us\":331,\"validation_us\":7406,\"reply_us\":7778}\n2026-10-10 18:39:22.106 UTC [1057] LOG:  FLOOOW_TEST_ENROLLMENT_ACCEPT role=16385 database=16384 total_us=10142\n{\"event\":\"supervisor_generation_loss\",\"receiver_dead\":false,\"postmaster_dead\":false}\n2026-10-10 18:39:22.792 UTC [1012] LOG:  received fast shutdown request\n2026-10-10 18:39:22.792 UTC [1012] LOG:  aborting any active transactions\n2026-10-10 18:39:22.793 UTC [1057] FATAL:  terminating connection due to administrator command\n2026-10-10 18:39:22.793 UTC [1057] STATEMENT:  SELECT pg_sleep(20);\n2026-10-10 18:39:22.798 UTC [1012] LOG:  background worker \"logical replication launcher\" (PID 1021) exited with exit code 1\n2026-10-10 18:39:22.799 UTC [1016] LOG:  shutting down\n2026-10-10 18:39:22.799 UTC [1016] LOG:  checkpoint starting: shutdown immediate\n2026-10-10 18:39:22.799 UTC [1016] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.001 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1BBA5A8, redo lsn=0/1BBA5A8\n2026-10-10 18:39:22.806 UTC [1012] LOG:  database system is shut down\n{\"event\":\"supervisor_verified_child_drain\"}\n"
+      }
+    },
+    {
+      "name": "receiver_restart_fresh_rebootstrap",
+      "result": "PASS",
+      "detail": {
+        "stderr": ""
+      }
+    }
+  ],
+  "samples": [
+    {
+      "sample": 0,
+      "role": "test_verifier",
+      "client_process_total_us": 293637.6,
+      "exit": 0
+    },
+    {
+      "sample": 1,
+      "role": "test_issuer",
+      "client_process_total_us": 320240.3,
+      "exit": 0
+    },
+    {
+      "sample": 2,
+      "role": "test_executor",
+      "client_process_total_us": 325792.3,
+      "exit": 0
+    },
+    {
+      "sample": 3,
+      "role": "test_auditor",
+      "client_process_total_us": 313880.6,
+      "exit": 0
+    },
+    {
+      "sample": 4,
+      "role": "test_verifier",
+      "client_process_total_us": 328092.2,
+      "exit": 0
+    },
+    {
+      "sample": 5,
+      "role": "test_issuer",
+      "client_process_total_us": 276984.8,
+      "exit": 0
+    },
+    {
+      "sample": 6,
+      "role": "test_executor",
+      "client_process_total_us": 268651.7,
+      "exit": 0
+    },
+    {
+      "sample": 7,
+      "role": "test_auditor",
+      "client_process_total_us": 299275.9,
+      "exit": 0
+    },
+    {
+      "sample": 8,
+      "role": "test_verifier",
+      "client_process_total_us": 378716.8,
+      "exit": 0
+    },
+    {
+      "sample": 9,
+      "role": "test_issuer",
+      "client_process_total_us": 280445.2,
+      "exit": 0
+    },
+    {
+      "sample": 10,
+      "role": "test_executor",
+      "client_process_total_us": 319300.0,
+      "exit": 0
+    },
+    {
+      "sample": 11,
+      "role": "test_auditor",
+      "client_process_total_us": 334624.0,
+      "exit": 0
+    },
+    {
+      "sample": 12,
+      "role": "test_verifier",
+      "client_process_total_us": 308291.4,
+      "exit": 0
+    },
+    {
+      "sample": 13,
+      "role": "test_issuer",
+      "client_process_total_us": 291909.3,
+      "exit": 0
+    },
+    {
+      "sample": 14,
+      "role": "test_executor",
+      "client_process_total_us": 323311.3,
+      "exit": 0
+    },
+    {
+      "sample": 15,
+      "role": "test_auditor",
+      "client_process_total_us": 399095.6,
+      "exit": 0
+    },
+    {
+      "sample": 16,
+      "role": "test_verifier",
+      "client_process_total_us": 368689.8,
+      "exit": 0
+    },
+    {
+      "sample": 17,
+      "role": "test_issuer",
+      "client_process_total_us": 379448.5,
+      "exit": 0
+    },
+    {
+      "sample": 18,
+      "role": "test_executor",
+      "client_process_total_us": 528576.0,
+      "exit": 0
+    },
+    {
+      "sample": 19,
+      "role": "test_auditor",
+      "client_process_total_us": 366499.9,
+      "exit": 0
+    },
+    {
+      "scenario": "CPU_CONTENTION",
+      "sample": 0,
+      "client_process_total_us": 754436.1,
+      "exit": 0
+    },
+    {
+      "scenario": "CPU_CONTENTION",
+      "sample": 1,
+      "client_process_total_us": 257181.6,
+      "exit": 0
+    },
+    {
+      "scenario": "CPU_CONTENTION",
+      "sample": 2,
+      "client_process_total_us": 279608.5,
+      "exit": 0
+    },
+    {
+      "scenario": "OVERLAY_IO_CONTENTION",
+      "sample": 0,
+      "client_process_total_us": 297699.4,
+      "exit": 0
+    },
+    {
+      "scenario": "OVERLAY_IO_CONTENTION",
+      "sample": 1,
+      "client_process_total_us": 279992.1,
+      "exit": 0
+    },
+    {
+      "scenario": "OVERLAY_IO_CONTENTION",
+      "sample": 2,
+      "client_process_total_us": 425194.1,
+      "exit": 0
+    }
+  ],
+  "limitations": [],
+  "container_inspections": [
+    {
+      "name": "flooow-0090-native-qual-bd84005-r3",
+      "id": "2dd368a43a3a561a6456cf83fa3c6fa57e0e1752a4ab2fb136a979ffd566dd67",
+      "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "network": "none",
+      "mounts": [],
+      "tmpfs": {
+        "/run": "",
+        "/tmp": "",
+        "/var/lib/postgresql": ""
+      },
+      "security_opt": [
+        "seccomp={\"defaultAction\":\"SCMP_ACT_ERRNO\",\"defaultErrnoRet\":1,\"archMap\":[{\"architecture\":\"SCMP_ARCH_X86_64\",\"subArchitectures\":[\"SCMP_ARCH_X86\",\"SCMP_ARCH_X32\"]},{\"architecture\":\"SCMP_ARCH_AARCH64\",\"subArchitectures\":[\"SCMP_ARCH_ARM\"]},{\"architecture\":\"SCMP_ARCH_MIPS64\",\"subArchitectures\":[\"SCMP_ARCH_MIPS\",\"SCMP_ARCH_MIPS64N32\"]},{\"architecture\":\"SCMP_ARCH_MIPS64N32\",\"subArchitectures\":[\"SCMP_ARCH_MIPS\",\"SCMP_ARCH_MIPS64\"]},{\"architecture\":\"SCMP_ARCH_MIPSEL64\",\"subArchitectures\":[\"SCMP_ARCH_MIPSEL\",\"SCMP_ARCH_MIPSEL64N32\"]},{\"architecture\":\"SCMP_ARCH_MIPSEL64N32\",\"subArchitectures\":[\"SCMP_ARCH_MIPSEL\",\"SCMP_ARCH_MIPSEL64\"]},{\"architecture\":\"SCMP_ARCH_S390X\",\"subArchitectures\":[\"SCMP_ARCH_S390\"]},{\"architecture\":\"SCMP_ARCH_RISCV64\",\"subArchitectures\":null},{\"architecture\":\"SCMP_ARCH_LOONGARCH64\",\"subArchitectures\":null}],\"syscalls\":[{\"names\":[\"accept\",\"accept4\",\"access\",\"adjtimex\",\"alarm\",\"bind\",\"brk\",\"cachestat\",\"capget\",\"capset\",\"chdir\",\"chmod\",\"chown\",\"chown32\",\"clock_adjtime\",\"clock_adjtime64\",\"clock_getres\",\"clock_getres_time64\",\"clock_gettime\",\"clock_gettime64\",\"clock_nanosleep\",\"clock_nanosleep_time64\",\"close\",\"close_range\",\"connect\",\"copy_file_range\",\"creat\",\"dup\",\"dup2\",\"dup3\",\"epoll_create\",\"epoll_create1\",\"epoll_ctl\",\"epoll_ctl_old\",\"epoll_pwait\",\"epoll_pwait2\",\"epoll_wait\",\"epoll_wait_old\",\"eventfd\",\"eventfd2\",\"execve\",\"execveat\",\"exit\",\"exit_group\",\"faccessat\",\"faccessat2\",\"fadvise64\",\"fadvise64_64\",\"fallocate\",\"fanotify_mark\",\"fchdir\",\"fchmod\",\"fchmodat\",\"fchmodat2\",\"fchown\",\"fchown32\",\"fchownat\",\"fcntl\",\"fcntl64\",\"fdatasync\",\"fgetxattr\",\"flistxattr\",\"flock\",\"fork\",\"fremovexattr\",\"fsetxattr\",\"fstat\",\"fstat64\",\"fstatat64\",\"fstatfs\",\"fstatfs64\",\"fsync\",\"ftruncate\",\"ftruncate64\",\"futex\",\"futex_requeue\",\"futex_time64\",\"futex_wait\",\"futex_waitv\",\"futex_wake\",\"futimesat\",\"getcpu\",\"getcwd\",\"getdents\",\"getdents64\",\"getegid\",\"getegid32\",\"geteuid\",\"geteuid32\",\"getgid\",\"getgid32\",\"getgroups\",\"getgroups32\",\"getitimer\",\"getpeername\",\"getpgid\",\"getpgrp\",\"getpid\",\"getppid\",\"getpriority\",\"getrandom\",\"getresgid\",\"getresgid32\",\"getresuid\",\"getresuid32\",\"getrlimit\",\"get_robust_list\",\"getrusage\",\"getsid\",\"getsockname\",\"getsockopt\",\"get_thread_area\",\"gettid\",\"gettimeofday\",\"getuid\",\"getuid32\",\"getxattr\",\"getxattrat\",\"inotify_add_watch\",\"inotify_init\",\"inotify_init1\",\"inotify_rm_watch\",\"io_cancel\",\"ioctl\",\"io_destroy\",\"io_getevents\",\"io_pgetevents\",\"io_pgetevents_time64\",\"ioprio_get\",\"ioprio_set\",\"io_setup\",\"io_submit\",\"ipc\",\"kill\",\"landlock_add_rule\",\"landlock_create_ruleset\",\"landlock_restrict_self\",\"lchown\",\"lchown32\",\"lgetxattr\",\"link\",\"linkat\",\"listen\",\"listmount\",\"listxattr\",\"listxattrat\",\"llistxattr\",\"_llseek\",\"lremovexattr\",\"lseek\",\"lsetxattr\",\"lstat\",\"lstat64\",\"madvise\",\"map_shadow_stack\",\"membarrier\",\"memfd_create\",\"memfd_secret\",\"mincore\",\"mkdir\",\"mkdirat\",\"mknod\",\"mknodat\",\"mlock\",\"mlock2\",\"mlockall\",\"mmap\",\"mmap2\",\"mprotect\",\"mq_getsetattr\",\"mq_notify\",\"mq_open\",\"mq_timedreceive\",\"mq_timedreceive_time64\",\"mq_timedsend\",\"mq_timedsend_time64\",\"mq_unlink\",\"mremap\",\"mseal\",\"msgctl\",\"msgget\",\"msgrcv\",\"msgsnd\",\"msync\",\"munlock\",\"munlockall\",\"munmap\",\"name_to_handle_at\",\"nanosleep\",\"newfstatat\",\"_newselect\",\"open\",\"openat\",\"openat2\",\"pause\",\"pidfd_open\",\"pidfd_send_signal\",\"pipe\",\"pipe2\",\"pkey_alloc\",\"pkey_free\",\"pkey_mprotect\",\"poll\",\"ppoll\",\"ppoll_time64\",\"prctl\",\"pread64\",\"preadv\",\"preadv2\",\"prlimit64\",\"process_mrelease\",\"pselect6\",\"pselect6_time64\",\"pwrite64\",\"pwritev\",\"pwritev2\",\"read\",\"readahead\",\"readlink\",\"readlinkat\",\"readv\",\"recv\",\"recvfrom\",\"recvmmsg\",\"recvmmsg_time64\",\"recvmsg\",\"remap_file_pages\",\"removexattr\",\"removexattrat\",\"rename\",\"renameat\",\"renameat2\",\"restart_syscall\",\"riscv_hwprobe\",\"rmdir\",\"rseq\",\"rt_sigaction\",\"rt_sigpending\",\"rt_sigprocmask\",\"rt_sigqueueinfo\",\"rt_sigreturn\",\"rt_sigsuspend\",\"rt_sigtimedwait\",\"rt_sigtimedwait_time64\",\"rt_tgsigqueueinfo\",\"sched_getaffinity\",\"sched_getattr\",\"sched_getparam\",\"sched_get_priority_max\",\"sched_get_priority_min\",\"sched_getscheduler\",\"sched_rr_get_interval\",\"sched_rr_get_interval_time64\",\"sched_setaffinity\",\"sched_setattr\",\"sched_setparam\",\"sched_setscheduler\",\"sched_yield\",\"seccomp\",\"select\",\"semctl\",\"semget\",\"semop\",\"semtimedop\",\"semtimedop_time64\",\"send\",\"sendfile\",\"sendfile64\",\"sendmmsg\",\"sendmsg\",\"sendto\",\"setfsgid\",\"setfsgid32\",\"setfsuid\",\"setfsuid32\",\"setgid\",\"setgid32\",\"setgroups\",\"setgroups32\",\"setitimer\",\"setpgid\",\"setpriority\",\"setregid\",\"setregid32\",\"setresgid\",\"setresgid32\",\"setresuid\",\"setresuid32\",\"setreuid\",\"setreuid32\",\"setrlimit\",\"set_robust_list\",\"setsid\",\"setsockopt\",\"set_thread_area\",\"set_tid_address\",\"setuid\",\"setuid32\",\"setxattr\",\"setxattrat\",\"shmat\",\"shmctl\",\"shmdt\",\"shmget\",\"shutdown\",\"sigaltstack\",\"signalfd\",\"signalfd4\",\"sigprocmask\",\"sigreturn\",\"socketcall\",\"socketpair\",\"splice\",\"stat\",\"stat64\",\"statfs\",\"statfs64\",\"statmount\",\"statx\",\"symlink\",\"symlinkat\",\"sync\",\"sync_file_range\",\"syncfs\",\"sysinfo\",\"tee\",\"tgkill\",\"time\",\"timer_create\",\"timer_delete\",\"timer_getoverrun\",\"timer_gettime\",\"timer_gettime64\",\"timer_settime\",\"timer_settime64\",\"timerfd_create\",\"timerfd_gettime\",\"timerfd_gettime64\",\"timerfd_settime\",\"timerfd_settime64\",\"times\",\"tkill\",\"truncate\",\"truncate64\",\"ugetrlimit\",\"umask\",\"uname\",\"unlink\",\"unlinkat\",\"uretprobe\",\"utime\",\"utimensat\",\"utimensat_time64\",\"utimes\",\"vfork\",\"vmsplice\",\"wait4\",\"waitid\",\"waitpid\",\"write\",\"writev\"],\"action\":\"SCMP_ACT_ALLOW\"},{\"names\":[\"process_vm_readv\",\"process_vm_writev\",\"ptrace\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"minKernel\":\"4.8\"}},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":3,\"op\":\"SCMP_CMP_LT\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":7,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":8,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":9,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":10,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":13,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":14,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":15,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":16,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":17,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":18,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":21,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":22,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":24,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":26,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":27,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":28,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":29,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":30,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":31,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":32,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":33,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":35,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":36,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":39,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":41,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":42,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":43,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":44,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":45,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":0,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":8,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":131072,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":131080,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":4294967295,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"sync_file_range2\",\"swapcontext\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"ppc64le\"]}},{\"names\":[\"arm_fadvise64_64\",\"arm_sync_file_range\",\"sync_file_range2\",\"breakpoint\",\"cacheflush\",\"set_tls\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"arm\",\"arm64\"]}},{\"names\":[\"arch_prctl\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"amd64\",\"x32\"]}},{\"names\":[\"modify_ldt\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"amd64\",\"x32\",\"x86\"]}},{\"names\":[\"s390_pci_mmio_read\",\"s390_pci_mmio_write\",\"s390_runtime_instr\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"s390\",\"s390x\"]}},{\"names\":[\"riscv_flush_icache\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"riscv64\"]}},{\"names\":[\"open_by_handle_at\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_DAC_READ_SEARCH\"]}},{\"names\":[\"bpf\",\"clone\",\"fanotify_init\",\"fsconfig\",\"fsmount\",\"fsopen\",\"fspick\",\"lookup_dcookie\",\"lsm_get_self_attr\",\"lsm_list_modules\",\"lsm_set_self_attr\",\"mount\",\"mount_setattr\",\"move_mount\",\"open_tree\",\"perf_event_open\",\"quotactl\",\"quotactl_fd\",\"setdomainname\",\"sethostname\",\"setns\",\"syslog\",\"umount\",\"umount2\",\"unshare\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_ADMIN\"]}},{\"names\":[\"clone\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":2114060288,\"op\":\"SCMP_CMP_MASKED_EQ\"}],\"excludes\":{\"caps\":[\"CAP_SYS_ADMIN\"],\"arches\":[\"s390\",\"s390x\"]}},{\"names\":[\"clone\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":1,\"value\":2114060288,\"op\":\"SCMP_CMP_MASKED_EQ\"}],\"comment\":\"s390 parameter ordering for clone is different\",\"includes\":{\"arches\":[\"s390\",\"s390x\"]},\"excludes\":{\"caps\":[\"CAP_SYS_ADMIN\"]}},{\"names\":[\"reboot\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_BOOT\"]}},{\"names\":[\"chroot\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_CHROOT\"]}},{\"names\":[\"delete_module\",\"init_module\",\"finit_module\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_MODULE\"]}},{\"names\":[\"acct\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_PACCT\"]}},{\"names\":[\"kcmp\",\"pidfd_getfd\",\"process_madvise\",\"process_vm_readv\",\"process_vm_writev\",\"ptrace\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_PTRACE\"]}},{\"names\":[\"iopl\",\"ioperm\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_RAWIO\"]}},{\"names\":[\"settimeofday\",\"stime\",\"clock_settime\",\"clock_settime64\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_TIME\"]}},{\"names\":[\"vhangup\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_TTY_CONFIG\"]}},{\"names\":[\"get_mempolicy\",\"mbind\",\"set_mempolicy\",\"set_mempolicy_home_node\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_NICE\"]}},{\"names\":[\"syslog\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYSLOG\"]}},{\"names\":[\"bpf\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_BPF\"]}},{\"names\":[\"perf_event_open\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_PERFMON\"]}},{\"names\":[\"clone3\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[]}]}"
+      ]
+    }
+  ],
+  "seccomp": {
+    "source": "https://raw.githubusercontent.com/moby/profiles/main/seccomp/default.json",
+    "source_sha256": "6416b47770785a41ac59073cdc77d9fe98517df2799dc83ef207e622de3053f6",
+    "derived_sha256": "630f0ee62456b0eac90059f271330e5afcd672b9d1e58e3dd0e241b53c42d3d3",
+    "purpose": "DISPOSABLE_ONLY",
+    "change": "Remove original clone3 rules; allow clone3 only; all other source rules unchanged",
+    "default_container_clone3_errno": 38
+  },
+  "libpq_header_sha256": "499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "clone3_default": "Prior preserved R1 default-profile errno38",
+  "clone3_scoped": "{\"clone3\":\"PASS\",\"atomic_child_pidfd\":true,\"child_exit\":0}\n",
+  "synthetic_role_oids": {
+    "test_verifier": 16385,
+    "test_issuer": 16386,
+    "test_executor": 16387,
+    "test_auditor": 16388
+  },
+  "synthetic_database_oid": 16384,
+  "cold_supervised_startup_us": 825310.7,
+  "rebootstrap_us": 867340.6,
+  "load_controls": [
+    {
+      "scenario": "CPU_CONTENTION",
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "failure": "docker exec --user postgres -i dd: failed to open '/usr/local/test-io.bin': Permission denied\n",
+  "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_native_qualification\\qualify.py\", line 170, in main\n    result=load.result(timeout=20);record.setdefault('load_controls',[]).append({'scenario':label,'exit':result.returncode,'stderr':result.stderr})\n  File \"C:\\Users\\xmz_r\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\concurrent\\futures\\_base.py\", line 449, in result\n    return self.__get_result()\n           ~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\xmz_r\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\concurrent\\futures\\_base.py\", line 401, in __get_result\n    raise self._exception\n  File \"C:\\Users\\xmz_r\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\concurrent\\futures\\thread.py\", line 59, in run\n    result = self.fn(*self.args, **self.kwargs)\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_native_qualification\\qualify.py\", line 25, in ex\n    def ex(*args,ok=True,user='postgres',data=None,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*args],data,ok,timeout)\n                                                                      ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_native_qualification\\qualify.py\", line 23, in cmd\n    if ok and r.returncode:raise RuntimeError(' '.join(args[:5])+' '+r.stderr[-1500:])\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: docker exec --user postgres -i dd: failed to open '/usr/local/test-io.bin': Permission denied\n\n",
+  "build_hashes": "2ab1049a38d9c5451f6b3790d6ce8bf1a3e1818ba39ae09dd5da7a3ed782b4fa  /usr/local/lib/flooow_test_login.so\n68dce074e70ef4b44882a6b3ad0bdd91a7e203bee7d953a7d181fcd003ec75d7  /usr/local/bin/flooow-test-receiver\n6014fc4a5c7000c1477fe67516acd2710985fa51da828875f6938a9b17a19c5b  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "3e2fa41e45f70b86d1c6569be8db54214c4027ea941af4fa60a838bb530f1e4d",
+    "login.c": "4ccbc7f2fa0db980caa7526d82bc7b5b77a479508e8481ec8da5e4f201b4dbc8",
+    "protocol.h": "b4bd0cc26021e475d2548c57148a001ecaa0da524d90fcd09becc899de003677",
+    "qualify.py": "822d7edc00e4ce62a796c9c27939ec18b8a6f18e6fe6aac155df7a86633af9b1",
+    "receiver.c": "c6ebca16e6bad02071a7d0d9b55314e4c26a0abe11b3e100e797a3de6c39f33c",
+    "run_round3.py": "7df651975afb995b6c8363fa092f0c97c2f10b507396aae0f7449e1403109ec1",
+    "supervisor.c": "6ac85cac8f700a4c911a11049b1983a64b4b412607cee2e4a39671aec8567a53"
+  },
+  "cleanup": [
+    {
+      "name": "flooow-0090-native-qual-bd84005-r3",
+      "id": "2dd368a43a3a561a6456cf83fa3c6fa57e0e1752a4ab2fb136a979ffd566dd67",
+      "removed": true
+    }
+  ],
+  "plaintext_credentials_created": false,
+  "full_gate": "HOLD"
+}

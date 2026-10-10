@@ -1,0 +1,405 @@
+[
+  {
+    "historical_attempt": "First round3 builder failed clone3 probe -D_GNU_SOURCE duplicate macro under -Werror; owned container removed; no PG startup. Corrected with conditional macro guard."
+  },
+  {
+    "round3_build_commands": [
+      {
+        "command": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "flooow-0090-native-qual-bd84005-r3",
+          "--label",
+          "flooow.scope=0090-disposable-native-qualification",
+          "--network",
+          "none",
+          "--security-opt",
+          "seccomp=C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\docs\\evidence\\package-0090-g3f4-disposable-native-qualification\\SECCOMP-TEST.json",
+          "--tmpfs",
+          "/tmp",
+          "--tmpfs",
+          "/run",
+          "--tmpfs",
+          "/var/lib/postgresql",
+          "--entrypoint",
+          "sleep",
+          "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+          "infinity"
+        ],
+        "exit": 0,
+        "stdout": "2dd368a43a3a561a6456cf83fa3c6fa57e0e1752a4ab2fb136a979ffd566dd67\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "cp",
+          "C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_native_qualification",
+          "flooow-0090-native-qual-bd84005-r3:/usr/local/src-native"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "cp",
+          "C:\\Users\\xmz_r\\AppData\\Local\\Temp\\flooow-native-qualification\\libpq-fe.h",
+          "flooow-0090-native-qual-bd84005-r3:/usr/local/src-native/libpq-fe.h"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-r3",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/login.c",
+          "-o",
+          "/usr/local/lib/flooow_test_login.so",
+          "-Wno-unused-parameter",
+          "-fPIC",
+          "-shared",
+          "-I/usr/include/postgresql/18/server",
+          "-I/usr/include/postgresql/internal",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-r3",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/receiver.c",
+          "-o",
+          "/usr/local/bin/flooow-test-receiver",
+          "-I/usr/include/postgresql/18/server",
+          "-I/usr/local/src-native",
+          "-l:libpq.so.5",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-r3",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/supervisor.c",
+          "-o",
+          "/usr/local/bin/flooow-test-supervisor",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-r3",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/frame_tests.c",
+          "-o",
+          "/usr/local/bin/flooow-test-frame",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-r3",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/fake_receiver.c",
+          "-o",
+          "/usr/local/bin/flooow-test-fake-receiver",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-r3",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/clone3_probe.c",
+          "-o",
+          "/usr/local/bin/clone3-probe"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "round3_build_commands": [
+      {
+        "command": [
+          "docker",
+          "run",
+          "--detach",
+          "--name",
+          "flooow-0090-native-qual-bd84005-measure",
+          "--label",
+          "flooow.scope=0090-disposable-native-qualification",
+          "--network",
+          "none",
+          "--security-opt",
+          "seccomp=C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\docs\\evidence\\package-0090-g3f4-disposable-native-qualification\\SECCOMP-TEST.json",
+          "--tmpfs",
+          "/tmp",
+          "--tmpfs",
+          "/run",
+          "--tmpfs",
+          "/var/lib/postgresql",
+          "--entrypoint",
+          "sleep",
+          "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+          "infinity"
+        ],
+        "exit": 0,
+        "stdout": "0b8d27bd9ad2ff8c66d4e2cc7f4fb88dddaf86ba78fd6ff295372be9ee863960\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "mkdir",
+          "-p",
+          "/usr/local/test-io"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "chown",
+          "999:999",
+          "/usr/local/test-io"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "cp",
+          "C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_native_qualification",
+          "flooow-0090-native-qual-bd84005-measure:/usr/local/src-native"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "cp",
+          "C:\\Users\\xmz_r\\AppData\\Local\\Temp\\flooow-native-qualification\\libpq-fe.h",
+          "flooow-0090-native-qual-bd84005-measure:/usr/local/src-native/libpq-fe.h"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/login.c",
+          "-o",
+          "/usr/local/lib/flooow_test_login.so",
+          "-Wno-unused-parameter",
+          "-fPIC",
+          "-shared",
+          "-I/usr/include/postgresql/18/server",
+          "-I/usr/include/postgresql/internal",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/receiver.c",
+          "-o",
+          "/usr/local/bin/flooow-test-receiver",
+          "-I/usr/include/postgresql/18/server",
+          "-I/usr/local/src-native",
+          "-l:libpq.so.5",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/supervisor.c",
+          "-o",
+          "/usr/local/bin/flooow-test-supervisor",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/frame_tests.c",
+          "-o",
+          "/usr/local/bin/flooow-test-frame",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/fake_receiver.c",
+          "-o",
+          "/usr/local/bin/flooow-test-fake-receiver",
+          "-lcrypto"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "docker",
+          "exec",
+          "flooow-0090-native-qual-bd84005-measure",
+          "gcc",
+          "-D_GNU_SOURCE",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-Wno-misleading-indentation",
+          "/usr/local/src-native/clone3_probe.c",
+          "-o",
+          "/usr/local/bin/clone3-probe"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  }
+]

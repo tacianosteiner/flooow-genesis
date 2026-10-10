@@ -1,0 +1,354 @@
+{
+  "scope": "DISPOSABLE_NATIVE_MECHANISM_ONLY_NOT_PRODUCTION_OR_FULL_WATCHDOG_PASS",
+  "input_head": "bd840059f5a78d8e28a09a0ccc6463f3d5098663",
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "numeric_policy_adoption": false,
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "registry_entries": 128,
+    "death_poll_ms": 20,
+    "delay_fault_seconds": 6
+  },
+  "tests": [
+    {
+      "name": "native_login_test_verifier",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_verifier|native_fixture|312\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "native_login_test_issuer",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_issuer|native_fixture|320\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "native_login_test_executor",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_executor|native_fixture|328\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "native_login_test_auditor",
+      "result": "PASS",
+      "detail": {
+        "stdout": "test_auditor|native_fixture|336\n",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "no_direct_SQL_enrollment",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied for function flooow_test_login\n",
+        "elapsed_us": 303518.3
+      }
+    },
+    {
+      "name": "no_service_trigger_disable",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied to set parameter \"event_triggers\"\n",
+        "elapsed_us": 298381.3
+      }
+    },
+    {
+      "name": "no_service_replication_role_disable",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied to set parameter \"session_replication_role\"\n",
+        "elapsed_us": 306570.7
+      }
+    },
+    {
+      "name": "no_service_header_write",
+      "result": "PASS",
+      "detail": {
+        "exit": 3,
+        "stderr": "ERROR:  permission denied for table flooow_test_binding\n",
+        "elapsed_us": 326188.9
+      }
+    },
+    {
+      "name": "missing_header_login",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 299102.8
+      }
+    },
+    {
+      "name": "role_name_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n",
+        "elapsed_us": 293453.0
+      }
+    },
+    {
+      "name": "role_attribute_mismatch",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 258384.8
+      }
+    },
+    {
+      "name": "lost_ACK",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 302961.3
+      }
+    },
+    {
+      "name": "late_ACK",
+      "result": "PASS",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5313269.8
+      }
+    },
+    {
+      "name": "backend_exit_invalidates_anchor",
+      "result": "PASS",
+      "detail": {
+        "event_count": 28
+      }
+    },
+    {
+      "name": "postmaster_restart_invalidates_generation",
+      "result": "PASS",
+      "detail": {
+        "log_tail": "it_invalidated\",\"slot\":1}\n2026-10-10 18:31:02.282 UTC [544] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n2026-10-10 18:31:03.117 UTC [565] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n2026-10-10 18:31:03.933 UTC [587] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n2026-10-10 18:31:04.797 UTC [607] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n2026-10-10 18:31:10.648 UTC [627] FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n{\"event\":\"DENY\",\"role_oid\":16385,\"slot\":1,\"reason\":10,\"duplicate\":false,\"receive_us\":850,\"validation_us\":6549,\"reply_us\":6007564}\n2026-10-10 18:31:11.963 UTC [282] LOG:  received fast shutdown request\n2026-10-10 18:31:11.963 UTC [282] LOG:  aborting any active transactions\n2026-10-10 18:31:11.966 UTC [282] LOG:  background worker \"logical replication launcher\" (PID 291) exited with exit code 1\n2026-10-10 18:31:11.966 UTC [286] LOG:  shutting down\n2026-10-10 18:31:11.966 UTC [286] LOG:  checkpoint starting: shutdown immediate\n2026-10-10 18:31:11.967 UTC [286] LOG:  checkpoint complete: wrote 26 buffers (0.2%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.001 s; sync files=24, longest=0.001 s, average=0.000 s; distance=76 kB, estimate=76 kB; lsn=0/1BB9928, redo lsn=0/1BB9928\n2026-10-10 18:31:11.973 UTC [282] LOG:  database system is shut down\n{\"event\":\"supervisor_generation_loss\",\"receiver_dead\":false,\"postmaster_dead\":true}\n{\"event\":\"control_generation_invalidated\"}\n{\"event\":\"supervisor_verified_child_drain\"}\n"
+      }
+    },
+    {
+      "name": "fresh_physical_login_after_rebootstrap",
+      "result": "PASS",
+      "detail": {
+        "before": "2026-10-10 18:30:51.508264+00",
+        "after": "2026-10-10 18:31:12.880349+00",
+        "stderr": ""
+      }
+    }
+  ],
+  "samples": [
+    {
+      "sample": 0,
+      "role": "test_verifier",
+      "client_process_total_us": 363967.7,
+      "exit": 0
+    },
+    {
+      "sample": 1,
+      "role": "test_issuer",
+      "client_process_total_us": 301054.1,
+      "exit": 0
+    },
+    {
+      "sample": 2,
+      "role": "test_executor",
+      "client_process_total_us": 320611.4,
+      "exit": 0
+    },
+    {
+      "sample": 3,
+      "role": "test_auditor",
+      "client_process_total_us": 303787.7,
+      "exit": 0
+    },
+    {
+      "sample": 4,
+      "role": "test_verifier",
+      "client_process_total_us": 310069.0,
+      "exit": 0
+    },
+    {
+      "sample": 5,
+      "role": "test_issuer",
+      "client_process_total_us": 304897.0,
+      "exit": 0
+    },
+    {
+      "sample": 6,
+      "role": "test_executor",
+      "client_process_total_us": 308998.6,
+      "exit": 0
+    },
+    {
+      "sample": 7,
+      "role": "test_auditor",
+      "client_process_total_us": 373544.3,
+      "exit": 0
+    },
+    {
+      "sample": 8,
+      "role": "test_verifier",
+      "client_process_total_us": 332219.5,
+      "exit": 0
+    },
+    {
+      "sample": 9,
+      "role": "test_issuer",
+      "client_process_total_us": 467623.8,
+      "exit": 0
+    },
+    {
+      "sample": 10,
+      "role": "test_executor",
+      "client_process_total_us": 540623.2,
+      "exit": 0
+    },
+    {
+      "sample": 11,
+      "role": "test_auditor",
+      "client_process_total_us": 304232.3,
+      "exit": 0
+    },
+    {
+      "sample": 12,
+      "role": "test_verifier",
+      "client_process_total_us": 344707.8,
+      "exit": 0
+    },
+    {
+      "sample": 13,
+      "role": "test_issuer",
+      "client_process_total_us": 388627.3,
+      "exit": 0
+    },
+    {
+      "sample": 14,
+      "role": "test_executor",
+      "client_process_total_us": 328075.5,
+      "exit": 0
+    },
+    {
+      "sample": 15,
+      "role": "test_auditor",
+      "client_process_total_us": 366525.4,
+      "exit": 0
+    },
+    {
+      "sample": 16,
+      "role": "test_verifier",
+      "client_process_total_us": 388621.8,
+      "exit": 0
+    },
+    {
+      "sample": 17,
+      "role": "test_issuer",
+      "client_process_total_us": 379184.3,
+      "exit": 0
+    },
+    {
+      "sample": 18,
+      "role": "test_executor",
+      "client_process_total_us": 350606.1,
+      "exit": 0
+    },
+    {
+      "sample": 19,
+      "role": "test_auditor",
+      "client_process_total_us": 308833.5,
+      "exit": 0
+    }
+  ],
+  "limitations": [
+    "Native fixture header is a minimal protected role/slot table, not full V043 registration or original-attestation parity.",
+    "General UTF-8 NFC parser qualification pending; prototype conservatively rejects non-ASCII fixture names.",
+    "Independent continuing watchdog/freshness, effect/drain reconciliation and current approval custody are NOT qualified by enrollment samples.",
+    "Receiver restart/fork/replay/fd-substitution/socket replacement stress remain additional required cases unless separately recorded.",
+    "Observed timing uses experimental abort controls only; no numeric policy approved."
+  ],
+  "container_inspections": [
+    {
+      "name": "flooow-0090-native-qual-bd84005-v1",
+      "id": "c953273e8bd2cf68f2c3f7bedc146231bff8edc461a6c8af446c7cc09534ae80",
+      "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "network": "none",
+      "mounts": [],
+      "tmpfs": {
+        "/run": "",
+        "/tmp": "",
+        "/var/lib/postgresql": ""
+      },
+      "security_opt": [
+        "seccomp={\"defaultAction\":\"SCMP_ACT_ERRNO\",\"defaultErrnoRet\":1,\"archMap\":[{\"architecture\":\"SCMP_ARCH_X86_64\",\"subArchitectures\":[\"SCMP_ARCH_X86\",\"SCMP_ARCH_X32\"]},{\"architecture\":\"SCMP_ARCH_AARCH64\",\"subArchitectures\":[\"SCMP_ARCH_ARM\"]},{\"architecture\":\"SCMP_ARCH_MIPS64\",\"subArchitectures\":[\"SCMP_ARCH_MIPS\",\"SCMP_ARCH_MIPS64N32\"]},{\"architecture\":\"SCMP_ARCH_MIPS64N32\",\"subArchitectures\":[\"SCMP_ARCH_MIPS\",\"SCMP_ARCH_MIPS64\"]},{\"architecture\":\"SCMP_ARCH_MIPSEL64\",\"subArchitectures\":[\"SCMP_ARCH_MIPSEL\",\"SCMP_ARCH_MIPSEL64N32\"]},{\"architecture\":\"SCMP_ARCH_MIPSEL64N32\",\"subArchitectures\":[\"SCMP_ARCH_MIPSEL\",\"SCMP_ARCH_MIPSEL64\"]},{\"architecture\":\"SCMP_ARCH_S390X\",\"subArchitectures\":[\"SCMP_ARCH_S390\"]},{\"architecture\":\"SCMP_ARCH_RISCV64\",\"subArchitectures\":null},{\"architecture\":\"SCMP_ARCH_LOONGARCH64\",\"subArchitectures\":null}],\"syscalls\":[{\"names\":[\"accept\",\"accept4\",\"access\",\"adjtimex\",\"alarm\",\"bind\",\"brk\",\"cachestat\",\"capget\",\"capset\",\"chdir\",\"chmod\",\"chown\",\"chown32\",\"clock_adjtime\",\"clock_adjtime64\",\"clock_getres\",\"clock_getres_time64\",\"clock_gettime\",\"clock_gettime64\",\"clock_nanosleep\",\"clock_nanosleep_time64\",\"close\",\"close_range\",\"connect\",\"copy_file_range\",\"creat\",\"dup\",\"dup2\",\"dup3\",\"epoll_create\",\"epoll_create1\",\"epoll_ctl\",\"epoll_ctl_old\",\"epoll_pwait\",\"epoll_pwait2\",\"epoll_wait\",\"epoll_wait_old\",\"eventfd\",\"eventfd2\",\"execve\",\"execveat\",\"exit\",\"exit_group\",\"faccessat\",\"faccessat2\",\"fadvise64\",\"fadvise64_64\",\"fallocate\",\"fanotify_mark\",\"fchdir\",\"fchmod\",\"fchmodat\",\"fchmodat2\",\"fchown\",\"fchown32\",\"fchownat\",\"fcntl\",\"fcntl64\",\"fdatasync\",\"fgetxattr\",\"flistxattr\",\"flock\",\"fork\",\"fremovexattr\",\"fsetxattr\",\"fstat\",\"fstat64\",\"fstatat64\",\"fstatfs\",\"fstatfs64\",\"fsync\",\"ftruncate\",\"ftruncate64\",\"futex\",\"futex_requeue\",\"futex_time64\",\"futex_wait\",\"futex_waitv\",\"futex_wake\",\"futimesat\",\"getcpu\",\"getcwd\",\"getdents\",\"getdents64\",\"getegid\",\"getegid32\",\"geteuid\",\"geteuid32\",\"getgid\",\"getgid32\",\"getgroups\",\"getgroups32\",\"getitimer\",\"getpeername\",\"getpgid\",\"getpgrp\",\"getpid\",\"getppid\",\"getpriority\",\"getrandom\",\"getresgid\",\"getresgid32\",\"getresuid\",\"getresuid32\",\"getrlimit\",\"get_robust_list\",\"getrusage\",\"getsid\",\"getsockname\",\"getsockopt\",\"get_thread_area\",\"gettid\",\"gettimeofday\",\"getuid\",\"getuid32\",\"getxattr\",\"getxattrat\",\"inotify_add_watch\",\"inotify_init\",\"inotify_init1\",\"inotify_rm_watch\",\"io_cancel\",\"ioctl\",\"io_destroy\",\"io_getevents\",\"io_pgetevents\",\"io_pgetevents_time64\",\"ioprio_get\",\"ioprio_set\",\"io_setup\",\"io_submit\",\"ipc\",\"kill\",\"landlock_add_rule\",\"landlock_create_ruleset\",\"landlock_restrict_self\",\"lchown\",\"lchown32\",\"lgetxattr\",\"link\",\"linkat\",\"listen\",\"listmount\",\"listxattr\",\"listxattrat\",\"llistxattr\",\"_llseek\",\"lremovexattr\",\"lseek\",\"lsetxattr\",\"lstat\",\"lstat64\",\"madvise\",\"map_shadow_stack\",\"membarrier\",\"memfd_create\",\"memfd_secret\",\"mincore\",\"mkdir\",\"mkdirat\",\"mknod\",\"mknodat\",\"mlock\",\"mlock2\",\"mlockall\",\"mmap\",\"mmap2\",\"mprotect\",\"mq_getsetattr\",\"mq_notify\",\"mq_open\",\"mq_timedreceive\",\"mq_timedreceive_time64\",\"mq_timedsend\",\"mq_timedsend_time64\",\"mq_unlink\",\"mremap\",\"mseal\",\"msgctl\",\"msgget\",\"msgrcv\",\"msgsnd\",\"msync\",\"munlock\",\"munlockall\",\"munmap\",\"name_to_handle_at\",\"nanosleep\",\"newfstatat\",\"_newselect\",\"open\",\"openat\",\"openat2\",\"pause\",\"pidfd_open\",\"pidfd_send_signal\",\"pipe\",\"pipe2\",\"pkey_alloc\",\"pkey_free\",\"pkey_mprotect\",\"poll\",\"ppoll\",\"ppoll_time64\",\"prctl\",\"pread64\",\"preadv\",\"preadv2\",\"prlimit64\",\"process_mrelease\",\"pselect6\",\"pselect6_time64\",\"pwrite64\",\"pwritev\",\"pwritev2\",\"read\",\"readahead\",\"readlink\",\"readlinkat\",\"readv\",\"recv\",\"recvfrom\",\"recvmmsg\",\"recvmmsg_time64\",\"recvmsg\",\"remap_file_pages\",\"removexattr\",\"removexattrat\",\"rename\",\"renameat\",\"renameat2\",\"restart_syscall\",\"riscv_hwprobe\",\"rmdir\",\"rseq\",\"rt_sigaction\",\"rt_sigpending\",\"rt_sigprocmask\",\"rt_sigqueueinfo\",\"rt_sigreturn\",\"rt_sigsuspend\",\"rt_sigtimedwait\",\"rt_sigtimedwait_time64\",\"rt_tgsigqueueinfo\",\"sched_getaffinity\",\"sched_getattr\",\"sched_getparam\",\"sched_get_priority_max\",\"sched_get_priority_min\",\"sched_getscheduler\",\"sched_rr_get_interval\",\"sched_rr_get_interval_time64\",\"sched_setaffinity\",\"sched_setattr\",\"sched_setparam\",\"sched_setscheduler\",\"sched_yield\",\"seccomp\",\"select\",\"semctl\",\"semget\",\"semop\",\"semtimedop\",\"semtimedop_time64\",\"send\",\"sendfile\",\"sendfile64\",\"sendmmsg\",\"sendmsg\",\"sendto\",\"setfsgid\",\"setfsgid32\",\"setfsuid\",\"setfsuid32\",\"setgid\",\"setgid32\",\"setgroups\",\"setgroups32\",\"setitimer\",\"setpgid\",\"setpriority\",\"setregid\",\"setregid32\",\"setresgid\",\"setresgid32\",\"setresuid\",\"setresuid32\",\"setreuid\",\"setreuid32\",\"setrlimit\",\"set_robust_list\",\"setsid\",\"setsockopt\",\"set_thread_area\",\"set_tid_address\",\"setuid\",\"setuid32\",\"setxattr\",\"setxattrat\",\"shmat\",\"shmctl\",\"shmdt\",\"shmget\",\"shutdown\",\"sigaltstack\",\"signalfd\",\"signalfd4\",\"sigprocmask\",\"sigreturn\",\"socketcall\",\"socketpair\",\"splice\",\"stat\",\"stat64\",\"statfs\",\"statfs64\",\"statmount\",\"statx\",\"symlink\",\"symlinkat\",\"sync\",\"sync_file_range\",\"syncfs\",\"sysinfo\",\"tee\",\"tgkill\",\"time\",\"timer_create\",\"timer_delete\",\"timer_getoverrun\",\"timer_gettime\",\"timer_gettime64\",\"timer_settime\",\"timer_settime64\",\"timerfd_create\",\"timerfd_gettime\",\"timerfd_gettime64\",\"timerfd_settime\",\"timerfd_settime64\",\"times\",\"tkill\",\"truncate\",\"truncate64\",\"ugetrlimit\",\"umask\",\"uname\",\"unlink\",\"unlinkat\",\"uretprobe\",\"utime\",\"utimensat\",\"utimensat_time64\",\"utimes\",\"vfork\",\"vmsplice\",\"wait4\",\"waitid\",\"waitpid\",\"write\",\"writev\"],\"action\":\"SCMP_ACT_ALLOW\"},{\"names\":[\"process_vm_readv\",\"process_vm_writev\",\"ptrace\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"minKernel\":\"4.8\"}},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":3,\"op\":\"SCMP_CMP_LT\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":7,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":8,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":9,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":10,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":13,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":14,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":15,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":16,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":17,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":18,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":21,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":22,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":24,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":26,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":27,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":28,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":29,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":30,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":31,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":32,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":33,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":35,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":36,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":39,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":41,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":42,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":43,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":44,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"socket\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":45,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":0,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":8,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":131072,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":131080,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"personality\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":4294967295,\"op\":\"SCMP_CMP_EQ\"}]},{\"names\":[\"sync_file_range2\",\"swapcontext\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"ppc64le\"]}},{\"names\":[\"arm_fadvise64_64\",\"arm_sync_file_range\",\"sync_file_range2\",\"breakpoint\",\"cacheflush\",\"set_tls\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"arm\",\"arm64\"]}},{\"names\":[\"arch_prctl\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"amd64\",\"x32\"]}},{\"names\":[\"modify_ldt\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"amd64\",\"x32\",\"x86\"]}},{\"names\":[\"s390_pci_mmio_read\",\"s390_pci_mmio_write\",\"s390_runtime_instr\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"s390\",\"s390x\"]}},{\"names\":[\"riscv_flush_icache\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"arches\":[\"riscv64\"]}},{\"names\":[\"open_by_handle_at\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_DAC_READ_SEARCH\"]}},{\"names\":[\"bpf\",\"clone\",\"fanotify_init\",\"fsconfig\",\"fsmount\",\"fsopen\",\"fspick\",\"lookup_dcookie\",\"lsm_get_self_attr\",\"lsm_list_modules\",\"lsm_set_self_attr\",\"mount\",\"mount_setattr\",\"move_mount\",\"open_tree\",\"perf_event_open\",\"quotactl\",\"quotactl_fd\",\"setdomainname\",\"sethostname\",\"setns\",\"syslog\",\"umount\",\"umount2\",\"unshare\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_ADMIN\"]}},{\"names\":[\"clone\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":0,\"value\":2114060288,\"op\":\"SCMP_CMP_MASKED_EQ\"}],\"excludes\":{\"caps\":[\"CAP_SYS_ADMIN\"],\"arches\":[\"s390\",\"s390x\"]}},{\"names\":[\"clone\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[{\"index\":1,\"value\":2114060288,\"op\":\"SCMP_CMP_MASKED_EQ\"}],\"comment\":\"s390 parameter ordering for clone is different\",\"includes\":{\"arches\":[\"s390\",\"s390x\"]},\"excludes\":{\"caps\":[\"CAP_SYS_ADMIN\"]}},{\"names\":[\"reboot\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_BOOT\"]}},{\"names\":[\"chroot\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_CHROOT\"]}},{\"names\":[\"delete_module\",\"init_module\",\"finit_module\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_MODULE\"]}},{\"names\":[\"acct\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_PACCT\"]}},{\"names\":[\"kcmp\",\"pidfd_getfd\",\"process_madvise\",\"process_vm_readv\",\"process_vm_writev\",\"ptrace\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_PTRACE\"]}},{\"names\":[\"iopl\",\"ioperm\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_RAWIO\"]}},{\"names\":[\"settimeofday\",\"stime\",\"clock_settime\",\"clock_settime64\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_TIME\"]}},{\"names\":[\"vhangup\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_TTY_CONFIG\"]}},{\"names\":[\"get_mempolicy\",\"mbind\",\"set_mempolicy\",\"set_mempolicy_home_node\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYS_NICE\"]}},{\"names\":[\"syslog\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_SYSLOG\"]}},{\"names\":[\"bpf\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_BPF\"]}},{\"names\":[\"perf_event_open\"],\"action\":\"SCMP_ACT_ALLOW\",\"includes\":{\"caps\":[\"CAP_PERFMON\"]}},{\"names\":[\"clone3\"],\"action\":\"SCMP_ACT_ALLOW\",\"args\":[]}]}"
+      ]
+    },
+    {
+      "name": "flooow-0090-native-qual-bd84005",
+      "id": "3edbf7b49da30963862d0bc6fe32b9ec747b39dc8376db0af39a93465e221800",
+      "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "network": "none",
+      "mounts": [],
+      "tmpfs": {
+        "/run": "",
+        "/tmp": "",
+        "/var/lib/postgresql": ""
+      },
+      "security_opt": null
+    }
+  ],
+  "seccomp": {
+    "source": "https://raw.githubusercontent.com/moby/profiles/main/seccomp/default.json",
+    "source_sha256": "6416b47770785a41ac59073cdc77d9fe98517df2799dc83ef207e622de3053f6",
+    "derived_sha256": "630f0ee62456b0eac90059f271330e5afcd672b9d1e58e3dd0e241b53c42d3d3",
+    "purpose": "DISPOSABLE_ONLY",
+    "change": "Remove original clone3 rules; allow clone3 only; all other source rules unchanged",
+    "default_container_clone3_errno": 38
+  },
+  "libpq_header_sha256": "499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0",
+  "kernel": "6.18.33.2-microsoft-standard-WSL2",
+  "clone3_default": "{\"clone3\":\"DENIED\",\"errno\":38,\"fallback\":false}\n",
+  "clone3_scoped": "{\"clone3\":\"PASS\",\"atomic_child_pidfd\":true,\"child_exit\":0}\n",
+  "synthetic_role_oids": {
+    "test_verifier": 16385,
+    "test_issuer": 16386,
+    "test_executor": 16387,
+    "test_auditor": 16388
+  },
+  "synthetic_database_oid": 16384,
+  "cold_supervised_startup_us": 933972.1,
+  "rebootstrap_us": 834160.6,
+  "build_hashes": "d940d71bfa1633fabb345ec816525019dfbdba009630f20e3bc37eef845ad069  /usr/local/lib/flooow_test_login.so\n6d5f44bf2fadf9f190caa04bf4751f3e7f0b8ebfda5d2cb7fd812eb8395358ce  /usr/local/bin/flooow-test-receiver\n20308b0024a175ad98aed1889529597dbe279667f141da56c953d588031d3a71  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "clone3_probe.c": "60d83c42dd2fcf2c9350add9408ab308a0eb59bacc02a45dcc17aceb06ccf20d",
+    "login.c": "b416cb8e28fcd3f10539763b24f7685fc15faa2ec984f3d2a2139b3f2ed4bedd",
+    "protocol.h": "72a67205f65c050054dd33fb29a133644c151f3dcb92c83a92136b7f6a9b2228",
+    "qualify.py": "253a940f7e5960297652ee45ba68d20b59f9b4a5e1dd4c154f88794ed1c19fc4",
+    "receiver.c": "871123f074a0c1dd2b2deb5ba7fc8df35169af7512734a75917b48d51fa0fc1b",
+    "supervisor.c": "4d316d401e6b88e74db44ca2ea0520b4064267d366e2b99fe2e78ba851c69541"
+  },
+  "cleanup": [
+    {
+      "name": "flooow-0090-native-qual-bd84005-v1",
+      "id": "c953273e8bd2cf68f2c3f7bedc146231bff8edc461a6c8af446c7cc09534ae80",
+      "removed": true
+    },
+    {
+      "name": "flooow-0090-native-qual-bd84005",
+      "id": "3edbf7b49da30963862d0bc6fe32b9ec747b39dc8376db0af39a93465e221800",
+      "removed": true
+    }
+  ],
+  "plaintext_credentials_created": false,
+  "full_gate": "HOLD"
+}
