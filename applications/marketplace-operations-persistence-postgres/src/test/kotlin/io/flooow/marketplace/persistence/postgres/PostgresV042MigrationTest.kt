@@ -36,7 +36,7 @@ class PostgresV042MigrationTest {
     fun start() {
         db = PostgreSQLContainer("postgres:18.4")
         db.start()
-        Flyway.configure().dataSource(db.jdbcUrl, db.username, db.password).load().migrate()
+        Flyway.configure().dataSource(db.jdbcUrl, db.username, db.password).target("042").load().migrate()
     }
 
     @AfterTest

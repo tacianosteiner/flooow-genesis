@@ -23,7 +23,7 @@ import kotlin.test.*
 
 class CommandAuthorityCeremonyPostgresTest {
     private lateinit var db: PostgreSQLContainer
-    @BeforeTest fun start(){db=PostgreSQLContainer("postgres:18.4").also{it.start()};Flyway.configure().dataSource(db.jdbcUrl,db.username,db.password).load().migrate();auditReadGrants();seed()}
+    @BeforeTest fun start(){db=PostgreSQLContainer("postgres:18.4").also{it.start()};Flyway.configure().dataSource(db.jdbcUrl,db.username,db.password).target("042").load().migrate();auditReadGrants();seed()}
     @AfterTest fun stop(){if(::db.isInitialized)db.stop()}
 
     @Test fun `real attested ceremony links authority applies decision destroys secret and replays authority exactly`() {

@@ -1,0 +1,107 @@
+-- R1 SHA256: 13a8536c562831231f53e3de3b50932dc8187f7dbd39d3bd291500eef732a793
+-- Capability only. No current complete-runner execution grant exists.
+-- PLAN_BINDING_ADMIN consumes host watchdog evidence; it never authors health.
+-- A future promotion requires a separately frozen authority-bound source/hash.
+\set ON_ERROR_STOP on
+BEGIN;
+SET LOCAL ROLE flooow_offline_control_owner;
+SET LOCAL search_path = pg_catalog, pg_temp;
+DO $admin$
+DECLARE
+    v_complete_runner_authority_bound CONSTANT boolean := false;
+    v_deployment_id CONSTANT uuid := '8f05fc47-d043-47c7-8130-c50890717f3e';
+    v_incarnation_id CONSTANT uuid := '83ad4115-4be5-44c6-b0e5-24fd0f068d6f';
+    v_binding_id CONSTANT uuid := '5f2367e5-bcf2-454e-8aac-7e53e485c32e';
+    v_count bigint;
+    v_now timestamptz;
+BEGIN
+    IF v_complete_runner_authority_bound IS NOT TRUE THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='COMPLETE_RUNNER_AUTHORITY_ABSENT';
+    END IF;
+    -- Exact deployment/header identity is validated before control activation.
+    SELECT count(*) INTO STRICT v_count FROM public.offline_binding_header
+     WHERE binding_id=v_binding_id AND deployment_id=v_deployment_id
+       AND deployment_incarnation_id=v_incarnation_id
+       AND run_id='b9afded4-5a03-4aa7-90f7-5a76ab29302a'::uuid
+       AND plan_id='3c58ebd5-f974-4d5e-b461-b5d61d487389'::uuid
+       AND manifest_id='f6e4054f-a5ec-40e1-9f77-375f34d69993'::uuid
+       AND deadline_policy_version='fixture-1'
+       AND deadline_policy_digest=decode('e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d','hex');
+    IF v_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='HEADER_IDENTITY_MISMATCH';
+    END IF;
+    PERFORM 1 FROM public.offline_readiness
+     WHERE deployment_id=v_deployment_id AND incarnation_id=v_incarnation_id
+       AND state='NOT_READY' AND watchdog_healthy=true FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='INDEPENDENT_HOST_HEALTH_ABSENT';
+    END IF;
+    PERFORM 1 FROM public.offline_binding_lifecycle
+     WHERE binding_id=v_binding_id AND state='REGISTERED' AND lock_token=0 FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='LIFECYCLE_PRESTATE_MISMATCH';
+    END IF;
+    PERFORM 1 FROM public.offline_attempt_pointer
+     WHERE binding_id=v_binding_id AND current_attempt_id IS NULL
+       AND generation=1 AND claim_permitted=false AND lock_token=0 FOR UPDATE;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='POINTER_PRESTATE_MISMATCH';
+    END IF;
+    v_now := pg_catalog.clock_timestamp();
+    -- Frozen fixture-1 health actual/max are 100/200us. Never widen this here.
+    SELECT count(*) INTO STRICT v_count FROM public.offline_readiness
+     WHERE deployment_id=v_deployment_id AND incarnation_id=v_incarnation_id
+       AND state='NOT_READY' AND watchdog_healthy=true
+       AND policy_version='fixture-1'
+       AND policy_digest=decode('e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d','hex')
+       AND pg_catalog.isfinite(watchdog_checked_at)
+       AND watchdog_checked_at<=v_now
+       AND EXTRACT(EPOCH FROM(v_now-watchdog_checked_at))*1000000<=100;
+    IF v_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='HOST_HEALTH_STALE_OR_CONFLICTING';
+    END IF;
+    UPDATE public.offline_readiness SET state='READY'
+     WHERE deployment_id=v_deployment_id AND incarnation_id=v_incarnation_id
+       AND state='NOT_READY' AND watchdog_healthy=true;
+    GET DIAGNOSTICS v_count=ROW_COUNT;
+    IF v_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='READINESS_ROWCOUNT_MISMATCH';
+    END IF;
+    UPDATE public.offline_binding_lifecycle SET state='ACTIVE'
+     WHERE binding_id=v_binding_id AND state='REGISTERED' AND lock_token=0;
+    GET DIAGNOSTICS v_count=ROW_COUNT;
+    IF v_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='LIFECYCLE_ROWCOUNT_MISMATCH';
+    END IF;
+    UPDATE public.offline_attempt_pointer SET claim_permitted=true
+     WHERE binding_id=v_binding_id AND current_attempt_id IS NULL
+       AND generation=1 AND claim_permitted=false AND lock_token=0;
+    GET DIAGNOSTICS v_count=ROW_COUNT;
+    IF v_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='POINTER_ROWCOUNT_MISMATCH';
+    END IF;
+    SELECT count(*) INTO STRICT v_count
+      FROM public.offline_readiness r
+      JOIN public.offline_binding_lifecycle l ON l.binding_id=v_binding_id
+      JOIN public.offline_attempt_pointer p ON p.binding_id=v_binding_id
+     WHERE r.deployment_id=v_deployment_id AND r.incarnation_id=v_incarnation_id
+       AND r.state='READY' AND r.watchdog_healthy=true
+       AND l.state='ACTIVE' AND l.lock_token=0
+       AND p.current_attempt_id IS NULL AND p.generation=1
+       AND p.claim_permitted=true AND p.lock_token=0;
+    IF v_count<>1 THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='ACTIVATION_POSTSTATE_MISMATCH';
+    END IF;
+    v_now := pg_catalog.clock_timestamp();
+    PERFORM 1 FROM public.offline_readiness
+     WHERE deployment_id=v_deployment_id AND incarnation_id=v_incarnation_id
+       AND state='READY' AND watchdog_healthy=true
+       AND pg_catalog.isfinite(watchdog_checked_at)
+       AND watchdog_checked_at<=v_now
+       AND EXTRACT(EPOCH FROM(v_now-watchdog_checked_at))*1000000<=100;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION USING ERRCODE='P0017', MESSAGE='HOST_HEALTH_EXPIRED_BEFORE_COMMIT';
+    END IF;
+END;
+$admin$;
+COMMIT;
