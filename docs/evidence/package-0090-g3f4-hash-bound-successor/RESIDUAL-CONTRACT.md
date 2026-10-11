@@ -1,0 +1,17 @@
+# Positive domain and native health boundaries
+
+Status: HOLD; TEST_ONLY_NONCANONICAL; no production readiness claim.
+
+The executable envelope removes only the first unconditional DO execution fence. All subsequent readiness and authority predicates remain byte-identical. Installation and an authentic ACCESS_DENIED response are not positive wrapper parity.
+
+The accepted V043 body requires a current binding header referencing a policy row (lines 964–1014), current session-user identity slots, full 29-field canonical policy decoding (offline_internal_readiness, starting line 4758), and current READY/policy/watchdog predicates. The final action guards also revalidate watchdog freshness and bounded ownership lifetimes (lines 19420–19475, 20426–20469). An empty header cannot satisfy this contract. Arbitrary TRUE readiness or freshly invented policy values cannot supply the missing governed evidence.
+
+The persistent authorization forbids adoption, approval or provisioning of numeric ACK/policy/health/resource/drain bounds. The latest promotion authorization permits positive execution but retains NUMERIC_POLICY_ADOPTION=NO, and does not explicitly supply a complete synthetic policy/readiness provisioning contract. No frozen policy, canonical identity or key is borrowed. This is a scope/fixture contract gap, not evidence of an algorithmic failure in the installed wrappers. All 13 positive obligations are recorded NOT_RUN, with four dependent gates conditional on their success.
+
+The next bounded fixture contract must explicitly resolve experimental-only full-domain policy handling without numeric authority, truthful readiness witness requirements, fresh binding/approval/source/attestation/accepted-consumption lineage, exact reviewed service privileges, and ownership/effect/reconciliation fixtures. It must preserve the actual successor wrappers and full authority joins. No claim of full native health can follow from a synthetic database health flag.
+
+Native residuals remain independently open: approval consumer lacks an independently anchored native producer; enforcement is co-located rather than independently identified; replaceable participant generations are not fully bound; loop advancement and process existence do not prove completed functional work. See the preserved predecessor HEALTH-CONTRACT.md for the six-participant evidence graph and all 62 unmet full-contract obligations. Those historical outcomes confer no PASS here. PROCESS_ALIVE != PARTICIPANT_MAKING_PROGRESS.
+
+The smallest proposed next native contract specifies server/OS-derived participant identity, independently replaceable generations, completed-work progress counters, observer responsibilities, freshness/applicability revalidation and fail-closed quarantine/ownership retention for all six participants. It must authorize an exact wire/schema/producer change set before implementation. No numeric thresholds, authority, native protocol change or enforcement change is selected in this mission.
+
+Proposed authorization phrase (not executed): Authorize G3F4_TEST_ONLY_FULL_DOMAIN_FIXTURE_CONTRACT_AND_NATIVE_HEALTH_DESIGN to define and review a complete noncanonical positive-domain fixture contract, explicitly resolve experimental policy/readiness fixture handling without numeric adoption, and specify the smallest identity/generation/completed-work native health contract. Do not implement native protocol changes or use canonical resources.

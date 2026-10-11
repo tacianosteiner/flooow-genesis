@@ -1,0 +1,1 @@
+Historical only. Final consumer will verify complete migration resources once and retain immutable in-memory bytes, closing the on-disk read-after-check substitution boundary. This round contributes zero inherited PASS to final-02.

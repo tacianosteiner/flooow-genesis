@@ -1,0 +1,15 @@
+# Hash-bound executable successor — final characterization
+
+Status: HOLD. Room engineering readiness is not established. Input branch `checkpoint/package-0090-cloud-handoff`, input commit `0db4b7bed49ca76ca879875057d75bc2e68b0296`.
+
+The final independently verified envelope-02 removes only the exact first execution fence. Reinsertion reproduces the accepted Git source bytes; all other statements remain byte-identical. Worktree CRLF identity is separately preserved. The full actual successor is consumed by Flyway 13.2.0 using 43 verified immutable in-memory resources; both material-substitution probes reject before connection. Actual V001–V043 migration history is successful. Four synthetic service identities receive only the existing reviewed slot surface; effective raw table/column privileges are absent. The real promoted preflight denies a missing current binding with P0017. This denial is not positive parity.
+
+Final fresh result: 26 executed / 26 PASS / 0 FAIL / 0 operational errors / 17 explained NOT_RUN / 0 unexplained NOT_RUN. All 13 required positive-domain cases and four FC01-dependent gates remain explicitly NOT_RUN. Installation and selected negative checks do not close FC01. No previous PASS contributes. Seven development failures and final-01 remain historical evidence only.
+
+The residual full-domain fixture boundary and four independent native health gap groups are documented in RESIDUAL-CONTRACT.md. Policy/readiness/lineage predicates were retained; no numeric bounds, eligibility flag or canonical context was manufactured. Native identity/generation/progress/enforcement protocols remain unchanged. PROCESS_ALIVE != PARTICIPANT_MAKING_PROGRESS.
+
+Final execution-source set: `43fd8706a62ba6039afbdf88973e590861ab4aee65f07b19163ca036f2d6e563`. Promotion manifest: `f81f9f5f3fa44d4bf0dcd71c0867d684aa03246cdea912e2c2d82306f92edb1b`. Successor: `6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7`. Actual unchanged crypto extension binary: `5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5`. This binary identifier is not the supervisor/receiver/watchdog aggregate and confers no full native health qualification.
+
+All 5160 historical hashes remain intact. No canonical V6/database/IDs/keys/T0/SIGN/ADMIN/TREG/final runner/production access or mutation occurred. No numeric policy was adopted. No private keys or plaintext credentials were created. All owned containers, internal networks and temporary scratch were removed, including failed development rounds. Publication is a characterized HOLD on the Room branch only; main and research are untouched. The publication commit containing this report supplies its final Git identity; that identity cannot be embedded into its own bytes.
+
+Next gate: complete explicitly scoped noncanonical positive-domain fixture contract, then full actual positive successor parity and conditional FC03/FC04/FC05/FC07. Native changes require a separate reviewed contract and authorization. Exact proposed authorization phrase is preserved in RESIDUAL-CONTRACT.md; it has not been executed.
