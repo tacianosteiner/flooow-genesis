@@ -1,0 +1,624 @@
+{
+  "name": "public.s2a_v042_authority_intent",
+  "signature": "public.s2a_v042_authority_intent(text,uuid,uuid,uuid,uuid,uuid,uuid,bytea,uuid,text,text,uuid,uuid,text,text)",
+  "parameter_types": [
+    "text",
+    "uuid",
+    "uuid",
+    "uuid",
+    "uuid",
+    "uuid",
+    "uuid",
+    "bytea",
+    "uuid",
+    "text",
+    "text",
+    "uuid",
+    "uuid",
+    "text",
+    "text"
+  ],
+  "parameter_names": [
+    "p_kind",
+    "p_operation_id",
+    "p_organization_id",
+    "p_principal_id",
+    "p_mercado_livre_connection_id",
+    "p_omie_connection_id",
+    "p_credential_id",
+    "p_secret_verifier",
+    "p_grant_id",
+    "p_reason",
+    "p_provenance",
+    "p_correlation_id",
+    "p_manifest_id",
+    "p_accepted_proof_fingerprint",
+    "p_manifest_digest"
+  ],
+  "return_type": "text",
+  "language": "plpgsql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+  "source_line_range": [
+    142,
+    158
+  ],
+  "body": "\nDECLARE b bytea:=public.s2a_v042_text('controlled-command-authority/2');\nBEGIN\n  IF p_kind='PRINCIPAL' THEN\n    b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text);\n  ELSIF p_kind='INITIAL_CREDENTIAL' THEN\n    b:=b||public.s2a_v042_text('initial-credential')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_credential_id::text)||public.s2a_v042_text(encode(p_secret_verifier,'hex'));\n  ELSIF p_kind='GRANT' THEN\n    b:=b||public.s2a_v042_text('grant')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_grant_id::text)||public.s2a_v042_text('TRANSACTION_IDENTITY_DECISION_WRITE');\n  ELSE RAISE EXCEPTION 'Invalid V042 operation' USING ERRCODE='P0018',DETAIL='INTEGRITY_FAILURE'; END IF;\n  RETURN encode(sha256(b||public.s2a_v042_text(p_reason)||public.s2a_v042_text(p_provenance)||public.s2a_v042_text(p_correlation_id::text)||public.s2a_v042_text(p_manifest_id::text)||public.s2a_v042_text(p_accepted_proof_fingerprint)||public.s2a_v042_text(p_manifest_digest)),'hex');\nEND ",
+  "body_first_line": 147,
+  "definition_sha256": "9ef692bc27db78d69973f5a7a27b93972ce7549da5079c33830edb3a888fe800",
+  "expressions": [
+    {
+      "query": "p_kind='PRINCIPAL'",
+      "parseMode": 2,
+      "lineno": 4,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+      "parseMode": 3,
+      "lineno": 5,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "p_kind='INITIAL_CREDENTIAL'",
+      "parseMode": 2,
+      "lineno": 6,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        0,
+        "PLpgSQL_if_elsif",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "b:=b||public.s2a_v042_text('initial-credential')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_credential_id::text)||public.s2a_v042_text(encode(p_secret_verifier,'hex'))",
+      "parseMode": 3,
+      "lineno": 7,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        0,
+        "PLpgSQL_if_elsif",
+        "stmts",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "p_kind='GRANT'",
+      "parseMode": 2,
+      "lineno": 8,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        1,
+        "PLpgSQL_if_elsif",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "b:=b||public.s2a_v042_text('grant')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_grant_id::text)||public.s2a_v042_text('TRANSACTION_IDENTITY_DECISION_WRITE')",
+      "parseMode": 3,
+      "lineno": 9,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        1,
+        "PLpgSQL_if_elsif",
+        "stmts",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0018'",
+      "parseMode": 2,
+      "lineno": 10,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "'INTEGRITY_FAILURE'",
+      "parseMode": 2,
+      "lineno": 10,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_assign": {
+            "lineno": 5,
+            "varno": 16,
+            "expr": {
+              "PLpgSQL_expr": {
+                "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                "parseMode": 3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "encode(sha256(b||public.s2a_v042_text(p_reason)||public.s2a_v042_text(p_provenance)||public.s2a_v042_text(p_correlation_id::text)||public.s2a_v042_text(p_manifest_id::text)||public.s2a_v042_text(p_accepted_proof_fingerprint)||public.s2a_v042_text(p_manifest_digest)),'hex')",
+      "parseMode": 2,
+      "lineno": 11,
+      "context": "PLpgSQL_stmt_return",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_return",
+        "expr"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "p_kind",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_operation_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_organization_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_principal_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_mercado_livre_connection_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_omie_connection_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_credential_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_secret_verifier",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_grant_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_reason",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_provenance",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_correlation_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_manifest_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_accepted_proof_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_manifest_digest",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "b",
+          "lineno": 2,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          },
+          "default_val": {
+            "PLpgSQL_expr": {
+              "query": "public.s2a_v042_text('controlled-command-authority/2')",
+              "parseMode": 2
+            }
+          }
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 3,
+        "body": [
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 4,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "p_kind='PRINCIPAL'",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 5,
+                    "varno": 16,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                }
+              ],
+              "elsif_list": [
+                {
+                  "PLpgSQL_if_elsif": {
+                    "lineno": 6,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "p_kind='INITIAL_CREDENTIAL'",
+                        "parseMode": 2
+                      }
+                    },
+                    "stmts": [
+                      {
+                        "PLpgSQL_stmt_assign": {
+                          "lineno": 7,
+                          "varno": 16,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "b:=b||public.s2a_v042_text('initial-credential')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_credential_id::text)||public.s2a_v042_text(encode(p_secret_verifier,'hex'))",
+                              "parseMode": 3
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_if_elsif": {
+                    "lineno": 8,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "p_kind='GRANT'",
+                        "parseMode": 2
+                      }
+                    },
+                    "stmts": [
+                      {
+                        "PLpgSQL_stmt_assign": {
+                          "lineno": 9,
+                          "varno": 16,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "b:=b||public.s2a_v042_text('grant')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_grant_id::text)||public.s2a_v042_text('TRANSACTION_IDENTITY_DECISION_WRITE')",
+                              "parseMode": 3
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "else_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 10,
+                    "elog_level": 21,
+                    "message": "Invalid V042 operation",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0018'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'INTEGRITY_FAILURE'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_return": {
+              "lineno": 11,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "encode(sha256(b||public.s2a_v042_text(p_reason)||public.s2a_v042_text(p_provenance)||public.s2a_v042_text(p_correlation_id::text)||public.s2a_v042_text(p_manifest_id::text)||public.s2a_v042_text(p_accepted_proof_fingerprint)||public.s2a_v042_text(p_manifest_digest)),'hex')",
+                  "parseMode": 2
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

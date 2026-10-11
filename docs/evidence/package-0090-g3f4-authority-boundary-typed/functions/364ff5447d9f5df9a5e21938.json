@@ -1,0 +1,2013 @@
+{
+  "name": "public.s2a_v041_evidence_fingerprint",
+  "signature": "public.s2a_v041_evidence_fingerprint(uuid,uuid,uuid,uuid,text,text)",
+  "parameter_types": [
+    "uuid",
+    "uuid",
+    "uuid",
+    "uuid",
+    "text",
+    "text"
+  ],
+  "parameter_names": [
+    "p_organization_id",
+    "p_marketplace_order_id",
+    "p_mercado_livre_connection_id",
+    "p_omie_connection_id",
+    "p_source_order_reference",
+    "p_integration_reference"
+  ],
+  "return_type": "text",
+  "language": "plpgsql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+  "source_line_range": [
+    408,
+    493
+  ],
+  "body": "\nDECLARE ml_count bigint; bad bigint; ml record; omie_count bigint; latest timestamp; omie record; bytes bytea;\nBEGIN\n SELECT count(*) INTO ml_count FROM public.marketplace_order_occurrence_source_promotion p\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE');\n IF ml_count=0 THEN RAISE EXCEPTION 'ML scope mismatch' USING ERRCODE='P0017',DETAIL='SCOPE_MISMATCH'; END IF;\n SELECT count(*) INTO bad FROM public.marketplace_order_occurrence_source_promotion p\n LEFT JOIN public.marketplace_order_identity_registry i ON i.organization_id=p.organization_id AND i.marketplace_order_id=p.marketplace_order_id\n LEFT JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id AND s.connection_id=p.source_connection_id\n AND s.capability=p.source_capability AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE') AND (i.organization_id IS NULL OR s.organization_id IS NULL\n OR i.marketplace_key IS DISTINCT FROM 'mercado-livre' OR s.external_order_ref IS DISTINCT FROM i.external_order_id\n OR s.currency IS DISTINCT FROM i.currency);\n IF bad<>0 THEN RAISE EXCEPTION 'ML integrity failure' USING ERRCODE='P0018',DETAIL='INTEGRITY_FAILURE'; END IF;\n SELECT p.source_input_progress_version,p.source_record_ordinal,i.marketplace_key,i.external_order_id,i.currency,p.outcome\n INTO STRICT ml FROM public.marketplace_order_occurrence_source_promotion p\n JOIN public.marketplace_order_identity_registry i ON i.organization_id=p.organization_id AND i.marketplace_order_id=p.marketplace_order_id\n JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id AND s.connection_id=p.source_connection_id\n AND s.capability=p.source_capability AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE') ORDER BY p.source_input_progress_version,p.source_record_ordinal LIMIT 1;\n\n SELECT count(*) INTO omie_count FROM public.integration_omie_transaction_evidence b\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference;\n IF omie_count=0 THEN RAISE EXCEPTION 'Omie scope mismatch' USING ERRCODE='P0017',DETAIL='SCOPE_MISMATCH'; END IF;\n SELECT count(*) INTO bad FROM public.integration_omie_transaction_evidence b\n LEFT JOIN public.integration_omie_transaction_evidence_v3 v USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n LEFT JOIN public.integration_connector_page_commit pc USING(organization_id,connection_id,capability,input_progress_version)\n LEFT JOIN public.integration_connector_progress cp USING(organization_id,connection_id,capability)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND (v.organization_id IS NULL OR pc.organization_id IS NULL OR cp.organization_id IS NULL OR v.semantic_fingerprint_version<>1\n OR v.source_evidence_semantic_fingerprint!~'^[0-9a-f]{64}$' OR b.record_ordinal<0 OR b.record_ordinal>=pc.record_count\n OR b.input_progress_version>=cp.progress_version OR (v.provider_created_local IS NULL AND v.provider_modified_local IS NULL)\n OR (v.provider_created_local IS NOT NULL AND v.provider_modified_local IS NOT NULL AND v.provider_modified_local<v.provider_created_local)\n OR pc.record_count<>(SELECT count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id\n AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)\n OR pc.record_count<>(SELECT count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id\n AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version));\n IF bad<>0 THEN RAISE EXCEPTION 'Omie integrity failure' USING ERRCODE='P0018',DETAIL='INTEGRITY_FAILURE'; END IF;\n SELECT max(coalesce(v.provider_modified_local,v.provider_created_local)) INTO latest\n FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference;\n IF latest IS NULL THEN RAISE EXCEPTION 'Omie integrity failure' USING ERRCODE='P0018',DETAIL='INTEGRITY_FAILURE'; END IF;\n SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,v.semantic_fingerprint_version,\n v.source_evidence_semantic_fingerprint,coalesce(v.provider_modified_local,v.provider_created_local) provider_revision\n INTO STRICT omie FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND coalesce(v.provider_modified_local,v.provider_created_local)=latest ORDER BY b.input_progress_version,b.record_ordinal LIMIT 1;\n IF EXISTS(SELECT 1 FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND coalesce(v.provider_modified_local,v.provider_created_local)=latest AND\n (b.source_integration_ref IS DISTINCT FROM omie.source_integration_ref OR b.currency IS DISTINCT FROM omie.currency\n OR v.semantic_fingerprint_version IS DISTINCT FROM omie.semantic_fingerprint_version\n OR v.source_evidence_semantic_fingerprint IS DISTINCT FROM omie.source_evidence_semantic_fingerprint))\n THEN RAISE EXCEPTION 'Omie conflict' USING ERRCODE='P0016'; END IF;\n IF omie.source_integration_ref IS DISTINCT FROM p_integration_reference THEN\n   RAISE EXCEPTION 'Omie scope mismatch' USING ERRCODE='P0017',DETAIL='SCOPE_MISMATCH'; END IF;\n IF omie.currency IS NOT NULL AND omie.currency IS DISTINCT FROM ml.currency THEN RAISE EXCEPTION 'Currency conflict' USING ERRCODE='P0016'; END IF;\n bytes:=public.s2a_v041_text('FLOOOW:S2A:EVIDENCE-BINDING:1')||public.s2a_v041_text(p_organization_id::text)||\n public.s2a_v041_text(p_marketplace_order_id::text)||public.s2a_v041_text(p_mercado_livre_connection_id::text)||\n public.s2a_v041_text('marketplace-economic.order-source')||public.s2a_v041_text(ml.source_input_progress_version::text)||\n public.s2a_v041_text(ml.source_record_ordinal::text)||public.s2a_v041_text(ml.marketplace_key)||public.s2a_v041_text(ml.external_order_id)||\n public.s2a_v041_text(ml.currency)||public.s2a_v041_text(ml.outcome)||public.s2a_v041_text(p_omie_connection_id::text)||\n public.s2a_v041_text('marketplace-economic.omie-transaction-evidence.reacquisition-v3')||\n public.s2a_v041_text(omie.input_progress_version::text)||public.s2a_v041_text(omie.record_ordinal::text)||\n public.s2a_v041_text(p_source_order_reference)||public.s2a_v041_nullable_text(omie.source_integration_ref)||\n public.s2a_v041_nullable_text(omie.currency)||public.s2a_v041_text(omie.semantic_fingerprint_version::text)||\n public.s2a_v041_text(omie.source_evidence_semantic_fingerprint)||public.s2a_v041_local(omie.provider_revision);\n RETURN encode(sha256(bytes),'hex');\nEND ",
+  "body_first_line": 411,
+  "definition_sha256": "59db388734594ac5dac090ad16057d5bbe9fb0424a8e74966ab2c9674397e0d9",
+  "expressions": [
+    {
+      "query": "SELECT count(*)               FROM public.marketplace_order_occurrence_source_promotion p\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE')",
+      "parseMode": 0,
+      "lineno": 4,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "ml_count=0",
+      "parseMode": 2,
+      "lineno": 8,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 8,
+            "elog_level": 21,
+            "message": "ML scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 8,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 8,
+            "elog_level": 21,
+            "message": "ML scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'SCOPE_MISMATCH'",
+      "parseMode": 2,
+      "lineno": 8,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 8,
+            "elog_level": 21,
+            "message": "ML scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT count(*)          FROM public.marketplace_order_occurrence_source_promotion p\n LEFT JOIN public.marketplace_order_identity_registry i ON i.organization_id=p.organization_id AND i.marketplace_order_id=p.marketplace_order_id\n LEFT JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id AND s.connection_id=p.source_connection_id\n AND s.capability=p.source_capability AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE') AND (i.organization_id IS NULL OR s.organization_id IS NULL\n OR i.marketplace_key IS DISTINCT FROM 'mercado-livre' OR s.external_order_ref IS DISTINCT FROM i.external_order_id\n OR s.currency IS DISTINCT FROM i.currency)",
+      "parseMode": 0,
+      "lineno": 9,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "bad<>0",
+      "parseMode": 2,
+      "lineno": 18,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 18,
+            "elog_level": 21,
+            "message": "ML integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0018'",
+      "parseMode": 2,
+      "lineno": 18,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 18,
+            "elog_level": 21,
+            "message": "ML integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'INTEGRITY_FAILURE'",
+      "parseMode": 2,
+      "lineno": 18,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 18,
+            "elog_level": 21,
+            "message": "ML integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT p.source_input_progress_version,p.source_record_ordinal,i.marketplace_key,i.external_order_id,i.currency,p.outcome\n                FROM public.marketplace_order_occurrence_source_promotion p\n JOIN public.marketplace_order_identity_registry i ON i.organization_id=p.organization_id AND i.marketplace_order_id=p.marketplace_order_id\n JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id AND s.connection_id=p.source_connection_id\n AND s.capability=p.source_capability AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE') ORDER BY p.source_input_progress_version,p.source_record_ordinal LIMIT 1",
+      "parseMode": 0,
+      "lineno": 19,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "SELECT count(*)                 FROM public.integration_omie_transaction_evidence b\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference",
+      "parseMode": 0,
+      "lineno": 28,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "omie_count=0",
+      "parseMode": 2,
+      "lineno": 31,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 31,
+            "elog_level": 21,
+            "message": "Omie scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 31,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 31,
+            "elog_level": 21,
+            "message": "Omie scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'SCOPE_MISMATCH'",
+      "parseMode": 2,
+      "lineno": 31,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 31,
+            "elog_level": 21,
+            "message": "Omie scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT count(*)          FROM public.integration_omie_transaction_evidence b\n LEFT JOIN public.integration_omie_transaction_evidence_v3 v USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n LEFT JOIN public.integration_connector_page_commit pc USING(organization_id,connection_id,capability,input_progress_version)\n LEFT JOIN public.integration_connector_progress cp USING(organization_id,connection_id,capability)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND (v.organization_id IS NULL OR pc.organization_id IS NULL OR cp.organization_id IS NULL OR v.semantic_fingerprint_version<>1\n OR v.source_evidence_semantic_fingerprint!~'^[0-9a-f]{64}$' OR b.record_ordinal<0 OR b.record_ordinal>=pc.record_count\n OR b.input_progress_version>=cp.progress_version OR (v.provider_created_local IS NULL AND v.provider_modified_local IS NULL)\n OR (v.provider_created_local IS NOT NULL AND v.provider_modified_local IS NOT NULL AND v.provider_modified_local<v.provider_created_local)\n OR pc.record_count<>(SELECT count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id\n AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)\n OR pc.record_count<>(SELECT count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id\n AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version))",
+      "parseMode": 0,
+      "lineno": 32,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        7,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "bad<>0",
+      "parseMode": 2,
+      "lineno": 46,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        8,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 46,
+            "elog_level": 21,
+            "message": "Omie integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0018'",
+      "parseMode": 2,
+      "lineno": 46,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        8,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 46,
+            "elog_level": 21,
+            "message": "Omie integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'INTEGRITY_FAILURE'",
+      "parseMode": 2,
+      "lineno": 46,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        8,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 46,
+            "elog_level": 21,
+            "message": "Omie integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT max(coalesce(v.provider_modified_local,v.provider_created_local))              FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference",
+      "parseMode": 0,
+      "lineno": 47,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        9,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "latest IS NULL",
+      "parseMode": 2,
+      "lineno": 52,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        10,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 52,
+            "elog_level": 21,
+            "message": "Omie integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0018'",
+      "parseMode": 2,
+      "lineno": 52,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        10,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 52,
+            "elog_level": 21,
+            "message": "Omie integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'INTEGRITY_FAILURE'",
+      "parseMode": 2,
+      "lineno": 52,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        10,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 52,
+            "elog_level": 21,
+            "message": "Omie integrity failure",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,v.semantic_fingerprint_version,\n v.source_evidence_semantic_fingerprint,coalesce(v.provider_modified_local,v.provider_created_local) provider_revision\n                  FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND coalesce(v.provider_modified_local,v.provider_created_local)=latest ORDER BY b.input_progress_version,b.record_ordinal LIMIT 1",
+      "parseMode": 0,
+      "lineno": 53,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        11,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "EXISTS(SELECT 1 FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND coalesce(v.provider_modified_local,v.provider_created_local)=latest AND\n (b.source_integration_ref IS DISTINCT FROM omie.source_integration_ref OR b.currency IS DISTINCT FROM omie.currency\n OR v.semantic_fingerprint_version IS DISTINCT FROM omie.semantic_fingerprint_version\n OR v.source_evidence_semantic_fingerprint IS DISTINCT FROM omie.source_evidence_semantic_fingerprint))",
+      "parseMode": 2,
+      "lineno": 60,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        12,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 68,
+            "elog_level": 21,
+            "message": "Omie conflict",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0016'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0016'",
+      "parseMode": 2,
+      "lineno": 68,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        12,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 68,
+            "elog_level": 21,
+            "message": "Omie conflict",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0016'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "omie.source_integration_ref IS DISTINCT FROM p_integration_reference",
+      "parseMode": 2,
+      "lineno": 69,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        13,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 70,
+            "elog_level": 21,
+            "message": "Omie scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 70,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        13,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 70,
+            "elog_level": 21,
+            "message": "Omie scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'SCOPE_MISMATCH'",
+      "parseMode": 2,
+      "lineno": 70,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        13,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 70,
+            "elog_level": 21,
+            "message": "Omie scope mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'SCOPE_MISMATCH'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "omie.currency IS NOT NULL AND omie.currency IS DISTINCT FROM ml.currency",
+      "parseMode": 2,
+      "lineno": 71,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        14,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 71,
+            "elog_level": 21,
+            "message": "Currency conflict",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0016'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0016'",
+      "parseMode": 2,
+      "lineno": 71,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        14,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 71,
+            "elog_level": 21,
+            "message": "Currency conflict",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0016'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "bytes:=public.s2a_v041_text('FLOOOW:S2A:EVIDENCE-BINDING:1')||public.s2a_v041_text(p_organization_id::text)||\n public.s2a_v041_text(p_marketplace_order_id::text)||public.s2a_v041_text(p_mercado_livre_connection_id::text)||\n public.s2a_v041_text('marketplace-economic.order-source')||public.s2a_v041_text(ml.source_input_progress_version::text)||\n public.s2a_v041_text(ml.source_record_ordinal::text)||public.s2a_v041_text(ml.marketplace_key)||public.s2a_v041_text(ml.external_order_id)||\n public.s2a_v041_text(ml.currency)||public.s2a_v041_text(ml.outcome)||public.s2a_v041_text(p_omie_connection_id::text)||\n public.s2a_v041_text('marketplace-economic.omie-transaction-evidence.reacquisition-v3')||\n public.s2a_v041_text(omie.input_progress_version::text)||public.s2a_v041_text(omie.record_ordinal::text)||\n public.s2a_v041_text(p_source_order_reference)||public.s2a_v041_nullable_text(omie.source_integration_ref)||\n public.s2a_v041_nullable_text(omie.currency)||public.s2a_v041_text(omie.semantic_fingerprint_version::text)||\n public.s2a_v041_text(omie.source_evidence_semantic_fingerprint)||public.s2a_v041_local(omie.provider_revision)",
+      "parseMode": 3,
+      "lineno": 72,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        15,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "encode(sha256(bytes),'hex')",
+      "parseMode": 2,
+      "lineno": 82,
+      "context": "PLpgSQL_stmt_return",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        16,
+        "PLpgSQL_stmt_return",
+        "expr"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "p_organization_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_marketplace_order_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_mercado_livre_connection_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_omie_connection_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_source_order_reference",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_integration_reference",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "ml_count",
+          "lineno": 2,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int8"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "bad",
+          "lineno": 2,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int8"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "ml",
+          "dno": 9,
+          "lineno": 2
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "omie_count",
+          "lineno": 2,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int8"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "latest",
+          "lineno": 2,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "timestamp"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "omie",
+          "dno": 12,
+          "lineno": 2
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "bytes",
+          "lineno": 2,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 4,
+          "fields": [
+            {
+              "name": "ml_count",
+              "varno": 7
+            }
+          ]
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 9,
+          "fields": [
+            {
+              "name": "bad",
+              "varno": 8
+            }
+          ]
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 28,
+          "fields": [
+            {
+              "name": "omie_count",
+              "varno": 10
+            }
+          ]
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 32,
+          "fields": [
+            {
+              "name": "bad",
+              "varno": 8
+            }
+          ]
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 47,
+          "fields": [
+            {
+              "name": "latest",
+              "varno": 11
+            }
+          ]
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "source_integration_ref",
+          "recparentno": 12
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "currency",
+          "recparentno": 12
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "semantic_fingerprint_version",
+          "recparentno": 12
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "source_evidence_semantic_fingerprint",
+          "recparentno": 12
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "currency",
+          "recparentno": 9
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "source_input_progress_version",
+          "recparentno": 9
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "source_record_ordinal",
+          "recparentno": 9
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "marketplace_key",
+          "recparentno": 9
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "external_order_id",
+          "recparentno": 9
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "outcome",
+          "recparentno": 9
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "input_progress_version",
+          "recparentno": 12
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "record_ordinal",
+          "recparentno": 12
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "provider_revision",
+          "recparentno": 12
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 3,
+        "body": [
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 4,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT count(*)               FROM public.marketplace_order_occurrence_source_promotion p\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE')",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "target": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 4,
+                  "fields": [
+                    {
+                      "name": "ml_count",
+                      "varno": 7
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 8,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "ml_count=0",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 8,
+                    "elog_level": 21,
+                    "message": "ML scope mismatch",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0017'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'SCOPE_MISMATCH'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 9,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT count(*)          FROM public.marketplace_order_occurrence_source_promotion p\n LEFT JOIN public.marketplace_order_identity_registry i ON i.organization_id=p.organization_id AND i.marketplace_order_id=p.marketplace_order_id\n LEFT JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id AND s.connection_id=p.source_connection_id\n AND s.capability=p.source_capability AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE') AND (i.organization_id IS NULL OR s.organization_id IS NULL\n OR i.marketplace_key IS DISTINCT FROM 'mercado-livre' OR s.external_order_ref IS DISTINCT FROM i.external_order_id\n OR s.currency IS DISTINCT FROM i.currency)",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "target": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 9,
+                  "fields": [
+                    {
+                      "name": "bad",
+                      "varno": 8
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 18,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "bad<>0",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 18,
+                    "elog_level": 21,
+                    "message": "ML integrity failure",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0018'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'INTEGRITY_FAILURE'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 19,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT p.source_input_progress_version,p.source_record_ordinal,i.marketplace_key,i.external_order_id,i.currency,p.outcome\n                FROM public.marketplace_order_occurrence_source_promotion p\n JOIN public.marketplace_order_identity_registry i ON i.organization_id=p.organization_id AND i.marketplace_order_id=p.marketplace_order_id\n JOIN public.integration_mercado_livre_order_source_observation s ON s.organization_id=p.organization_id AND s.connection_id=p.source_connection_id\n AND s.capability=p.source_capability AND s.input_progress_version=p.source_input_progress_version AND s.record_ordinal=p.source_record_ordinal\n WHERE p.organization_id=p_organization_id AND p.marketplace_order_id=p_marketplace_order_id\n AND p.source_connection_id=p_mercado_livre_connection_id AND p.source_capability='marketplace-economic.order-source'\n AND p.outcome IN ('PROMOTED','DUPLICATE') ORDER BY p.source_input_progress_version,p.source_record_ordinal LIMIT 1",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "strict": true,
+              "target": {
+                "PLpgSQL_rec": {
+                  "refname": "ml",
+                  "dno": 9,
+                  "lineno": 2
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 28,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT count(*)                 FROM public.integration_omie_transaction_evidence b\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "target": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 28,
+                  "fields": [
+                    {
+                      "name": "omie_count",
+                      "varno": 10
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 31,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "omie_count=0",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 31,
+                    "elog_level": 21,
+                    "message": "Omie scope mismatch",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0017'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'SCOPE_MISMATCH'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 32,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT count(*)          FROM public.integration_omie_transaction_evidence b\n LEFT JOIN public.integration_omie_transaction_evidence_v3 v USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n LEFT JOIN public.integration_connector_page_commit pc USING(organization_id,connection_id,capability,input_progress_version)\n LEFT JOIN public.integration_connector_progress cp USING(organization_id,connection_id,capability)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND (v.organization_id IS NULL OR pc.organization_id IS NULL OR cp.organization_id IS NULL OR v.semantic_fingerprint_version<>1\n OR v.source_evidence_semantic_fingerprint!~'^[0-9a-f]{64}$' OR b.record_ordinal<0 OR b.record_ordinal>=pc.record_count\n OR b.input_progress_version>=cp.progress_version OR (v.provider_created_local IS NULL AND v.provider_modified_local IS NULL)\n OR (v.provider_created_local IS NOT NULL AND v.provider_modified_local IS NOT NULL AND v.provider_modified_local<v.provider_created_local)\n OR pc.record_count<>(SELECT count(*) FROM public.integration_omie_transaction_evidence x WHERE x.organization_id=b.organization_id\n AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version)\n OR pc.record_count<>(SELECT count(*) FROM public.integration_omie_transaction_evidence_v3 x WHERE x.organization_id=b.organization_id\n AND x.connection_id=b.connection_id AND x.capability=b.capability AND x.input_progress_version=b.input_progress_version))",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "target": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 32,
+                  "fields": [
+                    {
+                      "name": "bad",
+                      "varno": 8
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 46,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "bad<>0",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 46,
+                    "elog_level": 21,
+                    "message": "Omie integrity failure",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0018'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'INTEGRITY_FAILURE'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 47,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT max(coalesce(v.provider_modified_local,v.provider_created_local))              FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "target": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 47,
+                  "fields": [
+                    {
+                      "name": "latest",
+                      "varno": 11
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 52,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "latest IS NULL",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 52,
+                    "elog_level": 21,
+                    "message": "Omie integrity failure",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0018'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'INTEGRITY_FAILURE'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 53,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT b.input_progress_version,b.record_ordinal,b.source_integration_ref,b.currency,v.semantic_fingerprint_version,\n v.source_evidence_semantic_fingerprint,coalesce(v.provider_modified_local,v.provider_created_local) provider_revision\n                  FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND coalesce(v.provider_modified_local,v.provider_created_local)=latest ORDER BY b.input_progress_version,b.record_ordinal LIMIT 1",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "strict": true,
+              "target": {
+                "PLpgSQL_rec": {
+                  "refname": "omie",
+                  "dno": 12,
+                  "lineno": 2
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 60,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "EXISTS(SELECT 1 FROM public.integration_omie_transaction_evidence b JOIN public.integration_omie_transaction_evidence_v3 v\n USING(organization_id,connection_id,capability,input_progress_version,record_ordinal)\n WHERE b.organization_id=p_organization_id AND b.connection_id=p_omie_connection_id\n AND b.capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3' AND b.source_order_ref=p_source_order_reference\n AND coalesce(v.provider_modified_local,v.provider_created_local)=latest AND\n (b.source_integration_ref IS DISTINCT FROM omie.source_integration_ref OR b.currency IS DISTINCT FROM omie.currency\n OR v.semantic_fingerprint_version IS DISTINCT FROM omie.semantic_fingerprint_version\n OR v.source_evidence_semantic_fingerprint IS DISTINCT FROM omie.source_evidence_semantic_fingerprint))",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 68,
+                    "elog_level": 21,
+                    "message": "Omie conflict",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0016'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 69,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "omie.source_integration_ref IS DISTINCT FROM p_integration_reference",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 70,
+                    "elog_level": 21,
+                    "message": "Omie scope mismatch",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0017'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'SCOPE_MISMATCH'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 71,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "omie.currency IS NOT NULL AND omie.currency IS DISTINCT FROM ml.currency",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 71,
+                    "elog_level": 21,
+                    "message": "Currency conflict",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0016'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 72,
+              "varno": 13,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "bytes:=public.s2a_v041_text('FLOOOW:S2A:EVIDENCE-BINDING:1')||public.s2a_v041_text(p_organization_id::text)||\n public.s2a_v041_text(p_marketplace_order_id::text)||public.s2a_v041_text(p_mercado_livre_connection_id::text)||\n public.s2a_v041_text('marketplace-economic.order-source')||public.s2a_v041_text(ml.source_input_progress_version::text)||\n public.s2a_v041_text(ml.source_record_ordinal::text)||public.s2a_v041_text(ml.marketplace_key)||public.s2a_v041_text(ml.external_order_id)||\n public.s2a_v041_text(ml.currency)||public.s2a_v041_text(ml.outcome)||public.s2a_v041_text(p_omie_connection_id::text)||\n public.s2a_v041_text('marketplace-economic.omie-transaction-evidence.reacquisition-v3')||\n public.s2a_v041_text(omie.input_progress_version::text)||public.s2a_v041_text(omie.record_ordinal::text)||\n public.s2a_v041_text(p_source_order_reference)||public.s2a_v041_nullable_text(omie.source_integration_ref)||\n public.s2a_v041_nullable_text(omie.currency)||public.s2a_v041_text(omie.semantic_fingerprint_version::text)||\n public.s2a_v041_text(omie.source_evidence_semantic_fingerprint)||public.s2a_v041_local(omie.provider_revision)",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_return": {
+              "lineno": 82,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "encode(sha256(bytes),'hex')",
+                  "parseMode": 2
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

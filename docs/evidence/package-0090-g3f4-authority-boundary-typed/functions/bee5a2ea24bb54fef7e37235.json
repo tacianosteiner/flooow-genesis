@@ -1,0 +1,2441 @@
+{
+  "name": "public.s2a_persist_attestation_verification_result",
+  "signature": "public.s2a_persist_attestation_verification_result(int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text,int4,bytea,text,text,uuid,text,bytea,bytea,uuid,int4,text,bytea,uuid,int4,text,text)",
+  "parameter_types": [
+    "int4",
+    "uuid",
+    "uuid",
+    "uuid",
+    "uuid",
+    "text",
+    "text",
+    "uuid",
+    "text",
+    "uuid",
+    "uuid",
+    "timestamptz",
+    "timestamptz",
+    "uuid",
+    "uuid",
+    "text",
+    "uuid",
+    "text",
+    "text",
+    "text",
+    "uuid",
+    "text",
+    "int4",
+    "bytea",
+    "text",
+    "text",
+    "uuid",
+    "text",
+    "bytea",
+    "bytea",
+    "uuid",
+    "int4",
+    "text",
+    "bytea",
+    "uuid",
+    "int4",
+    "text",
+    "text"
+  ],
+  "parameter_names": [
+    "p_schema_version",
+    "p_manifest_id",
+    "p_organization_id",
+    "p_mercado_livre_connection_id",
+    "p_omie_connection_id",
+    "p_source_order_reference",
+    "p_integration_reference",
+    "p_marketplace_order_id",
+    "p_permission",
+    "p_accountable_operator",
+    "p_approval_source",
+    "p_approval_window_start",
+    "p_approval_window_end",
+    "p_revocation_owner",
+    "p_credential_custodian",
+    "p_credential_delivery_method",
+    "p_credential_rotation_owner",
+    "p_immediate_revocation_policy",
+    "p_reason",
+    "p_provenance",
+    "p_correlation_id",
+    "p_evidence_binding_fingerprint",
+    "p_canonicalization_version",
+    "p_canonical_manifest_bytes",
+    "p_manifest_digest",
+    "p_algorithm_id",
+    "p_signer_key_id",
+    "p_signer_key_fingerprint",
+    "p_signature_bytes",
+    "p_expected_canonical_signature_preimage_bytes",
+    "p_expected_signer_subject_id",
+    "p_expected_signer_key_revision",
+    "p_expected_signer_key_lineage_fingerprint",
+    "p_expected_subject_public_key_info_der",
+    "p_expected_signer_authority_id",
+    "p_expected_signer_authority_revision",
+    "p_expected_signer_authority_fingerprint",
+    "p_expected_accepted_proof_fingerprint"
+  ],
+  "return_type": "record",
+  "language": "plpgsql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+  "source_line_range": [
+    17,
+    107
+  ],
+  "body": "\nDECLARE snapshot record; collision record;\nBEGIN\n SELECT * INTO STRICT snapshot FROM public.s2a_begin_attestation_verification(\n p_schema_version,p_manifest_id,p_organization_id,p_mercado_livre_connection_id,p_omie_connection_id,\n p_source_order_reference,p_integration_reference,p_marketplace_order_id,p_permission,p_accountable_operator,\n p_approval_source,p_approval_window_start,p_approval_window_end,p_revocation_owner,p_credential_custodian,\n p_credential_delivery_method,p_credential_rotation_owner,p_immediate_revocation_policy,p_reason,p_provenance,\n p_correlation_id,p_evidence_binding_fingerprint,p_canonicalization_version,p_canonical_manifest_bytes,p_manifest_digest,\n p_algorithm_id,p_signer_key_id,p_signer_key_fingerprint,p_signature_bytes);\n IF snapshot.result_canonical_signature_preimage_bytes IS DISTINCT FROM p_expected_canonical_signature_preimage_bytes\n OR snapshot.result_signer_subject_id IS DISTINCT FROM p_expected_signer_subject_id\n OR snapshot.result_signer_key_revision IS DISTINCT FROM p_expected_signer_key_revision\n OR snapshot.result_signer_key_lineage_fingerprint IS DISTINCT FROM p_expected_signer_key_lineage_fingerprint\n OR snapshot.result_subject_public_key_info_der IS DISTINCT FROM p_expected_subject_public_key_info_der\n OR snapshot.result_signer_authority_id IS DISTINCT FROM p_expected_signer_authority_id\n OR snapshot.result_signer_authority_revision IS DISTINCT FROM p_expected_signer_authority_revision\n OR snapshot.result_signer_authority_fingerprint IS DISTINCT FROM p_expected_signer_authority_fingerprint\n OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM p_expected_accepted_proof_fingerprint THEN\n   RAISE EXCEPTION 'Verifier snapshot mismatch' USING ERRCODE='P0018',DETAIL='INTEGRITY_FAILURE'; END IF;\n IF snapshot.outcome='VERIFY_NEW' THEN\n   BEGIN\n     INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at);\n     outcome:='ACCEPTED';\n   EXCEPTION\n     WHEN unique_violation THEN\n       SELECT a.* INTO collision\n       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id;\n\n       IF NOT FOUND THEN\n         RAISE;\n       END IF;\n\n       IF collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at THEN\n         RAISE EXCEPTION 'Conflicting concurrent replay'\n           USING ERRCODE='P0016';\n       END IF;\n\n       outcome:='ALREADY_ACCEPTED';\n   END;\n ELSE\n   outcome:='ALREADY_ACCEPTED';\n END IF;\n result_organization_id:=p_organization_id; result_manifest_id:=p_manifest_id;\n result_manifest_digest:=snapshot.result_manifest_digest;\n result_accepted_proof_fingerprint:=snapshot.result_accepted_proof_fingerprint;\n result_verified_at:=snapshot.result_verified_at; result_recorded_at:=snapshot.result_recorded_at;\n RETURN NEXT;\nEND ",
+  "body_first_line": 32,
+  "definition_sha256": "2fd200e6195d3daccf7a4054115d0b1a1e32f04bc3090ffba572d04c70a95b8f",
+  "expressions": [
+    {
+      "query": "SELECT *                      FROM public.s2a_begin_attestation_verification(\n p_schema_version,p_manifest_id,p_organization_id,p_mercado_livre_connection_id,p_omie_connection_id,\n p_source_order_reference,p_integration_reference,p_marketplace_order_id,p_permission,p_accountable_operator,\n p_approval_source,p_approval_window_start,p_approval_window_end,p_revocation_owner,p_credential_custodian,\n p_credential_delivery_method,p_credential_rotation_owner,p_immediate_revocation_policy,p_reason,p_provenance,\n p_correlation_id,p_evidence_binding_fingerprint,p_canonicalization_version,p_canonical_manifest_bytes,p_manifest_digest,\n p_algorithm_id,p_signer_key_id,p_signer_key_fingerprint,p_signature_bytes)",
+      "parseMode": 0,
+      "lineno": 4,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "snapshot.result_canonical_signature_preimage_bytes IS DISTINCT FROM p_expected_canonical_signature_preimage_bytes\n OR snapshot.result_signer_subject_id IS DISTINCT FROM p_expected_signer_subject_id\n OR snapshot.result_signer_key_revision IS DISTINCT FROM p_expected_signer_key_revision\n OR snapshot.result_signer_key_lineage_fingerprint IS DISTINCT FROM p_expected_signer_key_lineage_fingerprint\n OR snapshot.result_subject_public_key_info_der IS DISTINCT FROM p_expected_subject_public_key_info_der\n OR snapshot.result_signer_authority_id IS DISTINCT FROM p_expected_signer_authority_id\n OR snapshot.result_signer_authority_revision IS DISTINCT FROM p_expected_signer_authority_revision\n OR snapshot.result_signer_authority_fingerprint IS DISTINCT FROM p_expected_signer_authority_fingerprint\n OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM p_expected_accepted_proof_fingerprint",
+      "parseMode": 2,
+      "lineno": 11,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 20,
+            "elog_level": 21,
+            "message": "Verifier snapshot mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0018'",
+      "parseMode": 2,
+      "lineno": 20,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 20,
+            "elog_level": 21,
+            "message": "Verifier snapshot mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'INTEGRITY_FAILURE'",
+      "parseMode": 2,
+      "lineno": 20,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 20,
+            "elog_level": 21,
+            "message": "Verifier snapshot mismatch",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0018'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 2,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'INTEGRITY_FAILURE'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "snapshot.outcome='VERIFY_NEW'",
+      "parseMode": 2,
+      "lineno": 21,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_block": {
+            "lineno": 22,
+            "body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 23,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                      "parseMode": 0
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_assign": {
+                  "lineno": 31,
+                  "varno": 38,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "outcome:='ACCEPTED'",
+                      "parseMode": 3
+                    }
+                  }
+                }
+              }
+            ],
+            "exceptions": {
+              "PLpgSQL_exception_block": {
+                "exc_list": [
+                  {
+                    "PLpgSQL_exception": {
+                      "conditions": [
+                        {
+                          "PLpgSQL_condition": {
+                            "condname": "unique_violation"
+                          }
+                        }
+                      ],
+                      "action": [
+                        {
+                          "PLpgSQL_stmt_execsql": {
+                            "lineno": 34,
+                            "sqlstmt": {
+                              "PLpgSQL_expr": {
+                                "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                "parseMode": 0
+                              }
+                            },
+                            "into": true,
+                            "target": {
+                              "PLpgSQL_rec": {
+                                "refname": "collision",
+                                "dno": 48,
+                                "lineno": 2
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 39,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "NOT FOUND",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 40,
+                                  "elog_level": 21
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 43,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 62,
+                                  "elog_level": 21,
+                                  "message": "Conflicting concurrent replay",
+                                  "options": [
+                                    {
+                                      "PLpgSQL_raise_option": {
+                                        "opt_type": 0,
+                                        "expr": {
+                                          "PLpgSQL_expr": {
+                                            "query": "'P0016'",
+                                            "parseMode": 2
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_assign": {
+                            "lineno": 66,
+                            "varno": 38,
+                            "expr": {
+                              "PLpgSQL_expr": {
+                                "query": "outcome:='ALREADY_ACCEPTED'",
+                                "parseMode": 3
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+      "parseMode": 0,
+      "lineno": 23,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_block": {
+            "lineno": 22,
+            "body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 23,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                      "parseMode": 0
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_assign": {
+                  "lineno": 31,
+                  "varno": 38,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "outcome:='ACCEPTED'",
+                      "parseMode": 3
+                    }
+                  }
+                }
+              }
+            ],
+            "exceptions": {
+              "PLpgSQL_exception_block": {
+                "exc_list": [
+                  {
+                    "PLpgSQL_exception": {
+                      "conditions": [
+                        {
+                          "PLpgSQL_condition": {
+                            "condname": "unique_violation"
+                          }
+                        }
+                      ],
+                      "action": [
+                        {
+                          "PLpgSQL_stmt_execsql": {
+                            "lineno": 34,
+                            "sqlstmt": {
+                              "PLpgSQL_expr": {
+                                "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                "parseMode": 0
+                              }
+                            },
+                            "into": true,
+                            "target": {
+                              "PLpgSQL_rec": {
+                                "refname": "collision",
+                                "dno": 48,
+                                "lineno": 2
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 39,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "NOT FOUND",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 40,
+                                  "elog_level": 21
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 43,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 62,
+                                  "elog_level": 21,
+                                  "message": "Conflicting concurrent replay",
+                                  "options": [
+                                    {
+                                      "PLpgSQL_raise_option": {
+                                        "opt_type": 0,
+                                        "expr": {
+                                          "PLpgSQL_expr": {
+                                            "query": "'P0016'",
+                                            "parseMode": 2
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_assign": {
+                            "lineno": 66,
+                            "varno": 38,
+                            "expr": {
+                              "PLpgSQL_expr": {
+                                "query": "outcome:='ALREADY_ACCEPTED'",
+                                "parseMode": 3
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "outcome:='ACCEPTED'",
+      "parseMode": 3,
+      "lineno": 31,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_block": {
+            "lineno": 22,
+            "body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 23,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                      "parseMode": 0
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_assign": {
+                  "lineno": 31,
+                  "varno": 38,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "outcome:='ACCEPTED'",
+                      "parseMode": 3
+                    }
+                  }
+                }
+              }
+            ],
+            "exceptions": {
+              "PLpgSQL_exception_block": {
+                "exc_list": [
+                  {
+                    "PLpgSQL_exception": {
+                      "conditions": [
+                        {
+                          "PLpgSQL_condition": {
+                            "condname": "unique_violation"
+                          }
+                        }
+                      ],
+                      "action": [
+                        {
+                          "PLpgSQL_stmt_execsql": {
+                            "lineno": 34,
+                            "sqlstmt": {
+                              "PLpgSQL_expr": {
+                                "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                "parseMode": 0
+                              }
+                            },
+                            "into": true,
+                            "target": {
+                              "PLpgSQL_rec": {
+                                "refname": "collision",
+                                "dno": 48,
+                                "lineno": 2
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 39,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "NOT FOUND",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 40,
+                                  "elog_level": 21
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 43,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 62,
+                                  "elog_level": 21,
+                                  "message": "Conflicting concurrent replay",
+                                  "options": [
+                                    {
+                                      "PLpgSQL_raise_option": {
+                                        "opt_type": 0,
+                                        "expr": {
+                                          "PLpgSQL_expr": {
+                                            "query": "'P0016'",
+                                            "parseMode": 2
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_assign": {
+                            "lineno": 66,
+                            "varno": 38,
+                            "expr": {
+                              "PLpgSQL_expr": {
+                                "query": "outcome:='ALREADY_ACCEPTED'",
+                                "parseMode": 3
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+      "parseMode": 0,
+      "lineno": 34,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_block": {
+            "lineno": 22,
+            "body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 23,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                      "parseMode": 0
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_assign": {
+                  "lineno": 31,
+                  "varno": 38,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "outcome:='ACCEPTED'",
+                      "parseMode": 3
+                    }
+                  }
+                }
+              }
+            ],
+            "exceptions": {
+              "PLpgSQL_exception_block": {
+                "exc_list": [
+                  {
+                    "PLpgSQL_exception": {
+                      "conditions": [
+                        {
+                          "PLpgSQL_condition": {
+                            "condname": "unique_violation"
+                          }
+                        }
+                      ],
+                      "action": [
+                        {
+                          "PLpgSQL_stmt_execsql": {
+                            "lineno": 34,
+                            "sqlstmt": {
+                              "PLpgSQL_expr": {
+                                "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                "parseMode": 0
+                              }
+                            },
+                            "into": true,
+                            "target": {
+                              "PLpgSQL_rec": {
+                                "refname": "collision",
+                                "dno": 48,
+                                "lineno": 2
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 39,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "NOT FOUND",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 40,
+                                  "elog_level": 21
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 43,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 62,
+                                  "elog_level": 21,
+                                  "message": "Conflicting concurrent replay",
+                                  "options": [
+                                    {
+                                      "PLpgSQL_raise_option": {
+                                        "opt_type": 0,
+                                        "expr": {
+                                          "PLpgSQL_expr": {
+                                            "query": "'P0016'",
+                                            "parseMode": 2
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_assign": {
+                            "lineno": 66,
+                            "varno": 38,
+                            "expr": {
+                              "PLpgSQL_expr": {
+                                "query": "outcome:='ALREADY_ACCEPTED'",
+                                "parseMode": 3
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "NOT FOUND",
+      "parseMode": 2,
+      "lineno": 39,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 40,
+            "elog_level": 21
+          }
+        }
+      ]
+    },
+    {
+      "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+      "parseMode": 2,
+      "lineno": 43,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        2,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 62,
+            "elog_level": 21,
+            "message": "Conflicting concurrent replay",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0016'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0016'",
+      "parseMode": 2,
+      "lineno": 62,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 62,
+            "elog_level": 21,
+            "message": "Conflicting concurrent replay",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0016'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "outcome:='ALREADY_ACCEPTED'",
+      "parseMode": 3,
+      "lineno": 66,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        3,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_block": {
+            "lineno": 22,
+            "body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 23,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                      "parseMode": 0
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_assign": {
+                  "lineno": 31,
+                  "varno": 38,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "outcome:='ACCEPTED'",
+                      "parseMode": 3
+                    }
+                  }
+                }
+              }
+            ],
+            "exceptions": {
+              "PLpgSQL_exception_block": {
+                "exc_list": [
+                  {
+                    "PLpgSQL_exception": {
+                      "conditions": [
+                        {
+                          "PLpgSQL_condition": {
+                            "condname": "unique_violation"
+                          }
+                        }
+                      ],
+                      "action": [
+                        {
+                          "PLpgSQL_stmt_execsql": {
+                            "lineno": 34,
+                            "sqlstmt": {
+                              "PLpgSQL_expr": {
+                                "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                "parseMode": 0
+                              }
+                            },
+                            "into": true,
+                            "target": {
+                              "PLpgSQL_rec": {
+                                "refname": "collision",
+                                "dno": 48,
+                                "lineno": 2
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 39,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "NOT FOUND",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 40,
+                                  "elog_level": 21
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 43,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 62,
+                                  "elog_level": 21,
+                                  "message": "Conflicting concurrent replay",
+                                  "options": [
+                                    {
+                                      "PLpgSQL_raise_option": {
+                                        "opt_type": 0,
+                                        "expr": {
+                                          "PLpgSQL_expr": {
+                                            "query": "'P0016'",
+                                            "parseMode": 2
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_assign": {
+                            "lineno": 66,
+                            "varno": 38,
+                            "expr": {
+                              "PLpgSQL_expr": {
+                                "query": "outcome:='ALREADY_ACCEPTED'",
+                                "parseMode": 3
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "outcome:='ALREADY_ACCEPTED'",
+      "parseMode": 3,
+      "lineno": 69,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_block": {
+            "lineno": 22,
+            "body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 23,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                      "parseMode": 0
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_assign": {
+                  "lineno": 31,
+                  "varno": 38,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "outcome:='ACCEPTED'",
+                      "parseMode": 3
+                    }
+                  }
+                }
+              }
+            ],
+            "exceptions": {
+              "PLpgSQL_exception_block": {
+                "exc_list": [
+                  {
+                    "PLpgSQL_exception": {
+                      "conditions": [
+                        {
+                          "PLpgSQL_condition": {
+                            "condname": "unique_violation"
+                          }
+                        }
+                      ],
+                      "action": [
+                        {
+                          "PLpgSQL_stmt_execsql": {
+                            "lineno": 34,
+                            "sqlstmt": {
+                              "PLpgSQL_expr": {
+                                "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                "parseMode": 0
+                              }
+                            },
+                            "into": true,
+                            "target": {
+                              "PLpgSQL_rec": {
+                                "refname": "collision",
+                                "dno": 48,
+                                "lineno": 2
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 39,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "NOT FOUND",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 40,
+                                  "elog_level": 21
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_if": {
+                            "lineno": 43,
+                            "cond": {
+                              "PLpgSQL_expr": {
+                                "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                "parseMode": 2
+                              }
+                            },
+                            "then_body": [
+                              {
+                                "PLpgSQL_stmt_raise": {
+                                  "lineno": 62,
+                                  "elog_level": 21,
+                                  "message": "Conflicting concurrent replay",
+                                  "options": [
+                                    {
+                                      "PLpgSQL_raise_option": {
+                                        "opt_type": 0,
+                                        "expr": {
+                                          "PLpgSQL_expr": {
+                                            "query": "'P0016'",
+                                            "parseMode": 2
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "PLpgSQL_stmt_assign": {
+                            "lineno": 66,
+                            "varno": 38,
+                            "expr": {
+                              "PLpgSQL_expr": {
+                                "query": "outcome:='ALREADY_ACCEPTED'",
+                                "parseMode": 3
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "query": "result_organization_id:=p_organization_id",
+      "parseMode": 3,
+      "lineno": 71,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "result_manifest_id:=p_manifest_id",
+      "parseMode": 3,
+      "lineno": 71,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "result_manifest_digest:=snapshot.result_manifest_digest",
+      "parseMode": 3,
+      "lineno": 72,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "result_accepted_proof_fingerprint:=snapshot.result_accepted_proof_fingerprint",
+      "parseMode": 3,
+      "lineno": 73,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "result_verified_at:=snapshot.result_verified_at",
+      "parseMode": 3,
+      "lineno": 74,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        7,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "result_recorded_at:=snapshot.result_recorded_at",
+      "parseMode": 3,
+      "lineno": 74,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        8,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "p_schema_version",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_manifest_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_organization_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_mercado_livre_connection_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_omie_connection_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_source_order_reference",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_integration_reference",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_marketplace_order_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_permission",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_accountable_operator",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_approval_source",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_approval_window_start",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "timestamptz"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_approval_window_end",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "timestamptz"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_revocation_owner",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_credential_custodian",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_credential_delivery_method",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_credential_rotation_owner",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_immediate_revocation_policy",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_reason",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_provenance",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_correlation_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_evidence_binding_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_canonicalization_version",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_canonical_manifest_bytes",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_manifest_digest",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_algorithm_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_signer_key_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_signer_key_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_signature_bytes",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_canonical_signature_preimage_bytes",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_signer_subject_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_signer_key_revision",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_signer_key_lineage_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_subject_public_key_info_der",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_signer_authority_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_signer_authority_revision",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_signer_authority_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "p_expected_accepted_proof_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "outcome",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "result_organization_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "result_manifest_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "result_manifest_digest",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "result_accepted_proof_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "result_verified_at",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "timestamptz"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "result_recorded_at",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "timestamptz"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": -1,
+          "fields": [
+            {
+              "name": "outcome",
+              "varno": 38
+            },
+            {
+              "name": "result_organization_id",
+              "varno": 39
+            },
+            {
+              "name": "result_manifest_id",
+              "varno": 40
+            },
+            {
+              "name": "result_manifest_digest",
+              "varno": 41
+            },
+            {
+              "name": "result_accepted_proof_fingerprint",
+              "varno": 42
+            },
+            {
+              "name": "result_verified_at",
+              "varno": 43
+            },
+            {
+              "name": "result_recorded_at",
+              "varno": 44
+            }
+          ]
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "snapshot",
+          "dno": 47,
+          "lineno": 2
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "collision",
+          "dno": 48,
+          "lineno": 2
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_canonical_signature_preimage_bytes",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_signer_subject_id",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_signer_key_revision",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_signer_key_lineage_fingerprint",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_subject_public_key_info_der",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_signer_authority_id",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_signer_authority_revision",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_signer_authority_fingerprint",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_accepted_proof_fingerprint",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "outcome",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_canonical_manifest_bytes",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_manifest_digest",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_verified_at",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "result_recorded_at",
+          "recparentno": 47
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "sqlstate",
+          "lineno": 32,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          },
+          "isconst": true
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "sqlerrm",
+          "lineno": 32,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          },
+          "isconst": true
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "artifact_version",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "schema_version",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "canonicalization_version",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "canonical_manifest_bytes",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "manifest_digest",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "canonical_signature_preimage_bytes",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "algorithm_id",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_key_id",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_key_revision",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_key_fingerprint",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_key_lineage_fingerprint",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "subject_public_key_info_der",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signature_bytes",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_authority_id",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_authority_revision",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_authority_fingerprint",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "verified_at",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "accepted_proof_fingerprint",
+          "recparentno": 48
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "recorded_at",
+          "recparentno": 48
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 3,
+        "body": [
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 4,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT *                      FROM public.s2a_begin_attestation_verification(\n p_schema_version,p_manifest_id,p_organization_id,p_mercado_livre_connection_id,p_omie_connection_id,\n p_source_order_reference,p_integration_reference,p_marketplace_order_id,p_permission,p_accountable_operator,\n p_approval_source,p_approval_window_start,p_approval_window_end,p_revocation_owner,p_credential_custodian,\n p_credential_delivery_method,p_credential_rotation_owner,p_immediate_revocation_policy,p_reason,p_provenance,\n p_correlation_id,p_evidence_binding_fingerprint,p_canonicalization_version,p_canonical_manifest_bytes,p_manifest_digest,\n p_algorithm_id,p_signer_key_id,p_signer_key_fingerprint,p_signature_bytes)",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "strict": true,
+              "target": {
+                "PLpgSQL_rec": {
+                  "refname": "snapshot",
+                  "dno": 47,
+                  "lineno": 2
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 11,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "snapshot.result_canonical_signature_preimage_bytes IS DISTINCT FROM p_expected_canonical_signature_preimage_bytes\n OR snapshot.result_signer_subject_id IS DISTINCT FROM p_expected_signer_subject_id\n OR snapshot.result_signer_key_revision IS DISTINCT FROM p_expected_signer_key_revision\n OR snapshot.result_signer_key_lineage_fingerprint IS DISTINCT FROM p_expected_signer_key_lineage_fingerprint\n OR snapshot.result_subject_public_key_info_der IS DISTINCT FROM p_expected_subject_public_key_info_der\n OR snapshot.result_signer_authority_id IS DISTINCT FROM p_expected_signer_authority_id\n OR snapshot.result_signer_authority_revision IS DISTINCT FROM p_expected_signer_authority_revision\n OR snapshot.result_signer_authority_fingerprint IS DISTINCT FROM p_expected_signer_authority_fingerprint\n OR snapshot.result_accepted_proof_fingerprint IS DISTINCT FROM p_expected_accepted_proof_fingerprint",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 20,
+                    "elog_level": 21,
+                    "message": "Verifier snapshot mismatch",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0018'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 2,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'INTEGRITY_FAILURE'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 21,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "snapshot.outcome='VERIFY_NEW'",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_block": {
+                    "lineno": 22,
+                    "body": [
+                      {
+                        "PLpgSQL_stmt_execsql": {
+                          "lineno": 23,
+                          "sqlstmt": {
+                            "PLpgSQL_expr": {
+                              "query": "INSERT INTO public.s2a_accepted_attestation VALUES(\n      p_organization_id,p_manifest_id,1,p_schema_version,p_canonicalization_version,\n      snapshot.result_canonical_manifest_bytes,snapshot.result_manifest_digest,\n      snapshot.result_canonical_signature_preimage_bytes,p_algorithm_id,p_signer_key_id,\n      snapshot.result_signer_key_revision,p_signer_key_fingerprint,snapshot.result_signer_key_lineage_fingerprint,\n      snapshot.result_subject_public_key_info_der,p_signature_bytes,snapshot.result_signer_authority_id,\n      snapshot.result_signer_authority_revision,snapshot.result_signer_authority_fingerprint,\n      snapshot.result_verified_at,snapshot.result_accepted_proof_fingerprint,snapshot.result_recorded_at)",
+                              "parseMode": 0
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_stmt_assign": {
+                          "lineno": 31,
+                          "varno": 38,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "outcome:='ACCEPTED'",
+                              "parseMode": 3
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "exceptions": {
+                      "PLpgSQL_exception_block": {
+                        "exc_list": [
+                          {
+                            "PLpgSQL_exception": {
+                              "conditions": [
+                                {
+                                  "PLpgSQL_condition": {
+                                    "condname": "unique_violation"
+                                  }
+                                }
+                              ],
+                              "action": [
+                                {
+                                  "PLpgSQL_stmt_execsql": {
+                                    "lineno": 34,
+                                    "sqlstmt": {
+                                      "PLpgSQL_expr": {
+                                        "query": "SELECT a.*                       FROM public.s2a_accepted_attestation a\n       WHERE a.organization_id=p_organization_id\n         AND a.manifest_id=p_manifest_id",
+                                        "parseMode": 0
+                                      }
+                                    },
+                                    "into": true,
+                                    "target": {
+                                      "PLpgSQL_rec": {
+                                        "refname": "collision",
+                                        "dno": 48,
+                                        "lineno": 2
+                                      }
+                                    }
+                                  }
+                                },
+                                {
+                                  "PLpgSQL_stmt_if": {
+                                    "lineno": 39,
+                                    "cond": {
+                                      "PLpgSQL_expr": {
+                                        "query": "NOT FOUND",
+                                        "parseMode": 2
+                                      }
+                                    },
+                                    "then_body": [
+                                      {
+                                        "PLpgSQL_stmt_raise": {
+                                          "lineno": 40,
+                                          "elog_level": 21
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "PLpgSQL_stmt_if": {
+                                    "lineno": 43,
+                                    "cond": {
+                                      "PLpgSQL_expr": {
+                                        "query": "collision.artifact_version IS DISTINCT FROM 1\n       OR collision.schema_version IS DISTINCT FROM p_schema_version\n       OR collision.canonicalization_version IS DISTINCT FROM p_canonicalization_version\n       OR collision.canonical_manifest_bytes IS DISTINCT FROM snapshot.result_canonical_manifest_bytes\n       OR collision.manifest_digest::text IS DISTINCT FROM snapshot.result_manifest_digest\n       OR collision.canonical_signature_preimage_bytes IS DISTINCT FROM snapshot.result_canonical_signature_preimage_bytes\n       OR collision.algorithm_id IS DISTINCT FROM p_algorithm_id\n       OR collision.signer_key_id IS DISTINCT FROM p_signer_key_id\n       OR collision.signer_key_revision IS DISTINCT FROM snapshot.result_signer_key_revision\n       OR collision.signer_key_fingerprint::text IS DISTINCT FROM p_signer_key_fingerprint\n       OR collision.signer_key_lineage_fingerprint::text IS DISTINCT FROM snapshot.result_signer_key_lineage_fingerprint\n       OR collision.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR collision.signature_bytes IS DISTINCT FROM p_signature_bytes\n       OR collision.signer_authority_id IS DISTINCT FROM snapshot.result_signer_authority_id\n       OR collision.signer_authority_revision IS DISTINCT FROM snapshot.result_signer_authority_revision\n       OR collision.signer_authority_fingerprint::text IS DISTINCT FROM snapshot.result_signer_authority_fingerprint\n       OR collision.verified_at IS DISTINCT FROM snapshot.result_verified_at\n       OR collision.accepted_proof_fingerprint::text IS DISTINCT FROM snapshot.result_accepted_proof_fingerprint\n       OR collision.recorded_at IS DISTINCT FROM snapshot.result_recorded_at",
+                                        "parseMode": 2
+                                      }
+                                    },
+                                    "then_body": [
+                                      {
+                                        "PLpgSQL_stmt_raise": {
+                                          "lineno": 62,
+                                          "elog_level": 21,
+                                          "message": "Conflicting concurrent replay",
+                                          "options": [
+                                            {
+                                              "PLpgSQL_raise_option": {
+                                                "opt_type": 0,
+                                                "expr": {
+                                                  "PLpgSQL_expr": {
+                                                    "query": "'P0016'",
+                                                    "parseMode": 2
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "PLpgSQL_stmt_assign": {
+                                    "lineno": 66,
+                                    "varno": 38,
+                                    "expr": {
+                                      "PLpgSQL_expr": {
+                                        "query": "outcome:='ALREADY_ACCEPTED'",
+                                        "parseMode": 3
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              "else_body": [
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 69,
+                    "varno": 38,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "outcome:='ALREADY_ACCEPTED'",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 71,
+              "varno": 39,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "result_organization_id:=p_organization_id",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 71,
+              "varno": 40,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "result_manifest_id:=p_manifest_id",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 72,
+              "varno": 41,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "result_manifest_digest:=snapshot.result_manifest_digest",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 73,
+              "varno": 42,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "result_accepted_proof_fingerprint:=snapshot.result_accepted_proof_fingerprint",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 74,
+              "varno": 43,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "result_verified_at:=snapshot.result_verified_at",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 74,
+              "varno": 44,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "result_recorded_at:=snapshot.result_recorded_at",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_return_next": {
+              "lineno": 75
+            }
+          },
+          {
+            "PLpgSQL_stmt_return": {}
+          }
+        ]
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

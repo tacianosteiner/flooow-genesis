@@ -1,0 +1,4580 @@
+[
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S71",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_observed_effect_time := pg_catalog.clock_timestamp()::timestamptz(6)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "TypeCast": {
+                        "arg": {
+                          "FuncCall": {
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "pg_catalog"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "clock_timestamp"
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "location": 8
+                          }
+                        },
+                        "typeName": {
+                          "names": [
+                            {
+                              "String": {
+                                "sval": "timestamptz"
+                              }
+                            }
+                          ],
+                          "typmods": [
+                            {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 6
+                                },
+                                "location": 50
+                              }
+                            }
+                          ],
+                          "typemod": -1,
+                          "location": 38
+                        },
+                        "location": 36
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S72",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT o.status\n                                              FROM public.integration_organization o\n     WHERE o.organization_id=p_organization_id\n     FOR SHARE",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "o"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "status"
+                            }
+                          }
+                        ],
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "fromClause": [
+                {
+                  "RangeVar": {
+                    "schemaname": "public",
+                    "relname": "integration_organization",
+                    "inh": true,
+                    "relpersistence": "p",
+                    "alias": {
+                      "aliasname": "o"
+                    },
+                    "location": 67
+                  }
+                }
+              ],
+              "whereClause": {
+                "A_Expr": {
+                  "kind": "AEXPR_OP",
+                  "name": [
+                    {
+                      "String": {
+                        "sval": "="
+                      }
+                    }
+                  ],
+                  "lexpr": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "o"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "organization_id"
+                          }
+                        }
+                      ],
+                      "location": 112
+                    }
+                  },
+                  "rexpr": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "p_organization_id"
+                          }
+                        }
+                      ],
+                      "location": 130
+                    }
+                  },
+                  "location": 129
+                }
+              },
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "lockingClause": [
+                {
+                  "LockingClause": {
+                    "strength": "LCS_FORSHARE",
+                    "waitPolicy": "LockWaitBlock"
+                  }
+                }
+              ],
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_execsql",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S73",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "NOT FOUND",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "NOT_EXPR",
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "found"
+                                  }
+                                }
+                              ],
+                              "location": 11
+                            }
+                          }
+                        ],
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S74",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0015'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0015"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S75",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'GOVERNANCE_UNAVAILABLE'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "GOVERNANCE_UNAVAILABLE"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S76",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_observed_organization_status := observed_organization_status",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "observed_organization_status"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S77",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "observed_organization_status IS DISTINCT FROM 'ACTIVE'\n       OR result_observed_effect_time<p_approval_window_start\n       OR result_observed_effect_time>=p_approval_window_end",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "observed_organization_status"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "sval": {
+                                    "sval": "ACTIVE"
+                                  },
+                                  "location": 53
+                                }
+                              },
+                              "location": 36
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "result_observed_effect_time"
+                                      }
+                                    }
+                                  ],
+                                  "location": 72
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "p_approval_window_start"
+                                      }
+                                    }
+                                  ],
+                                  "location": 100
+                                }
+                              },
+                              "location": 99
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "result_observed_effect_time"
+                                      }
+                                    }
+                                  ],
+                                  "location": 134
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "p_approval_window_end"
+                                      }
+                                    }
+                                  ],
+                                  "location": 163
+                                }
+                              },
+                              "location": 161
+                            }
+                          }
+                        ],
+                        "location": 69
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S78",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S79",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'EXPIRED_OR_NOT_YET_VALID'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "EXPIRED_OR_NOT_YET_VALID"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S80",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT pg_catalog.pg_advisory_xact_lock(\n        pg_catalog.hashtextextended(\n            's2a-governance/signer-key/1:' || p_organization_id || ':' || snapshot.result_signer_key_id,\n            0\n        )\n    )",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "pg_advisory_xact_lock"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "FuncCall": {
+                              "funcname": [
+                                {
+                                  "String": {
+                                    "sval": "pg_catalog"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "hashtextextended"
+                                  }
+                                }
+                              ],
+                              "args": [
+                                {
+                                  "A_Expr": {
+                                    "kind": "AEXPR_OP",
+                                    "name": [
+                                      {
+                                        "String": {
+                                          "sval": "||"
+                                        }
+                                      }
+                                    ],
+                                    "lexpr": {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "||"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "||"
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "A_Const": {
+                                                "sval": {
+                                                  "sval": "s2a-governance/signer-key/1:"
+                                                },
+                                                "location": 90
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 124
+                                              }
+                                            },
+                                            "location": 121
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "sval": {
+                                              "sval": ":"
+                                            },
+                                            "location": 145
+                                          }
+                                        },
+                                        "location": 142
+                                      }
+                                    },
+                                    "rexpr": {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "snapshot"
+                                            }
+                                          },
+                                          {
+                                            "String": {
+                                              "sval": "result_signer_key_id"
+                                            }
+                                          }
+                                        ],
+                                        "location": 152
+                                      }
+                                    },
+                                    "location": 149
+                                  }
+                                },
+                                {
+                                  "A_Const": {
+                                    "ival": {},
+                                    "location": 195
+                                  }
+                                }
+                              ],
+                              "funcformat": "COERCE_EXPLICIT_CALL",
+                              "location": 49
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_perform",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S81",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT count(*)\n                                FROM public.s2a_signer_key_revision k\n     WHERE k.organization_id=p_organization_id\n       AND k.signer_key_id=snapshot.result_signer_key_id\n       AND NOT EXISTS (\n            SELECT 1\n              FROM public.s2a_signer_key_revision successor\n             WHERE successor.organization_id=k.organization_id\n               AND successor.signer_key_id=k.signer_key_id\n               AND successor.supersedes_revision=k.revision\n       )",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "count"
+                            }
+                          }
+                        ],
+                        "agg_star": true,
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "fromClause": [
+                {
+                  "RangeVar": {
+                    "schemaname": "public",
+                    "relname": "s2a_signer_key_revision",
+                    "inh": true,
+                    "relpersistence": "p",
+                    "alias": {
+                      "aliasname": "k"
+                    },
+                    "location": 53
+                  }
+                }
+              ],
+              "whereClause": {
+                "BoolExpr": {
+                  "boolop": "AND_EXPR",
+                  "args": [
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "k"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "organization_id"
+                                }
+                              }
+                            ],
+                            "location": 97
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "p_organization_id"
+                                }
+                              }
+                            ],
+                            "location": 115
+                          }
+                        },
+                        "location": 114
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "k"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 144
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 160
+                          }
+                        },
+                        "location": 159
+                      }
+                    },
+                    {
+                      "BoolExpr": {
+                        "boolop": "NOT_EXPR",
+                        "args": [
+                          {
+                            "SubLink": {
+                              "subLinkType": "EXISTS_SUBLINK",
+                              "subselect": {
+                                "SelectStmt": {
+                                  "targetList": [
+                                    {
+                                      "ResTarget": {
+                                        "val": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 1
+                                            },
+                                            "location": 233
+                                          }
+                                        },
+                                        "location": 233
+                                      }
+                                    }
+                                  ],
+                                  "fromClause": [
+                                    {
+                                      "RangeVar": {
+                                        "schemaname": "public",
+                                        "relname": "s2a_signer_key_revision",
+                                        "inh": true,
+                                        "relpersistence": "p",
+                                        "alias": {
+                                          "aliasname": "successor"
+                                        },
+                                        "location": 254
+                                      }
+                                    }
+                                  ],
+                                  "whereClause": {
+                                    "BoolExpr": {
+                                      "boolop": "AND_EXPR",
+                                      "args": [
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 314
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "k"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 340
+                                              }
+                                            },
+                                            "location": 339
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "signer_key_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 377
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "k"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "signer_key_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 401
+                                              }
+                                            },
+                                            "location": 400
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "supersedes_revision"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 436
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "k"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "revision"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 466
+                                              }
+                                            },
+                                            "location": 465
+                                          }
+                                        }
+                                      ],
+                                      "location": 373
+                                    }
+                                  },
+                                  "limitOption": "LIMIT_OPTION_DEFAULT",
+                                  "op": "SETOP_NONE"
+                                }
+                              },
+                              "location": 205
+                            }
+                          }
+                        ],
+                        "location": 201
+                      }
+                    }
+                  ],
+                  "location": 140
+                }
+              },
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_execsql",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S82",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "key_leaf_count<>1",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "<>"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "key_leaf_count"
+                                }
+                              }
+                            ],
+                            "location": 7
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "ival": {
+                              "ival": 1
+                            },
+                            "location": 23
+                          }
+                        },
+                        "location": 21
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S83",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0016'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0016"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S84",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'GOVERNANCE_CONFLICT'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "GOVERNANCE_CONFLICT"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S85",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT k.*\n                               FROM public.s2a_signer_key_revision k\n     WHERE k.organization_id=p_organization_id\n       AND k.signer_key_id=snapshot.result_signer_key_id\n       AND k.effective_at<=result_observed_effect_time\n     ORDER BY k.effective_at DESC,k.revision DESC\n     LIMIT 1",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "k"
+                            }
+                          },
+                          {
+                            "A_Star": {}
+                          }
+                        ],
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "fromClause": [
+                {
+                  "RangeVar": {
+                    "schemaname": "public",
+                    "relname": "s2a_signer_key_revision",
+                    "inh": true,
+                    "relpersistence": "p",
+                    "alias": {
+                      "aliasname": "k"
+                    },
+                    "location": 47
+                  }
+                }
+              ],
+              "whereClause": {
+                "BoolExpr": {
+                  "boolop": "AND_EXPR",
+                  "args": [
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "k"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "organization_id"
+                                }
+                              }
+                            ],
+                            "location": 91
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "p_organization_id"
+                                }
+                              }
+                            ],
+                            "location": 109
+                          }
+                        },
+                        "location": 108
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "k"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 138
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 154
+                          }
+                        },
+                        "location": 153
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "<="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "k"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "effective_at"
+                                }
+                              }
+                            ],
+                            "location": 195
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "result_observed_effect_time"
+                                }
+                              }
+                            ],
+                            "location": 211
+                          }
+                        },
+                        "location": 209
+                      }
+                    }
+                  ],
+                  "location": 134
+                }
+              },
+              "sortClause": [
+                {
+                  "SortBy": {
+                    "node": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "k"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "effective_at"
+                            }
+                          }
+                        ],
+                        "location": 253
+                      }
+                    },
+                    "sortby_dir": "SORTBY_DESC",
+                    "sortby_nulls": "SORTBY_NULLS_DEFAULT",
+                    "location": -1
+                  }
+                },
+                {
+                  "SortBy": {
+                    "node": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "k"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "revision"
+                            }
+                          }
+                        ],
+                        "location": 273
+                      }
+                    },
+                    "sortby_dir": "SORTBY_DESC",
+                    "sortby_nulls": "SORTBY_NULLS_DEFAULT",
+                    "location": -1
+                  }
+                }
+              ],
+              "limitCount": {
+                "A_Const": {
+                  "ival": {
+                    "ival": 1
+                  },
+                  "location": 300
+                }
+              },
+              "limitOption": "LIMIT_OPTION_COUNT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_execsql",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S86",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "NOT FOUND",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "NOT_EXPR",
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "found"
+                                  }
+                                }
+                              ],
+                              "location": 11
+                            }
+                          }
+                        ],
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S87",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0015'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0015"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S88",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'GOVERNANCE_UNAVAILABLE'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "GOVERNANCE_UNAVAILABLE"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S89",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "effective_key.valid_from>result_observed_effect_time\n       OR effective_key.state IS DISTINCT FROM 'ACTIVE'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "valid_from"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "result_observed_effect_time"
+                                      }
+                                    }
+                                  ],
+                                  "location": 32
+                                }
+                              },
+                              "location": 31
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "state"
+                                      }
+                                    }
+                                  ],
+                                  "location": 70
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "sval": {
+                                    "sval": "ACTIVE"
+                                  },
+                                  "location": 107
+                                }
+                              },
+                              "location": 90
+                            }
+                          }
+                        ],
+                        "location": 67
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S90",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S91",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'EXPIRED_OR_NOT_YET_VALID'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "EXPIRED_OR_NOT_YET_VALID"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S92",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "effective_key.signer_subject_id IS DISTINCT FROM snapshot.result_signer_subject_id\n       OR effective_key.algorithm_id IS DISTINCT FROM snapshot.result_algorithm_id\n       OR effective_key.subject_public_key_info_der IS DISTINCT FROM snapshot.result_subject_public_key_info_der\n       OR effective_key.signer_key_fingerprint IS DISTINCT FROM snapshot.result_signer_key_fingerprint",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "signer_subject_id"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "snapshot"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "result_signer_subject_id"
+                                      }
+                                    }
+                                  ],
+                                  "location": 56
+                                }
+                              },
+                              "location": 39
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "algorithm_id"
+                                      }
+                                    }
+                                  ],
+                                  "location": 100
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "snapshot"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "result_algorithm_id"
+                                      }
+                                    }
+                                  ],
+                                  "location": 144
+                                }
+                              },
+                              "location": 127
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "subject_public_key_info_der"
+                                      }
+                                    }
+                                  ],
+                                  "location": 183
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "snapshot"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "result_subject_public_key_info_der"
+                                      }
+                                    }
+                                  ],
+                                  "location": 242
+                                }
+                              },
+                              "location": 225
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "signer_key_fingerprint"
+                                      }
+                                    }
+                                  ],
+                                  "location": 296
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "snapshot"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "result_signer_key_fingerprint"
+                                      }
+                                    }
+                                  ],
+                                  "location": 350
+                                }
+                              },
+                              "location": 333
+                            }
+                          }
+                        ],
+                        "location": 97
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S93",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S94",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'SCOPE_MISMATCH'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "SCOPE_MISMATCH"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S95",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_observed_effective_signer_key_revision := effective_key.revision",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "effective_key"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "revision"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S96",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_observed_effective_signer_key_state := effective_key.state",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "effective_key"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "state"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S97",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT pg_catalog.pg_advisory_xact_lock(\n        pg_catalog.hashtextextended(\n            's2a-governance/signer-authority-scope/1:' || p_organization_id || ':' ||\n            snapshot.result_signer_subject_id || ':' || snapshot.result_signer_key_id ||\n            ':S2A_FIELD_PROOF_APPROVAL:TRANSACTION_IDENTITY_DECISION_WRITE',\n            0\n        )\n    )",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "pg_advisory_xact_lock"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "FuncCall": {
+                              "funcname": [
+                                {
+                                  "String": {
+                                    "sval": "pg_catalog"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "hashtextextended"
+                                  }
+                                }
+                              ],
+                              "args": [
+                                {
+                                  "A_Expr": {
+                                    "kind": "AEXPR_OP",
+                                    "name": [
+                                      {
+                                        "String": {
+                                          "sval": "||"
+                                        }
+                                      }
+                                    ],
+                                    "lexpr": {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "||"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "||"
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "A_Expr": {
+                                                "kind": "AEXPR_OP",
+                                                "name": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "||"
+                                                    }
+                                                  }
+                                                ],
+                                                "lexpr": {
+                                                  "A_Expr": {
+                                                    "kind": "AEXPR_OP",
+                                                    "name": [
+                                                      {
+                                                        "String": {
+                                                          "sval": "||"
+                                                        }
+                                                      }
+                                                    ],
+                                                    "lexpr": {
+                                                      "A_Expr": {
+                                                        "kind": "AEXPR_OP",
+                                                        "name": [
+                                                          {
+                                                            "String": {
+                                                              "sval": "||"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "lexpr": {
+                                                          "A_Const": {
+                                                            "sval": {
+                                                              "sval": "s2a-governance/signer-authority-scope/1:"
+                                                            },
+                                                            "location": 90
+                                                          }
+                                                        },
+                                                        "rexpr": {
+                                                          "ColumnRef": {
+                                                            "fields": [
+                                                              {
+                                                                "String": {
+                                                                  "sval": "p_organization_id"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "location": 136
+                                                          }
+                                                        },
+                                                        "location": 133
+                                                      }
+                                                    },
+                                                    "rexpr": {
+                                                      "A_Const": {
+                                                        "sval": {
+                                                          "sval": ":"
+                                                        },
+                                                        "location": 157
+                                                      }
+                                                    },
+                                                    "location": 154
+                                                  }
+                                                },
+                                                "rexpr": {
+                                                  "ColumnRef": {
+                                                    "fields": [
+                                                      {
+                                                        "String": {
+                                                          "sval": "snapshot"
+                                                        }
+                                                      },
+                                                      {
+                                                        "String": {
+                                                          "sval": "result_signer_subject_id"
+                                                        }
+                                                      }
+                                                    ],
+                                                    "location": 176
+                                                  }
+                                                },
+                                                "location": 161
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "A_Const": {
+                                                "sval": {
+                                                  "sval": ":"
+                                                },
+                                                "location": 213
+                                              }
+                                            },
+                                            "location": 210
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "snapshot"
+                                                }
+                                              },
+                                              {
+                                                "String": {
+                                                  "sval": "result_signer_key_id"
+                                                }
+                                              }
+                                            ],
+                                            "location": 220
+                                          }
+                                        },
+                                        "location": 217
+                                      }
+                                    },
+                                    "rexpr": {
+                                      "A_Const": {
+                                        "sval": {
+                                          "sval": ":S2A_FIELD_PROOF_APPROVAL:TRANSACTION_IDENTITY_DECISION_WRITE"
+                                        },
+                                        "location": 265
+                                      }
+                                    },
+                                    "location": 250
+                                  }
+                                },
+                                {
+                                  "A_Const": {
+                                    "ival": {},
+                                    "location": 342
+                                  }
+                                }
+                              ],
+                              "funcformat": "COERCE_EXPLICIT_CALL",
+                              "location": 49
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_perform",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S98",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT count(*)\n                                      FROM public.s2a_signer_authority_revision a\n     WHERE a.organization_id=p_organization_id\n       AND a.signer_subject_id=snapshot.result_signer_subject_id\n       AND a.signer_key_id=snapshot.result_signer_key_id\n       AND a.approval_action='S2A_FIELD_PROOF_APPROVAL'\n       AND a.permission='TRANSACTION_IDENTITY_DECISION_WRITE'\n       AND NOT EXISTS (\n            SELECT 1\n              FROM public.s2a_signer_authority_revision successor\n             WHERE successor.organization_id=a.organization_id\n               AND successor.supersedes_signer_authority_id=a.signer_authority_id\n       )",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "count"
+                            }
+                          }
+                        ],
+                        "agg_star": true,
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "fromClause": [
+                {
+                  "RangeVar": {
+                    "schemaname": "public",
+                    "relname": "s2a_signer_authority_revision",
+                    "inh": true,
+                    "relpersistence": "p",
+                    "alias": {
+                      "aliasname": "a"
+                    },
+                    "location": 59
+                  }
+                }
+              ],
+              "whereClause": {
+                "BoolExpr": {
+                  "boolop": "AND_EXPR",
+                  "args": [
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "organization_id"
+                                }
+                              }
+                            ],
+                            "location": 109
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "p_organization_id"
+                                }
+                              }
+                            ],
+                            "location": 127
+                          }
+                        },
+                        "location": 126
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "signer_subject_id"
+                                }
+                              }
+                            ],
+                            "location": 156
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signer_subject_id"
+                                }
+                              }
+                            ],
+                            "location": 176
+                          }
+                        },
+                        "location": 175
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 221
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 237
+                          }
+                        },
+                        "location": 236
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "approval_action"
+                                }
+                              }
+                            ],
+                            "location": 278
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "sval": {
+                              "sval": "S2A_FIELD_PROOF_APPROVAL"
+                            },
+                            "location": 296
+                          }
+                        },
+                        "location": 295
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "permission"
+                                }
+                              }
+                            ],
+                            "location": 334
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "sval": {
+                              "sval": "TRANSACTION_IDENTITY_DECISION_WRITE"
+                            },
+                            "location": 347
+                          }
+                        },
+                        "location": 346
+                      }
+                    },
+                    {
+                      "BoolExpr": {
+                        "boolop": "NOT_EXPR",
+                        "args": [
+                          {
+                            "SubLink": {
+                              "subLinkType": "EXISTS_SUBLINK",
+                              "subselect": {
+                                "SelectStmt": {
+                                  "targetList": [
+                                    {
+                                      "ResTarget": {
+                                        "val": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 1
+                                            },
+                                            "location": 428
+                                          }
+                                        },
+                                        "location": 428
+                                      }
+                                    }
+                                  ],
+                                  "fromClause": [
+                                    {
+                                      "RangeVar": {
+                                        "schemaname": "public",
+                                        "relname": "s2a_signer_authority_revision",
+                                        "inh": true,
+                                        "relpersistence": "p",
+                                        "alias": {
+                                          "aliasname": "successor"
+                                        },
+                                        "location": 449
+                                      }
+                                    }
+                                  ],
+                                  "whereClause": {
+                                    "BoolExpr": {
+                                      "boolop": "AND_EXPR",
+                                      "args": [
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 515
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "a"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 541
+                                              }
+                                            },
+                                            "location": 540
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "supersedes_signer_authority_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 578
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "a"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "signer_authority_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 619
+                                              }
+                                            },
+                                            "location": 618
+                                          }
+                                        }
+                                      ],
+                                      "location": 574
+                                    }
+                                  },
+                                  "limitOption": "LIMIT_OPTION_DEFAULT",
+                                  "op": "SETOP_NONE"
+                                }
+                              },
+                              "location": 400
+                            }
+                          }
+                        ],
+                        "location": 396
+                      }
+                    }
+                  ],
+                  "location": 152
+                }
+              },
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_execsql",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S99",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "authority_leaf_count=0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "authority_leaf_count"
+                                }
+                              }
+                            ],
+                            "location": 7
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "ival": {},
+                            "location": 28
+                          }
+                        },
+                        "location": 27
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S100",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0015'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0015"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S101",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'GOVERNANCE_UNAVAILABLE'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "GOVERNANCE_UNAVAILABLE"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S102",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "authority_leaf_count<>1",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "<>"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "authority_leaf_count"
+                                }
+                              }
+                            ],
+                            "location": 7
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "ival": {
+                              "ival": 1
+                            },
+                            "location": 29
+                          }
+                        },
+                        "location": 27
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S103",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0016'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0016"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S104",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'GOVERNANCE_CONFLICT'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "GOVERNANCE_CONFLICT"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S105",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "SELECT a.*\n                                          FROM public.s2a_signer_authority_revision a\n     WHERE a.organization_id=p_organization_id\n       AND a.signer_subject_id=snapshot.result_signer_subject_id\n       AND a.signer_key_id=snapshot.result_signer_key_id\n       AND a.approval_action='S2A_FIELD_PROOF_APPROVAL'\n       AND a.permission='TRANSACTION_IDENTITY_DECISION_WRITE'\n       AND NOT EXISTS (\n            SELECT 1\n              FROM public.s2a_signer_authority_revision successor\n             WHERE successor.organization_id=a.organization_id\n               AND successor.supersedes_signer_authority_id=a.signer_authority_id\n       )",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "a"
+                            }
+                          },
+                          {
+                            "A_Star": {}
+                          }
+                        ],
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "fromClause": [
+                {
+                  "RangeVar": {
+                    "schemaname": "public",
+                    "relname": "s2a_signer_authority_revision",
+                    "inh": true,
+                    "relpersistence": "p",
+                    "alias": {
+                      "aliasname": "a"
+                    },
+                    "location": 58
+                  }
+                }
+              ],
+              "whereClause": {
+                "BoolExpr": {
+                  "boolop": "AND_EXPR",
+                  "args": [
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "organization_id"
+                                }
+                              }
+                            ],
+                            "location": 108
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "p_organization_id"
+                                }
+                              }
+                            ],
+                            "location": 126
+                          }
+                        },
+                        "location": 125
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "signer_subject_id"
+                                }
+                              }
+                            ],
+                            "location": 155
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signer_subject_id"
+                                }
+                              }
+                            ],
+                            "location": 175
+                          }
+                        },
+                        "location": 174
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 220
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signer_key_id"
+                                }
+                              }
+                            ],
+                            "location": 236
+                          }
+                        },
+                        "location": 235
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "approval_action"
+                                }
+                              }
+                            ],
+                            "location": 277
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "sval": {
+                              "sval": "S2A_FIELD_PROOF_APPROVAL"
+                            },
+                            "location": 295
+                          }
+                        },
+                        "location": 294
+                      }
+                    },
+                    {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "a"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "permission"
+                                }
+                              }
+                            ],
+                            "location": 333
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "sval": {
+                              "sval": "TRANSACTION_IDENTITY_DECISION_WRITE"
+                            },
+                            "location": 346
+                          }
+                        },
+                        "location": 345
+                      }
+                    },
+                    {
+                      "BoolExpr": {
+                        "boolop": "NOT_EXPR",
+                        "args": [
+                          {
+                            "SubLink": {
+                              "subLinkType": "EXISTS_SUBLINK",
+                              "subselect": {
+                                "SelectStmt": {
+                                  "targetList": [
+                                    {
+                                      "ResTarget": {
+                                        "val": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 1
+                                            },
+                                            "location": 427
+                                          }
+                                        },
+                                        "location": 427
+                                      }
+                                    }
+                                  ],
+                                  "fromClause": [
+                                    {
+                                      "RangeVar": {
+                                        "schemaname": "public",
+                                        "relname": "s2a_signer_authority_revision",
+                                        "inh": true,
+                                        "relpersistence": "p",
+                                        "alias": {
+                                          "aliasname": "successor"
+                                        },
+                                        "location": 448
+                                      }
+                                    }
+                                  ],
+                                  "whereClause": {
+                                    "BoolExpr": {
+                                      "boolop": "AND_EXPR",
+                                      "args": [
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 514
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "a"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 540
+                                              }
+                                            },
+                                            "location": 539
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_OP",
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "successor"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "supersedes_signer_authority_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 577
+                                              }
+                                            },
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "a"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "signer_authority_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 618
+                                              }
+                                            },
+                                            "location": 617
+                                          }
+                                        }
+                                      ],
+                                      "location": 573
+                                    }
+                                  },
+                                  "limitOption": "LIMIT_OPTION_DEFAULT",
+                                  "op": "SETOP_NONE"
+                                }
+                              },
+                              "location": 399
+                            }
+                          }
+                        ],
+                        "location": 395
+                      }
+                    }
+                  ],
+                  "location": 151
+                }
+              },
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_execsql",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S106",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "current_authority.signer_key_revision IS DISTINCT FROM effective_key.revision\n       OR current_authority.signer_key_fingerprint IS DISTINCT FROM effective_key.signer_key_fingerprint",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "current_authority"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "signer_key_revision"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "revision"
+                                      }
+                                    }
+                                  ],
+                                  "location": 62
+                                }
+                              },
+                              "location": 45
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "current_authority"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "signer_key_fingerprint"
+                                      }
+                                    }
+                                  ],
+                                  "location": 95
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "effective_key"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "signer_key_fingerprint"
+                                      }
+                                    }
+                                  ],
+                                  "location": 153
+                                }
+                              },
+                              "location": 136
+                            }
+                          }
+                        ],
+                        "location": 92
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S107",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S108",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'SCOPE_MISMATCH'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "SCOPE_MISMATCH"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S109",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "current_authority.state IS DISTINCT FROM 'ENABLED'\n       OR current_authority.valid_from>result_observed_effect_time\n       OR result_observed_effect_time>=current_authority.valid_until",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_DISTINCT",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "current_authority"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "state"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "sval": {
+                                    "sval": "ENABLED"
+                                  },
+                                  "location": 48
+                                }
+                              },
+                              "location": 31
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "current_authority"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "valid_from"
+                                      }
+                                    }
+                                  ],
+                                  "location": 68
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "result_observed_effect_time"
+                                      }
+                                    }
+                                  ],
+                                  "location": 97
+                                }
+                              },
+                              "location": 96
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">="
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "result_observed_effect_time"
+                                      }
+                                    }
+                                  ],
+                                  "location": 135
+                                }
+                              },
+                              "rexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "current_authority"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "valid_until"
+                                      }
+                                    }
+                                  ],
+                                  "location": 164
+                                }
+                              },
+                              "location": 162
+                            }
+                          }
+                        ],
+                        "location": 65
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S110",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S111",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'EXPIRED_OR_NOT_YET_VALID'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "EXPIRED_OR_NOT_YET_VALID"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S112",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "current_evidence := public.s2a_v041_evidence_fingerprint(\n        p_organization_id,\n        p_marketplace_order_id,\n        p_mercado_livre_connection_id,\n        p_omie_connection_id,\n        p_source_order_reference,\n        p_integration_reference\n    )",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "public"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "s2a_v041_evidence_fingerprint"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 54
+                            }
+                          },
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_marketplace_order_id"
+                                  }
+                                }
+                              ],
+                              "location": 81
+                            }
+                          },
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_mercado_livre_connection_id"
+                                  }
+                                }
+                              ],
+                              "location": 113
+                            }
+                          },
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_omie_connection_id"
+                                  }
+                                }
+                              ],
+                              "location": 152
+                            }
+                          },
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_source_order_reference"
+                                  }
+                                }
+                              ],
+                              "location": 182
+                            }
+                          },
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_integration_reference"
+                                  }
+                                }
+                              ],
+                              "location": 216
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S113",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "current_evidence IS DISTINCT FROM snapshot.result_signed_evidence_binding_fingerprint",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_DISTINCT",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "current_evidence"
+                                }
+                              }
+                            ],
+                            "location": 7
+                          }
+                        },
+                        "rexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "snapshot"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "result_signed_evidence_binding_fingerprint"
+                                }
+                              }
+                            ],
+                            "location": 41
+                          }
+                        },
+                        "location": 24
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S114",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S115",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "'SCOPE_MISMATCH'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "SCOPE_MISMATCH"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S116",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "outcome := 'READY'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "READY"
+                        },
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S117",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_decision_id := p_decision_id",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "p_decision_id"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S118",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_decision_semantic_fingerprint := NULL",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "isnull": true,
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S119",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_decided_at := NULL",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "isnull": true,
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text):S120",
+    "SQL_OBJECT": "public.s2a_v042_begin_attested_decision_verification(uuid,uuid,uuid,int4,uuid,uuid,text,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text)",
+    "query": "result_manifest_id := linked_operation.attestation_manifest_id",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "linked_operation"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "attestation_manifest_id"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+    "source_line_range": [
+      1522,
+      2073
+    ],
+    "exact_predicate_location": false
+  }
+]

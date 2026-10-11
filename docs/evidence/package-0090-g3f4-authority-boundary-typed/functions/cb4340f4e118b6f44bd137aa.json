@@ -1,0 +1,33 @@
+{
+  "name": "public.transaction_identity_fingerprint",
+  "signature": "public.transaction_identity_fingerprint(marketplace_transaction_identity_decision)",
+  "parameter_types": [
+    "marketplace_transaction_identity_decision"
+  ],
+  "parameter_names": [
+    "d"
+  ],
+  "return_type": "text",
+  "language": "sql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+  "source_line_range": [
+    93,
+    98
+  ],
+  "body": "\n    SELECT transaction_identity_hash('transaction-identity/1',d.intent_fingerprint,d.ml_connection_id::text,d.ml_capability,\n        d.ml_progress_version::text,d.ml_record_ordinal::text,d.external_order_id,d.currency::text,d.omie_capability,'1',\n        d.omie_semantic_fingerprint,to_char(d.provider_revision_local,'YYYY-MM-DD\"T\"HH24:MI:SS.US'),\n        d.grant_id::text,d.grant_revision::text,d.permission,d.authorization_semantic_version,d.authorization_fingerprint);\n",
+  "body_first_line": 93,
+  "definition_sha256": "ff25b936aefbfe931b6f30eaaf3d6856a7801694487408460afafb4e4b022c9b",
+  "expressions": [
+    {
+      "query": "\n    SELECT transaction_identity_hash('transaction-identity/1',d.intent_fingerprint,d.ml_connection_id::text,d.ml_capability,\n        d.ml_progress_version::text,d.ml_record_ordinal::text,d.external_order_id,d.currency::text,d.omie_capability,'1',\n        d.omie_semantic_fingerprint,to_char(d.provider_revision_local,'YYYY-MM-DD\"T\"HH24:MI:SS.US'),\n        d.grant_id::text,d.grant_revision::text,d.permission,d.authorization_semantic_version,d.authorization_fingerprint);\n",
+      "parseMode": 0,
+      "lineno": 1,
+      "context": "SQL_LANGUAGE_BODY",
+      "ast_path": [],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": null,
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

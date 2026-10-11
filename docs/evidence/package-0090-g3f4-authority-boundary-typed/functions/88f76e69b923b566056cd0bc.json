@@ -1,0 +1,35 @@
+{
+  "name": "public.transaction_identity_grant_fingerprint",
+  "signature": "public.transaction_identity_grant_fingerprint(uuid,uuid)",
+  "parameter_types": [
+    "uuid",
+    "uuid"
+  ],
+  "parameter_names": [
+    "org",
+    "id"
+  ],
+  "return_type": "text",
+  "language": "sql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+  "source_line_range": [
+    76,
+    86
+  ],
+  "body": "\n    SELECT transaction_identity_hash('command-authorization/1',g.organization_id::text,g.principal_id::text,\n        p.mercado_livre_connection_id::text,p.omie_connection_id::text,g.grant_id::text,g.revision::text,\n        g.permission,g.state,coalesce(g.supersedes_grant_id::text,''),g.reason,g.provenance,g.correlation_id::text,\n        to_char(g.decided_at AT TIME ZONE 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS') ||\n        CASE WHEN to_char(g.decided_at,'US')='000000' THEN ''\n            WHEN right(to_char(g.decided_at,'US'),3)='000' THEN '.' || left(to_char(g.decided_at,'US'),3)\n            ELSE '.' || to_char(g.decided_at,'US') END || 'Z')\n    FROM command_permission_grant g JOIN command_principal p USING(organization_id,principal_id)\n        WHERE g.organization_id=org AND g.grant_id=id;\n",
+  "body_first_line": 76,
+  "definition_sha256": "936025b224f686e5bd755beafcefc3b6d208088654036da7a11e0ceb55a1ef07",
+  "expressions": [
+    {
+      "query": "\n    SELECT transaction_identity_hash('command-authorization/1',g.organization_id::text,g.principal_id::text,\n        p.mercado_livre_connection_id::text,p.omie_connection_id::text,g.grant_id::text,g.revision::text,\n        g.permission,g.state,coalesce(g.supersedes_grant_id::text,''),g.reason,g.provenance,g.correlation_id::text,\n        to_char(g.decided_at AT TIME ZONE 'UTC','YYYY-MM-DD\"T\"HH24:MI:SS') ||\n        CASE WHEN to_char(g.decided_at,'US')='000000' THEN ''\n            WHEN right(to_char(g.decided_at,'US'),3)='000' THEN '.' || left(to_char(g.decided_at,'US'),3)\n            ELSE '.' || to_char(g.decided_at,'US') END || 'Z')\n    FROM command_permission_grant g JOIN command_principal p USING(organization_id,principal_id)\n        WHERE g.organization_id=org AND g.grant_id=id;\n",
+      "parseMode": 0,
+      "lineno": 1,
+      "context": "SQL_LANGUAGE_BODY",
+      "ast_path": [],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": null,
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

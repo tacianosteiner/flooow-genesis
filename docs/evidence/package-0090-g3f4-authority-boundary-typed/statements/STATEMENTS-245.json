@@ -1,0 +1,4446 @@
+[
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S562",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "substring"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "accepted_snapshot"
+                                  }
+                                }
+                              ],
+                              "location": 29
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "+"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_cursor"
+                                      }
+                                    }
+                                  ],
+                                  "location": 47
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 8
+                                  },
+                                  "location": 60
+                                }
+                              },
+                              "location": 59
+                            }
+                          },
+                          {
+                            "TypeCast": {
+                              "arg": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_length"
+                                          }
+                                        }
+                                      ],
+                                      "location": 63
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 1
+                                      },
+                                      "location": 76
+                                    }
+                                  },
+                                  "location": 75
+                                }
+                              },
+                              "typeName": {
+                                "names": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_catalog"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "int4"
+                                    }
+                                  }
+                                ],
+                                "typemod": -1,
+                                "location": 80
+                              },
+                              "location": 78
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S563",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "accepted_subject_public_key_info_der := codec_raw",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "codec_raw"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S564",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "+"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_cursor"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 6
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "TypeCast": {
+                            "arg": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_length"
+                                    }
+                                  }
+                                ],
+                                "location": 23
+                              }
+                            },
+                            "typeName": {
+                              "names": [
+                                {
+                                  "String": {
+                                    "sval": "pg_catalog"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "int4"
+                                  }
+                                }
+                              ],
+                              "typemod": -1,
+                              "location": 37
+                            },
+                            "location": 35
+                          }
+                        },
+                        "location": 22
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S565",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>14",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 27
+                                      }
+                                    },
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "codec_cursor"
+                                            }
+                                          }
+                                        ],
+                                        "location": 45
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {},
+                                  "location": 60
+                                }
+                              },
+                              "location": 58
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 85
+                                      }
+                                    },
+                                    {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "+"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "codec_cursor"
+                                                }
+                                              }
+                                            ],
+                                            "location": 103
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 1
+                                            },
+                                            "location": 116
+                                          }
+                                        },
+                                        "location": 115
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 65
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 14
+                                  },
+                                  "location": 120
+                                }
+                              },
+                              "location": 118
+                            }
+                          }
+                        ],
+                        "location": 62
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S566",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S567",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S568",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length := 0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S569",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S570",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "3",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {
+                          "ival": 3
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S571",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "*"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_length"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 256
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "FuncCall": {
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "pg_catalog"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "get_byte"
+                                }
+                              }
+                            ],
+                            "args": [
+                              {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "accepted_snapshot"
+                                      }
+                                    }
+                                  ],
+                                  "location": 45
+                                }
+                              },
+                              {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "+"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "+"
+                                          }
+                                        }
+                                      ],
+                                      "lexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "codec_cursor"
+                                              }
+                                            }
+                                          ],
+                                          "location": 63
+                                        }
+                                      },
+                                      "rexpr": {
+                                        "A_Const": {
+                                          "ival": {
+                                            "ival": 2
+                                          },
+                                          "location": 76
+                                        }
+                                      },
+                                      "location": 75
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_byte"
+                                          }
+                                        }
+                                      ],
+                                      "location": 78
+                                    }
+                                  },
+                                  "location": 77
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "location": 25
+                          }
+                        },
+                        "location": 24
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S572",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length NOT BETWEEN 65 AND 65 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_NOT_BETWEEN",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "NOT BETWEEN"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_length"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "List": {
+                                  "items": [
+                                    {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 65
+                                        },
+                                        "location": 32
+                                      }
+                                    },
+                                    {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 65
+                                        },
+                                        "location": 39
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "location": 20
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_length"
+                                      }
+                                    }
+                                  ],
+                                  "location": 45
+                                }
+                              },
+                              "rexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "-"
+                                          }
+                                        }
+                                      ],
+                                      "lexpr": {
+                                        "FuncCall": {
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "pg_catalog"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "octet_length"
+                                              }
+                                            }
+                                          ],
+                                          "args": [
+                                            {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "accepted_snapshot"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 82
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "location": 58
+                                        }
+                                      },
+                                      "rexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "codec_cursor"
+                                              }
+                                            }
+                                          ],
+                                          "location": 101
+                                        }
+                                      },
+                                      "location": 100
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 6
+                                      },
+                                      "location": 114
+                                    }
+                                  },
+                                  "location": 113
+                                }
+                              },
+                              "location": 57
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 139
+                                      }
+                                    },
+                                    {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "+"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "codec_cursor"
+                                                }
+                                              }
+                                            ],
+                                            "location": 157
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 6
+                                            },
+                                            "location": 170
+                                          }
+                                        },
+                                        "location": 169
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 119
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 1
+                                  },
+                                  "location": 174
+                                }
+                              },
+                              "location": 172
+                            }
+                          }
+                        ],
+                        "location": 42
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S573",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S574",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S575",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "substring"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "accepted_snapshot"
+                                  }
+                                }
+                              ],
+                              "location": 29
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "+"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_cursor"
+                                      }
+                                    }
+                                  ],
+                                  "location": 47
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 8
+                                  },
+                                  "location": 60
+                                }
+                              },
+                              "location": 59
+                            }
+                          },
+                          {
+                            "TypeCast": {
+                              "arg": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_length"
+                                          }
+                                        }
+                                      ],
+                                      "location": 63
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 1
+                                      },
+                                      "location": 76
+                                    }
+                                  },
+                                  "location": 75
+                                }
+                              },
+                              "typeName": {
+                                "names": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_catalog"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "int4"
+                                    }
+                                  }
+                                ],
+                                "typemod": -1,
+                                "location": 80
+                              },
+                              "location": 78
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S576",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "accepted_signature_bytes := codec_raw",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "codec_raw"
+                            }
+                          }
+                        ],
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S577",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "+"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_cursor"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 6
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "TypeCast": {
+                            "arg": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_length"
+                                    }
+                                  }
+                                ],
+                                "location": 23
+                              }
+                            },
+                            "typeName": {
+                              "names": [
+                                {
+                                  "String": {
+                                    "sval": "pg_catalog"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "int4"
+                                  }
+                                }
+                              ],
+                              "typemod": -1,
+                              "location": 37
+                            },
+                            "location": 35
+                          }
+                        },
+                        "location": 22
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S578",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>15",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 27
+                                      }
+                                    },
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "codec_cursor"
+                                            }
+                                          }
+                                        ],
+                                        "location": 45
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {},
+                                  "location": 60
+                                }
+                              },
+                              "location": 58
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 85
+                                      }
+                                    },
+                                    {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "+"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "codec_cursor"
+                                                }
+                                              }
+                                            ],
+                                            "location": 103
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 1
+                                            },
+                                            "location": 116
+                                          }
+                                        },
+                                        "location": 115
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 65
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 15
+                                  },
+                                  "location": 120
+                                }
+                              },
+                              "location": 118
+                            }
+                          }
+                        ],
+                        "location": 62
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S579",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S580",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S581",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length := 0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S582",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S583",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "3",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {
+                          "ival": 3
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S584",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "*"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_length"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 256
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "FuncCall": {
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "pg_catalog"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "get_byte"
+                                }
+                              }
+                            ],
+                            "args": [
+                              {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "accepted_snapshot"
+                                      }
+                                    }
+                                  ],
+                                  "location": 45
+                                }
+                              },
+                              {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "+"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "+"
+                                          }
+                                        }
+                                      ],
+                                      "lexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "codec_cursor"
+                                              }
+                                            }
+                                          ],
+                                          "location": 63
+                                        }
+                                      },
+                                      "rexpr": {
+                                        "A_Const": {
+                                          "ival": {
+                                            "ival": 2
+                                          },
+                                          "location": 76
+                                        }
+                                      },
+                                      "location": 75
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_byte"
+                                          }
+                                        }
+                                      ],
+                                      "location": 78
+                                    }
+                                  },
+                                  "location": 77
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "location": 25
+                          }
+                        },
+                        "location": 24
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S585",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length NOT BETWEEN 17 AND 17 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_NOT_BETWEEN",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "NOT BETWEEN"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_length"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "List": {
+                                  "items": [
+                                    {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 17
+                                        },
+                                        "location": 32
+                                      }
+                                    },
+                                    {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 17
+                                        },
+                                        "location": 39
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "location": 20
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_length"
+                                      }
+                                    }
+                                  ],
+                                  "location": 45
+                                }
+                              },
+                              "rexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "-"
+                                          }
+                                        }
+                                      ],
+                                      "lexpr": {
+                                        "FuncCall": {
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "pg_catalog"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "octet_length"
+                                              }
+                                            }
+                                          ],
+                                          "args": [
+                                            {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "accepted_snapshot"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 82
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "location": 58
+                                        }
+                                      },
+                                      "rexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "codec_cursor"
+                                              }
+                                            }
+                                          ],
+                                          "location": 101
+                                        }
+                                      },
+                                      "location": 100
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 6
+                                      },
+                                      "location": 114
+                                    }
+                                  },
+                                  "location": 113
+                                }
+                              },
+                              "location": 57
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 139
+                                      }
+                                    },
+                                    {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "+"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "codec_cursor"
+                                                }
+                                              }
+                                            ],
+                                            "location": 157
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 6
+                                            },
+                                            "location": 170
+                                          }
+                                        },
+                                        "location": 169
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 119
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 1
+                                  },
+                                  "location": 174
+                                }
+                              },
+                              "location": 172
+                            }
+                          }
+                        ],
+                        "location": 42
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S586",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S587",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S588",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "substring"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "accepted_snapshot"
+                                  }
+                                }
+                              ],
+                              "location": 29
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "+"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_cursor"
+                                      }
+                                    }
+                                  ],
+                                  "location": 47
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 8
+                                  },
+                                  "location": 60
+                                }
+                              },
+                              "location": 59
+                            }
+                          },
+                          {
+                            "TypeCast": {
+                              "arg": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_length"
+                                          }
+                                        }
+                                      ],
+                                      "location": 63
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 1
+                                      },
+                                      "location": 76
+                                    }
+                                  },
+                                  "location": 75
+                                }
+                              },
+                              "typeName": {
+                                "names": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_catalog"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "int4"
+                                    }
+                                  }
+                                ],
+                                "typemod": -1,
+                                "location": 80
+                              },
+                              "location": 78
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S589",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "accepted_signer_authority_id := pg_catalog.encode(codec_raw,'hex')::pg_catalog.uuid",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "TypeCast": {
+                        "arg": {
+                          "FuncCall": {
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "pg_catalog"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "encode"
+                                }
+                              }
+                            ],
+                            "args": [
+                              {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_raw"
+                                      }
+                                    }
+                                  ],
+                                  "location": 26
+                                }
+                              },
+                              {
+                                "A_Const": {
+                                  "sval": {
+                                    "sval": "hex"
+                                  },
+                                  "location": 36
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "location": 8
+                          }
+                        },
+                        "typeName": {
+                          "names": [
+                            {
+                              "String": {
+                                "sval": "pg_catalog"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "uuid"
+                              }
+                            }
+                          ],
+                          "typemod": -1,
+                          "location": 44
+                        },
+                        "location": 42
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S590",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "accepted_signer_authority_id='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "accepted_signer_authority_id"
+                                }
+                              }
+                            ],
+                            "location": 7
+                          }
+                        },
+                        "rexpr": {
+                          "TypeCast": {
+                            "arg": {
+                              "A_Const": {
+                                "sval": {
+                                  "sval": "00000000-0000-0000-0000-000000000000"
+                                },
+                                "location": 36
+                              }
+                            },
+                            "typeName": {
+                              "names": [
+                                {
+                                  "String": {
+                                    "sval": "pg_catalog"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "uuid"
+                                  }
+                                }
+                              ],
+                              "typemod": -1,
+                              "location": 76
+                            },
+                            "location": 74
+                          }
+                        },
+                        "location": 35
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S591",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S592",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S593",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_cursor := codec_cursor+6+codec_length::pg_catalog.int4",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "+"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_cursor"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 6
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "TypeCast": {
+                            "arg": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_length"
+                                    }
+                                  }
+                                ],
+                                "location": 23
+                              }
+                            },
+                            "typeName": {
+                              "names": [
+                                {
+                                  "String": {
+                                    "sval": "pg_catalog"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "int4"
+                                  }
+                                }
+                              ],
+                              "typemod": -1,
+                              "location": 37
+                            },
+                            "location": 35
+                          }
+                        },
+                        "location": 22
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S594",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "pg_catalog.get_byte(accepted_snapshot,codec_cursor)<>0 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+1)<>16",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 27
+                                      }
+                                    },
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "codec_cursor"
+                                            }
+                                          }
+                                        ],
+                                        "location": 45
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {},
+                                  "location": 60
+                                }
+                              },
+                              "location": 58
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 85
+                                      }
+                                    },
+                                    {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "+"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "codec_cursor"
+                                                }
+                                              }
+                                            ],
+                                            "location": 103
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 1
+                                            },
+                                            "location": 116
+                                          }
+                                        },
+                                        "location": 115
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 65
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 16
+                                  },
+                                  "location": 120
+                                }
+                              },
+                              "location": 118
+                            }
+                          }
+                        ],
+                        "location": 62
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S595",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S596",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S597",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length := 0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S598",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S599",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "3",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {
+                          "ival": 3
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S600",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length := codec_length*256+pg_catalog.get_byte(accepted_snapshot,codec_cursor+2+codec_byte)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "*"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_length"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 256
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "FuncCall": {
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "pg_catalog"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "get_byte"
+                                }
+                              }
+                            ],
+                            "args": [
+                              {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "accepted_snapshot"
+                                      }
+                                    }
+                                  ],
+                                  "location": 45
+                                }
+                              },
+                              {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "+"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "+"
+                                          }
+                                        }
+                                      ],
+                                      "lexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "codec_cursor"
+                                              }
+                                            }
+                                          ],
+                                          "location": 63
+                                        }
+                                      },
+                                      "rexpr": {
+                                        "A_Const": {
+                                          "ival": {
+                                            "ival": 2
+                                          },
+                                          "location": 76
+                                        }
+                                      },
+                                      "location": 75
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_byte"
+                                          }
+                                        }
+                                      ],
+                                      "location": 78
+                                    }
+                                  },
+                                  "location": 77
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "location": 25
+                          }
+                        },
+                        "location": 24
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S601",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_length NOT BETWEEN 5 AND 5 OR codec_length>pg_catalog.octet_length(accepted_snapshot)-codec_cursor-6 OR pg_catalog.get_byte(accepted_snapshot,codec_cursor+6)<>1",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "BoolExpr": {
+                        "boolop": "OR_EXPR",
+                        "args": [
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_NOT_BETWEEN",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "NOT BETWEEN"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_length"
+                                      }
+                                    }
+                                  ],
+                                  "location": 7
+                                }
+                              },
+                              "rexpr": {
+                                "List": {
+                                  "items": [
+                                    {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 5
+                                        },
+                                        "location": 32
+                                      }
+                                    },
+                                    {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 5
+                                        },
+                                        "location": 38
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "location": 20
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": ">"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_length"
+                                      }
+                                    }
+                                  ],
+                                  "location": 43
+                                }
+                              },
+                              "rexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "-"
+                                          }
+                                        }
+                                      ],
+                                      "lexpr": {
+                                        "FuncCall": {
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "pg_catalog"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "octet_length"
+                                              }
+                                            }
+                                          ],
+                                          "args": [
+                                            {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "accepted_snapshot"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 80
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "location": 56
+                                        }
+                                      },
+                                      "rexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "codec_cursor"
+                                              }
+                                            }
+                                          ],
+                                          "location": 99
+                                        }
+                                      },
+                                      "location": 98
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 6
+                                      },
+                                      "location": 112
+                                    }
+                                  },
+                                  "location": 111
+                                }
+                              },
+                              "location": 55
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "<>"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "FuncCall": {
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "pg_catalog"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "get_byte"
+                                      }
+                                    }
+                                  ],
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "accepted_snapshot"
+                                            }
+                                          }
+                                        ],
+                                        "location": 137
+                                      }
+                                    },
+                                    {
+                                      "A_Expr": {
+                                        "kind": "AEXPR_OP",
+                                        "name": [
+                                          {
+                                            "String": {
+                                              "sval": "+"
+                                            }
+                                          }
+                                        ],
+                                        "lexpr": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "codec_cursor"
+                                                }
+                                              }
+                                            ],
+                                            "location": 155
+                                          }
+                                        },
+                                        "rexpr": {
+                                          "A_Const": {
+                                            "ival": {
+                                              "ival": 6
+                                            },
+                                            "location": 168
+                                          }
+                                        },
+                                        "location": 167
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "location": 117
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 1
+                                  },
+                                  "location": 172
+                                }
+                              },
+                              "location": 170
+                            }
+                          }
+                        ],
+                        "location": 40
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S602",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'P0017'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "P0017"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S603",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "'ACCESS_DENIED'",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "sval": {
+                          "sval": "ACCESS_DENIED"
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_raise",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S604",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_raw := pg_catalog.substring(accepted_snapshot,codec_cursor+8,(codec_length-1)::pg_catalog.int4)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "FuncCall": {
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "substring"
+                            }
+                          }
+                        ],
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "accepted_snapshot"
+                                  }
+                                }
+                              ],
+                              "location": 29
+                            }
+                          },
+                          {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "+"
+                                  }
+                                }
+                              ],
+                              "lexpr": {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_cursor"
+                                      }
+                                    }
+                                  ],
+                                  "location": 47
+                                }
+                              },
+                              "rexpr": {
+                                "A_Const": {
+                                  "ival": {
+                                    "ival": 8
+                                  },
+                                  "location": 60
+                                }
+                              },
+                              "location": 59
+                            }
+                          },
+                          {
+                            "TypeCast": {
+                              "arg": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "-"
+                                      }
+                                    }
+                                  ],
+                                  "lexpr": {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "codec_length"
+                                          }
+                                        }
+                                      ],
+                                      "location": 63
+                                    }
+                                  },
+                                  "rexpr": {
+                                    "A_Const": {
+                                      "ival": {
+                                        "ival": 1
+                                      },
+                                      "location": 76
+                                    }
+                                  },
+                                  "location": 75
+                                }
+                              },
+                              "typeName": {
+                                "names": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_catalog"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "int4"
+                                    }
+                                  }
+                                ],
+                                "typemod": -1,
+                                "location": 80
+                              },
+                              "location": 78
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S605",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_number := 0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 8
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S606",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "0",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {},
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S607",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "3",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Const": {
+                        "ival": {
+                          "ival": 3
+                        },
+                        "location": 7
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_fori",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S608",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_number := codec_number*256+pg_catalog.get_byte(codec_raw,codec_byte)",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "+"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "*"
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "codec_number"
+                                    }
+                                  }
+                                ],
+                                "location": 8
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {
+                                  "ival": 256
+                                },
+                                "location": 21
+                              }
+                            },
+                            "location": 20
+                          }
+                        },
+                        "rexpr": {
+                          "FuncCall": {
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "pg_catalog"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "get_byte"
+                                }
+                              }
+                            ],
+                            "args": [
+                              {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_raw"
+                                      }
+                                    }
+                                  ],
+                                  "location": 45
+                                }
+                              },
+                              {
+                                "ColumnRef": {
+                                  "fields": [
+                                    {
+                                      "String": {
+                                        "sval": "codec_byte"
+                                      }
+                                    }
+                                  ],
+                                  "location": 55
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "location": 25
+                          }
+                        },
+                        "location": 24
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S609",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_number>=2147483648",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": ">="
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "codec_number"
+                                }
+                              }
+                            ],
+                            "location": 7
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "fval": {
+                              "fval": "2147483648"
+                            },
+                            "location": 21
+                          }
+                        },
+                        "location": 19
+                      }
+                    },
+                    "location": 7
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_if",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S610",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "codec_number := codec_number-4294967296",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "-"
+                            }
+                          }
+                        ],
+                        "lexpr": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "codec_number"
+                                }
+                              }
+                            ],
+                            "location": 8
+                          }
+                        },
+                        "rexpr": {
+                          "A_Const": {
+                            "fval": {
+                              "fval": "4294967296"
+                            },
+                            "location": 21
+                          }
+                        },
+                        "location": 20
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  },
+  {
+    "SQL_STATEMENT_ID": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea):S611",
+    "SQL_OBJECT": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+    "query": "accepted_signer_authority_revision := codec_number::pg_catalog.int4",
+    "ast": {
+      "version": 180006,
+      "stmts": [
+        {
+          "stmt": {
+            "SelectStmt": {
+              "targetList": [
+                {
+                  "ResTarget": {
+                    "val": {
+                      "TypeCast": {
+                        "arg": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "codec_number"
+                                }
+                              }
+                            ],
+                            "location": 8
+                          }
+                        },
+                        "typeName": {
+                          "names": [
+                            {
+                              "String": {
+                                "sval": "pg_catalog"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "int4"
+                              }
+                            }
+                          ],
+                          "typemod": -1,
+                          "location": 22
+                        },
+                        "location": 20
+                      }
+                    },
+                    "location": 8
+                  }
+                }
+              ],
+              "limitOption": "LIMIT_OPTION_DEFAULT",
+              "op": "SETOP_NONE"
+            }
+          }
+        }
+      ]
+    },
+    "plpgsql_context": "PLpgSQL_stmt_assign",
+    "source_file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+    "source_line_range": [
+      19124,
+      20472
+    ],
+    "exact_predicate_location": false
+  }
+]

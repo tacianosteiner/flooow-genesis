@@ -1,0 +1,33 @@
+{
+  "name": "public.s2a_v041_nullable_text",
+  "signature": "public.s2a_v041_nullable_text(text)",
+  "parameter_types": [
+    "text"
+  ],
+  "parameter_names": [
+    "v"
+  ],
+  "return_type": "bytea",
+  "language": "sql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+  "source_line_range": [
+    368,
+    369
+  ],
+  "body": " SELECT CASE WHEN v IS NULL THEN public.s2a_v041_text('NULL')||public.s2a_v041_frame(''::bytea) ELSE public.s2a_v041_text('PRESENT')||public.s2a_v041_text(v) END ",
+  "body_first_line": 369,
+  "definition_sha256": "15361078a9db77189e98e15ef9c78aeb702f8748fe78e3173d069357409f7e64",
+  "expressions": [
+    {
+      "query": " SELECT CASE WHEN v IS NULL THEN public.s2a_v041_text('NULL')||public.s2a_v041_frame(''::bytea) ELSE public.s2a_v041_text('PRESENT')||public.s2a_v041_text(v) END ",
+      "parseMode": 0,
+      "lineno": 1,
+      "context": "SQL_LANGUAGE_BODY",
+      "ast_path": [],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": null,
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

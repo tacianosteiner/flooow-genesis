@@ -1,0 +1,585 @@
+{
+  "name": "public.transaction_identity_locks",
+  "signature": "public.transaction_identity_locks(uuid,uuid,uuid,uuid,text,uuid)",
+  "parameter_types": [
+    "uuid",
+    "uuid",
+    "uuid",
+    "uuid",
+    "text",
+    "uuid"
+  ],
+  "parameter_names": [
+    "org",
+    "actor",
+    "id",
+    "conn",
+    "ref",
+    "target"
+  ],
+  "return_type": "void",
+  "language": "plpgsql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V039__restrict_transaction_identity_runtime_privileges.sql",
+  "source_line_range": [
+    69,
+    131
+  ],
+  "body": "\nDECLARE\n    resource text;\nBEGIN\n    IF NOT public.command_authorization_organization_lock(org) THEN\n        RAISE EXCEPTION 'Command authority unavailable'\n            USING ERRCODE='P0012';\n    END IF;\n\n    PERFORM 1\n      FROM public.command_principal\n     WHERE organization_id=org\n       AND principal_id=actor\n     FOR UPDATE;\n\n    IF NOT FOUND THEN\n        RAISE EXCEPTION 'Command authority unavailable'\n            USING ERRCODE='P0012';\n    END IF;\n\n    PERFORM pg_catalog.pg_advisory_xact_lock(\n        pg_catalog.hashtextextended(\n            'transaction-identity/id/1:' || org || ':' || id,\n            0\n        )\n    );\n\n    IF NOT public.transaction_identity_progress_lock(org,conn) THEN\n        RAISE EXCEPTION 'Identity evidence unavailable'\n            USING ERRCODE='P0002';\n    END IF;\n\n    FOR resource IN\n        SELECT unnest(ARRAY[\n            'transaction-identity/subject/1:' ||\n                org || ':' ||\n                conn || ':' ||\n                pg_catalog.octet_length(ref) || ':' ||\n                ref,\n            'transaction-identity/target/1:' ||\n                org || ':' ||\n                target\n        ])\n        ORDER BY 1\n    LOOP\n        PERFORM pg_catalog.pg_advisory_xact_lock(\n            pg_catalog.hashtextextended(resource,0)\n        );\n    END LOOP;\nEND;\n",
+  "body_first_line": 81,
+  "definition_sha256": "09ee4acf68a22dd6fed81e249838667fcd09950d3d0bf1512f32b7ff64fb5fce",
+  "expressions": [
+    {
+      "query": "NOT public.command_authorization_organization_lock(org)",
+      "parseMode": 2,
+      "lineno": 5,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 6,
+            "elog_level": 21,
+            "message": "Command authority unavailable",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0012'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0012'",
+      "parseMode": 2,
+      "lineno": 6,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 6,
+            "elog_level": 21,
+            "message": "Command authority unavailable",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0012'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT 1\n      FROM public.command_principal\n     WHERE organization_id=org\n       AND principal_id=actor\n     FOR UPDATE",
+      "parseMode": 0,
+      "lineno": 10,
+      "context": "PLpgSQL_stmt_perform",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_perform",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "NOT FOUND",
+      "parseMode": 2,
+      "lineno": 16,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 17,
+            "elog_level": 21,
+            "message": "Command authority unavailable",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0012'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0012'",
+      "parseMode": 2,
+      "lineno": 17,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 17,
+            "elog_level": 21,
+            "message": "Command authority unavailable",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0012'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT pg_catalog.pg_advisory_xact_lock(\n        pg_catalog.hashtextextended(\n            'transaction-identity/id/1:' || org || ':' || id,\n            0\n        )\n    )",
+      "parseMode": 0,
+      "lineno": 21,
+      "context": "PLpgSQL_stmt_perform",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_perform",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "NOT public.transaction_identity_progress_lock(org,conn)",
+      "parseMode": 2,
+      "lineno": 28,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 29,
+            "elog_level": 21,
+            "message": "Identity evidence unavailable",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0002'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0002'",
+      "parseMode": 2,
+      "lineno": 29,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 29,
+            "elog_level": 21,
+            "message": "Identity evidence unavailable",
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0002'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT pg_catalog.pg_advisory_xact_lock(\n            pg_catalog.hashtextextended(resource,0)\n        )",
+      "parseMode": 0,
+      "lineno": 46,
+      "context": "PLpgSQL_stmt_perform",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_fors",
+        "body",
+        0,
+        "PLpgSQL_stmt_perform",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "SELECT unnest(ARRAY[\n            'transaction-identity/subject/1:' ||\n                org || ':' ||\n                conn || ':' ||\n                pg_catalog.octet_length(ref) || ':' ||\n                ref,\n            'transaction-identity/target/1:' ||\n                org || ':' ||\n                target\n        ])\n        ORDER BY 1",
+      "parseMode": 0,
+      "lineno": 33,
+      "context": "PLpgSQL_stmt_fors",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_fors",
+        "query"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "org",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "actor",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "conn",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "ref",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "target",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "resource",
+          "lineno": 3,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 33,
+          "fields": [
+            {
+              "name": "resource",
+              "varno": 7
+            }
+          ]
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 4,
+        "body": [
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 5,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "NOT public.command_authorization_organization_lock(org)",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 6,
+                    "elog_level": 21,
+                    "message": "Command authority unavailable",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0012'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_perform": {
+              "lineno": 10,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT 1\n      FROM public.command_principal\n     WHERE organization_id=org\n       AND principal_id=actor\n     FOR UPDATE",
+                  "parseMode": 0
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 16,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "NOT FOUND",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 17,
+                    "elog_level": 21,
+                    "message": "Command authority unavailable",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0012'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_perform": {
+              "lineno": 21,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT pg_catalog.pg_advisory_xact_lock(\n        pg_catalog.hashtextextended(\n            'transaction-identity/id/1:' || org || ':' || id,\n            0\n        )\n    )",
+                  "parseMode": 0
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 28,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "NOT public.transaction_identity_progress_lock(org,conn)",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 29,
+                    "elog_level": 21,
+                    "message": "Identity evidence unavailable",
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0002'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_fors": {
+              "lineno": 33,
+              "var": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 33,
+                  "fields": [
+                    {
+                      "name": "resource",
+                      "varno": 7
+                    }
+                  ]
+                }
+              },
+              "body": [
+                {
+                  "PLpgSQL_stmt_perform": {
+                    "lineno": 46,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "SELECT pg_catalog.pg_advisory_xact_lock(\n            pg_catalog.hashtextextended(resource,0)\n        )",
+                        "parseMode": 0
+                      }
+                    }
+                  }
+                }
+              ],
+              "query": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT unnest(ARRAY[\n            'transaction-identity/subject/1:' ||\n                org || ':' ||\n                conn || ':' ||\n                pg_catalog.octet_length(ref) || ':' ||\n                ref,\n            'transaction-identity/target/1:' ||\n                org || ':' ||\n                target\n        ])\n        ORDER BY 1",
+                  "parseMode": 0
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_return": {}
+          }
+        ]
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

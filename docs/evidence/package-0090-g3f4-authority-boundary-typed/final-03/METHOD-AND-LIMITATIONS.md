@@ -1,0 +1,11 @@
+# Method and adversarial limitations
+
+Parser API: [official pglast parser documentation](https://pglast.readthedocs.io/en/latest/parser.html); [official project](https://github.com/lelit/pglast). The isolated pinned parser reports v8.5 / PostgreSQL grammar 18.6; this is not PostgreSQL 18.4 execution proof. The temporary installation changes no repository dependencies. Parser extension hashes are recorded.
+
+The analyzer loads immutable V001–V042 declarations to resolve only dependencies of the eighteen reviewed signatures used by the thirteen case paths. V043 is the exact accepted successor. Unrelated repository SQL never enters domain counts. Shared callees are counted once globally; wrapper membership is recorded separately. Unique arity selects explicit source call targets; ambiguous/missing targets remain unresolved rather than inferred. Implicit DML triggers/checks and overload/operator catalog verification remain pending and therefore prevent a closed denominator.
+
+ASTs preserve AND/OR/NOT, NULL three-valued logic, EXISTS/subqueries and CASE. AST node categories and declared scalar types do not prove every PostgreSQL coercion/operator resolution. Exact SQL object ranges are retained; individual predicate spans are explicitly pending. Type/purpose failures remain UNCLASSIFIED. Only explicit CASE NULL discriminators are categorized non-authority; unsupported conditions are not dropped.
+
+The offline PL compiler cannot resolve a table %ROWTYPE without a live catalog. Three proposed-record declarations are replaced with record only in a parser-only copy, then original field types are rebound from the immutable actual table declaration. Source predicates, original function hashes and bytes remain unchanged; the normalization is recorded and makes no runtime semantic-equivalence claim. No normalized copy is executed or promoted. Unqualified frozen declarations are catalogued in public, consistent with the reviewed installation boundary; live schema/catalog verification is still required.
+
+No model/leaf/replay result becomes executable SQL or native proof. The 514 prior predicate-model and 235 frame-model PASS records remain preserved with their exact evidentiary scope. The two-layer design gate denies SQL-only fixtures and producer self-reported external health. Full SQL or external witness validation is not fabricated.

@@ -1,0 +1,59 @@
+{
+  "name": "public.s2a_v041_proof_fingerprint",
+  "signature": "public.s2a_v041_proof_fingerprint(bytea,text,bytea,text,uuid,int4,text,text,bytea,bytea,uuid,int4,text,timestamptz)",
+  "parameter_types": [
+    "bytea",
+    "text",
+    "bytea",
+    "text",
+    "uuid",
+    "int4",
+    "text",
+    "text",
+    "bytea",
+    "bytea",
+    "uuid",
+    "int4",
+    "text",
+    "timestamptz"
+  ],
+  "parameter_names": [
+    "p_manifest",
+    "p_manifest_digest",
+    "p_preimage",
+    "p_algorithm",
+    "p_key_id",
+    "p_key_revision",
+    "p_key_fingerprint",
+    "p_lineage_fingerprint",
+    "p_spki",
+    "p_signature",
+    "p_authority_id",
+    "p_authority_revision",
+    "p_authority_fingerprint",
+    "p_verified_at"
+  ],
+  "return_type": "text",
+  "language": "sql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+  "source_line_range": [
+    396,
+    406
+  ],
+  "body": " SELECT encode(sha256(\n public.s2a_v041_text('FLOOOW:S2A:ACCEPTED-ATTESTATION-PROOF:1')||public.s2a_v041_text('1')||public.s2a_v041_text('1')||\n public.s2a_v041_frame(p_manifest)||public.s2a_v041_text(p_manifest_digest)||public.s2a_v041_frame(p_preimage)||\n public.s2a_v041_text(p_algorithm)||public.s2a_v041_text(p_key_id::text)||public.s2a_v041_text(p_key_revision::text)||\n public.s2a_v041_text(p_key_fingerprint)||public.s2a_v041_text(p_lineage_fingerprint)||public.s2a_v041_frame(p_spki)||\n public.s2a_v041_frame(p_signature)||public.s2a_v041_text(p_authority_id::text)||public.s2a_v041_text(p_authority_revision::text)||\n public.s2a_v041_text(p_authority_fingerprint)||public.s2a_v041_instant(p_verified_at)),'hex') ",
+  "body_first_line": 400,
+  "definition_sha256": "e7ea91fdc3f21d56dea91daca2deb1712fd891c0929f93b0b284d7c9745a277b",
+  "expressions": [
+    {
+      "query": " SELECT encode(sha256(\n public.s2a_v041_text('FLOOOW:S2A:ACCEPTED-ATTESTATION-PROOF:1')||public.s2a_v041_text('1')||public.s2a_v041_text('1')||\n public.s2a_v041_frame(p_manifest)||public.s2a_v041_text(p_manifest_digest)||public.s2a_v041_frame(p_preimage)||\n public.s2a_v041_text(p_algorithm)||public.s2a_v041_text(p_key_id::text)||public.s2a_v041_text(p_key_revision::text)||\n public.s2a_v041_text(p_key_fingerprint)||public.s2a_v041_text(p_lineage_fingerprint)||public.s2a_v041_frame(p_spki)||\n public.s2a_v041_frame(p_signature)||public.s2a_v041_text(p_authority_id::text)||public.s2a_v041_text(p_authority_revision::text)||\n public.s2a_v041_text(p_authority_fingerprint)||public.s2a_v041_instant(p_verified_at)),'hex') ",
+      "parseMode": 0,
+      "lineno": 1,
+      "context": "SQL_LANGUAGE_BODY",
+      "ast_path": [],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": null,
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

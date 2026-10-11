@@ -1,0 +1,153 @@
+{
+  "name": "public.transaction_identity_progress_lock",
+  "signature": "public.transaction_identity_progress_lock(uuid,uuid)",
+  "parameter_types": [
+    "uuid",
+    "uuid"
+  ],
+  "parameter_names": [
+    "org",
+    "conn"
+  ],
+  "return_type": "bool",
+  "language": "plpgsql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V039__restrict_transaction_identity_runtime_privileges.sql",
+  "source_line_range": [
+    40,
+    62
+  ],
+  "body": "\nDECLARE\n    locked boolean;\nBEGIN\n    SELECT true\n      INTO locked\n      FROM public.integration_connector_progress\n     WHERE organization_id=org\n       AND connection_id=conn\n       AND capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3'\n     FOR UPDATE;\n\n    RETURN coalesce(locked,false);\nEND;\n",
+  "body_first_line": 48,
+  "definition_sha256": "014d91c1b483def1856838444f0ec663346f041a384cc7b792596e272b6ded09",
+  "expressions": [
+    {
+      "query": "SELECT true\n                        FROM public.integration_connector_progress\n     WHERE organization_id=org\n       AND connection_id=conn\n       AND capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3'\n     FOR UPDATE",
+      "parseMode": 0,
+      "lineno": 5,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "coalesce(locked,false)",
+      "parseMode": 2,
+      "lineno": 13,
+      "context": "PLpgSQL_stmt_return",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_return",
+        "expr"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "org",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "conn",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "locked",
+          "lineno": 3,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_row": {
+          "refname": "(unnamed row)",
+          "lineno": 6,
+          "fields": [
+            {
+              "name": "locked",
+              "varno": 3
+            }
+          ]
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 4,
+        "body": [
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 5,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT true\n                        FROM public.integration_connector_progress\n     WHERE organization_id=org\n       AND connection_id=conn\n       AND capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3'\n     FOR UPDATE",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "target": {
+                "PLpgSQL_row": {
+                  "refname": "(unnamed row)",
+                  "lineno": 6,
+                  "fields": [
+                    {
+                      "name": "locked",
+                      "varno": 3
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_return": {
+              "lineno": 13,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "coalesce(locked,false)",
+                  "parseMode": 2
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

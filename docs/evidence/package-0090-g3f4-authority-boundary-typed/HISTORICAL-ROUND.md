@@ -1,0 +1,1 @@
+Root-level metrics and typed bindings are historical development evidence. Final-02 corrects PostgreSQL RangeVar alias representation and reruns analysis from the frozen sources. Reused AST artifacts must be recomputed byte-identically and hash-verified; no historical PASS is inherited.

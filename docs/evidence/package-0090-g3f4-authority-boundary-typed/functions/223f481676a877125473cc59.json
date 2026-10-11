@@ -1,0 +1,104 @@
+{
+  "name": "public.offline_internal_canonical_spki_ed25519_verify",
+  "signature": "public.offline_internal_canonical_spki_ed25519_verify(bytea,bytea,bytea)",
+  "parameter_types": [
+    "bytea",
+    "bytea",
+    "bytea"
+  ],
+  "parameter_names": [
+    "subject_public_key_info_der",
+    "canonical_signature_preimage_bytes",
+    "signature_bytes"
+  ],
+  "return_type": "bool",
+  "language": "plpgsql",
+  "source": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+  "source_line_range": [
+    6723,
+    6734
+  ],
+  "body": "\nBEGIN\n    RETURN offline_crypto.canonical_spki_ed25519_verify($1,$2,$3);\nEND;\n",
+  "body_first_line": 6730,
+  "definition_sha256": "2fcb33f465fc0d2d0aa00a57b49c5ddf2b3d293a1ead1a3eace12e3cb0af5cc6",
+  "expressions": [
+    {
+      "query": "offline_crypto.canonical_spki_ed25519_verify($1,$2,$3)",
+      "parseMode": 2,
+      "lineno": 3,
+      "context": "PLpgSQL_stmt_return",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_return",
+        "expr"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "subject_public_key_info_der",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "canonical_signature_preimage_bytes",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "signature_bytes",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 2,
+        "body": [
+          {
+            "PLpgSQL_stmt_return": {
+              "lineno": 3,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "offline_crypto.canonical_spki_ed25519_verify($1,$2,$3)",
+                  "parseMode": 2
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

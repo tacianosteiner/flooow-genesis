@@ -1,0 +1,7 @@
+# Findings
+
+BLOCKER B01: typed source call/catalog/record/operator bindings, exact individual source spans and implicit DML constraint/trigger reachability are not fully closed; unclassified predicates and UNKNOWN denominator are retained. BLOCKER B02: independently acquired original frame/receipt/live SQL and external runtime witnesses are not validated by the design fixture gate. HIGH H01: invalid old generic approval/receipt/reconciliation edges require corrected typed enforcement witnesses; SQL column existence alone is not enforcement proof.
+
+Corrected: regex candidates removed from semantic denominator; actual AST grouping and NULL/NOT/EXISTS/subquery/CASE preserved; shared callee identity deduplicated; SQL and external authority separated; all seven mismatch decisions explicit; external bindings attach to exact header/runtime context rather than float freely; prior controls reclassified without overwriting PASS; no self-reported witness or protocol implementation introduced.
+
+Native health design remains unchanged. Completed work is a generation-bound externally corroborated receipt, not heartbeat freshness. Mandatory acyclic observation graph is HOST_PLATFORM -> HEALTH_GUARD -> seven managed participants. Unknown/stale context retains quarantine/ownership, denies promotion and requires reconciliation. SQL pointer generation is never equated with process/enrollment revision; reconciliation state is not observer-writable.

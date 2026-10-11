@@ -1,0 +1,2904 @@
+{
+  "name": "public.offline_internal_matches_original_signed_attestation",
+  "signature": "public.offline_internal_matches_original_signed_attestation(uuid,bytea,uuid,text,text,text,uuid,text,bytea)",
+  "parameter_types": [
+    "uuid",
+    "bytea",
+    "uuid",
+    "text",
+    "text",
+    "text",
+    "uuid",
+    "text",
+    "bytea"
+  ],
+  "parameter_names": [
+    "binding_id",
+    "plan_fingerprint",
+    "incarnation_id",
+    "surface",
+    "manifest_digest",
+    "algorithm_id",
+    "signer_key_id",
+    "signer_key_fingerprint",
+    "signature_bytes"
+  ],
+  "return_type": "bool",
+  "language": "plpgsql",
+  "source": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+  "source_line_range": [
+    8107,
+    8220
+  ],
+  "body": "\nDECLARE\n    header_record record;\n    original_record record;\n    canonical_bytes pg_catalog.bytea;\n    caller_record record;\n    slot_cursor pg_catalog.int4;\n    slot_length pg_catalog.int8;\n    slot_oid pg_catalog.int8;\n    slot_name_length pg_catalog.int8;\n    slot_name pg_catalog.text;\n    slot_oids pg_catalog.int8[] := ARRAY[]::pg_catalog.int8[];\n    slot_names pg_catalog.text[] := ARRAY[]::pg_catalog.text[];\n    slot_number pg_catalog.int4;\n    byte_number pg_catalog.int4;\nBEGIN\n    IF $1 IS NULL OR $2 IS NULL OR $3 IS NULL OR $4 IS NULL OR $5 IS NULL OR $6 IS NULL OR $7 IS NULL OR $8 IS NULL OR $9 IS NULL\n       OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n       OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n       OR pg_catalog.octet_length($2)<>32 OR $4<>'0090-v1' THEN\n        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n    END IF;\n    SELECT h.binding_id,h.plan_fingerprint,h.deployment_incarnation_id,\n           h.offline_surface_version,h.identity_slots,h.manifest_digest\n      INTO STRICT header_record FROM public.offline_binding_header h\n     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2\n       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4;\n    -- Decode exact canonical slots; use session_user, never current_user or a caller OID.\n    IF pg_catalog.octet_length(header_record.identity_slots) < 4\n       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\\x00000004'::pg_catalog.bytea THEN\n        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n    END IF;\n    slot_cursor := 4;\n    FOR slot_number IN 1..4 LOOP\n        slot_length := 0;\n        FOR byte_number IN 0..3 LOOP\n            slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number);\n        END LOOP;\n        slot_cursor := slot_cursor+4;\n        IF slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor\n           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number THEN\n            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n        END IF;\n        slot_oid := 0; slot_name_length := 0;\n        FOR byte_number IN 0..3 LOOP\n            slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number);\n            slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number);\n        END LOOP;\n        IF slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids) THEN\n            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n        END IF;\n        slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,\n                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8');\n        IF slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names) THEN\n            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n        END IF;\n        SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,\n               r.rolcreatedb,r.rolreplication,r.rolbypassrls\n          INTO caller_record FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name;\n        IF NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit\n           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb\n           OR caller_record.rolreplication OR caller_record.rolbypassrls\n           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m\n                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid) THEN\n            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n        END IF;\n        IF slot_number=1 AND slot_name <> SESSION_USER THEN\n            RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n        END IF;\n        slot_oids := pg_catalog.array_append(slot_oids,slot_oid);\n        slot_names := pg_catalog.array_append(slot_names,slot_name);\n        slot_cursor := slot_cursor+slot_length::pg_catalog.int4;\n    END LOOP;\n    IF slot_cursor <> pg_catalog.octet_length(header_record.identity_slots) THEN\n        RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\n    END IF;\n\n    BEGIN\n        SELECT o.binding_id,o.manifest_digest,o.algorithm_id,o.signer_key_id,o.signer_key_fingerprint,o.signature_bytes,o.canonical_expected_attestation,o.commitment_digest\n          INTO STRICT original_record FROM public.offline_expected_signed_attestation o\n         WHERE o.binding_id=$1;\n        canonical_bytes := pg_catalog.int4send(pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')))||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int2send(1::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.binding_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.binding_id)||pg_catalog.int2send(2::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.manifest_digest,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.manifest_digest,'UTF8')||pg_catalog.int2send(3::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.algorithm_id,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.algorithm_id,'UTF8')||pg_catalog.int2send(4::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.signer_key_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.signer_key_id)||pg_catalog.int2send(5::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(original_record.signature_bytes))||pg_catalog.decode('01','hex')||original_record.signature_bytes;\n        RETURN (original_record.canonical_expected_attestation=canonical_bytes\n            AND pg_catalog.octet_length(original_record.commitment_digest)=32\n            AND original_record.commitment_digest=pg_catalog.sha256(canonical_bytes)\n            AND original_record.manifest_digest ~ '^[0-9a-f]{64}$'\n            AND original_record.manifest_digest=pg_catalog.encode(header_record.manifest_digest,'hex')\n            AND original_record.algorithm_id='Ed25519'\n            AND original_record.signer_key_id<>'00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n            AND original_record.signer_key_fingerprint ~ '^[0-9a-f]{64}$'\n            AND pg_catalog.octet_length(original_record.signature_bytes)=64\n            AND original_record.manifest_digest=$5 AND original_record.algorithm_id=$6\n            AND original_record.signer_key_id=$7 AND original_record.signer_key_fingerprint=$8\n            AND original_record.signature_bytes=$9) IS TRUE;\n    EXCEPTION WHEN OTHERS THEN\n        RETURN false;\n    END;\nEXCEPTION WHEN OTHERS THEN\n    RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';\nEND;\n",
+  "body_first_line": 8120,
+  "definition_sha256": "b0b38047e7e4ab19865f0cac41c612aabdbe4a182ef0b4e94a65a4fd0da2306c",
+  "expressions": [
+    {
+      "query": "$1 IS NULL OR $2 IS NULL OR $3 IS NULL OR $4 IS NULL OR $5 IS NULL OR $6 IS NULL OR $7 IS NULL OR $8 IS NULL OR $9 IS NULL\n       OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n       OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n       OR pg_catalog.octet_length($2)<>32 OR $4<>'0090-v1'",
+      "parseMode": 2,
+      "lineno": 17,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 21,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 21,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 21,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 21,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 21,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT h.binding_id,h.plan_fingerprint,h.deployment_incarnation_id,\n           h.offline_surface_version,h.identity_slots,h.manifest_digest\n                                FROM public.offline_binding_header h\n     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2\n       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4",
+      "parseMode": 0,
+      "lineno": 23,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "pg_catalog.octet_length(header_record.identity_slots) < 4\n       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\\x00000004'::pg_catalog.bytea",
+      "parseMode": 2,
+      "lineno": 29,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 31,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 31,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 31,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 31,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 31,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "slot_cursor := 4",
+      "parseMode": 3,
+      "lineno": 33,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "1",
+      "parseMode": 2,
+      "lineno": 34,
+      "context": "PLpgSQL_stmt_fori",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "lower"
+      ],
+      "branch": null
+    },
+    {
+      "query": "4",
+      "parseMode": 2,
+      "lineno": 34,
+      "context": "PLpgSQL_stmt_fori",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "upper"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_length := 0",
+      "parseMode": 3,
+      "lineno": 35,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "0",
+      "parseMode": 2,
+      "lineno": 36,
+      "context": "PLpgSQL_stmt_fori",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        1,
+        "PLpgSQL_stmt_fori",
+        "lower"
+      ],
+      "branch": null
+    },
+    {
+      "query": "3",
+      "parseMode": 2,
+      "lineno": 36,
+      "context": "PLpgSQL_stmt_fori",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        1,
+        "PLpgSQL_stmt_fori",
+        "upper"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number)",
+      "parseMode": 3,
+      "lineno": 37,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        1,
+        "PLpgSQL_stmt_fori",
+        "body",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_cursor := slot_cursor+4",
+      "parseMode": 3,
+      "lineno": 39,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        2,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor\n           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number",
+      "parseMode": 2,
+      "lineno": 40,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 42,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 42,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 42,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 42,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 42,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "slot_oid := 0",
+      "parseMode": 3,
+      "lineno": 44,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        4,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_name_length := 0",
+      "parseMode": 3,
+      "lineno": 44,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        5,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "0",
+      "parseMode": 2,
+      "lineno": 45,
+      "context": "PLpgSQL_stmt_fori",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        6,
+        "PLpgSQL_stmt_fori",
+        "lower"
+      ],
+      "branch": null
+    },
+    {
+      "query": "3",
+      "parseMode": 2,
+      "lineno": 45,
+      "context": "PLpgSQL_stmt_fori",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        6,
+        "PLpgSQL_stmt_fori",
+        "upper"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number)",
+      "parseMode": 3,
+      "lineno": 46,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        6,
+        "PLpgSQL_stmt_fori",
+        "body",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number)",
+      "parseMode": 3,
+      "lineno": 47,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        6,
+        "PLpgSQL_stmt_fori",
+        "body",
+        1,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids)",
+      "parseMode": 2,
+      "lineno": 49,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        7,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 50,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 50,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        7,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 50,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 50,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        7,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 50,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,\n                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8')",
+      "parseMode": 3,
+      "lineno": 52,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        8,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names)",
+      "parseMode": 2,
+      "lineno": 54,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        9,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 55,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 55,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        9,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 55,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 55,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        9,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 55,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,\n               r.rolcreatedb,r.rolreplication,r.rolbypassrls\n                             FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name",
+      "parseMode": 0,
+      "lineno": 57,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        10,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit\n           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb\n           OR caller_record.rolreplication OR caller_record.rolbypassrls\n           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m\n                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid)",
+      "parseMode": 2,
+      "lineno": 60,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        11,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 65,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 65,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        11,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 65,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 65,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        11,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 65,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "slot_number=1 AND slot_name <> SESSION_USER",
+      "parseMode": 2,
+      "lineno": 67,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        12,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 68,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 68,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        12,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 68,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 68,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        12,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 68,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "slot_oids := pg_catalog.array_append(slot_oids,slot_oid)",
+      "parseMode": 3,
+      "lineno": 70,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        13,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_names := pg_catalog.array_append(slot_names,slot_name)",
+      "parseMode": 3,
+      "lineno": 71,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        14,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_cursor := slot_cursor+slot_length::pg_catalog.int4",
+      "parseMode": 3,
+      "lineno": 72,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_fori",
+        "body",
+        15,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "slot_cursor <> pg_catalog.octet_length(header_record.identity_slots)",
+      "parseMode": 2,
+      "lineno": 74,
+      "context": "PLpgSQL_stmt_if",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_if",
+        "cond"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 75,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 75,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 75,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 75,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": [
+        {
+          "PLpgSQL_stmt_raise": {
+            "lineno": 75,
+            "elog_level": 21,
+            "options": [
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 0,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'P0017'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_raise_option": {
+                  "opt_type": 1,
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "query": "'ACCESS_DENIED'",
+                      "parseMode": 2
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "query": "SELECT o.binding_id,o.manifest_digest,o.algorithm_id,o.signer_key_id,o.signer_key_fingerprint,o.signature_bytes,o.canonical_expected_attestation,o.commitment_digest\n                                      FROM public.offline_expected_signed_attestation o\n         WHERE o.binding_id=$1",
+      "parseMode": 0,
+      "lineno": 79,
+      "context": "PLpgSQL_stmt_execsql",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt"
+      ],
+      "branch": null
+    },
+    {
+      "query": "canonical_bytes := pg_catalog.int4send(pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')))||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int2send(1::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.binding_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.binding_id)||pg_catalog.int2send(2::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.manifest_digest,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.manifest_digest,'UTF8')||pg_catalog.int2send(3::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.algorithm_id,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.algorithm_id,'UTF8')||pg_catalog.int2send(4::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.signer_key_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.signer_key_id)||pg_catalog.int2send(5::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(original_record.signature_bytes))||pg_catalog.decode('01','hex')||original_record.signature_bytes",
+      "parseMode": 3,
+      "lineno": 82,
+      "context": "PLpgSQL_stmt_assign",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_assign",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "(original_record.canonical_expected_attestation=canonical_bytes\n            AND pg_catalog.octet_length(original_record.commitment_digest)=32\n            AND original_record.commitment_digest=pg_catalog.sha256(canonical_bytes)\n            AND original_record.manifest_digest ~ '^[0-9a-f]{64}$'\n            AND original_record.manifest_digest=pg_catalog.encode(header_record.manifest_digest,'hex')\n            AND original_record.algorithm_id='Ed25519'\n            AND original_record.signer_key_id<>'00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n            AND original_record.signer_key_fingerprint ~ '^[0-9a-f]{64}$'\n            AND pg_catalog.octet_length(original_record.signature_bytes)=64\n            AND original_record.manifest_digest=$5 AND original_record.algorithm_id=$6\n            AND original_record.signer_key_id=$7 AND original_record.signer_key_fingerprint=$8\n            AND original_record.signature_bytes=$9) IS TRUE",
+      "parseMode": 2,
+      "lineno": 83,
+      "context": "PLpgSQL_stmt_return",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_return",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "false",
+      "parseMode": 2,
+      "lineno": 96,
+      "context": "PLpgSQL_stmt_return",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        6,
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        0,
+        "PLpgSQL_stmt_return",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "'P0017'",
+      "parseMode": 2,
+      "lineno": 99,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": null
+    },
+    {
+      "query": "'ACCESS_DENIED'",
+      "parseMode": 2,
+      "lineno": 99,
+      "context": "PLpgSQL_stmt_raise",
+      "ast_path": [
+        "PLpgSQL_stmt_block",
+        "exceptions",
+        "PLpgSQL_exception_block",
+        "exc_list",
+        0,
+        "PLpgSQL_exception",
+        "action",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr"
+      ],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": {
+    "datums": [
+      {
+        "PLpgSQL_var": {
+          "refname": "binding_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "plan_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "incarnation_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "surface",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "manifest_digest",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "algorithm_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "signer_key_id",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "uuid"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "signer_key_fingerprint",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "signature_bytes",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "found",
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bool"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "header_record",
+          "dno": 10,
+          "lineno": 3
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "original_record",
+          "dno": 11,
+          "lineno": 4
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "canonical_bytes",
+          "lineno": 5,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "bytea"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_rec": {
+          "refname": "caller_record",
+          "dno": 13,
+          "lineno": 6
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_cursor",
+          "lineno": 7,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_length",
+          "lineno": 8,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int8"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_oid",
+          "lineno": 9,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int8"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_name_length",
+          "lineno": 10,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int8"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_name",
+          "lineno": 11,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_oids",
+          "lineno": 12,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "_int8"
+            }
+          },
+          "default_val": {
+            "PLpgSQL_expr": {
+              "query": "ARRAY[]::pg_catalog.int8[]",
+              "parseMode": 2
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_names",
+          "lineno": 13,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "_text"
+            }
+          },
+          "default_val": {
+            "PLpgSQL_expr": {
+              "query": "ARRAY[]::pg_catalog.text[]",
+              "parseMode": 2
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_number",
+          "lineno": 14,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "byte_number",
+          "lineno": 15,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "identity_slots",
+          "recparentno": 10
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "slot_number",
+          "lineno": 34,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "byte_number",
+          "lineno": 36,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "byte_number",
+          "lineno": 45,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "int4"
+            }
+          }
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolcanlogin",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolinherit",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolsuper",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolcreaterole",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolcreatedb",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolreplication",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "rolbypassrls",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "oid",
+          "recparentno": 13
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "binding_id",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "manifest_digest",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "algorithm_id",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_key_id",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signer_key_fingerprint",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "signature_bytes",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "canonical_expected_attestation",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "commitment_digest",
+          "recparentno": 11
+        }
+      },
+      {
+        "PLpgSQL_recfield": {
+          "fieldname": "manifest_digest",
+          "recparentno": 10
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "sqlstate",
+          "lineno": 95,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          },
+          "isconst": true
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "sqlerrm",
+          "lineno": 95,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          },
+          "isconst": true
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "sqlstate",
+          "lineno": 98,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          },
+          "isconst": true
+        }
+      },
+      {
+        "PLpgSQL_var": {
+          "refname": "sqlerrm",
+          "lineno": 98,
+          "datatype": {
+            "PLpgSQL_type": {
+              "typname": "text"
+            }
+          },
+          "isconst": true
+        }
+      }
+    ],
+    "action": {
+      "PLpgSQL_stmt_block": {
+        "lineno": 16,
+        "body": [
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 17,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "$1 IS NULL OR $2 IS NULL OR $3 IS NULL OR $4 IS NULL OR $5 IS NULL OR $6 IS NULL OR $7 IS NULL OR $8 IS NULL OR $9 IS NULL\n       OR $1='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n       OR $3='00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n       OR pg_catalog.octet_length($2)<>32 OR $4<>'0090-v1'",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 21,
+                    "elog_level": 21,
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0017'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 1,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'ACCESS_DENIED'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_execsql": {
+              "lineno": 23,
+              "sqlstmt": {
+                "PLpgSQL_expr": {
+                  "query": "SELECT h.binding_id,h.plan_fingerprint,h.deployment_incarnation_id,\n           h.offline_surface_version,h.identity_slots,h.manifest_digest\n                                FROM public.offline_binding_header h\n     WHERE h.binding_id=$1 AND h.plan_fingerprint=$2\n       AND h.deployment_incarnation_id=$3 AND h.offline_surface_version=$4",
+                  "parseMode": 0
+                }
+              },
+              "into": true,
+              "strict": true,
+              "target": {
+                "PLpgSQL_rec": {
+                  "refname": "header_record",
+                  "dno": 10,
+                  "lineno": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 29,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "pg_catalog.octet_length(header_record.identity_slots) < 4\n       OR pg_catalog.substring(header_record.identity_slots,1,4) <> '\\x00000004'::pg_catalog.bytea",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 31,
+                    "elog_level": 21,
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0017'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 1,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'ACCESS_DENIED'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_assign": {
+              "lineno": 33,
+              "varno": 14,
+              "expr": {
+                "PLpgSQL_expr": {
+                  "query": "slot_cursor := 4",
+                  "parseMode": 3
+                }
+              }
+            }
+          },
+          {
+            "PLpgSQL_stmt_fori": {
+              "lineno": 34,
+              "var": {
+                "PLpgSQL_var": {
+                  "refname": "slot_number",
+                  "lineno": 34,
+                  "datatype": {
+                    "PLpgSQL_type": {
+                      "typname": "int4"
+                    }
+                  }
+                }
+              },
+              "lower": {
+                "PLpgSQL_expr": {
+                  "query": "1",
+                  "parseMode": 2
+                }
+              },
+              "upper": {
+                "PLpgSQL_expr": {
+                  "query": "4",
+                  "parseMode": 2
+                }
+              },
+              "body": [
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 35,
+                    "varno": 15,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_length := 0",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_fori": {
+                    "lineno": 36,
+                    "var": {
+                      "PLpgSQL_var": {
+                        "refname": "byte_number",
+                        "lineno": 36,
+                        "datatype": {
+                          "PLpgSQL_type": {
+                            "typname": "int4"
+                          }
+                        }
+                      }
+                    },
+                    "lower": {
+                      "PLpgSQL_expr": {
+                        "query": "0",
+                        "parseMode": 2
+                      }
+                    },
+                    "upper": {
+                      "PLpgSQL_expr": {
+                        "query": "3",
+                        "parseMode": 2
+                      }
+                    },
+                    "body": [
+                      {
+                        "PLpgSQL_stmt_assign": {
+                          "lineno": 37,
+                          "varno": 15,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "slot_length := slot_length*256 + pg_catalog.get_byte(header_record.identity_slots,slot_cursor+byte_number)",
+                              "parseMode": 3
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 39,
+                    "varno": 14,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_cursor := slot_cursor+4",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_if": {
+                    "lineno": 40,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_length < 10 OR slot_length > pg_catalog.octet_length(header_record.identity_slots)-slot_cursor\n           OR pg_catalog.get_byte(header_record.identity_slots,slot_cursor) <> slot_number",
+                        "parseMode": 2
+                      }
+                    },
+                    "then_body": [
+                      {
+                        "PLpgSQL_stmt_raise": {
+                          "lineno": 42,
+                          "elog_level": 21,
+                          "options": [
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 0,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'P0017'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 1,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'ACCESS_DENIED'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 44,
+                    "varno": 16,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_oid := 0",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 44,
+                    "varno": 17,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_name_length := 0",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_fori": {
+                    "lineno": 45,
+                    "var": {
+                      "PLpgSQL_var": {
+                        "refname": "byte_number",
+                        "lineno": 45,
+                        "datatype": {
+                          "PLpgSQL_type": {
+                            "typname": "int4"
+                          }
+                        }
+                      }
+                    },
+                    "lower": {
+                      "PLpgSQL_expr": {
+                        "query": "0",
+                        "parseMode": 2
+                      }
+                    },
+                    "upper": {
+                      "PLpgSQL_expr": {
+                        "query": "3",
+                        "parseMode": 2
+                      }
+                    },
+                    "body": [
+                      {
+                        "PLpgSQL_stmt_assign": {
+                          "lineno": 46,
+                          "varno": 16,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "slot_oid := slot_oid*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+1+byte_number)",
+                              "parseMode": 3
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_stmt_assign": {
+                          "lineno": 47,
+                          "varno": 17,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "slot_name_length := slot_name_length*256+pg_catalog.get_byte(header_record.identity_slots,slot_cursor+5+byte_number)",
+                              "parseMode": 3
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_if": {
+                    "lineno": 49,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_oid=0 OR slot_name_length <> slot_length-9 OR slot_oid=ANY(slot_oids)",
+                        "parseMode": 2
+                      }
+                    },
+                    "then_body": [
+                      {
+                        "PLpgSQL_stmt_raise": {
+                          "lineno": 50,
+                          "elog_level": 21,
+                          "options": [
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 0,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'P0017'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 1,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'ACCESS_DENIED'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 52,
+                    "varno": 18,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_name := pg_catalog.convert_from(pg_catalog.substring(header_record.identity_slots,\n                      slot_cursor+10,slot_name_length::pg_catalog.int4),'UTF8')",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_if": {
+                    "lineno": 54,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_name IS NOT NFC NORMALIZED OR slot_name=ANY(slot_names)",
+                        "parseMode": 2
+                      }
+                    },
+                    "then_body": [
+                      {
+                        "PLpgSQL_stmt_raise": {
+                          "lineno": 55,
+                          "elog_level": 21,
+                          "options": [
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 0,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'P0017'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 1,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'ACCESS_DENIED'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_execsql": {
+                    "lineno": 57,
+                    "sqlstmt": {
+                      "PLpgSQL_expr": {
+                        "query": "SELECT r.oid,r.rolname,r.rolcanlogin,r.rolinherit,r.rolsuper,r.rolcreaterole,\n               r.rolcreatedb,r.rolreplication,r.rolbypassrls\n                             FROM pg_catalog.pg_roles r WHERE r.oid::pg_catalog.int8=slot_oid AND r.rolname=slot_name",
+                        "parseMode": 0
+                      }
+                    },
+                    "into": true,
+                    "target": {
+                      "PLpgSQL_rec": {
+                        "refname": "caller_record",
+                        "dno": 13,
+                        "lineno": 6
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_if": {
+                    "lineno": 60,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "NOT FOUND OR NOT caller_record.rolcanlogin OR caller_record.rolinherit\n           OR caller_record.rolsuper OR caller_record.rolcreaterole OR caller_record.rolcreatedb\n           OR caller_record.rolreplication OR caller_record.rolbypassrls\n           OR EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m\n                      WHERE m.member=caller_record.oid OR m.roleid=caller_record.oid)",
+                        "parseMode": 2
+                      }
+                    },
+                    "then_body": [
+                      {
+                        "PLpgSQL_stmt_raise": {
+                          "lineno": 65,
+                          "elog_level": 21,
+                          "options": [
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 0,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'P0017'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 1,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'ACCESS_DENIED'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_if": {
+                    "lineno": 67,
+                    "cond": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_number=1 AND slot_name <> SESSION_USER",
+                        "parseMode": 2
+                      }
+                    },
+                    "then_body": [
+                      {
+                        "PLpgSQL_stmt_raise": {
+                          "lineno": 68,
+                          "elog_level": 21,
+                          "options": [
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 0,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'P0017'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "PLpgSQL_raise_option": {
+                                "opt_type": 1,
+                                "expr": {
+                                  "PLpgSQL_expr": {
+                                    "query": "'ACCESS_DENIED'",
+                                    "parseMode": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 70,
+                    "varno": 19,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_oids := pg_catalog.array_append(slot_oids,slot_oid)",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 71,
+                    "varno": 20,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_names := pg_catalog.array_append(slot_names,slot_name)",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 72,
+                    "varno": 14,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "slot_cursor := slot_cursor+slot_length::pg_catalog.int4",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_if": {
+              "lineno": 74,
+              "cond": {
+                "PLpgSQL_expr": {
+                  "query": "slot_cursor <> pg_catalog.octet_length(header_record.identity_slots)",
+                  "parseMode": 2
+                }
+              },
+              "then_body": [
+                {
+                  "PLpgSQL_stmt_raise": {
+                    "lineno": 75,
+                    "elog_level": 21,
+                    "options": [
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 0,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'P0017'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "PLpgSQL_raise_option": {
+                          "opt_type": 1,
+                          "expr": {
+                            "PLpgSQL_expr": {
+                              "query": "'ACCESS_DENIED'",
+                              "parseMode": 2
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "PLpgSQL_stmt_block": {
+              "lineno": 78,
+              "body": [
+                {
+                  "PLpgSQL_stmt_execsql": {
+                    "lineno": 79,
+                    "sqlstmt": {
+                      "PLpgSQL_expr": {
+                        "query": "SELECT o.binding_id,o.manifest_digest,o.algorithm_id,o.signer_key_id,o.signer_key_fingerprint,o.signature_bytes,o.canonical_expected_attestation,o.commitment_digest\n                                      FROM public.offline_expected_signed_attestation o\n         WHERE o.binding_id=$1",
+                        "parseMode": 0
+                      }
+                    },
+                    "into": true,
+                    "strict": true,
+                    "target": {
+                      "PLpgSQL_rec": {
+                        "refname": "original_record",
+                        "dno": 11,
+                        "lineno": 4
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_assign": {
+                    "lineno": 82,
+                    "varno": 12,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "canonical_bytes := pg_catalog.int4send(pg_catalog.octet_length(pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')))||pg_catalog.convert_to('FLOOOW/OFFLINE-FIELD-PROOF/EXPECTED-SIGNED-ATTESTATION/V1','UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int2send(1::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.binding_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.binding_id)||pg_catalog.int2send(2::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.manifest_digest,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.manifest_digest,'UTF8')||pg_catalog.int2send(3::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.algorithm_id,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.algorithm_id,'UTF8')||pg_catalog.int2send(4::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.uuid_send(original_record.signer_key_id)))||pg_catalog.decode('01','hex')||pg_catalog.uuid_send(original_record.signer_key_id)||pg_catalog.int2send(5::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')))||pg_catalog.decode('01','hex')||pg_catalog.convert_to(original_record.signer_key_fingerprint,'UTF8')||pg_catalog.int2send(6::pg_catalog.int2)||pg_catalog.int4send(1+pg_catalog.octet_length(original_record.signature_bytes))||pg_catalog.decode('01','hex')||original_record.signature_bytes",
+                        "parseMode": 3
+                      }
+                    }
+                  }
+                },
+                {
+                  "PLpgSQL_stmt_return": {
+                    "lineno": 83,
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "query": "(original_record.canonical_expected_attestation=canonical_bytes\n            AND pg_catalog.octet_length(original_record.commitment_digest)=32\n            AND original_record.commitment_digest=pg_catalog.sha256(canonical_bytes)\n            AND original_record.manifest_digest ~ '^[0-9a-f]{64}$'\n            AND original_record.manifest_digest=pg_catalog.encode(header_record.manifest_digest,'hex')\n            AND original_record.algorithm_id='Ed25519'\n            AND original_record.signer_key_id<>'00000000-0000-0000-0000-000000000000'::pg_catalog.uuid\n            AND original_record.signer_key_fingerprint ~ '^[0-9a-f]{64}$'\n            AND pg_catalog.octet_length(original_record.signature_bytes)=64\n            AND original_record.manifest_digest=$5 AND original_record.algorithm_id=$6\n            AND original_record.signer_key_id=$7 AND original_record.signer_key_fingerprint=$8\n            AND original_record.signature_bytes=$9) IS TRUE",
+                        "parseMode": 2
+                      }
+                    }
+                  }
+                }
+              ],
+              "exceptions": {
+                "PLpgSQL_exception_block": {
+                  "exc_list": [
+                    {
+                      "PLpgSQL_exception": {
+                        "conditions": [
+                          {
+                            "PLpgSQL_condition": {
+                              "condname": "others"
+                            }
+                          }
+                        ],
+                        "action": [
+                          {
+                            "PLpgSQL_stmt_return": {
+                              "lineno": 96,
+                              "expr": {
+                                "PLpgSQL_expr": {
+                                  "query": "false",
+                                  "parseMode": 2
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "exceptions": {
+          "PLpgSQL_exception_block": {
+            "exc_list": [
+              {
+                "PLpgSQL_exception": {
+                  "conditions": [
+                    {
+                      "PLpgSQL_condition": {
+                        "condname": "others"
+                      }
+                    }
+                  ],
+                  "action": [
+                    {
+                      "PLpgSQL_stmt_raise": {
+                        "lineno": 99,
+                        "elog_level": 21,
+                        "options": [
+                          {
+                            "PLpgSQL_raise_option": {
+                              "opt_type": 0,
+                              "expr": {
+                                "PLpgSQL_expr": {
+                                  "query": "'P0017'",
+                                  "parseMode": 2
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "PLpgSQL_raise_option": {
+                              "opt_type": 1,
+                              "expr": {
+                                "PLpgSQL_expr": {
+                                  "query": "'ACCESS_DENIED'",
+                                  "parseMode": 2
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

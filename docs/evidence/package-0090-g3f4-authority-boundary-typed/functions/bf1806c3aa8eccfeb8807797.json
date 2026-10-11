@@ -1,0 +1,33 @@
+{
+  "name": "public.transaction_identity_intent",
+  "signature": "public.transaction_identity_intent(marketplace_transaction_identity_decision)",
+  "parameter_types": [
+    "marketplace_transaction_identity_decision"
+  ],
+  "parameter_names": [
+    "d"
+  ],
+  "return_type": "text",
+  "language": "sql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+  "source_line_range": [
+    88,
+    92
+  ],
+  "body": "\n    SELECT transaction_identity_hash('transaction-identity-intent/1',d.organization_id::text,d.principal_id::text,\n        d.ml_connection_id::text,d.omie_connection_id::text,d.source_order_reference,d.marketplace_order_id::text,\n        d.kind,d.reason,d.provenance,coalesce(d.supersedes_decision_id::text,''));\n",
+  "body_first_line": 88,
+  "definition_sha256": "89678906d1092f9228d3982a1e5c9a168b745115520603565f1034ad4b085870",
+  "expressions": [
+    {
+      "query": "\n    SELECT transaction_identity_hash('transaction-identity-intent/1',d.organization_id::text,d.principal_id::text,\n        d.ml_connection_id::text,d.omie_connection_id::text,d.source_order_reference,d.marketplace_order_id::text,\n        d.kind,d.reason,d.provenance,coalesce(d.supersedes_decision_id::text,''));\n",
+      "parseMode": 0,
+      "lineno": 1,
+      "context": "SQL_LANGUAGE_BODY",
+      "ast_path": [],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": null,
+  "parse_errors": [],
+  "analysis_normalizations": []
+}

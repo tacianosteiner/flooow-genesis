@@ -1,0 +1,49 @@
+{
+  "name": "public.s2a_v042_authority_receipt",
+  "signature": "public.s2a_v042_authority_receipt(text,text,uuid,uuid,int4,uuid,int4,text,text)",
+  "parameter_types": [
+    "text",
+    "text",
+    "uuid",
+    "uuid",
+    "int4",
+    "uuid",
+    "int4",
+    "text",
+    "text"
+  ],
+  "parameter_names": [
+    "p_intent_fingerprint",
+    "p_operation",
+    "p_principal_id",
+    "p_credential_id",
+    "p_credential_revision",
+    "p_grant_id",
+    "p_grant_revision",
+    "p_permission",
+    "p_state"
+  ],
+  "return_type": "text",
+  "language": "sql",
+  "source": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+  "source_line_range": [
+    160,
+    164
+  ],
+  "body": "\n SELECT encode(sha256(public.s2a_v042_text('controlled-command-authority-receipt/1')||public.s2a_v042_text(p_intent_fingerprint)||public.s2a_v042_text(p_operation)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(coalesce(p_credential_id::text,''))||public.s2a_v042_text(coalesce(p_credential_revision::text,''))||public.s2a_v042_text(coalesce(p_grant_id::text,''))||public.s2a_v042_text(coalesce(p_grant_revision::text,''))||public.s2a_v042_text(coalesce(p_permission,''))||public.s2a_v042_text(coalesce(p_state,''))),'hex') ",
+  "body_first_line": 163,
+  "definition_sha256": "016471784743a2dcca447cddb605b70c38dac6731a03be46f590049104f92538",
+  "expressions": [
+    {
+      "query": "\n SELECT encode(sha256(public.s2a_v042_text('controlled-command-authority-receipt/1')||public.s2a_v042_text(p_intent_fingerprint)||public.s2a_v042_text(p_operation)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(coalesce(p_credential_id::text,''))||public.s2a_v042_text(coalesce(p_credential_revision::text,''))||public.s2a_v042_text(coalesce(p_grant_id::text,''))||public.s2a_v042_text(coalesce(p_grant_revision::text,''))||public.s2a_v042_text(coalesce(p_permission,''))||public.s2a_v042_text(coalesce(p_state,''))),'hex') ",
+      "parseMode": 0,
+      "lineno": 1,
+      "context": "SQL_LANGUAGE_BODY",
+      "ast_path": [],
+      "branch": null
+    }
+  ],
+  "plpgsql_ast": null,
+  "parse_errors": [],
+  "analysis_normalizations": []
+}
