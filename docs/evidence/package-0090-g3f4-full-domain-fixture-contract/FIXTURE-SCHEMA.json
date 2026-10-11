@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:flooow:test-only:fixture-contract:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fixture_id",
+    "fixture_version",
+    "source_head",
+    "successor_sha256",
+    "fixture_manifest_sha256",
+    "organization_id",
+    "case_id",
+    "order_id",
+    "trace_id",
+    "deployment_id",
+    "incarnation_id",
+    "service_identity",
+    "service_role_oid",
+    "allocation_id",
+    "binding_id",
+    "binding_generation",
+    "policy_id",
+    "policy_revision",
+    "policy_hash",
+    "approval_id",
+    "approval_generation",
+    "approval_hash",
+    "attestation_id",
+    "attestation_generation",
+    "attestation_hash",
+    "receipt_id",
+    "receipt_generation",
+    "execution_id",
+    "attempt_id",
+    "execution_generation",
+    "ownership_state",
+    "effect_state",
+    "terminal_state",
+    "reconciliation_state",
+    "issued_at",
+    "valid_from",
+    "expires_at",
+    "readiness_state",
+    "watchdog_state",
+    "census_state",
+    "context",
+    "registry",
+    "model_rows",
+    "runtime_evidence"
+  ],
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "fixture_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source_head": {
+      "type": "string"
+    },
+    "successor_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "fixture_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "organization_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "case_id": {
+      "enum": [
+        "claim",
+        "verification",
+        "admission",
+        "ownership_acquisition",
+        "effect_transition",
+        "terminal_transition",
+        "retry_replay_denial",
+        "ownership_retention",
+        "ownership_release",
+        "reconciliation_required",
+        "reconciliation_completion",
+        "full_authority_joins",
+        "runtime_consumption"
+      ]
+    },
+    "order_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "trace_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "deployment_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "incarnation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "service_identity": {
+      "type": "string"
+    },
+    "service_role_oid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "allocation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "binding_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "binding_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "policy_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "policy_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "policy_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "approval_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "approval_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "approval_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "attestation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "attestation_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "attestation_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "receipt_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "receipt_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "execution_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "attempt_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "execution_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "ownership_state": {
+      "type": "string"
+    },
+    "effect_state": {
+      "type": "string"
+    },
+    "terminal_state": {
+      "type": "string"
+    },
+    "reconciliation_state": {
+      "type": "string"
+    },
+    "issued_at": {
+      "type": "string"
+    },
+    "valid_from": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string"
+    },
+    "readiness_state": {
+      "enum": [
+        "NOT_READY",
+        "ELIGIBLE_FOR_TEST",
+        "READY_FOR_TEST_ONLY_SUCCESSOR_CONSUMPTION",
+        "QUARANTINED",
+        "DRAINING",
+        "RECONCILIATION_REQUIRED",
+        "TERMINAL"
+      ]
+    },
+    "watchdog_state": {
+      "type": "string"
+    },
+    "census_state": {
+      "type": "string"
+    },
+    "context": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "registry": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "model_rows": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "runtime_evidence": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    }
+  },
+  "x-input-head": "c19644fc77ce930eeae7f83c2d219d8d5e07433f",
+  "x-successor-sha256": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+  "x-uuid-fields": [
+    "fixture_id",
+    "organization_id",
+    "order_id",
+    "trace_id",
+    "deployment_id",
+    "incarnation_id",
+    "allocation_id",
+    "binding_id",
+    "policy_id",
+    "approval_id",
+    "attestation_id",
+    "receipt_id",
+    "execution_id",
+    "attempt_id"
+  ],
+  "x-generation-fields": [
+    "binding_generation",
+    "policy_revision",
+    "approval_generation",
+    "attestation_generation",
+    "receipt_generation",
+    "execution_generation"
+  ],
+  "x-hash-fields": [
+    "successor_sha256",
+    "fixture_manifest_sha256",
+    "policy_hash",
+    "approval_hash",
+    "attestation_hash"
+  ],
+  "x-runtime-schema-status": "HOLD_SEMANTIC_ROW_FRAME_WITNESS_MAPPING",
+  "x-hash-domain": "Canonical UTF-8 JSON sorted keys/no whitespace; omit only fixture_manifest_sha256 from its own digest; no timestamp exclusions"
+}

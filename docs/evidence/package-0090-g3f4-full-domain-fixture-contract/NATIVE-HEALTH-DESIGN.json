@@ -1,0 +1,181 @@
+{
+  "status": "DESIGN_ONLY_NO_IMPLEMENTATION",
+  "participants": [
+    {
+      "PARTICIPANT_NAME": "POSTMASTER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Successful server-derived generation/catalog probe",
+      "COMPLETED_WORK_WITNESS": "Server start identity + fresh consistent catalog snapshot independently queried",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "SUPERVISOR",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed spawn/enrollment/dependency validation",
+      "COMPLETED_WORK_WITNESS": "Observer checks retained child anchor, generation ledger publication and target process identity",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "RECEIVER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed bound enrollment decision",
+      "COMPLETED_WORK_WITNESS": "Observer checks fresh challenged decision transcript and authoritative promotion registry revision; loop tick/ping insufficient",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "CENSUS_OBSERVER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed applicable catalog reconciliation",
+      "COMPLETED_WORK_WITNESS": "Independent query checks snapshot epoch, membership/revision CAS and reconciled identities; pre-query tick insufficient",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "APPROVAL_PRODUCER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Published fully verified immutable approval generation",
+      "COMPLETED_WORK_WITNESS": "Consumer independently verifies exact original signature, full context and committed publication digest",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "APPROVAL_CONSUMER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Successfully consumed current verified approval generation",
+      "COMPLETED_WORK_WITNESS": "External guard cross-checks immutable publication, verification result and current registry decision",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "ENFORCEMENT_WORKER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed target-bound control action",
+      "COMPLETED_WORK_WITNESS": "External guard verifies retained target anchor and actual observed outcome; signal-send ACK alone insufficient",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    }
+  ],
+  "nodes": [
+    "HOST_PLATFORM",
+    "HEALTH_GUARD",
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER"
+  ],
+  "required_edges": [
+    [
+      "HOST_PLATFORM",
+      "HEALTH_GUARD"
+    ],
+    [
+      "HEALTH_GUARD",
+      "POSTMASTER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "SUPERVISOR"
+    ],
+    [
+      "HEALTH_GUARD",
+      "RECEIVER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "CENSUS_OBSERVER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "APPROVAL_PRODUCER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "APPROVAL_CONSUMER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "ENFORCEMENT_WORKER"
+    ]
+  ],
+  "self_health_only_edges": 0,
+  "unobserved_critical_participants": [],
+  "root_assumption": "HOST_PLATFORM is an explicit external trusted OS/service-manager authority. Loss/unprovability of this root denies all admission; it is not silently treated healthy.",
+  "decision_rule": "AND of all required independent observations, identities/generations, dependencies, original freshness and independently verified completed work; no cycle/majority fallback",
+  "generation_implementation": "NOT_AUTHORIZED"
+}

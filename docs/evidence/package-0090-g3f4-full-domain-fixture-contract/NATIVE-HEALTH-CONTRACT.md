@@ -1,0 +1,9 @@
+# Smallest native health contract — design only
+
+NATIVE_PROTOCOL_CHANGED=NO. NATIVE-HEALTH-DESIGN.json specifies all ten requested participant fields plus exact creation/invalidation/storage/observation/stale-denial/restart generation semantics. It covers postmaster, supervisor, receiver, census observer, approval producer, approval consumer and independently identified enforcement worker.
+
+Identity is derived from the trusted OS/bootstrap and server, retained through an atomic pidfd anchor, and bound to boot/namespace/start/deployment/incarnation/slot/channel. PID, role OID, socket label, process existence and signed material alone are insufficient. Independent slot replacements get new externally recorded generations before eligibility. An old generation may not revoke/erase a newer enrollment or recreate eligibility. A pre-promotion census snapshot is applicable only when all observed context remains current immediately before acting.
+
+Acceptance requires independently observed identity, exact generation, liveness, original-emission heartbeat freshness, completed functional work, authenticated channel, current dependencies and catalog binding. PROCESS_ALIVE != PARTICIPANT_MAKING_PROGRESS; HEARTBEAT_FRESH != COMPLETED_WORK. Provisional anchors grant no eligibility; quarantine is monotonic. Unknown health denies promotion and retains ownership/reconciliation duties.
+
+Seven managed participants plus one external guard and an explicit trusted host-platform root are the minimum proposed graph. Splitting approval producer/consumer and enforcement identity is required to remove the documented gaps. These are future architectural requirements, not processes created by this gate. All framing/counters/channels/SCM_RIGHTS/pidfd/enforcement implementation changes remain separately unauthorized.
