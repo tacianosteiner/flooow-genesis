@@ -1,0 +1,2065 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:flooow:test-only:fixture-contract:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fixture_id",
+    "fixture_version",
+    "source_head",
+    "successor_sha256",
+    "fixture_manifest_sha256",
+    "organization_id",
+    "case_id",
+    "order_id",
+    "trace_id",
+    "deployment_id",
+    "incarnation_id",
+    "service_identity",
+    "service_role_oid",
+    "allocation_id",
+    "binding_id",
+    "binding_generation",
+    "policy_id",
+    "policy_revision",
+    "policy_hash",
+    "approval_id",
+    "approval_generation",
+    "approval_hash",
+    "attestation_id",
+    "attestation_generation",
+    "attestation_hash",
+    "receipt_id",
+    "receipt_generation",
+    "execution_id",
+    "attempt_id",
+    "execution_generation",
+    "ownership_state",
+    "effect_state",
+    "terminal_state",
+    "reconciliation_state",
+    "issued_at",
+    "valid_from",
+    "expires_at",
+    "readiness_state",
+    "watchdog_state",
+    "census_state",
+    "context",
+    "registry",
+    "model_rows",
+    "runtime_evidence",
+    "runtime_frames"
+  ],
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "fixture_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source_head": {
+      "type": "string"
+    },
+    "successor_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "fixture_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "organization_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "case_id": {
+      "enum": [
+        "claim",
+        "verification",
+        "admission",
+        "ownership_acquisition",
+        "effect_transition",
+        "terminal_transition",
+        "retry_replay_denial",
+        "ownership_retention",
+        "ownership_release",
+        "reconciliation_required",
+        "reconciliation_completion",
+        "full_authority_joins",
+        "runtime_consumption"
+      ]
+    },
+    "order_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "trace_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "deployment_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "incarnation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "service_identity": {
+      "type": "string"
+    },
+    "service_role_oid": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "allocation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "binding_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "binding_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "policy_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "policy_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "policy_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "approval_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "approval_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "approval_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "attestation_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "attestation_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "attestation_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "receipt_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "receipt_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "execution_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "attempt_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "execution_generation": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "ownership_state": {
+      "type": "string"
+    },
+    "effect_state": {
+      "type": "string"
+    },
+    "terminal_state": {
+      "type": "string"
+    },
+    "reconciliation_state": {
+      "type": "string"
+    },
+    "issued_at": {
+      "type": "string"
+    },
+    "valid_from": {
+      "type": "string"
+    },
+    "expires_at": {
+      "type": "string"
+    },
+    "readiness_state": {
+      "enum": [
+        "NOT_READY",
+        "ELIGIBLE_FOR_TEST",
+        "READY_FOR_TEST_ONLY_SUCCESSOR_CONSUMPTION",
+        "QUARANTINED",
+        "DRAINING",
+        "RECONCILIATION_REQUIRED",
+        "TERMINAL"
+      ]
+    },
+    "watchdog_state": {
+      "type": "string"
+    },
+    "census_state": {
+      "type": "string"
+    },
+    "context": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "registry": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "model_rows": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "runtime_evidence": {
+      "type": "object",
+      "description": "Closed operational semantics enforced by independent validator; runtime evidence is never accepted as a self-attested boolean"
+    },
+    "runtime_frames": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "enrollment"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "binding_id",
+                  "slot",
+                  "role_oid",
+                  "db_oid",
+                  "role_name",
+                  "db_name",
+                  "postmaster_start",
+                  "backend_start",
+                  "context_fingerprint",
+                  "policy_hash"
+                ],
+                "properties": {
+                  "binding_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "slot": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "role_oid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "db_oid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "role_name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "db_name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "postmaster_start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "backend_start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "context_fingerprint": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "policy_hash": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "identity_proof"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "boot_start",
+                  "target_start",
+                  "namespace_digest",
+                  "pidfd_anchor_digest"
+                ],
+                "properties": {
+                  "boot_start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "target_start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "namespace_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "pidfd_anchor_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "generation_proof"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "slot",
+                  "generation",
+                  "ledger_revision",
+                  "allocation_id"
+                ],
+                "properties": {
+                  "slot": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "ledger_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "allocation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "heartbeat"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "health_class"
+                ],
+                "properties": {
+                  "health_class": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "progress"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operation_class",
+                  "operation_id",
+                  "target_anchor_identity",
+                  "input_revision",
+                  "completed_sequence",
+                  "result_digest",
+                  "durable_result_reference",
+                  "independent_observation_reference"
+                ],
+                "properties": {
+                  "operation_class": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target_anchor_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "completed_sequence": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "result_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durable_result_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "independent_observation_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "completed_work_witness"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operation_class",
+                  "operation_id",
+                  "target_anchor_identity",
+                  "input_revision",
+                  "completed_sequence",
+                  "result_digest",
+                  "durable_result_reference",
+                  "independent_observation_reference"
+                ],
+                "properties": {
+                  "operation_class": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target_anchor_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "completed_sequence": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "result_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durable_result_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "independent_observation_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "approval_state"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operation_class",
+                  "operation_id",
+                  "target_anchor_identity",
+                  "input_revision",
+                  "completed_sequence",
+                  "result_digest",
+                  "durable_result_reference",
+                  "independent_observation_reference",
+                  "approval_generation",
+                  "approval_hash"
+                ],
+                "properties": {
+                  "operation_class": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target_anchor_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "completed_sequence": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "result_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durable_result_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "independent_observation_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "approval_generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "approval_hash": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "enforcement_state"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "operation_class",
+                  "operation_id",
+                  "target_anchor_identity",
+                  "input_revision",
+                  "completed_sequence",
+                  "result_digest",
+                  "durable_result_reference",
+                  "independent_observation_reference",
+                  "target_outcome"
+                ],
+                "properties": {
+                  "operation_class": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "operation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target_anchor_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "input_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "completed_sequence": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "result_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "durable_result_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "independent_observation_reference": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "target_outcome": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "quarantine"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "ledger_revision",
+                  "generation",
+                  "reason",
+                  "current_registration_digest"
+                ],
+                "properties": {
+                  "ledger_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "current_registration_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "drain"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "target_set_digest",
+                  "ownership_digest",
+                  "drain_state",
+                  "release_authorized"
+                ],
+                "properties": {
+                  "target_set_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ownership_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "drain_state": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "release_authorized": {
+                    "const": false
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "header",
+              "payload"
+            ],
+            "properties": {
+              "header": {
+                "type": "object",
+                "required": [
+                  "frame_identity",
+                  "frame_type",
+                  "frame_version",
+                  "participant_identity",
+                  "participant_generation",
+                  "deployment_id",
+                  "incarnation_id",
+                  "boot_epoch",
+                  "sequence",
+                  "emitted_boottime_us",
+                  "observation_epoch",
+                  "registry_revision",
+                  "payload_digest",
+                  "challenge",
+                  "witness_type",
+                  "witness_generation",
+                  "witness_sequence",
+                  "independent_verifier_identity",
+                  "verification_result"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "frame_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "frame_type": {
+                    "const": "recovery_observation"
+                  },
+                  "frame_version": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "participant_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "deployment_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "incarnation_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "boot_epoch": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "emitted_boottime_us": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "observation_epoch": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "payload_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "challenge": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "witness_generation": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "witness_sequence": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 18446744073709551615
+                  },
+                  "independent_verifier_identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_result": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "x-scope": "DESIGN_LOGICAL_V2_NOT_NATIVE_WIRE"
+              },
+              "payload": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "census_observation_epoch",
+                  "registry_revision",
+                  "postmaster_generation",
+                  "receiver_generation",
+                  "supervisor_generation",
+                  "anchor_digest",
+                  "enrollment_generation",
+                  "new_eligibility"
+                ],
+                "properties": {
+                  "census_observation_epoch": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "registry_revision": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "postmaster_generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "receiver_generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "supervisor_generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "anchor_digest": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "enrollment_generation": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 18446744073709551615
+                  },
+                  "new_eligibility": {
+                    "const": false
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "x-input-head": "7cd0f64d61dc1b389519f42b32bb2eaa92864874",
+  "x-successor-sha256": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+  "x-uuid-fields": [
+    "fixture_id",
+    "organization_id",
+    "order_id",
+    "trace_id",
+    "deployment_id",
+    "incarnation_id",
+    "allocation_id",
+    "binding_id",
+    "policy_id",
+    "approval_id",
+    "attestation_id",
+    "receipt_id",
+    "execution_id",
+    "attempt_id"
+  ],
+  "x-generation-fields": [
+    "binding_generation",
+    "policy_revision",
+    "approval_generation",
+    "attestation_generation",
+    "receipt_generation",
+    "execution_generation"
+  ],
+  "x-hash-fields": [
+    "successor_sha256",
+    "fixture_manifest_sha256",
+    "policy_hash",
+    "approval_hash",
+    "attestation_hash"
+  ],
+  "x-runtime-schema-status": "LOGICAL_FRAME_FIELDS_DEFINED_SQL_AUTHORITY_WITNESS_MAPPING_HOLD",
+  "x-hash-domain": "Canonical UTF-8 JSON sorted keys/no whitespace; omit only fixture_manifest_sha256 from its own digest; no timestamp exclusions"
+}

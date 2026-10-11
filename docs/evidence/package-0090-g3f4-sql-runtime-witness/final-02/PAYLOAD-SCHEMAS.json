@@ -1,0 +1,465 @@
+{
+  "enrollment": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "binding_id",
+      "slot",
+      "role_oid",
+      "db_oid",
+      "role_name",
+      "db_name",
+      "postmaster_start",
+      "backend_start",
+      "context_fingerprint",
+      "policy_hash"
+    ],
+    "properties": {
+      "binding_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "slot": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "role_oid": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "db_oid": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "role_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "db_name": {
+        "type": "string",
+        "minLength": 1
+      },
+      "postmaster_start": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "backend_start": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "context_fingerprint": {
+        "type": "string",
+        "minLength": 1
+      },
+      "policy_hash": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "identity_proof": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "boot_start",
+      "target_start",
+      "namespace_digest",
+      "pidfd_anchor_digest"
+    ],
+    "properties": {
+      "boot_start": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "target_start": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "namespace_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "pidfd_anchor_digest": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "generation_proof": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "slot",
+      "generation",
+      "ledger_revision",
+      "allocation_id"
+    ],
+    "properties": {
+      "slot": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "ledger_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "allocation_id": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "heartbeat": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "health_class"
+    ],
+    "properties": {
+      "health_class": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "progress": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation_class",
+      "operation_id",
+      "target_anchor_identity",
+      "input_revision",
+      "completed_sequence",
+      "result_digest",
+      "durable_result_reference",
+      "independent_observation_reference"
+    ],
+    "properties": {
+      "operation_class": {
+        "type": "string",
+        "minLength": 1
+      },
+      "operation_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "target_anchor_identity": {
+        "type": "string",
+        "minLength": 1
+      },
+      "input_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "completed_sequence": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "result_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "durable_result_reference": {
+        "type": "string",
+        "minLength": 1
+      },
+      "independent_observation_reference": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "completed_work_witness": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation_class",
+      "operation_id",
+      "target_anchor_identity",
+      "input_revision",
+      "completed_sequence",
+      "result_digest",
+      "durable_result_reference",
+      "independent_observation_reference"
+    ],
+    "properties": {
+      "operation_class": {
+        "type": "string",
+        "minLength": 1
+      },
+      "operation_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "target_anchor_identity": {
+        "type": "string",
+        "minLength": 1
+      },
+      "input_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "completed_sequence": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "result_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "durable_result_reference": {
+        "type": "string",
+        "minLength": 1
+      },
+      "independent_observation_reference": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "approval_state": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation_class",
+      "operation_id",
+      "target_anchor_identity",
+      "input_revision",
+      "completed_sequence",
+      "result_digest",
+      "durable_result_reference",
+      "independent_observation_reference",
+      "approval_generation",
+      "approval_hash"
+    ],
+    "properties": {
+      "operation_class": {
+        "type": "string",
+        "minLength": 1
+      },
+      "operation_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "target_anchor_identity": {
+        "type": "string",
+        "minLength": 1
+      },
+      "input_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "completed_sequence": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "result_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "durable_result_reference": {
+        "type": "string",
+        "minLength": 1
+      },
+      "independent_observation_reference": {
+        "type": "string",
+        "minLength": 1
+      },
+      "approval_generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "approval_hash": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "enforcement_state": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "operation_class",
+      "operation_id",
+      "target_anchor_identity",
+      "input_revision",
+      "completed_sequence",
+      "result_digest",
+      "durable_result_reference",
+      "independent_observation_reference",
+      "target_outcome"
+    ],
+    "properties": {
+      "operation_class": {
+        "type": "string",
+        "minLength": 1
+      },
+      "operation_id": {
+        "type": "string",
+        "minLength": 1
+      },
+      "target_anchor_identity": {
+        "type": "string",
+        "minLength": 1
+      },
+      "input_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "completed_sequence": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "result_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "durable_result_reference": {
+        "type": "string",
+        "minLength": 1
+      },
+      "independent_observation_reference": {
+        "type": "string",
+        "minLength": 1
+      },
+      "target_outcome": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "quarantine": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "ledger_revision",
+      "generation",
+      "reason",
+      "current_registration_digest"
+    ],
+    "properties": {
+      "ledger_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "reason": {
+        "type": "string",
+        "minLength": 1
+      },
+      "current_registration_digest": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "drain": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "target_set_digest",
+      "ownership_digest",
+      "drain_state",
+      "release_authorized"
+    ],
+    "properties": {
+      "target_set_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "ownership_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "drain_state": {
+        "type": "string",
+        "minLength": 1
+      },
+      "release_authorized": {
+        "const": false
+      }
+    }
+  },
+  "recovery_observation": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "census_observation_epoch",
+      "registry_revision",
+      "postmaster_generation",
+      "receiver_generation",
+      "supervisor_generation",
+      "anchor_digest",
+      "enrollment_generation",
+      "new_eligibility"
+    ],
+    "properties": {
+      "census_observation_epoch": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "registry_revision": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "postmaster_generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "receiver_generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "supervisor_generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "anchor_digest": {
+        "type": "string",
+        "minLength": 1
+      },
+      "enrollment_generation": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 18446744073709551615
+      },
+      "new_eligibility": {
+        "const": false
+      }
+    }
+  }
+}

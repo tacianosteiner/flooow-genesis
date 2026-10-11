@@ -1,0 +1,83 @@
+{
+  "candidates": [
+    {
+      "candidate": "A_completed_counter",
+      "scores": {
+        "spoof_resistance": 1,
+        "generation_binding": 3,
+        "restart_safety": 2,
+        "replay_resistance": 2,
+        "observer_independence": 1,
+        "ordering_semantics": 3,
+        "storage_durability": 1,
+        "runtime_cost": 4,
+        "implementation_surface": 4
+      },
+      "scale": "0 insufficient; 4 strongest/smallest-cost; qualitative design scores, not policy values"
+    },
+    {
+      "candidate": "B_durable_transition_sequence",
+      "scores": {
+        "spoof_resistance": 3,
+        "generation_binding": 3,
+        "restart_safety": 4,
+        "replay_resistance": 3,
+        "observer_independence": 3,
+        "ordering_semantics": 4,
+        "storage_durability": 4,
+        "runtime_cost": 2,
+        "implementation_surface": 2
+      },
+      "scale": "0 insufficient; 4 strongest/smallest-cost; qualitative design scores, not policy values"
+    },
+    {
+      "candidate": "C_last_verified_control_action",
+      "scores": {
+        "spoof_resistance": 3,
+        "generation_binding": 2,
+        "restart_safety": 2,
+        "replay_resistance": 2,
+        "observer_independence": 4,
+        "ordering_semantics": 2,
+        "storage_durability": 2,
+        "runtime_cost": 3,
+        "implementation_surface": 3
+      },
+      "scale": "0 insufficient; 4 strongest/smallest-cost; qualitative design scores, not policy values"
+    },
+    {
+      "candidate": "D_generation_bound_completion_receipt_with_external_corroboration",
+      "scores": {
+        "spoof_resistance": 4,
+        "generation_binding": 4,
+        "restart_safety": 4,
+        "replay_resistance": 4,
+        "observer_independence": 4,
+        "ordering_semantics": 4,
+        "storage_durability": 3,
+        "runtime_cost": 3,
+        "implementation_surface": 3
+      },
+      "scale": "0 insufficient; 4 strongest/smallest-cost; qualitative design scores, not policy values"
+    },
+    {
+      "candidate": "E_existing_heartbeat_progress_tick",
+      "scores": {
+        "spoof_resistance": 0,
+        "generation_binding": 2,
+        "restart_safety": 1,
+        "replay_resistance": 1,
+        "observer_independence": 0,
+        "ordering_semantics": 1,
+        "storage_durability": 0,
+        "runtime_cost": 4,
+        "implementation_surface": 4
+      },
+      "scale": "0 insufficient; 4 strongest/smallest-cost; qualitative design scores, not policy values"
+    }
+  ],
+  "selected": "D_GENERATION_BOUND_COMPLETION_RECEIPT_WITH_EXTERNAL_CORROBORATION",
+  "why": "Only the corroborated generation-bound receipt carries identity/epoch/operation/order and independent target result across DB, OS, census and publication work. Counter/heartbeat alone spoof progress; durable transition count alone excludes non-DB work. Receipt envelope uses operation-specific existing result evidence rather than inventing effects.",
+  "runtime_implemented": false,
+  "native_delta_required": true
+}
