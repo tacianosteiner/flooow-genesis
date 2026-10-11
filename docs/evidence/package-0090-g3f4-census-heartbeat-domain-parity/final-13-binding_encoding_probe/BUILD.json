@@ -1,0 +1,198 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "--detach",
+      "--name",
+      "flooow-0090-census-0078290",
+      "--label",
+      "flooow.scope=0090-census-heartbeat-domain-parity",
+      "--network",
+      "none",
+      "--cpus",
+      "1",
+      "--memory",
+      "768m",
+      "--security-opt",
+      "seccomp=C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\docs\\evidence\\package-0090-g3f4-disposable-native-qualification\\SECCOMP-TEST.json",
+      "--tmpfs",
+      "/tmp",
+      "--tmpfs",
+      "/run",
+      "--tmpfs",
+      "/var/lib/postgresql",
+      "--entrypoint",
+      "sleep",
+      "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "infinity"
+    ],
+    "exit": 0,
+    "stdout": "1858435527acf494109b30eb84f8694f11cc46791540aad1b38366ec36113120\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification",
+      "flooow-0090-census-0078290:/usr/local/src-full"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\AppData\\Local\\Temp\\flooow-native-qualification\\libpq-fe.h",
+      "flooow-0090-census-0078290:/usr/local/src-full/libpq-fe.h"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "sh",
+      "-c",
+      "sha256sum /usr/local/src-full/*.c /usr/local/src-full/*.h"
+    ],
+    "exit": 0,
+    "stdout": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691  /usr/local/src-full/binding_codec.c\n3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693  /usr/local/src-full/binding_encode.c\ncde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754  /usr/local/src-full/boottime.c\n75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac  /usr/local/src-full/clone3_probe.c\n4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496  /usr/local/src-full/fake_receiver.c\n9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a  /usr/local/src-full/frame_tests.c\nb33bd49e561525aacd591e752d4cd3f1d900f51580ffe36b23172bf4680c3640  /usr/local/src-full/heartbeat_tests.c\n702367a81d38bbbd388de4fc4b8667d378ed9e898e22cccb4617f56ac1f068da  /usr/local/src-full/login.c\na4785b2da47a55335efb50f7a8af86099113ac314c458cf1488ffbe91d215d10  /usr/local/src-full/receiver.c\n58a386ef30af83652272acbfa52248b5d959d9f6b4b382c1c29182ddd391b160  /usr/local/src-full/supervisor.c\n214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736  /usr/local/src-full/census.h\n218d16d2c548684c855a023943fd8ea01a06ee76b4ba0d0cac90d89c18eebc28  /usr/local/src-full/heartbeat.h\n499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0  /usr/local/src-full/libpq-fe.h\n0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99  /usr/local/src-full/protocol.h\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/login.c",
+      "-o",
+      "/usr/local/lib/flooow_test_login.so",
+      "-Wno-unused-parameter",
+      "-fPIC",
+      "-shared",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/include/postgresql/internal",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/receiver.c",
+      "-o",
+      "/usr/local/bin/flooow-test-receiver",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/local/src-full",
+      "-l:libpq.so.5",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/supervisor.c",
+      "-o",
+      "/usr/local/bin/flooow-test-supervisor",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/frame_tests.c",
+      "-o",
+      "/usr/local/bin/flooow-test-frame",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/boottime.c",
+      "-o",
+      "/usr/local/bin/boottime",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "/usr/local/bin/flooow-test-frame"
+    ],
+    "exit": 0,
+    "stdout": "{\"frame_parser_cases\":237,\"result\":\"PASS\",\"scope\":\"UTF8_NFC_ICU76\"}\n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_quarantine_qualification\qualification.py", line 133, in main
+    rootfile('/usr/local/fixture-context.bin',context)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_quarantine_qualification\qualification.py", line 26, in rootfile
+    ex('sh','-c','base64 -d > "$1.next" && chmod "$2" "$1.next" && mv "$1.next" "$1"','sh',path,mode,user='0',data=payload)
+    ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_quarantine_qualification\qualification.py", line 22, in ex
+    def ex(*a,data=None,user='postgres',ok=True,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*a],data,ok,timeout)
+                                                                   ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_quarantine_qualification\qualification.py", line 19, in cmd
+    r=subprocess.run(a,input=data,capture_output=True,text=True,encoding='utf-8',timeout=timeout)
+  File "C:\Users\xmz_r\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1219, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 1644, in _communicate
+    raise TimeoutExpired(self.args, orig_timeout)
+subprocess.TimeoutExpired: Command '['docker', 'exec', '--user', '0', '-i', 'flooow-0090-quarantine-0078290', 'sh', '-c', 'base64 -d > "$1.next" && chmod "$2" "$1.next" && mv "$1.next" "$1"', 'sh', '/usr/local/fixture-context.bin', '0444']' timed out after 30 seconds
+
+Traceback (most recent call last):
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_quarantine_qualification\build.py", line 43, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_quarantine_qualification\build.py", line 33, in main
+    if r.returncode:raise RuntimeError('Qualification recorded failure/HOLD; inspect raw evidence')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Qualification recorded failure/HOLD; inspect raw evidence

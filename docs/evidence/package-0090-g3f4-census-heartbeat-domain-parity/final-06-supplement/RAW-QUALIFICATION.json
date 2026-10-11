@@ -1,0 +1,176 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "encoding",
+      "name": "NFC_unmanaged_does_not_inherit_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged Unicode name cannot resolve any allocated slot"
+    },
+    {
+      "group": "clone",
+      "name": "actual_logical_restore_default_ineligible",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "restore_exit": 0,
+        "restore_stderr": "",
+        "login_stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n",
+        "external_original_context_copied": false,
+        "original_custody_not_clone_authority": true
+      }
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 613629987702200,
+      "end_ns": 613635190758800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241799715800
+    },
+    {
+      "start_ns": 613638547889600,
+      "end_ns": 613642430635000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241807070643
+    },
+    {
+      "start_ns": 613642431386500,
+      "end_ns": 613646504425700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241811078662
+    },
+    {
+      "start_ns": 613646617915200,
+      "end_ns": 613650849345100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241815099714
+    },
+    {
+      "start_ns": 613650993566300,
+      "end_ns": 613657768338800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241821909377
+    },
+    {
+      "start_ns": 613657881500600,
+      "end_ns": 613664578147500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241827307151
+    },
+    {
+      "start_ns": 613665361100100,
+      "end_ns": 613667392568700,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 241831919195
+    }
+  ],
+  "errors": [
+    "Traceback (most recent call last):\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 146, in main\n    tests()\n    ~~~~~^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 167, in tests\n    importlib.import_module(module).run(sys.modules[__name__])\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\supplement.py\", line 28, in run\n    count=q.sql(\"SELECT count(*) FROM test_effect WHERE op='during_transaction';\").stdout.strip()\n          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 23, in sql\n    def sql(s,role='postgres',ok=True,timeout=30):return ex('psql','-X','-w','-h','/tmp/pgsock','-U',role,'-d','native_fixture','-At','-v','ON_ERROR_STOP=1',data=s,ok=ok,timeout=timeout)\n                                                         ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 22, in ex\n    def ex(*a,data=None,user='postgres',ok=True,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*a],data,ok,timeout)\n                                                                   ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 20, in cmd\n    if ok and r.returncode:raise RuntimeError(str(a[:5])+': '+r.stderr[-1800:])\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: ['docker', 'exec', '--user', 'postgres', '-i']: psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n\n"
+  ],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "dce2604219b9a360d855c9ce85bf648c4bed7f1bee48f6e2dc0505561d403ceb",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "d6450e49c9e24e928a98a1870ed78f6c240899ef4ccbdae1333b9e8f8074c9a5  /usr/local/lib/flooow_test_login.so\n3312a3c41ef12c2c9739ca5900e8a8fd4592d2b0e37ed5558bf0ed6cd44d787c  /usr/local/bin/flooow-test-receiver\n32b2ec310ae3caf216c7e5ec0b905d6df61c8a8ea902512bb8d0e7293ab99fd5  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_encode.c": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+    "binding_encoding_probe.py": "efa87f04475be956acc4bfb91b0bd5f08ead0140968c3fa1ba8007b72c927e05",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "f01462d945e9cd582e0ae60a10c957218f813ea935885b48df71712639c7355e",
+    "census.h": "afec465c2e27bb105815abc3c454ef690e2e0369f19791b3099f78aaef537e31",
+    "census_probe.py": "2895fb1956012f799f4d70b4104fc3d20f706a5b050f66e9f458fbc0b7ccab98",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "72cdbe6fd0953dec028de10a129271fb0701e5f148b0fe5b10256fdf3eca16ef",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "heartbeat.h": "ee623d95e6a3b88ac0460c560a9e06ee74b8c8e2df821370896ec1c8c299517d",
+    "heartbeat_tests.c": "b33bd49e561525aacd591e752d4cd3f1d900f51580ffe36b23172bf4680c3640",
+    "login.c": "702367a81d38bbbd388de4fc4b8667d378ed9e898e22cccb4617f56ac1f068da",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "oid_probe.py": "120913df98d9ad779da0a5f7ec0ce90d66c79d85a8f1993de96b0cd797255f72",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "7472c4d3caf492dadc60871821c1f9a69d660819f70fdc8b1ab73e4f7b586743",
+    "qualification.py": "dd6a8b73d4f36d79ed1d2af2005c9fc761126cba5dd00f3fc15ce320d89fd457",
+    "README.md": "82d310a5dd6d1c50de6280c654724911a1b9d0155e4f3bc6bd6a079246ddfcf8",
+    "receiver.c": "135a961b114b196b0fc0e66ce95d08cedfddbe1f5c58eca9611f5196594409fa",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_followups.py": "ed5780782ac0bbefc89e439c54a23a5dd580fe33c7cb524dd0210c57b306431f",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "run_last_regression.py": "f7eb3c8c8dd912d1bd6b05e42c19f688a0f7f9ab348d59cc512d404c5006e68a",
+    "scenarios.py": "7ce42310057151491002395bfc9f5d60fe728760dc9fe2b6dd13a42ab253f0c5",
+    "storage_probe.py": "ec446b55fe90be31fa2fd3e557d2f87f064e20c6653589a56ee797edca5a9590",
+    "supervisor.c": "cb1b35cb4d843664301d7e2b44d59a3fa8c13e30b8a909f2de49d7143ca1de71",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

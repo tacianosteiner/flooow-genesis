@@ -1,0 +1,228 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "tombstone",
+      "name": "dropped_identity_tombstoned",
+      "result": "PASS_HANDLED",
+      "detail": "Protected tombstone committed before DROP"
+    },
+    {
+      "group": "tombstone",
+      "name": "same_name_new_oid_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "role": "test_auditor",
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: authenticated pending context denied\n",
+        "exit": 2
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "forced_reuse_actual_catalog",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old_oid": 16388,
+        "replacement_oid": 16388,
+        "method": "Disposable superuser catalog injection; not allocator behavior"
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "old_oid_new_name_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: authenticated pending context denied\n"
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "same_name_same_oid_old_binding_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "role": "test_auditor",
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "exit": 2
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "no_implicit_reallocation",
+      "result": "PASS_HANDLED",
+      "detail": "No tombstone erasure or old allocation reuse"
+    },
+    {
+      "group": "tombstone",
+      "name": "explicit_fresh_allocation_entire_new_binding",
+      "result": "NOT_RUN",
+      "detail": "Fresh governed allocation/full approval rebuild remains unqualified; old binding deliberately remains ineligible"
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 637425861605700,
+      "end_ns": 637427829914800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 249469969578
+    },
+    {
+      "start_ns": 637429435857900,
+      "end_ns": 637431198433500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 249473301785
+    },
+    {
+      "start_ns": 637431198799900,
+      "end_ns": 637433486621900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 249475592494
+    },
+    {
+      "start_ns": 637433592959200,
+      "end_ns": 637435283346200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 249477367546
+    },
+    {
+      "start_ns": 637435388579900,
+      "end_ns": 637437192716500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 249479345002
+    },
+    {
+      "start_ns": 637437298009100,
+      "end_ns": 637438934616500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 249481095372
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "heartbeat_deadline_us": 10000000,
+    "heartbeat_payload": "kernel_sender_bound_monotonic_emission_stamp",
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "dad644f12a00e4f1123d2c593c2ed97745f39a0262a1eddfcf34c8af3802ad34",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "06dad919c515fb0f82073195b7983a5b0f4019c8bbf694fc8b3c474c3df5113c  /usr/local/lib/flooow_test_login.so\n4bb640ef75b7c2056f3f079816b1df3c03d649b577c5941f9615038cd33e84c3  /usr/local/bin/flooow-test-receiver\n868231d6d3e83d4fc6e5209fcb1c6075ed5b028a059377718bfa2cf311ff8f87  /usr/local/bin/flooow-test-supervisor\n3fe29541a280e8f8e7b2119f57ee03da6cb8aafc77e42ff702868c1a15136059  /usr/local/bin/flooow-test-observer\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "audit_scope.py": "6a10112b6f0e8ee6e452b9aed7122de4a18e06b0ecb1b405b7bb2c9551a74eaa",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_encode.c": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+    "binding_encoding_probe.py": "8ac7e6ae3e860d116cac84802d4b8a72acc349f3a17919df01b13c6f6cd7d1a4",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "fc085efd6aab500509ab022272fe072aa8b9a3f46b48dbb9dd7503f9f82133fd",
+    "census.h": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+    "census_probe.py": "23c33139132a40d640b50615f1b23fc5e1e90c48024ca2a6a3a12cbb44e24e25",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "consolidate.py": "3fde3fd18f755ac83c7f133685fe48387b5a542610a88971f7e17464eb4aea8e",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "b4c0a91e811f95fceee22eed2fc1c79ccf25590b74d670609fa4494c2046bec1",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228",
+    "final_report.py": "fbc98e0059e6c27348c053355e700d087e4a817e625549a1c34bb567a1a9b589",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "freeze_review.py": "2722d815b5500dc3b4e51a901a27423ef694221a4930934f820d50a09b84b9e0",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "FrozenSnapshotParity.java": "87588fd060de5c2381c745e2a554ba61881a949dcbc0aae0911c8838bf670e0b",
+    "heartbeat.h": "a74b4c14c8812cab34e92932f10200c6351656568fa84b34d42a774737855ba2",
+    "heartbeat_tests.c": "55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343",
+    "login.c": "a61b048e47229323b1bcd95c2addd80e3d729b6fbd8f6468d346141be3594e30",
+    "mission.py": "d6656be41c42fa4a959fd16c9e5fc11ac5db2cc3584c4de76df1e29420bb8d22",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "observer.c": "3098c51ef391737297e945a44570602dd8109d9b9a3e668343d84833bd2fdac0",
+    "oid_probe.py": "120913df98d9ad779da0a5f7ec0ce90d66c79d85a8f1993de96b0cd797255f72",
+    "participant_dead_probe.py": "07eeac427c0a1cc663d3f72b923ead8c8a97b389e80f395e6cd88af95fa70239",
+    "prepare_observer.py": "ba3260ed69a7e4fe34a6db866d2ce8525671b131a816104a02200691ee0203d5",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "3dce8e575cedf1973f23976ef62947707a27f24de1fdb99d71be0dafac31a547",
+    "qualification.py": "3be8fea949e272d5fea3d58e9667f2c9f1df4decc35d8d4e1901741ff0aaafdf",
+    "quarantine.h": "3d8966799346a4d0930a8e024bde56b69235ec79b2c58f5ccae8647dca4b9946",
+    "quarantine_probe.py": "92679f249a3a8440d7e5ab7bfd92426d81e6186975ec4fd652ce12820a89b0ed",
+    "README.md": "2abcddd921de25c4a413cd6c5717777ee669e671ac008af58fa1f134918c5f85",
+    "receiver.c": "0aa04ef0d0ad36b95917d0620ccca5026a5f98fff48b933712f06e0c1b100c08",
+    "reference_probe.py": "326dec90f4bb9a77e6bc98da279e8d4fcaab82f1040b5c23671b1c1eb8402b91",
+    "replay_probe.py": "ed4bad50cc460cbe5ff65421143432ac6fa2f41ad65f34fe346d758cb44b291a",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_active_death_final.py": "65e3f4273ede27276c309883ac754b15ee247d9e5e1751f486b8f52e68a01a3e",
+    "run_corrected_final.py": "ff920fc84467f45a7d6197db73bf97e8ad3203868d87749c200f0c6471bc5625",
+    "run_drain_complete_final.py": "d5dfc82643bfef429e869e5b7b1c092f7208ecc2b918c661a530a586045a6c54",
+    "run_followups.py": "ed5780782ac0bbefc89e439c54a23a5dd580fe33c7cb524dd0210c57b306431f",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "run_hup_corrected_final.py": "9a4f9c5e5961dc305ddb9a7f6adb80fea300486a74badc0b3ef2dc09bf028854",
+    "run_last_regression.py": "f7eb3c8c8dd912d1bd6b05e42c19f688a0f7f9ab348d59cc512d404c5006e68a",
+    "run_load_corrected_final.py": "8683d35a59fec16bccd7b7ad2c826d3043fbfa5e4f5c0709361f1025eb169d0b",
+    "run_socket_final.py": "d612fd936c7b2019b99bf65690e30d933d635b0246bd97845f16f19fac6d6e6e",
+    "scenarios.py": "d46a495863fee71bda8456f2992b6ca3025ae49c303305a86de2447622248515",
+    "schedule_probe.py": "758f33a5d1c0bb86175283b2fe5c1ef76c171c62ff2908cb2551084295536dac",
+    "socket_probe.py": "2df0b6c99b54c5fca32e158126bae41a94b332ae9b5f9eb6cbcb202f3f58c6cf",
+    "storage_probe.py": "06d4e4d15687dce1f3f231fced409f0f3a092fa3570bd8013994e6680fe0214d",
+    "supervisor.c": "9348f759c573c74c252a435fce04be419c04925cb6537ae87eff6fff17a76547",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

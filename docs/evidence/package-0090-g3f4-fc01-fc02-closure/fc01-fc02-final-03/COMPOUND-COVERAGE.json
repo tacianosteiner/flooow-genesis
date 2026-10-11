@@ -1,0 +1,224 @@
+{
+  "requested_population_N": 12,
+  "unmapped_N": 0,
+  "universal_proof": false,
+  "full_native_participant_matrix": false,
+  "cases": [
+    {
+      "requested": "receiver stall + backend active",
+      "scope": "ACTUAL_RUNTIME",
+      "evidence": [
+        {
+          "module": "progress_probe",
+          "id": "heartbeat/receiver_active_before_stall",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\05-progress_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "progress_probe",
+          "id": "heartbeat/receiver_stall_drains",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\05-progress_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "supervisor stall + receiver alive",
+      "scope": "ACTUAL_RUNTIME",
+      "evidence": [
+        {
+          "module": "progress_probe",
+          "id": "heartbeat/supervisor_active_before_stall",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\05-progress_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "progress_probe",
+          "id": "heartbeat/supervisor_stall_drains",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\05-progress_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "observer stall + receiver alive",
+      "scope": "ACTUAL_RUNTIME",
+      "evidence": [
+        {
+          "module": "quarantine_probe",
+          "id": "observer_health/stalled_alive_participant_detected",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\03-quarantine_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "quarantine_probe",
+          "id": "observer_health/stale_observer_denies_admission",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\03-quarantine_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "postmaster restart + stale receiver generation",
+      "scope": "ACTUAL_JOINT_RESTART_AND_STALE_IDENTITY; NOT_HOT_INDIVIDUAL_EPOCH_REPLACEMENT",
+      "evidence": [
+        {
+          "module": "schedule_probe",
+          "id": "schedule/old_joint_receiver_supervisor_generation",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\06-schedule_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "schedule_probe",
+          "id": "schedule/old_joint_receiver_supervisor_generation_recovery",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\06-schedule_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "schedule_probe",
+          "id": "schedule/old_postmaster_identity",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\06-schedule_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "schedule_probe",
+          "id": "schedule/old_postmaster_identity_recovery",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\06-schedule_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "approval revoked + stale heartbeat",
+      "scope": "ACTUAL_ORIGINAL_EMISSION_SAME_KERNEL_SENDER",
+      "evidence": [
+        {
+          "module": "extended_fault_probe",
+          "id": "compound/approval_revoked_plus_actual_stale_heartbeat",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\22-extended_fault_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "extended_fault_probe",
+          "id": "compound/stale_heartbeat_never_restores_revoked_admission",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\22-extended_fault_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "PID reuse + delayed census",
+      "scope": "CONTROLLED_PID_TUPLE_REUSE_IN_ACTUAL_OBSERVER_MODEL; NOT_FORCED_LINUX_PID_ALLOCATOR_WRAP",
+      "evidence": [
+        {
+          "module": "finite_schedule_probe",
+          "id": "finite_schedule/exact_current_observer_17_named_schedules",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\19-finite_schedule_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "finite_schedule_probe",
+          "id": "finite_schedule/unknown_type_fail_closed",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\19-finite_schedule_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "quarantine + late ACCEPT",
+      "scope": "ACTUAL_PRE_SEND_REVALIDATION",
+      "evidence": [
+        {
+          "module": "extended_fault_probe",
+          "id": "compound/quarantine_between_prepared_ACCEPT_and_send",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\22-extended_fault_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "quarantine + approval restore",
+      "scope": "ACTUAL_RUNTIME",
+      "evidence": [
+        {
+          "module": "extended_fault_probe",
+          "id": "compound/approval_restore_never_clears_same_generation_quarantine",
+          "result": "PASS_DENIED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\22-extended_fault_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "backend death + retained pidfd",
+      "scope": "ACTUAL_RETAINED_KERNEL_DESCRIPTOR",
+      "evidence": [
+        {
+          "module": "replay_probe",
+          "id": "replay/replayed_SCM_RIGHTS",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\07-replay_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "receiver loss after confirmed result",
+      "scope": "ACTUAL_RUNTIME",
+      "evidence": [
+        {
+          "module": "quarantine_probe",
+          "id": "quarantine/receiver_loss_after_confirmed_outcome_tears_down",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\03-quarantine_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "census capacity overflow + later empty catalog",
+      "scope": "CONTROLLED_RESULT_POPULATION_IN_ACTUAL_OBSERVER_CODE",
+      "evidence": [
+        {
+          "module": "binding_encoding_probe",
+          "id": "observer_state/capacity_overflow_never_confirms_from_empty_catalog",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\01-binding_encoding_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    },
+    {
+      "requested": "two simultaneous governed backend failures",
+      "scope": "TWO_ACTUAL_WRITERS_COMMON_RECEIVER_FAILURE",
+      "evidence": [
+        {
+          "module": "compound_probe",
+          "id": "compound/two_simultaneous_governed_writers_ready",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\20-compound_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "compound_probe",
+          "id": "compound/receiver_stall_stops_both_backends",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\20-compound_probe\\RAW-QUALIFICATION.json"
+        },
+        {
+          "module": "compound_probe",
+          "id": "compound/two_backend_query_first_no_effect_owner_retained",
+          "result": "PASS_HANDLED",
+          "raw_path": "docs\\evidence\\package-0090-g3f4-fc01-fc02-closure\\fc01-fc02-final-03\\20-compound_probe\\RAW-QUALIFICATION.json"
+        }
+      ],
+      "adds_assertion_to_denominator": false
+    }
+  ]
+}

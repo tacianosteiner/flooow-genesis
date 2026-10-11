@@ -1,0 +1,96 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "--detach",
+      "--name",
+      "flooow-0090-census-0078290",
+      "--label",
+      "flooow.scope=0090-census-heartbeat-domain-parity",
+      "--network",
+      "none",
+      "--cpus",
+      "1",
+      "--memory",
+      "768m",
+      "--security-opt",
+      "seccomp=C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\docs\\evidence\\package-0090-g3f4-disposable-native-qualification\\SECCOMP-TEST.json",
+      "--tmpfs",
+      "/tmp",
+      "--tmpfs",
+      "/run",
+      "--tmpfs",
+      "/var/lib/postgresql",
+      "--entrypoint",
+      "sleep",
+      "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "infinity"
+    ],
+    "exit": 0,
+    "stdout": "dedf755d98cd38a3b3e20f0912b379cb73bff793be445102b62b1451a89c9859\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_quarantine_qualification",
+      "flooow-0090-census-0078290:/usr/local/src-full"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\AppData\\Local\\Temp\\flooow-native-qualification\\libpq-fe.h",
+      "flooow-0090-census-0078290:/usr/local/src-full/libpq-fe.h"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "sh",
+      "-c",
+      "sha256sum /usr/local/src-full/*.c /usr/local/src-full/*.h"
+    ],
+    "exit": 0,
+    "stdout": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691  /usr/local/src-full/binding_codec.c\n3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693  /usr/local/src-full/binding_encode.c\ncde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754  /usr/local/src-full/boottime.c\n75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac  /usr/local/src-full/clone3_probe.c\n2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228  /usr/local/src-full/fake_receiver.c\n9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a  /usr/local/src-full/frame_tests.c\n55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343  /usr/local/src-full/heartbeat_tests.c\n88a91dcb2c850bd6c7ab95d208d14c955af60a919824b8581b855a2a4ef1ddf7  /usr/local/src-full/login.c\nae15b0560bcbd8622ba9300b7e846854a09e1f4bf3438386904fcfbd8d24526f  /usr/local/src-full/observer.c\n4f568c1480036e9e125d04d125a6d9aa513abef04900313bb7756ed8d286003b  /usr/local/src-full/receiver.c\n8a62befdcb0d5f233deb8daccd72c93442de94d8d8989c60c1523a8db2de39a6  /usr/local/src-full/supervisor.c\n214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736  /usr/local/src-full/census.h\na74b4c14c8812cab34e92932f10200c6351656568fa84b34d42a774737855ba2  /usr/local/src-full/heartbeat.h\n499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0  /usr/local/src-full/libpq-fe.h\n0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99  /usr/local/src-full/protocol.h\ncfb53a4b5f9aafccf1f2f8425a3e997480935aa35ed4564c4bdf2699750dd802  /usr/local/src-full/quarantine.h\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-census-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/login.c",
+      "-o",
+      "/usr/local/lib/flooow_test_login.so",
+      "-Wno-unused-parameter",
+      "-fPIC",
+      "-shared",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/include/postgresql/internal",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "In file included from /usr/include/postgresql/18/server/libpq/libpq-be.h:30,\n                 from /usr/include/postgresql/18/server/libpq/auth.h:17,\n                 from /usr/local/src-full/login.c:6:\n/usr/include/postgresql/18/server/libpq/pg-gssapi.h:24:10: fatal error: gssapi/gssapi.h: No such file or directory\n   24 | #include <gssapi/gssapi.h>\n      |          ^~~~~~~~~~~~~~~~~\ncompilation terminated.\n"
+  }
+]

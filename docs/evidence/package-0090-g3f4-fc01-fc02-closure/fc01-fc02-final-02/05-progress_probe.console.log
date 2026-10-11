@@ -1,0 +1,41 @@
+admission/test_verifier: PASS
+admission/test_issuer: PASS
+admission/test_executor: PASS
+admission/test_auditor: PASS
+admission/unmanaged_no_governed_authority: PASS
+heartbeat/receiver_active_before_stall: PASS
+heartbeat/receiver_stall_drains: PASS
+heartbeat/receiver_stall_deny_new: PASS
+Traceback (most recent call last):
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\qualification.py", line 150, in main
+    tests()
+    ~~~~~^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\qualification.py", line 171, in tests
+    importlib.import_module(module).run(sys.modules[__name__])
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\progress_probe.py", line 31, in run
+    q.boot();q.observer_once()
+             ~~~~~~~~~~~~~~~^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\qualification.py", line 78, in observer_once
+    rootfile('/run/flooow-external/gate.bin',gate)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\qualification.py", line 30, in rootfile
+    ex('sh','-c','base64 -d > "$1.next" && chmod "$2" "$1.next" && mv "$1.next" "$1"','sh',path,mode,user='0',data=payload)
+    ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\qualification.py", line 26, in ex
+    def ex(*a,data=None,user='postgres',ok=True,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*a],data,ok,timeout)
+                                                                   ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\qualification.py", line 24, in cmd
+    if ok and r.returncode:raise RuntimeError(str(a[:5])+': '+r.stderr[-1800:])
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: ['docker', 'exec', '--user', '0', '-i']: mv: cannot stat '/run/flooow-external/gate.bin.next': No such file or directory
+
+
+Traceback (most recent call last):
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\build.py", line 43, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "C:\Users\xmz_r\Downloads\flooow-v042-implementation\scripts\validation\package_0090_population_qualification\build.py", line 33, in main
+    if r.returncode:raise RuntimeError('Qualification recorded failure/HOLD; inspect raw evidence')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Qualification recorded failure/HOLD; inspect raw evidence

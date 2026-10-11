@@ -1,0 +1,396 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_caller_setting_0",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "0\n",
+        "stderr": ""
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_caller_setting_120",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "120ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_caller_setting_900",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "900ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_partial-frame",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 782320.6
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_recovery_partial-frame",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_drop-ack",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 797609.2
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_recovery_drop-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_delay-ack",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5724283.0
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_recovery_delay-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_catalog-stall",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5797588.0
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_recovery_catalog-stall",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend recovery; accepted path independently snapshots SIGALRM/ITIMER_REAL and caller statement timer"
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_SPI_lock_stall",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  canceling statement due to user request\nCONTEXT:  SQL statement \"SELECT 1 FROM public.flooow_test_binding h JOIN pg_catalog.pg_roles r ON r.oid=h.role_oid WHERE h.role_oid=$1 AND h.role_name=$2 AND h.slot=$3 AND r.rolname=h.role_name AND r.rolcanlogin AND NOT r.rolinherit AND NOT r.rolsuper AND NOT r.rolcreaterole AND NOT r.rolcreatedb AND NOT r.rolreplication AND NOT r.rolbypassrls AND NOT EXISTS(SELECT 1 FROM pg_catalog.pg_auth_members m WHERE m.member=r.oid OR m.roleid=r.oid)\"\n",
+        "elapsed_us": 5733496.3
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "instrumented_SPI_error_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "user timeout cleanup through PG_CATCH; backend cancellation did not change later sessions"
+    },
+    {
+      "group": "restart",
+      "name": "supervisor_loss_blocks_usable_session",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "postmaster_stopped": true,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n"
+      }
+    },
+    {
+      "group": "restart",
+      "name": "supervisor_restart_regression",
+      "result": "PASS_HANDLED",
+      "detail": "fresh kernel anchors and epoch; prior descriptor-reuse failure retained"
+    },
+    {
+      "group": "timeout",
+      "name": "receiver_crash_during_login",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "stdout": "",
+        "usable_statement_executed": false
+      }
+    },
+    {
+      "group": "restart",
+      "name": "full_stack_after_pending_receiver_crash",
+      "result": "PASS_HANDLED",
+      "detail": "fresh bootstrap after loss"
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 648372386476200,
+      "end_ns": 648376863457100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252761459171
+    },
+    {
+      "start_ns": 648380136619200,
+      "end_ns": 648383495009400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252768191673
+    },
+    {
+      "start_ns": 648383495601900,
+      "end_ns": 648387600033100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252771999023
+    },
+    {
+      "start_ns": 648387709288900,
+      "end_ns": 648391932934500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252776517556
+    },
+    {
+      "start_ns": 648392045173200,
+      "end_ns": 648396261984300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252780839187
+    },
+    {
+      "start_ns": 648396371595900,
+      "end_ns": 648400344129100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252784696727
+    },
+    {
+      "start_ns": 648400457472300,
+      "end_ns": 648403927589700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252788556464
+    },
+    {
+      "start_ns": 648404040575300,
+      "end_ns": 648407485233100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252792132569
+    },
+    {
+      "start_ns": 648407596693800,
+      "end_ns": 648411745615600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252796272344
+    },
+    {
+      "start_ns": 648411852164000,
+      "end_ns": 648416332217300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252800951433
+    },
+    {
+      "start_ns": 648416445022400,
+      "end_ns": 648419977411500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252804467951
+    },
+    {
+      "start_ns": 648420085985000,
+      "end_ns": 648423890072300,
+      "eligible": false,
+      "reason": "['docker', 'exec', '--user', 'postgres', '-i']: psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n",
+      "gate_written_boottime_us": 252808515968
+    },
+    {
+      "start_ns": 648423990778300,
+      "end_ns": 648427714130700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252812395601
+    },
+    {
+      "start_ns": 648427714274300,
+      "end_ns": 648431518012500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252816098998
+    },
+    {
+      "start_ns": 648431518136400,
+      "end_ns": 648436437054500,
+      "eligible": false,
+      "reason": "['docker', 'exec', '--user', 'postgres', '-i']: psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n",
+      "gate_written_boottime_us": 252821103964
+    },
+    {
+      "start_ns": 648436539485100,
+      "end_ns": 648440398250500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252824894595
+    },
+    {
+      "start_ns": 648440398402700,
+      "end_ns": 648443807693500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252828492534
+    },
+    {
+      "start_ns": 648443807831800,
+      "end_ns": 648447536136400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 252832199104
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "heartbeat_deadline_us": 10000000,
+    "heartbeat_payload": "kernel_sender_bound_monotonic_emission_stamp",
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "1f9163f226dcbc93da60ad9ed01290c7bb8e79df2fc529c6f17fb1f15ce40a44",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "1753095d3075167e0a10649b47a42e484ed5fec8699b6483878d15e50e26575d  /usr/local/lib/flooow_test_login.so\n12da4e092c5bde31e025bf86b28e1330d9f5cb4eaf252dd23996aabfdaf326b1  /usr/local/bin/flooow-test-receiver\n868231d6d3e83d4fc6e5209fcb1c6075ed5b028a059377718bfa2cf311ff8f87  /usr/local/bin/flooow-test-supervisor\nb42dafd4cd412f8c7ebcf58b9724a2e877b2bcf03f1cb71f12dfd1350155c49e  /usr/local/bin/flooow-test-observer\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "audit_scope.py": "6a10112b6f0e8ee6e452b9aed7122de4a18e06b0ecb1b405b7bb2c9551a74eaa",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_encode.c": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+    "binding_encoding_probe.py": "b4d895c9fe14ba1138aa24fff94a065547e8c3d67d36a2d8c1233ba3d6d9d97e",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "fc085efd6aab500509ab022272fe072aa8b9a3f46b48dbb9dd7503f9f82133fd",
+    "census.h": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+    "census_probe.py": "23c33139132a40d640b50615f1b23fc5e1e90c48024ca2a6a3a12cbb44e24e25",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "consolidate.py": "3fde3fd18f755ac83c7f133685fe48387b5a542610a88971f7e17464eb4aea8e",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "b4c0a91e811f95fceee22eed2fc1c79ccf25590b74d670609fa4494c2046bec1",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228",
+    "final_report.py": "fbc98e0059e6c27348c053355e700d087e4a817e625549a1c34bb567a1a9b589",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "freeze_review.py": "2722d815b5500dc3b4e51a901a27423ef694221a4930934f820d50a09b84b9e0",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "FrozenSnapshotParity.java": "87588fd060de5c2381c745e2a554ba61881a949dcbc0aae0911c8838bf670e0b",
+    "heartbeat.h": "a74b4c14c8812cab34e92932f10200c6351656568fa84b34d42a774737855ba2",
+    "heartbeat_tests.c": "55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343",
+    "login.c": "194eefbd038a71b00bf4130ce19e68ee380d544d9755cb30c366f6142170be06",
+    "mission.py": "d6656be41c42fa4a959fd16c9e5fc11ac5db2cc3584c4de76df1e29420bb8d22",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "observer.c": "99a2fe36177b42e188f02845dee5207f2a92a88f28b259f3b99ef56eb67d7e9b",
+    "observer_state_tests.c": "2a8636153666b1d3f01d2d5c1f2ebfc4413f2979afcb034c8a68ebb757f4d9fb",
+    "oid_probe.py": "120913df98d9ad779da0a5f7ec0ce90d66c79d85a8f1993de96b0cd797255f72",
+    "participant_dead_probe.py": "07eeac427c0a1cc663d3f72b923ead8c8a97b389e80f395e6cd88af95fa70239",
+    "prepare_observer.py": "ba3260ed69a7e4fe34a6db866d2ce8525671b131a816104a02200691ee0203d5",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "3dce8e575cedf1973f23976ef62947707a27f24de1fdb99d71be0dafac31a547",
+    "qualification.py": "3be8fea949e272d5fea3d58e9667f2c9f1df4decc35d8d4e1901741ff0aaafdf",
+    "quarantine.h": "3d8966799346a4d0930a8e024bde56b69235ec79b2c58f5ccae8647dca4b9946",
+    "quarantine_probe.py": "b8a6611c3e8fe7d7ae4fe2bc2adf511c4ea0f1e3faa50f31630fe71fe8d2ba36",
+    "README.md": "c3cfc8272b78be6dc87865f8540ac5656577f0e090600ccc67b5d0a2e45cbfb3",
+    "receiver.c": "13d881c9d54d4a080d6084ac408c4ba91372b29a0e6f8d80dfbadafcce8e0c3f",
+    "reference_probe.py": "326dec90f4bb9a77e6bc98da279e8d4fcaab82f1040b5c23671b1c1eb8402b91",
+    "replay_probe.py": "face8cc4bd7c7bd0b7c365b468c6a39a7494d46593f8175ae3ac88a8e11906f1",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_active_death_final.py": "65e3f4273ede27276c309883ac754b15ee247d9e5e1751f486b8f52e68a01a3e",
+    "run_corrected_final.py": "ff920fc84467f45a7d6197db73bf97e8ad3203868d87749c200f0c6471bc5625",
+    "run_drain_complete_final.py": "d5dfc82643bfef429e869e5b7b1c092f7208ecc2b918c661a530a586045a6c54",
+    "run_followups.py": "ed5780782ac0bbefc89e439c54a23a5dd580fe33c7cb524dd0210c57b306431f",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "run_hup_corrected_final.py": "9a4f9c5e5961dc305ddb9a7f6adb80fea300486a74badc0b3ef2dc09bf028854",
+    "run_last_regression.py": "f7eb3c8c8dd912d1bd6b05e42c19f688a0f7f9ab348d59cc512d404c5006e68a",
+    "run_load_corrected_final.py": "8683d35a59fec16bccd7b7ad2c826d3043fbfa5e4f5c0709361f1025eb169d0b",
+    "run_socket_final.py": "d612fd936c7b2019b99bf65690e30d933d635b0246bd97845f16f19fac6d6e6e",
+    "scenarios.py": "4a9f3538798dc0f2558170a351187747b7b9fabfd2bbea09c714f267606a4482",
+    "schedule_probe.py": "758f33a5d1c0bb86175283b2fe5c1ef76c171c62ff2908cb2551084295536dac",
+    "scm_replay.c": "a7df8d0ae0240d3357883b4ad40e49818da3dfc318d632714fae5027cf840646",
+    "socket_probe.py": "4fadf816cac8b93ef2ac025db7d7ca7a2e2bd9dc5455c19774b07cbdb8ce41b2",
+    "storage_probe.py": "06d4e4d15687dce1f3f231fced409f0f3a092fa3570bd8013994e6680fe0214d",
+    "supervisor.c": "9348f759c573c74c252a435fce04be419c04925cb6537ae87eff6fff17a76547",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

@@ -1,0 +1,102 @@
+{
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "gate": "HOLD",
+  "runtime_source_sha256": {
+    "receiver.c": "f941a3ef4a03bc8bb7cd45d34839ea15d5f57d8b771c60b117acd78faa32e9aa",
+    "supervisor.c": "58a386ef30af83652272acbfa52248b5d959d9f6b4b382c1c29182ddd391b160",
+    "login.c": "702367a81d38bbbd388de4fc4b8667d378ed9e898e22cccb4617f56ac1f068da",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "heartbeat.h": "218d16d2c548684c855a023943fd8ea01a06ee76b4ba0d0cac90d89c18eebc28",
+    "census.h": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754"
+  },
+  "inherited_runtime_PASS_used": false,
+  "numeric_policy_authority": "NONE",
+  "cases": [
+    {
+      "group": "tombstone",
+      "name": "dropped_identity_tombstoned",
+      "result": "PASS_HANDLED",
+      "detail": "Protected tombstone committed before DROP",
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    },
+    {
+      "group": "tombstone",
+      "name": "same_name_new_oid_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "role": "test_auditor",
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n",
+        "exit": 2
+      },
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    },
+    {
+      "group": "tombstone",
+      "name": "forced_reuse_actual_catalog",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old_oid": 16388,
+        "replacement_oid": 16388,
+        "method": "Disposable superuser catalog injection; not allocator behavior"
+      },
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    },
+    {
+      "group": "tombstone",
+      "name": "old_oid_new_name_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n"
+      },
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    },
+    {
+      "group": "tombstone",
+      "name": "same_name_same_oid_old_binding_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "role": "test_auditor",
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "exit": 2
+      },
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    },
+    {
+      "group": "tombstone",
+      "name": "no_implicit_reallocation",
+      "result": "PASS_HANDLED",
+      "detail": "No tombstone erasure or old allocation reuse",
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    },
+    {
+      "group": "tombstone",
+      "name": "explicit_fresh_allocation_entire_new_binding",
+      "result": "NOT_RUN",
+      "detail": "Fresh governed allocation/full approval rebuild remains unqualified; old binding deliberately remains ineligible",
+      "round": "oid_probe",
+      "evidence": "docs\\evidence\\package-0090-g3f4-census-heartbeat-domain-parity\\hup-final-31-oid_probe",
+      "final_runtime_bytes_equal": true
+    }
+  ],
+  "full_contract_PASS_claimed": false,
+  "limitations": [
+    "Serial census and catalog queries run in receiver; separate exhaustive independent worker is not qualified.",
+    "No independent enforcer with all retained backend anchors has been qualified under compound receiver/postmaster stalls.",
+    "Synthetic table observations are not full frozen claim/attempt/effect/retry wrappers.",
+    "All failures and NOT_RUN cases remain open unless explicitly resolved by final-byte rerun."
+  ]
+}

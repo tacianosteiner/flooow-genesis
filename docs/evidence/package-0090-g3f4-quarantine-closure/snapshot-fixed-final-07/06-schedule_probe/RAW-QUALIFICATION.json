@@ -1,0 +1,555 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "schedule",
+      "name": "actual_pre_promotion_catalog_snapshot_arrives_after_promotion",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "exit": 0,
+        "stdout": "|USABLE_SNAPSHOT_MARKER\n",
+        "stderr": "",
+        "new_events": "{\"event\":\"independent_observer\",\"classification\":\"PENDING_RETAINED_ANCHOR\",\"pid\":743,\"at_us\":257981273406}\n2026-10-11 12:19:09.085 UTC [743] LOG:  FLOOOW_TEST_PENDING_AUTH_ANCHOR_ONLY role=16385\n{\"event\":\"ACCEPT\",\"role_oid\":16385,\"slot\":1,\"reason\":0,\"duplicate\":false,\"receive_us\":5,\"validation_us\":4496,\"reply_us\":4550}\n2026-10-11 12:19:09.093 UTC [743] LOG:  FLOOOW_TEST_TIMEOUT_RESTORATION preserved=YES custom_active=NO\n2026-10-11 12:19:09.093 UTC [743] LOG:  FLOOOW_TEST_ENROLLMENT_ACCEPT role=16385 database=16384 total_us=6174\n{\"event\":\"independent_observer\",\"classification\":\"STALE_CENSUS_OBSERVATION_IGNORED\",\"pid\":0,\"at_us\":257981777388}\n{\"event\":\"census_snapshot_ignored\",\"snapshot_started_us\":257981275475,\"snapshot_revision\":17,\"current_revision\":18,\"supervisor_inode\":5423280,\"receiver_inode\":5423281,\"postmaster_inode\":5423283}\n{\"event\":\"independent_observer\",\"classification\":\"MATCHED\",\"pid\":743,\"at_us\":257982301288}\n{\"event\":\"independent_census_identity\",\"pid\":743,\"role_oid\":16385,\"database_oid\":16384,\"backend_start\":845036348583883,\"postmaster_start\":845036344557679,\"classification\":\"MATCHED\"}\n{\"event\":\"independent_observer\",\"classification\":\"MATCHED\",\"pid\":743,\"at_us\":257982826166}\n{\"event\":\"independent_census_identity\",\"pid\":743,\"role_oid\":16385,\"database_oid\":16384,\"backend_start\":845036348583883,\"postmaster_start\":845036344557679,\"classification\":\"MATCHED\"}\n{\"event\":\"independent_observer\",\"classification\":\"MATCHED\",\"pid\":743,\"at_us\":257983350303}\n{\"event\":\"independent_census_identity\",\"pid\":743,\"role_oid\":16385,\"database_oid\":16384,\"backend_start\":845036348583883,\"postmaster_start\":845036344557679,\"classification\":\"MATCHED\"}\n{\"event\":\"kernel_death\",\"pid\":743,\"slot\":1,\"at_us\":257983496851}\n{\"event\":\"DRAINED\",\"pid\":743,\"catalog_disappeared\":true,\"effects\":\"RECONCILIATION_REQUIRED\",\"at_us\":257983501445}\n",
+        "experimental_auth_pause_us": 200000,
+        "experimental_census_response_pause_us": 500000,
+        "numeric_policy_authority": "NONE"
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "current_snapshot_after_old_snapshot_recovers",
+      "result": "PASS_HANDLED",
+      "detail": "Current generation and enrollment remain valid; old snapshot grants no eligibility"
+    },
+    {
+      "group": "mandatory_guard",
+      "name": "SELECT 1;",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: mandatory enrolled execution guard denied\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n",
+        "trigger": "disabled TEST_ONLY_NONCANONICAL fixture",
+        "authority_granted": false
+      }
+    },
+    {
+      "group": "mandatory_guard",
+      "name": "BEGIN; SELECT 1; COMMIT;",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: mandatory enrolled execution guard denied\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n",
+        "trigger": "disabled TEST_ONLY_NONCANONICAL fixture",
+        "authority_granted": false
+      }
+    },
+    {
+      "group": "mandatory_guard",
+      "name": "SET application_name='cannot_be_authority';",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: mandatory enrolled execution guard denied\nserver closed the connection unexpectedly\n\tThis probably means the server terminated abnormally\n\tbefore or while processing the request.\nconnection to server was lost\n",
+        "trigger": "disabled TEST_ONLY_NONCANONICAL fixture",
+        "authority_granted": false
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "census_response_delayed",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "census-response-pause"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "census_response_delayed_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "registry_before_accept_delayed",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "registry-insertion-pause"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "registry_before_accept_delayed_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "census_and_registry_overlap",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "census-response-pause",
+          "registry-insertion-pause"
+        ],
+        "exit": 0,
+        "stderr": "",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "census_and_registry_overlap_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "receiver_response_after_deadline",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "delay-ack"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "receiver_response_after_deadline_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "catalog_response_after_deadline",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "catalog-stall"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "catalog_response_after_deadline_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "SCM_after_deadline",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "pre-transfer-pause"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "SCM_after_deadline_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "old_joint_receiver_supervisor_generation",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "stale-epoch"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "old_joint_receiver_supervisor_generation_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "old_postmaster_identity",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "old-postmaster-frame"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "old_postmaster_identity_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "old_ACCEPT_epoch",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "replay-accept-epoch"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "old_ACCEPT_epoch_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "schedule",
+      "name": "old_ACCEPT_request_digest",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "flags": [
+          "replay-accept-digest"
+        ],
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "no_policy_authority": true
+      }
+    },
+    {
+      "group": "schedule",
+      "name": "old_ACCEPT_request_digest_recovery",
+      "result": "PASS_HANDLED",
+      "detail": "Fresh exact-context admission, no lease extension from old messages"
+    },
+    {
+      "group": "remaining",
+      "name": "exhaustive_all_interleavings",
+      "result": "NOT_RUN",
+      "detail": "Ten bounded real schedules are executed. Complete permutation coverage around backend birth, registry deletion and generation teardown is not established; this is not an exhaustive schedule model."
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 671295242468800,
+      "end_ns": 671297244616900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257974827544
+    },
+    {
+      "start_ns": 671299174147300,
+      "end_ns": 671300462176300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257978257346
+    },
+    {
+      "start_ns": 671300462350700,
+      "end_ns": 671301908571500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257979688882
+    },
+    {
+      "start_ns": 671302019729000,
+      "end_ns": 671303368740800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257981175477
+    },
+    {
+      "start_ns": 671303470056300,
+      "end_ns": 671304743485200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257982541272
+    },
+    {
+      "start_ns": 671304854320800,
+      "end_ns": 671306136666300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257983923627
+    },
+    {
+      "start_ns": 671306237759700,
+      "end_ns": 671307804504100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257985463818
+    },
+    {
+      "start_ns": 671307918730900,
+      "end_ns": 671309881128600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257987485123
+    },
+    {
+      "start_ns": 671309984584300,
+      "end_ns": 671312255166400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257989885742
+    },
+    {
+      "start_ns": 671312369470400,
+      "end_ns": 671313783264800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257991568608
+    },
+    {
+      "start_ns": 671313887399200,
+      "end_ns": 671315110424400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257992936545
+    },
+    {
+      "start_ns": 671315220944200,
+      "end_ns": 671316544227000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257994323665
+    },
+    {
+      "start_ns": 671316654074300,
+      "end_ns": 671318317291300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257996046471
+    },
+    {
+      "start_ns": 671318421065300,
+      "end_ns": 671320586409200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 257998141673
+    },
+    {
+      "start_ns": 671320687738300,
+      "end_ns": 671322340041800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258000175023
+    },
+    {
+      "start_ns": 671322453636800,
+      "end_ns": 671323693029500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258001510063
+    },
+    {
+      "start_ns": 671323803497500,
+      "end_ns": 671325069030500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258002885217
+    },
+    {
+      "start_ns": 671325170993700,
+      "end_ns": 671326465632000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258004267717
+    },
+    {
+      "start_ns": 671326571290600,
+      "end_ns": 671327977048100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258005792287
+    },
+    {
+      "start_ns": 671328089333000,
+      "end_ns": 671329427050000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258007242736
+    },
+    {
+      "start_ns": 671329537785600,
+      "end_ns": 671331071459400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258008818744
+    },
+    {
+      "start_ns": 671331172573600,
+      "end_ns": 671333190711000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258010797728
+    },
+    {
+      "start_ns": 671333303417100,
+      "end_ns": 671335324531900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258013079716
+    },
+    {
+      "start_ns": 671335437649800,
+      "end_ns": 671336843660400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258014623874
+    },
+    {
+      "start_ns": 671336953327500,
+      "end_ns": 671338405142800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 258016223815
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "heartbeat_deadline_us": 10000000,
+    "heartbeat_payload": "kernel_sender_bound_monotonic_emission_stamp",
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "cc3ccb3c7ba017ee2d28d38e6de344e50cc1c4c3517e42e1db788ad042153d93",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "eb130d27ba8d9ef60c1829f4575bccc90d0174d5a2fff52d494dd51ac37de4fb  /usr/local/lib/flooow_test_login.so\n740a8b65b096fc2119b15b2c34e9db8728dc5fcfc25a6a186d4e34aedec5eb6f  /usr/local/bin/flooow-test-receiver\n2945a03a906ca4d430794a452af3ccdff194da185530a9e10559b68e61c4c19b  /usr/local/bin/flooow-test-supervisor\ndf3771815f2faea6fbf50e534263c826b24404a4a7dfd9049f48e8614fce2729  /usr/local/bin/flooow-test-observer\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "audit_scope.py": "6a10112b6f0e8ee6e452b9aed7122de4a18e06b0ecb1b405b7bb2c9551a74eaa",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_encode.c": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+    "binding_encoding_probe.py": "7f8aff9a91eff29a59a223fb03f2865e4201d919600f6bda9c2b72a784e9856c",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "fc085efd6aab500509ab022272fe072aa8b9a3f46b48dbb9dd7503f9f82133fd",
+    "census.h": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+    "census_probe.py": "23c33139132a40d640b50615f1b23fc5e1e90c48024ca2a6a3a12cbb44e24e25",
+    "census_snapshot_tests.c": "e5d3507863ef76e122075bc1c679d46110df7d4d5b4c619313d7e35ed10bb39f",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "consolidate.py": "3fde3fd18f755ac83c7f133685fe48387b5a542610a88971f7e17464eb4aea8e",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "b4c0a91e811f95fceee22eed2fc1c79ccf25590b74d670609fa4494c2046bec1",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228",
+    "final_report.py": "fbc98e0059e6c27348c053355e700d087e4a817e625549a1c34bb567a1a9b589",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "freeze_review.py": "2722d815b5500dc3b4e51a901a27423ef694221a4930934f820d50a09b84b9e0",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "FrozenSnapshotParity.java": "87588fd060de5c2381c745e2a554ba61881a949dcbc0aae0911c8838bf670e0b",
+    "heartbeat.h": "a74b4c14c8812cab34e92932f10200c6351656568fa84b34d42a774737855ba2",
+    "heartbeat_tests.c": "55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343",
+    "login.c": "7fd0e904a450bce8cfd4e23055b4d55991813f038f5af7318a29261a234608a8",
+    "mission.py": "d6656be41c42fa4a959fd16c9e5fc11ac5db2cc3584c4de76df1e29420bb8d22",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "observer.c": "3b461ac8db69f57fcd73510b1771ff1ccda4d299c4197d2d8d4eb7e2b31a6073",
+    "observer_state_tests.c": "f86fac5ebb8d6aef82c5fd568cfe2f2ec826df8a28d1b4c8cc0a2931a5766c21",
+    "oid_probe.py": "120913df98d9ad779da0a5f7ec0ce90d66c79d85a8f1993de96b0cd797255f72",
+    "participant_dead_probe.py": "07eeac427c0a1cc663d3f72b923ead8c8a97b389e80f395e6cd88af95fa70239",
+    "prepare_observer.py": "ba3260ed69a7e4fe34a6db866d2ce8525671b131a816104a02200691ee0203d5",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "3dce8e575cedf1973f23976ef62947707a27f24de1fdb99d71be0dafac31a547",
+    "qualification.py": "3be8fea949e272d5fea3d58e9667f2c9f1df4decc35d8d4e1901741ff0aaafdf",
+    "quarantine.h": "31e23581c78d5d9da3ef111d3e15e07c265f28337e312fe9672f63b45d81b15d",
+    "quarantine_probe.py": "b8a6611c3e8fe7d7ae4fe2bc2adf511c4ea0f1e3faa50f31630fe71fe8d2ba36",
+    "README.md": "c3cfc8272b78be6dc87865f8540ac5656577f0e090600ccc67b5d0a2e45cbfb3",
+    "receiver.c": "13d881c9d54d4a080d6084ac408c4ba91372b29a0e6f8d80dfbadafcce8e0c3f",
+    "reference_probe.py": "326dec90f4bb9a77e6bc98da279e8d4fcaab82f1040b5c23671b1c1eb8402b91",
+    "replay_probe.py": "face8cc4bd7c7bd0b7c365b468c6a39a7494d46593f8175ae3ac88a8e11906f1",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_active_death_final.py": "65e3f4273ede27276c309883ac754b15ee247d9e5e1751f486b8f52e68a01a3e",
+    "run_corrected_final.py": "ff920fc84467f45a7d6197db73bf97e8ad3203868d87749c200f0c6471bc5625",
+    "run_drain_complete_final.py": "d5dfc82643bfef429e869e5b7b1c092f7208ecc2b918c661a530a586045a6c54",
+    "run_followups.py": "ed5780782ac0bbefc89e439c54a23a5dd580fe33c7cb524dd0210c57b306431f",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "run_hup_corrected_final.py": "9a4f9c5e5961dc305ddb9a7f6adb80fea300486a74badc0b3ef2dc09bf028854",
+    "run_last_regression.py": "f7eb3c8c8dd912d1bd6b05e42c19f688a0f7f9ab348d59cc512d404c5006e68a",
+    "run_load_corrected_final.py": "8683d35a59fec16bccd7b7ad2c826d3043fbfa5e4f5c0709361f1025eb169d0b",
+    "run_socket_final.py": "d612fd936c7b2019b99bf65690e30d933d635b0246bd97845f16f19fac6d6e6e",
+    "scenarios.py": "4a9f3538798dc0f2558170a351187747b7b9fabfd2bbea09c714f267606a4482",
+    "schedule_probe.py": "b7cd8b0789cdde68473f3662513ee140335181135f981b0443829facba4e8f6c",
+    "scm_replay.c": "a7df8d0ae0240d3357883b4ad40e49818da3dfc318d632714fae5027cf840646",
+    "socket_probe.py": "4fadf816cac8b93ef2ac025db7d7ca7a2e2bd9dc5455c19774b07cbdb8ce41b2",
+    "storage_probe.py": "06d4e4d15687dce1f3f231fced409f0f3a092fa3570bd8013994e6680fe0214d",
+    "supervisor.c": "9348f759c573c74c252a435fce04be419c04925cb6537ae87eff6fff17a76547",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

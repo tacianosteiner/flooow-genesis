@@ -1,0 +1,1828 @@
+{
+  "input_head": "68001610df44dd17afc82a3d5ed575e8a0a59d71",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_offline_binding_header",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "ERROR:  permission denied for table offline_binding_header\n"
+      }
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_offline_binding_lifecycle",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "ERROR:  permission denied for table offline_binding_lifecycle\n"
+      }
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_offline_attempt_pointer",
+      "result": "FAIL",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n"
+      }
+    },
+    {
+      "group": "health",
+      "name": "service_cannot_author_flooow_test_binding",
+      "result": "FAIL",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_status.json",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/status.json: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_approval.json",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/approval.json: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_attestation.json",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/attestation.json: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "postgres_os_cannot_write_gate.bin",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "sh: 1: cannot create /run/flooow-external/gate.bin: Permission denied\n"
+      }
+    },
+    {
+      "group": "custody",
+      "name": "REVOKED",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 622047.1
+      }
+    },
+    {
+      "group": "custody",
+      "name": "RETIRED",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 695537.1
+      }
+    },
+    {
+      "group": "custody",
+      "name": "STALE",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 612462.1
+      }
+    },
+    {
+      "group": "custody",
+      "name": "MISSING",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1007643.0
+      }
+    },
+    {
+      "group": "custody",
+      "name": "AMBIGUOUS",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 635597.8
+      }
+    },
+    {
+      "group": "custody",
+      "name": "DIGEST_MISMATCH",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 612910.3
+      }
+    },
+    {
+      "group": "custody",
+      "name": "TARGET_MISMATCH",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 626859.9
+      }
+    },
+    {
+      "group": "custody",
+      "name": "COPIED_TO_CLONE",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 593514.3
+      }
+    },
+    {
+      "group": "custody",
+      "name": "MISSING_CURRENT_STATUS",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 772149.6
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "wrong_manifest",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 660713.2
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "wrong_signer",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 666655.8
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "wrong_domain",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 542509.7
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "wrong_policy_digest",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 691380.2
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "tampered_payload",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 519939.1
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "stale_key",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 600423.5
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "revoked_key",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 614707.6
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "stale_attestation",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1133689.0
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "wrong_signer_authority",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 672650.5
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "revoked_signer_authority",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 776937.4
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "wrong_organization",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 559952.0
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "missing_attestation",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1231095.9
+      }
+    },
+    {
+      "group": "attestation",
+      "name": "cryptographic_tamper_with_matching_metadata",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 662859.7
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_binding_schema_version",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck1\"\nDETAIL:  Failing row contains (2, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_binding_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 865122.6
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_deployment_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 557031.7
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_deployment_incarnation_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 625982.7
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_run_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 719161.4
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_plan_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 677384.4
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_execution_plan_version",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 676825.9
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_organization_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 579303.7
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_manifest_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 637782.9
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_manifest_digest",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x01010101010101010101010101010101010101010101010101010101010101..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_canonical_manifest_hash",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x01010101010101010101010101010101010101010101010101010101010101..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_canonical_manifest_encoding_version",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 779172.1
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_mercado_livre_connection_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 826966.3
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_omie_connection_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 828126.3
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_marketplace_order_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1707829.5
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_source_order_reference",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 649347.9
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_integration_reference",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1330954.0
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_permission",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, SYNTHETIC_MUTATION, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_reason",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1178990.5
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_provenance",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 650870.5
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_principal_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 722691.7
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_credential_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 544268.8
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_grant_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 670641.5
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_decision_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 2348981.2
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_correlation_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 798811.5
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_principal_operation_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 885209.1
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_credential_operation_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 2049783.1
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_grant_operation_id",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 655393.2
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_issued_at",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 574325.9
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_valid_from",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 780044.5
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_expires_at",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck3\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2020-01-01 00:00:00+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_identity_slots",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 771077.0
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_offline_surface_version",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., SYNTHETIC_MUTATION, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_deadline_policy_version",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 793595.9
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_deadline_policy_digest",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 1209110.9
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_admission_contract_version",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., SYNTHETIC_MUTATION, 1, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_delivery_contract_version",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, SYNTHETIC_MUTATION, 1, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "binding",
+      "name": "field_reconciliation_contract_version",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "constraint_denied": true,
+        "stderr": "ERROR:  new row for relation \"offline_binding_header\" violates check constraint \"offline_binding_header_ck2\"\nDETAIL:  Failing row contains (1, 62ee6f47-e414-4e67-94fd-c01546039b3c, 5ab54028-f677-4fd0-82e5-85fdb4a57be1, f7c2c145-d707-4677-a22e-dac90836a88a, 2d9cd030-ae30-4745-8742-299cad2e7f56, 1feae2f6-5945-4fb1-881a-6521cba7e3b9, 1, 78b344ab-14a4-4458-86f2-6bad4b79f7b9, 3fd8626b-e5ea-4e33-bea6-b010d415fca0, \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., \\x49a10d7df92e9c16c17a32419a5ded702c3f24a4fc8d7611aa28cfd729a401..., 1, 4d1131f4-6237-4085-a617-6276b003c480, a815791c-3b2d-4612-84aa-8243d740dc43, 7fee9453-1b47-4e9e-8a8e-f0935368bef3, synthetic-order, synthetic-integration, TRANSACTION_IDENTITY_DECISION_WRITE, synthetic qualification, TEST_ONLY_NONCANONICAL, 6946a087-9500-4131-9e97-6b4971bc7771, 2cef4c6c-03c2-46d6-a998-993c0d1eb2e4, 5fdb5e7e-e05f-473a-8c46-b59d214e3d60, 87cd878e-d93c-40bf-b7b2-b4af3422016c, ae590a6c-7406-48a9-877e-19a61bf70fe0, 565e5593-168e-4f8b-b072-77cca42bba1e, 77842f02-8c05-44ac-9603-b5a898472fef, d425a9da-db54-43a9-9ef4-3ab4dc9fad7c, 2026-10-10 19:44:54.889079+00, 2026-10-10 19:42:54.889079+00, 2026-10-10 20:14:54.889079+00, \\x000000040000001601000040010000000d746573745f766572696669657200..., 0090-v1, TEST_ONLY_STRUCTURE_NO_NUMERIC_POLICY, \\x050a4b5b8787cb5193cb6ecbaf5d588c2c11bb57ab0de548f0ed70b73f8465..., 1, 1, SYNTHETIC_MUTATION, \\x24a3928a488b7c696e713a9b9fa900475f3f288deb2bcf557186fe719c3149..., \\x0000001e464c4f4f4f573a5332413a415050524f56414c2d4d414e49464553...).\n"
+      }
+    },
+    {
+      "group": "admission",
+      "name": "duplicate_slot",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 1002579.8
+      }
+    },
+    {
+      "group": "admission",
+      "name": "zero_binding",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 840894.3
+      }
+    },
+    {
+      "group": "admission",
+      "name": "role_rename",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n"
+      }
+    },
+    {
+      "group": "admission",
+      "name": "attributes",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 753414.2
+      }
+    },
+    {
+      "group": "admission",
+      "name": "membership",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: header absent or role invalid\n",
+        "elapsed_us": 850960.8
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "caller_setting_0",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "0\n",
+        "stderr": ""
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "caller_setting_120",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "120ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "caller_setting_900",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "900ms\n",
+        "stderr": ""
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "post_login_caller_timer_operates",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "ERROR:  canceling statement due to statement timeout\n"
+      }
+    },
+    {
+      "group": "protocol",
+      "name": "partial-frame",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 671116.8
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "recovery_after_partial-frame",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "group": "protocol",
+      "name": "drop-ack",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 805769.2
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "recovery_after_drop-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "group": "protocol",
+      "name": "delay-ack",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5791891.4
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "recovery_after_delay-ack",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "group": "protocol",
+      "name": "catalog-stall",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: no finite ACCEPT\n",
+        "elapsed_us": 5703329.1
+      }
+    },
+    {
+      "group": "timeout",
+      "name": "recovery_after_catalog-stall",
+      "result": "PASS_HANDLED",
+      "detail": "fresh backend accepted after denied/timeout backend exit"
+    },
+    {
+      "group": "enforcement",
+      "name": "approval_revoked",
+      "result": "FAIL",
+      "detail": {
+        "pid": null,
+        "unmanaged_initial_pid": 7323,
+        "catalog_disappeared": true,
+        "victim_stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 4697482.0,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "group": "enforcement",
+      "name": "independent_observer_unavailable",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 7593,
+        "unmanaged_initial_pid": 7557,
+        "catalog_disappeared": true,
+        "victim_stderr": "ERROR:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 4145178.6,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "group": "enforcement",
+      "name": "cancel_failure_then_terminate",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "pid": 7775,
+        "unmanaged_initial_pid": 7738,
+        "catalog_disappeared": true,
+        "victim_stderr": "ERROR:  canceling statement due to user request\n",
+        "unrelated_stdout": "|42\n",
+        "elapsed_us": 5038815.8,
+        "signal_alone_not_proof": true
+      }
+    },
+    {
+      "group": "effect",
+      "name": "known_no_effect_after_authoritative_query",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "classification": "KNOWN_NO_EFFECT",
+        "query_count": "0",
+        "disconnect_inference": false
+      }
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 611660273318900,
+      "end_ns": 611665426575600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239829640104
+    },
+    {
+      "start_ns": 611669043232300,
+      "end_ns": 611672831131000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239837190886
+    },
+    {
+      "start_ns": 611672831756200,
+      "end_ns": 611677044332200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239841257700
+    },
+    {
+      "start_ns": 611677147556600,
+      "end_ns": 611683491719200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239847183301
+    },
+    {
+      "start_ns": 611683600671400,
+      "end_ns": 611687280873500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239851594486
+    },
+    {
+      "start_ns": 611688293810700,
+      "end_ns": 611690598144000,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239854732527
+    },
+    {
+      "start_ns": 611691927359500,
+      "end_ns": 611695687711100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239860012874
+    },
+    {
+      "start_ns": 611696911826500,
+      "end_ns": 611698592165400,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239862972936
+    },
+    {
+      "start_ns": 611699931799800,
+      "end_ns": 611703774933100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239868036334
+    },
+    {
+      "start_ns": 611705043133400,
+      "end_ns": 611706540253900,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239870954728
+    },
+    {
+      "start_ns": 611707705227000,
+      "end_ns": 611711088000300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239875542617
+    },
+    {
+      "start_ns": 611712113844400,
+      "end_ns": 611714132447500,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239878126059
+    },
+    {
+      "start_ns": 611715878184800,
+      "end_ns": 611719628493400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239883930839
+    },
+    {
+      "start_ns": 611720890868400,
+      "end_ns": 611722868687700,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239886955521
+    },
+    {
+      "start_ns": 611724039064000,
+      "end_ns": 611727438063000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239891857687
+    },
+    {
+      "start_ns": 611728604502600,
+      "end_ns": 611730300655000,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239894689710
+    },
+    {
+      "start_ns": 611731467636200,
+      "end_ns": 611735494784900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239899747234
+    },
+    {
+      "start_ns": 611736646001000,
+      "end_ns": 611738312696200,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239902707656
+    },
+    {
+      "start_ns": 611739432747500,
+      "end_ns": 611742531156500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239906953235
+    },
+    {
+      "start_ns": 611743520620300,
+      "end_ns": 611745367799300,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239909578277
+    },
+    {
+      "start_ns": 611746606054500,
+      "end_ns": 611750522791300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239914814538
+    },
+    {
+      "start_ns": 611751803658300,
+      "end_ns": 611753894994800,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 239918206120
+    },
+    {
+      "start_ns": 611755265395700,
+      "end_ns": 611758820821500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239922946695
+    },
+    {
+      "start_ns": 611759899185300,
+      "end_ns": 611761757068300,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239925911001
+    },
+    {
+      "start_ns": 611763045092800,
+      "end_ns": 611766925811200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239931220923
+    },
+    {
+      "start_ns": 611768039316200,
+      "end_ns": 611770064950000,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239934447392
+    },
+    {
+      "start_ns": 611771313943500,
+      "end_ns": 611775200631100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239939264174
+    },
+    {
+      "start_ns": 611776226171900,
+      "end_ns": 611777644219100,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239942116670
+    },
+    {
+      "start_ns": 611778669065400,
+      "end_ns": 611782322535100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239946564187
+    },
+    {
+      "start_ns": 611783610655300,
+      "end_ns": 611785538530900,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239949900187
+    },
+    {
+      "start_ns": 611786765146300,
+      "end_ns": 611790670751200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239955070291
+    },
+    {
+      "start_ns": 611791648662700,
+      "end_ns": 611793105742700,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239957555190
+    },
+    {
+      "start_ns": 611794085738900,
+      "end_ns": 611797422628900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239961913175
+    },
+    {
+      "start_ns": 611798421514800,
+      "end_ns": 611800117630300,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239964458247
+    },
+    {
+      "start_ns": 611801244855600,
+      "end_ns": 611805829990400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239970233232
+    },
+    {
+      "start_ns": 611806966691800,
+      "end_ns": 611808659319500,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239973053624
+    },
+    {
+      "start_ns": 611809760261200,
+      "end_ns": 611812820504800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239977312875
+    },
+    {
+      "start_ns": 611813793365000,
+      "end_ns": 611815686067900,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239979995128
+    },
+    {
+      "start_ns": 611817911188600,
+      "end_ns": 611821920025000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239986101847
+    },
+    {
+      "start_ns": 611823398315500,
+      "end_ns": 611825361274300,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239989621766
+    },
+    {
+      "start_ns": 611826609556300,
+      "end_ns": 611830105262900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 239994478014
+    },
+    {
+      "start_ns": 611831350142100,
+      "end_ns": 611834582725500,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 239998912749
+    },
+    {
+      "start_ns": 611835934329000,
+      "end_ns": 611839610859400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240003878966
+    },
+    {
+      "start_ns": 611840994261000,
+      "end_ns": 611842638251200,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 240007098784
+    },
+    {
+      "start_ns": 611843721077500,
+      "end_ns": 611847157253600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240011468597
+    },
+    {
+      "start_ns": 611848177737800,
+      "end_ns": 611850156162200,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 240014144449
+    },
+    {
+      "start_ns": 611852467219000,
+      "end_ns": 611857159121600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240021373001
+    },
+    {
+      "start_ns": 611858387081900,
+      "end_ns": 611860814539700,
+      "eligible": false,
+      "reason": "Actual verification bytes differ from independently committed original",
+      "gate_written_boottime_us": 240025179869
+    },
+    {
+      "start_ns": 611861955670400,
+      "end_ns": 611865541372700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240029957004
+    },
+    {
+      "start_ns": 611866730932900,
+      "end_ns": 611871271489600,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240035441648
+    },
+    {
+      "start_ns": 611872866944800,
+      "end_ns": 611877063363300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240041326933
+    },
+    {
+      "start_ns": 611877711855900,
+      "end_ns": 611880935004800,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240045332961
+    },
+    {
+      "start_ns": 611882038069800,
+      "end_ns": 611886401036600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240050799522
+    },
+    {
+      "start_ns": 611887327843200,
+      "end_ns": 611891084750000,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240055274253
+    },
+    {
+      "start_ns": 611892382219200,
+      "end_ns": 611896027835300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240060445005
+    },
+    {
+      "start_ns": 611896553407600,
+      "end_ns": 611899988110500,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240064417975
+    },
+    {
+      "start_ns": 611901459984800,
+      "end_ns": 611905359936700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240069701502
+    },
+    {
+      "start_ns": 611906075465300,
+      "end_ns": 611909802168700,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240074165721
+    },
+    {
+      "start_ns": 611911202609600,
+      "end_ns": 611915297925100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240079281174
+    },
+    {
+      "start_ns": 611915999162700,
+      "end_ns": 611919712173500,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240084050359
+    },
+    {
+      "start_ns": 611921043285400,
+      "end_ns": 611925276914500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240089063326
+    },
+    {
+      "start_ns": 611925964440200,
+      "end_ns": 611929780232800,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240094200914
+    },
+    {
+      "start_ns": 611931020934900,
+      "end_ns": 611934395237100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240098842127
+    },
+    {
+      "start_ns": 611935223354100,
+      "end_ns": 611938907294800,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240103223494
+    },
+    {
+      "start_ns": 611940555522300,
+      "end_ns": 611946333999900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240110560224
+    },
+    {
+      "start_ns": 611949099200200,
+      "end_ns": 611952487235100,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240116883923
+    },
+    {
+      "start_ns": 611953919960200,
+      "end_ns": 611958457705500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240122764332
+    },
+    {
+      "start_ns": 611959311143100,
+      "end_ns": 611964197262100,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240128538501
+    },
+    {
+      "start_ns": 611965732889200,
+      "end_ns": 611970985921700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240135224309
+    },
+    {
+      "start_ns": 611971736899500,
+      "end_ns": 611976102862200,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240140402910
+    },
+    {
+      "start_ns": 611977660206700,
+      "end_ns": 611981966716300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240146262171
+    },
+    {
+      "start_ns": 611982677975000,
+      "end_ns": 611988498462900,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240151071608
+    },
+    {
+      "start_ns": 611991238282800,
+      "end_ns": 611999999405100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240164401088
+    },
+    {
+      "start_ns": 612001609641100,
+      "end_ns": 612005679908900,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240170123599
+    },
+    {
+      "start_ns": 612007027201600,
+      "end_ns": 612016655960100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240180988136
+    },
+    {
+      "start_ns": 612017395108800,
+      "end_ns": 612021808026700,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240185805641
+    },
+    {
+      "start_ns": 612024385830000,
+      "end_ns": 612033629765800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240198050947
+    },
+    {
+      "start_ns": 612035033986600,
+      "end_ns": 612039001485400,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240203119945
+    },
+    {
+      "start_ns": 612042843600300,
+      "end_ns": 612046685855100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240210931488
+    },
+    {
+      "start_ns": 612047355349800,
+      "end_ns": 612051802784800,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240216138807
+    },
+    {
+      "start_ns": 612053323789900,
+      "end_ns": 612057286473900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240221573744
+    },
+    {
+      "start_ns": 612058036388000,
+      "end_ns": 612062335237600,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240225887903
+    },
+    {
+      "start_ns": 612063741843500,
+      "end_ns": 612070139145400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240234463116
+    },
+    {
+      "start_ns": 612070810995500,
+      "end_ns": 612074646517100,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240239119356
+    },
+    {
+      "start_ns": 612075807636300,
+      "end_ns": 612079458745300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240243880332
+    },
+    {
+      "start_ns": 612080154592300,
+      "end_ns": 612085073289800,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240249522519
+    },
+    {
+      "start_ns": 612086531168500,
+      "end_ns": 612090553135700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240254600806
+    },
+    {
+      "start_ns": 612091502428500,
+      "end_ns": 612095513338900,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240259760952
+    },
+    {
+      "start_ns": 612101605626400,
+      "end_ns": 612105803390000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240270191841
+    },
+    {
+      "start_ns": 612106766555900,
+      "end_ns": 612111345935100,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240275222560
+    },
+    {
+      "start_ns": 612112798388600,
+      "end_ns": 612116595411100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240280925823
+    },
+    {
+      "start_ns": 612117838556300,
+      "end_ns": 612122080032400,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240286301983
+    },
+    {
+      "start_ns": 612123721483600,
+      "end_ns": 612127658592700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240291888695
+    },
+    {
+      "start_ns": 612128464556700,
+      "end_ns": 612133187583800,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240297668355
+    },
+    {
+      "start_ns": 612136802602100,
+      "end_ns": 612143008107000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240307421065
+    },
+    {
+      "start_ns": 612143669442100,
+      "end_ns": 612148732764100,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240312883038
+    },
+    {
+      "start_ns": 612149967336600,
+      "end_ns": 612156247674300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240320169976
+    },
+    {
+      "start_ns": 612159957053200,
+      "end_ns": 612164189708900,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240328431757
+    },
+    {
+      "start_ns": 612165332377200,
+      "end_ns": 612169243105300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240333750545
+    },
+    {
+      "start_ns": 612169903926100,
+      "end_ns": 612179114981300,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240343441833
+    },
+    {
+      "start_ns": 612180662086300,
+      "end_ns": 612184930397400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240349356762
+    },
+    {
+      "start_ns": 612186281812600,
+      "end_ns": 612196749536200,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240361084198
+    },
+    {
+      "start_ns": 612198233870300,
+      "end_ns": 612201941923900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240366388253
+    },
+    {
+      "start_ns": 612203793696400,
+      "end_ns": 612207726949200,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240372141988
+    },
+    {
+      "start_ns": 612209264299200,
+      "end_ns": 612213347685700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240377462709
+    },
+    {
+      "start_ns": 612214144063300,
+      "end_ns": 612218197373700,
+      "eligible": false,
+      "reason": "Full header mismatch",
+      "gate_written_boottime_us": 240382665013
+    },
+    {
+      "start_ns": 612220867351400,
+      "end_ns": 612227247987800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240391584732
+    },
+    {
+      "start_ns": 612229325338400,
+      "end_ns": 612233919748400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240398196747
+    },
+    {
+      "start_ns": 612234024644900,
+      "end_ns": 612238411181800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240402738061
+    },
+    {
+      "start_ns": 612238524838000,
+      "end_ns": 612242472228800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240406781214
+    },
+    {
+      "start_ns": 612242572344000,
+      "end_ns": 612246935334300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240411392795
+    },
+    {
+      "start_ns": 612247039408100,
+      "end_ns": 612251691102000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240415860777
+    },
+    {
+      "start_ns": 612251797120000,
+      "end_ns": 612256260986500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240420688728
+    },
+    {
+      "start_ns": 612256368169000,
+      "end_ns": 612260550329400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240424985160
+    },
+    {
+      "start_ns": 612260651749600,
+      "end_ns": 612264999242400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240429444249
+    },
+    {
+      "start_ns": 612265099881000,
+      "end_ns": 612269965804800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240434355567
+    },
+    {
+      "start_ns": 612270072917600,
+      "end_ns": 612274134747200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240438537092
+    },
+    {
+      "start_ns": 612274759070900,
+      "end_ns": 612276592170900,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 240440999054
+    },
+    {
+      "start_ns": 612278048559300,
+      "end_ns": 612282115909900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240446569181
+    },
+    {
+      "start_ns": 612282133994000,
+      "end_ns": 612289326301300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240452475612
+    },
+    {
+      "start_ns": 612289461765700,
+      "end_ns": 612293371084200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240457592249
+    },
+    {
+      "start_ns": 612293382323100,
+      "end_ns": 612298748130900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240463172557
+    },
+    {
+      "start_ns": 612299407576700,
+      "end_ns": 612301370916000,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 240465759943
+    },
+    {
+      "start_ns": 612303420226800,
+      "end_ns": 612309726891600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240472072419
+    },
+    {
+      "start_ns": 612309790239800,
+      "end_ns": 612314127126300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 240478533684
+    }
+  ],
+  "errors": [
+    "Traceback (most recent call last):\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 145, in main\n    tests()\n    ~~~~~^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 166, in tests\n    importlib.import_module(module).run(sys.modules[__name__])\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\scenarios.py\", line 101, in run\n    q.sql(\"INSERT INTO test_effect VALUES('committed',1);\",'test_verifier')\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 23, in sql\n    def sql(s,role='postgres',ok=True,timeout=30):return ex('psql','-X','-w','-h','/tmp/pgsock','-U',role,'-d','native_fixture','-At','-v','ON_ERROR_STOP=1',data=s,ok=ok,timeout=timeout)\n                                                         ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 22, in ex\n    def ex(*a,data=None,user='postgres',ok=True,timeout=30):return cmd(['docker','exec','--user',user,'-i',NAME,*a],data,ok,timeout)\n                                                                   ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_census_qualification\\qualification.py\", line 20, in cmd\n    if ok and r.returncode:raise RuntimeError(str(a[:5])+': '+r.stderr[-1800:])\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: ['docker', 'exec', '--user', 'postgres', '-i']: psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n\n"
+  ],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 5000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "0062084da58130273d51ec0efa91a59d65b6ac94beb2375930ce76b2741b892a",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "7ca3140d6fb8bf1562fd659a512f2286b96128ac47042de3513e6ef9978accfd  /usr/local/lib/flooow_test_login.so\nea6037a113887475c43538218f38883ae3df647ec4ab227a2b68bef2b17df68a  /usr/local/bin/flooow-test-receiver\nb93071184d773d74678be110730a2d644212bd1af352bf9b612870e119b7ab60  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "2bb44f03b85279be8de71bfa9c6d1d71cd4f9ecee387d265ac88ef43d5738416",
+    "census.h": "afec465c2e27bb105815abc3c454ef690e2e0369f19791b3099f78aaef537e31",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "drain_probe.py": "72cdbe6fd0953dec028de10a129271fb0701e5f148b0fe5b10256fdf3eca16ef",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "heartbeat.h": "134783cfddf8f98c4fe7a4a0ce4e948995edc92408aeb347fdf1ab0e0236139a",
+    "login.c": "793f920726816e475c85c3568f2bb524223bf2b38089e23979d1a9dd6e03b56b",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "oid_probe.py": "765942ca938916595e32fe2b5a5d83a3d17f0efea242ecfc827a7ed08f6d1fa5",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "1e43aa6fdfa15b1d3d9524ebdc39cfa35ada0b45a8f130291f2587cfb1c63ffa",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "7472c4d3caf492dadc60871821c1f9a69d660819f70fdc8b1ab73e4f7b586743",
+    "qualification.py": "84d9950bf30186826235ba8719b3b751f82ebaa354f13fb17a6ea8406328d581",
+    "README.md": "82d310a5dd6d1c50de6280c654724911a1b9d0155e4f3bc6bd6a079246ddfcf8",
+    "receiver.c": "9c2982519b160d4052263e6c4f8cb76b3a5953c0765e09da9493c166b17796f3",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "scenarios.py": "49d41ee3b2cbf0d910ec5563216f9ad646314027adf2997c3b9a9a74bc4f04b5",
+    "supervisor.c": "e3c7789a14d26b70619e129b9247ca8794207e9b955696bfa04bad4587e3e508",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

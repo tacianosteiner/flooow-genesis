@@ -1,0 +1,223 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "--detach",
+      "--name",
+      "flooow-0090-quarantine-0078290",
+      "--label",
+      "flooow.scope=0090-quarantine-closure",
+      "--network",
+      "none",
+      "--cpus",
+      "1",
+      "--memory",
+      "768m",
+      "--security-opt",
+      "seccomp=C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\docs\\evidence\\package-0090-g3f4-disposable-native-qualification\\SECCOMP-TEST.json",
+      "--tmpfs",
+      "/tmp",
+      "--tmpfs",
+      "/run",
+      "--tmpfs",
+      "/var/lib/postgresql",
+      "--entrypoint",
+      "sleep",
+      "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "infinity"
+    ],
+    "exit": 0,
+    "stdout": "9906da63088873d6b77547d6ed3714dcea2452eac1490faf69571d3d6986d94a\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\Downloads\\flooow-v042-implementation\\scripts\\validation\\package_0090_quarantine_qualification",
+      "flooow-0090-quarantine-0078290:/usr/local/src-full"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "cp",
+      "C:\\Users\\xmz_r\\AppData\\Local\\Temp\\flooow-native-qualification\\libpq-fe.h",
+      "flooow-0090-quarantine-0078290:/usr/local/src-full/libpq-fe.h"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "sh",
+      "-c",
+      "sha256sum /usr/local/src-full/*.c /usr/local/src-full/*.h"
+    ],
+    "exit": 0,
+    "stdout": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691  /usr/local/src-full/binding_codec.c\n3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693  /usr/local/src-full/binding_encode.c\ncde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754  /usr/local/src-full/boottime.c\ne5d3507863ef76e122075bc1c679d46110df7d4d5b4c619313d7e35ed10bb39f  /usr/local/src-full/census_snapshot_tests.c\n75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac  /usr/local/src-full/clone3_probe.c\n2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228  /usr/local/src-full/fake_receiver.c\n9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a  /usr/local/src-full/frame_tests.c\n55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343  /usr/local/src-full/heartbeat_tests.c\n7fd0e904a450bce8cfd4e23055b4d55991813f038f5af7318a29261a234608a8  /usr/local/src-full/login.c\n4c406f9b048782dbf6d330d7dc7b5a3266ffb67b0d01f77595c6ef7a80c17205  /usr/local/src-full/namespace_replay.c\n3b461ac8db69f57fcd73510b1771ff1ccda4d299c4197d2d8d4eb7e2b31a6073  /usr/local/src-full/observer.c\nf86fac5ebb8d6aef82c5fd568cfe2f2ec826df8a28d1b4c8cc0a2931a5766c21  /usr/local/src-full/observer_state_tests.c\n13d881c9d54d4a080d6084ac408c4ba91372b29a0e6f8d80dfbadafcce8e0c3f  /usr/local/src-full/receiver.c\n2d053f661044d4371b3d80b8d9aa7455d43640e2c58a9d9a70d6c37d7e85618f  /usr/local/src-full/scm_replay.c\n9348f759c573c74c252a435fce04be419c04925cb6537ae87eff6fff17a76547  /usr/local/src-full/supervisor.c\n214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736  /usr/local/src-full/census.h\na74b4c14c8812cab34e92932f10200c6351656568fa84b34d42a774737855ba2  /usr/local/src-full/heartbeat.h\n499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0  /usr/local/src-full/libpq-fe.h\n0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99  /usr/local/src-full/protocol.h\n31e23581c78d5d9da3ef111d3e15e07c265f28337e312fe9672f63b45d81b15d  /usr/local/src-full/quarantine.h\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/login.c",
+      "-o",
+      "/usr/local/lib/flooow_test_login.so",
+      "-Wno-unused-parameter",
+      "-fPIC",
+      "-shared",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/include/postgresql/internal",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/observer.c",
+      "-o",
+      "/usr/local/bin/flooow-test-observer",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/local/src-full",
+      "-l:libpq.so.5",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/receiver.c",
+      "-o",
+      "/usr/local/bin/flooow-test-receiver",
+      "-I/usr/include/postgresql/18/server",
+      "-I/usr/local/src-full",
+      "-l:libpq.so.5",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/supervisor.c",
+      "-o",
+      "/usr/local/bin/flooow-test-supervisor",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/frame_tests.c",
+      "-o",
+      "/usr/local/bin/flooow-test-frame",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "gcc",
+      "-D_GNU_SOURCE",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-misleading-indentation",
+      "/usr/local/src-full/boottime.c",
+      "-o",
+      "/usr/local/bin/boottime",
+      "-lcrypto",
+      "-ldl"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "flooow-0090-quarantine-0078290",
+      "/usr/local/bin/flooow-test-frame"
+    ],
+    "exit": 0,
+    "stdout": "{\"frame_parser_cases\":237,\"result\":\"PASS\",\"scope\":\"UTF8_NFC_ICU76\"}\n",
+    "stderr": ""
+  }
+]

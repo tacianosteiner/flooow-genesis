@@ -1,0 +1,200 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "tombstone",
+      "name": "dropped_identity_tombstoned",
+      "result": "PASS_HANDLED",
+      "detail": "Protected tombstone committed before DROP"
+    },
+    {
+      "group": "tombstone",
+      "name": "same_name_new_oid_denied",
+      "result": "FAIL",
+      "detail": {
+        "exit": 0,
+        "stderr": "",
+        "elapsed_us": 816338.5
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "forced_reuse_actual_catalog",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old_oid": 16388,
+        "replacement_oid": 16388,
+        "method": "Disposable superuser catalog injection; not allocator behavior"
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "old_oid_new_name_denied",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: allocated identity mismatch\n"
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "same_name_same_oid_old_binding_denied",
+      "result": "FAIL",
+      "detail": {
+        "exit": 0,
+        "stderr": "",
+        "elapsed_us": 637853.1
+      }
+    },
+    {
+      "group": "tombstone",
+      "name": "no_implicit_reallocation",
+      "result": "PASS_HANDLED",
+      "detail": "No tombstone erasure or old allocation reuse"
+    },
+    {
+      "group": "tombstone",
+      "name": "explicit_fresh_allocation_entire_new_binding",
+      "result": "NOT_RUN",
+      "detail": "Fresh governed allocation/full approval rebuild remains unqualified; old binding deliberately remains ineligible"
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 612841077312100,
+      "end_ns": 612846035274100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241010582114
+    },
+    {
+      "start_ns": 612849726460700,
+      "end_ns": 612853122483300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241017750907
+    },
+    {
+      "start_ns": 612853123005700,
+      "end_ns": 612858129655500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241022563474
+    },
+    {
+      "start_ns": 612858235062600,
+      "end_ns": 612862899956700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241027160874
+    },
+    {
+      "start_ns": 612863009433100,
+      "end_ns": 612866997891800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241031624864
+    },
+    {
+      "start_ns": 612867109935200,
+      "end_ns": 612870312139800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 241034939872
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "68e2e906d6e3c59e5c1deb9bdbdf79eab9f2e3f9ece03ad4dfb3a2f5e880a136",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "d6450e49c9e24e928a98a1870ed78f6c240899ef4ccbdae1333b9e8f8074c9a5  /usr/local/lib/flooow_test_login.so\n2dd6e75be344247d31272299df65848a576844b3f4cb5a691eb3bfe9e9f07ffc  /usr/local/bin/flooow-test-receiver\n01351b3ab0b394dec6cd0945e25c1ab085304f8cd18d60b87351b9a86142b5d4  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "f7b3379db16e4e609aa1114e2e4a0ef61ab2d98b204b6403386c0026946374df",
+    "census.h": "afec465c2e27bb105815abc3c454ef690e2e0369f19791b3099f78aaef537e31",
+    "census_probe.py": "2895fb1956012f799f4d70b4104fc3d20f706a5b050f66e9f458fbc0b7ccab98",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "72cdbe6fd0953dec028de10a129271fb0701e5f148b0fe5b10256fdf3eca16ef",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "heartbeat.h": "134783cfddf8f98c4fe7a4a0ce4e948995edc92408aeb347fdf1ab0e0236139a",
+    "login.c": "702367a81d38bbbd388de4fc4b8667d378ed9e898e22cccb4617f56ac1f068da",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "oid_probe.py": "765942ca938916595e32fe2b5a5d83a3d17f0efea242ecfc827a7ed08f6d1fa5",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "7472c4d3caf492dadc60871821c1f9a69d660819f70fdc8b1ab73e4f7b586743",
+    "qualification.py": "dd6a8b73d4f36d79ed1d2af2005c9fc761126cba5dd00f3fc15ce320d89fd457",
+    "README.md": "82d310a5dd6d1c50de6280c654724911a1b9d0155e4f3bc6bd6a079246ddfcf8",
+    "receiver.c": "d4ab2d9e6a794bffa62b531f04e3a24f672a4885aa99cb2e32ef79a1c62a538d",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "scenarios.py": "7ce42310057151491002395bfc9f5d60fe728760dc9fe2b6dd13a42ab253f0c5",
+    "storage_probe.py": "ec446b55fe90be31fa2fd3e557d2f87f064e20c6653589a56ee797edca5a9590",
+    "supervisor.c": "98183936629a17c057585a4f6ad4d41a86bd03173153547c137f19952b76bd51",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

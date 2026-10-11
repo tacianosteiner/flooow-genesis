@@ -1,0 +1,571 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "replay",
+      "name": "actual_fresh_joint_generation",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "old": "c59a37852bc136390e8d69efbe56f287003008f233fed12365717ae4f0969209",
+        "new": "1d64d250d9f881928890652896f62adcaccc29ea04505afae62e6efa27ab4b62",
+        "context": "receiver/postmaster/supervisor/observer independently retained in one bootstrap"
+      }
+    },
+    {
+      "group": "replay",
+      "name": "replayed_ACCEPT",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "actual_previously_accepted_reply_sha256": "c515d5f13acce91171f54ae363d57ef53b91b99da9c0bb2e4b767eab4fe36bbb",
+        "old_epoch": "c59a37852bc136390e8d69efbe56f287003008f233fed12365717ae4f0969209",
+        "current_epoch": "1d64d250d9f881928890652896f62adcaccc29ea04505afae62e6efa27ab4b62",
+        "reply_source": "exact prior 76 bytes, not flipped or fabricated bytes"
+      }
+    },
+    {
+      "group": "replay",
+      "name": "current_ACCEPT_after_actual_replay_recovers",
+      "result": "PASS_HANDLED",
+      "detail": "No reuse of old reply or old backend request digest"
+    },
+    {
+      "group": "replay",
+      "name": "actual_old_joint_generation_frame",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "old_epoch": "c59a37852bc136390e8d69efbe56f287003008f233fed12365717ae4f0969209",
+        "current_epoch": "1d64d250d9f881928890652896f62adcaccc29ea04505afae62e6efa27ab4b62",
+        "new_live_self_anchor": true,
+        "same_full_synthetic_binding": true
+      }
+    },
+    {
+      "group": "replay",
+      "name": "current_generation_frame_recovers",
+      "result": "PASS_HANDLED",
+      "detail": "Old bytes cannot rebuild current retained registry"
+    },
+    {
+      "group": "replay",
+      "name": "old_approval_generation_frame",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: authenticated pending context denied\n",
+        "elapsed_us": 327711.4
+      }
+    },
+    {
+      "group": "replay",
+      "name": "old_attestation_bundle_frame",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: authenticated pending context denied\n",
+        "elapsed_us": 257082.6
+      }
+    },
+    {
+      "group": "replay",
+      "name": "replay-accept-epoch",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 243144.9
+      }
+    },
+    {
+      "group": "replay",
+      "name": "replay-accept-digest",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 252879.1
+      }
+    },
+    {
+      "group": "replay",
+      "name": "replayed_SCM_RIGHTS",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "actual_original_backend_admitted": true,
+        "stdout": "{\"event\":\"actual_live_backend_anchor_captured\",\"pid\":1584,\"inode\":5786331,\"role_oid\":16385,\"frame_sha256\":\"58d578e3df6fda474ec5937ee393fb74248ebca21eab6ac8737bc0a83f572c8a\"}\n{\"event\":\"actual_dead_anchor_SCM_RIGHTS_replayed\",\"retained_inode\":5786331,\"kernel_dead\":true,\"deny_reason\":6,\"denied\":true}\n",
+        "stderr": "",
+        "helper_exit": 0,
+        "anchor_acquisition": "SCM_RIGHTS from actual self pidfd; no foreign PID lookup",
+        "experimental_helper_budget_s": 20,
+        "policy_authority": "NONE",
+        "binary_sha256": "5136f68e5d8d971fab2266f6c322d1a4d05d871a2b6e0c3fa1ed45a30b43c6af  /usr/local/bin/scm-replay\n"
+      }
+    },
+    {
+      "group": "replay",
+      "name": "native_admission_after_descriptor_replay_recovers",
+      "result": "PASS_HANDLED",
+      "detail": "Dead replay cannot promote the observation registry or reopen a prior anchor"
+    },
+    {
+      "group": "foreign_namespace/admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody",
+      "nested_raw_path": "foreign-valid-namespace/RAW-QUALIFICATION.json"
+    },
+    {
+      "group": "foreign_namespace/admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody",
+      "nested_raw_path": "foreign-valid-namespace/RAW-QUALIFICATION.json"
+    },
+    {
+      "group": "foreign_namespace/admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody",
+      "nested_raw_path": "foreign-valid-namespace/RAW-QUALIFICATION.json"
+    },
+    {
+      "group": "foreign_namespace/admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody",
+      "nested_raw_path": "foreign-valid-namespace/RAW-QUALIFICATION.json"
+    },
+    {
+      "group": "foreign_namespace/admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied",
+      "nested_raw_path": "foreign-valid-namespace/RAW-QUALIFICATION.json"
+    },
+    {
+      "group": "foreign_namespace/namespace",
+      "name": "foreign_valid_backend_capture",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "original_admitted": true,
+        "stdout": "{\"event\":\"actual_live_backend_anchor_captured\",\"pid\":795,\"inode\":5791177,\"role_oid\":16385,\"frame_sha256\":\"b9495ff941321762c5b85134b45fda039d0c37e3af0d49947b2d9fcc3689ab44\"}\n{\"event\":\"actual_dead_anchor_SCM_RIGHTS_replayed\",\"retained_inode\":5791177,\"kernel_dead\":true,\"deny_reason\":6,\"denied\":true}\n",
+        "stderr": "",
+        "frame_sha256": "b9495ff941321762c5b85134b45fda039d0c37e3af0d49947b2d9fcc3689ab44",
+        "public_bytes_only": true,
+        "no_exported_pidfd_or_private_key": true
+      },
+      "nested_raw_path": "foreign-valid-namespace/RAW-QUALIFICATION.json"
+    },
+    {
+      "group": "namespace",
+      "name": "independent_valid_bootstrap_cleanup",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "errors": [],
+        "container_removed": true,
+        "private_key_absent": true,
+        "network": "none",
+        "mounts": []
+      }
+    },
+    {
+      "group": "replay",
+      "name": "valid_protocol_wrong_namespace",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "stdout": "{\"event\":\"actual_valid_foreign_namespace_frame\",\"self_anchor_alive\":true,\"deny_reason\":3,\"context_denied\":true}\n",
+        "stderr": "",
+        "exit": 0,
+        "foreign_frame_sha256": "b9495ff941321762c5b85134b45fda039d0c37e3af0d49947b2d9fcc3689ab44",
+        "bytes_unmodified": true,
+        "sender_self_anchor": "native helper own self pidfd; same UID/GID and kernel peer/sender identity",
+        "expected_denial_boundary": "full context reason 3 before catalog or registry promotion",
+        "descriptor_cross_namespace_transfer": false,
+        "numeric_policy_authority": "NONE"
+      }
+    },
+    {
+      "group": "namespace",
+      "name": "current_native_admission_after_foreign_context_recovers",
+      "result": "PASS_HANDLED",
+      "detail": "Foreign context cannot grant eligibility or erase current enrollment"
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 676962396843000,
+      "end_ns": 676964349599100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263642452677
+    },
+    {
+      "start_ns": 676965970933700,
+      "end_ns": 676967609051000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263645831730
+    },
+    {
+      "start_ns": 676967609380900,
+      "end_ns": 676969369444800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263647517061
+    },
+    {
+      "start_ns": 676969475040500,
+      "end_ns": 676971409944400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263649594568
+    },
+    {
+      "start_ns": 676971525307900,
+      "end_ns": 676972887987000,
+      "eligible": false,
+      "reason": "['docker', 'exec', '--user', 'postgres', '-i']: psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n",
+      "gate_written_boottime_us": 263651133789
+    },
+    {
+      "start_ns": 676972910494600,
+      "end_ns": 676974220465500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263652442085
+    },
+    {
+      "start_ns": 676974220505300,
+      "end_ns": 676975549902700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263653782129
+    },
+    {
+      "start_ns": 676975659820400,
+      "end_ns": 676977286432200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263655453511
+    },
+    {
+      "start_ns": 676977822187900,
+      "end_ns": 676978795540900,
+      "eligible": false,
+      "reason": "External approval artifact differs",
+      "gate_written_boottime_us": 263656904930
+    },
+    {
+      "start_ns": 676979402383900,
+      "end_ns": 676980690481900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263658938506
+    },
+    {
+      "start_ns": 676981110763900,
+      "end_ns": 676981793808900,
+      "eligible": false,
+      "reason": "Original signed bundle differs from custody commitment",
+      "gate_written_boottime_us": 263660048439
+    },
+    {
+      "start_ns": 676982268298700,
+      "end_ns": 676983470580700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263661724577
+    },
+    {
+      "start_ns": 676983527311900,
+      "end_ns": 676984900484700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263663153665
+    },
+    {
+      "start_ns": 676985009927200,
+      "end_ns": 676986405730300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263664658967
+    },
+    {
+      "start_ns": 676986509910200,
+      "end_ns": 676987930889500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263666101808
+    },
+    {
+      "start_ns": 676988041884800,
+      "end_ns": 676990035839800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263668155807
+    },
+    {
+      "start_ns": 676990142041000,
+      "end_ns": 676992174103300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263670308730
+    },
+    {
+      "start_ns": 676992275537500,
+      "end_ns": 676993814555700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263672066979
+    },
+    {
+      "start_ns": 676993925230200,
+      "end_ns": 676995532992500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263673791107
+    },
+    {
+      "start_ns": 676995643527200,
+      "end_ns": 676996967367700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263675192504
+    },
+    {
+      "start_ns": 676997077160200,
+      "end_ns": 676998793568400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263676942729
+    },
+    {
+      "start_ns": 676998894337300,
+      "end_ns": 677000794899400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263678948634
+    },
+    {
+      "start_ns": 677000895633600,
+      "end_ns": 677002319085900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263680585000
+    },
+    {
+      "start_ns": 677002426920500,
+      "end_ns": 677003703651200,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263681963625
+    },
+    {
+      "start_ns": 677003810610500,
+      "end_ns": 677005127949600,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263683376445
+    },
+    {
+      "start_ns": 677005228835500,
+      "end_ns": 677006760418100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263685019705
+    },
+    {
+      "start_ns": 677006860509000,
+      "end_ns": 677008102723900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263686350743
+    },
+    {
+      "start_ns": 677008211467500,
+      "end_ns": 677009706176400,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263687910168
+    },
+    {
+      "start_ns": 677009809292000,
+      "end_ns": 677011574508900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263689683243
+    },
+    {
+      "start_ns": 677011677406400,
+      "end_ns": 677013802224300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263691878390
+    },
+    {
+      "start_ns": 677013911177000,
+      "end_ns": 677015594442500,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263693818849
+    },
+    {
+      "start_ns": 677015695414000,
+      "end_ns": 677017106583300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263695339191
+    },
+    {
+      "start_ns": 677017211150000,
+      "end_ns": 677018539480700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 263696786905
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "heartbeat_deadline_us": 10000000,
+    "heartbeat_payload": "kernel_sender_bound_monotonic_emission_stamp",
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "b13396b306f0a02efb2ec2ef27e0ac83025319b691b411e17d534544688844cd",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "nested_namespace_evidence": {
+    "directory": "foreign-valid-namespace",
+    "container_name": "flooow-0090-quarantine-namespace-ded730df7dec",
+    "scope": "TEST_ONLY_NONCANONICAL",
+    "private_material_exported": false
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "ef9c3507f40a42cc77b45d87cb6dbfb150780f9cf617c8fac8c64b59190b77de  /usr/local/lib/flooow_test_login.so\n740a8b65b096fc2119b15b2c34e9db8728dc5fcfc25a6a186d4e34aedec5eb6f  /usr/local/bin/flooow-test-receiver\n2945a03a906ca4d430794a452af3ccdff194da185530a9e10559b68e61c4c19b  /usr/local/bin/flooow-test-supervisor\n993b8632b646b813bf81bc2914509c292ccf68668515218793c321d2329727e2  /usr/local/bin/flooow-test-observer\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "audit_scope.py": "6a10112b6f0e8ee6e452b9aed7122de4a18e06b0ecb1b405b7bb2c9551a74eaa",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_encode.c": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+    "binding_encoding_probe.py": "7f8aff9a91eff29a59a223fb03f2865e4201d919600f6bda9c2b72a784e9856c",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "fc085efd6aab500509ab022272fe072aa8b9a3f46b48dbb9dd7503f9f82133fd",
+    "census.h": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+    "census_probe.py": "23c33139132a40d640b50615f1b23fc5e1e90c48024ca2a6a3a12cbb44e24e25",
+    "census_snapshot_tests.c": "e5d3507863ef76e122075bc1c679d46110df7d4d5b4c619313d7e35ed10bb39f",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "compound_probe.py": "0919182391bef4e61110a148582f042c5eac3197d1554259c2a4a5c67eea2a35",
+    "consolidate.py": "3fde3fd18f755ac83c7f133685fe48387b5a542610a88971f7e17464eb4aea8e",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "b4c0a91e811f95fceee22eed2fc1c79ccf25590b74d670609fa4494c2046bec1",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228",
+    "final_report.py": "fbc98e0059e6c27348c053355e700d087e4a817e625549a1c34bb567a1a9b589",
+    "finite_schedule_probe.py": "24a65d2d06afa9308b1f2fb76748a22a33c462cc836dbaca28d37f17d30ed29e",
+    "foreign_capture_probe.py": "ad6a89f30cb396f3a3e8595c384487c0c98fbc6eb0ef8fa2fe68b9201183fa52",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "freeze_review.py": "2722d815b5500dc3b4e51a901a27423ef694221a4930934f820d50a09b84b9e0",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "FrozenSnapshotParity.java": "87588fd060de5c2381c745e2a554ba61881a949dcbc0aae0911c8838bf670e0b",
+    "frozen_execution_probe.py": "be107f46f14dba2ed1cca946af8b983aec85d5ca6ec9091c355f11ef33c4cdda",
+    "heartbeat.h": "a74b4c14c8812cab34e92932f10200c6351656568fa84b34d42a774737855ba2",
+    "heartbeat_tests.c": "55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343",
+    "login.c": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+    "mission.py": "a490237697f9be1b0081383af2fb7ac01dad2147c935ddd6aae62ad9a805407c",
+    "namespace_replay.c": "4c406f9b048782dbf6d330d7dc7b5a3266ffb67b0d01f77595c6ef7a80c17205",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "observer.c": "58f476fd77c662aeb34f9f184ad2be2ad77d243bbbcb3bf29abebc67f5e67291",
+    "observer_state_tests.c": "89b8ae78abb664f8b140b1473e49b59203d88b88bab9a3ea85a4f199378a1439",
+    "oid_probe.py": "120913df98d9ad779da0a5f7ec0ce90d66c79d85a8f1993de96b0cd797255f72",
+    "parallel_before_probe.py": "f58c098babab709cdcfd22e71ee1750b599ebf16fade35dbd19fb03083c39be9",
+    "participant_dead_probe.py": "07eeac427c0a1cc663d3f72b923ead8c8a97b389e80f395e6cd88af95fa70239",
+    "population_state_tests.c": "fa523c9cefcacfcafb081608eb1a248711d65af559b20ae6e8e2775c13c6ca26",
+    "prepare_observer.py": "ba3260ed69a7e4fe34a6db866d2ce8525671b131a816104a02200691ee0203d5",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "process_class.h": "92c1b915548e02e2731810eaa3878cf626faa82caf6329ed493d1d64b8df548d",
+    "process_population_probe.py": "c2e68098ebb9c42ade394c43018f8f2b0699e2b9312ea9ff91c2266aea98ceec",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "3dce8e575cedf1973f23976ef62947707a27f24de1fdb99d71be0dafac31a547",
+    "qualification.py": "073f28d781093e2f87ed6ffc20cb2719e9683d5b70f75bd0228bd327b8097a6a",
+    "quarantine.h": "31e23581c78d5d9da3ef111d3e15e07c265f28337e312fe9672f63b45d81b15d",
+    "quarantine_probe.py": "b8a6611c3e8fe7d7ae4fe2bc2adf511c4ea0f1e3faa50f31630fe71fe8d2ba36",
+    "README.md": "47d416dfde6c1fd0c48131b2b38eff83e34caf5c7ea2eed348408e389f7e8fd1",
+    "receiver.c": "13d881c9d54d4a080d6084ac408c4ba91372b29a0e6f8d80dfbadafcce8e0c3f",
+    "reference_probe.py": "326dec90f4bb9a77e6bc98da279e8d4fcaab82f1040b5c23671b1c1eb8402b91",
+    "replay_probe.py": "d148b95274de95831502ca3beb0d66414cb02f6aa8b49ecfed9c305e7934de69",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_active_death_final.py": "65e3f4273ede27276c309883ac754b15ee247d9e5e1751f486b8f52e68a01a3e",
+    "run_corrected_final.py": "ff920fc84467f45a7d6197db73bf97e8ad3203868d87749c200f0c6471bc5625",
+    "run_drain_complete_final.py": "d5dfc82643bfef429e869e5b7b1c092f7208ecc2b918c661a530a586045a6c54",
+    "run_followups.py": "ed5780782ac0bbefc89e439c54a23a5dd580fe33c7cb524dd0210c57b306431f",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "run_hup_corrected_final.py": "9a4f9c5e5961dc305ddb9a7f6adb80fea300486a74badc0b3ef2dc09bf028854",
+    "run_last_regression.py": "f7eb3c8c8dd912d1bd6b05e42c19f688a0f7f9ab348d59cc512d404c5006e68a",
+    "run_load_corrected_final.py": "8683d35a59fec16bccd7b7ad2c826d3043fbfa5e4f5c0709361f1025eb169d0b",
+    "run_socket_final.py": "d612fd936c7b2019b99bf65690e30d933d635b0246bd97845f16f19fac6d6e6e",
+    "scenarios.py": "4a9f3538798dc0f2558170a351187747b7b9fabfd2bbea09c714f267606a4482",
+    "schedule_probe.py": "b7cd8b0789cdde68473f3662513ee140335181135f981b0443829facba4e8f6c",
+    "scm_replay.c": "2d053f661044d4371b3d80b8d9aa7455d43640e2c58a9d9a70d6c37d7e85618f",
+    "socket_probe.py": "86e0f9b0bbbb3cd9e9b335d4607999cbcd5c532e85cedc71e078f27a2a38ed92",
+    "storage_probe.py": "06d4e4d15687dce1f3f231fced409f0f3a092fa3570bd8013994e6680fe0214d",
+    "successive_ceremony_probe.py": "e652604332778f484261097c0773708a340edace0802792ebc9cbdc3ea1dc946",
+    "successive_second_probe.py": "c79a499131be3727b39aea7c6711926e8f6d866e59249eb5b794834569e6ade8",
+    "supervisor.c": "9348f759c573c74c252a435fce04be419c04925cb6537ae87eff6fff17a76547",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}

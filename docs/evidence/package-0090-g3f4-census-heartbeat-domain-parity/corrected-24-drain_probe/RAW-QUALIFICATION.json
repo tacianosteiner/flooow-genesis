@@ -1,0 +1,253 @@
+{
+  "input_head": "0078290f79c8e6bcdc7b124ca0ae24963a915e2d",
+  "scope": "TEST_ONLY_NONCANONICAL",
+  "cases": [
+    {
+      "group": "admission",
+      "name": "test_verifier",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_issuer",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_executor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "test_auditor",
+      "result": "PASS_HANDLED",
+      "detail": "native login with full protected header + external current custody"
+    },
+    {
+      "group": "admission",
+      "name": "unmanaged_no_governed_authority",
+      "result": "PASS_HANDLED",
+      "detail": "unmanaged login allowed; binding raw access denied"
+    },
+    {
+      "group": "drain",
+      "name": "drain-active",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 260223.8
+      }
+    },
+    {
+      "group": "drain",
+      "name": "explicit_fixture_requalification_drain-active",
+      "result": "PASS_HANDLED",
+      "detail": "fixture controller explicitly clears flag; no automatic ownership release"
+    },
+    {
+      "group": "drain",
+      "name": "quarantine-active",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 365703.5
+      }
+    },
+    {
+      "group": "drain",
+      "name": "explicit_fixture_requalification_quarantine-active",
+      "result": "PASS_HANDLED",
+      "detail": "fixture controller explicitly clears flag; no automatic ownership release"
+    },
+    {
+      "group": "drain",
+      "name": "signals_unavailable_no_new_admission",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: independent eligibility absent\n",
+        "elapsed_us": 478672.3
+      }
+    },
+    {
+      "group": "drain",
+      "name": "current_custody_cannot_bypass_live_quarantine",
+      "result": "PASS_DENIED",
+      "detail": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: FATAL:  FLOOOW_TEST_ENROLLMENT_DENIED: invalid or denied ACK\n",
+        "elapsed_us": 307747.7
+      }
+    },
+    {
+      "group": "drain",
+      "name": "kernel_and_catalog_stop_required",
+      "result": "PASS_HANDLED",
+      "detail": {
+        "backend_exit": 2,
+        "catalog_disappeared": true,
+        "effects": "UNKNOWN_REQUIRES_RECONCILIATION",
+        "ownership_release": false
+      }
+    },
+    {
+      "group": "restart",
+      "name": "final_receiver_supervisor_restart",
+      "result": "PASS_HANDLED",
+      "detail": "expected parent peer pidfd matches retained supervisor anchor; fresh epoch"
+    }
+  ],
+  "observations": [
+    {
+      "start_ns": 615137381584400,
+      "end_ns": 615138814341900,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243303935562
+    },
+    {
+      "start_ns": 615140275974100,
+      "end_ns": 615141573477800,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243306741036
+    },
+    {
+      "start_ns": 615141573651800,
+      "end_ns": 615143225387000,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243308271284
+    },
+    {
+      "start_ns": 615143329859000,
+      "end_ns": 615144996572700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243310045162
+    },
+    {
+      "start_ns": 615145101233800,
+      "end_ns": 615147366652700,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243312374630
+    },
+    {
+      "start_ns": 615147773326200,
+      "end_ns": 615149278437500,
+      "eligible": false,
+      "reason": "Current custody missing, ambiguous, stale, revoked or target/digest mismatch",
+      "gate_written_boottime_us": 243314150354
+    },
+    {
+      "start_ns": 615150095741600,
+      "end_ns": 615151647589100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243316804533
+    },
+    {
+      "start_ns": 615153081036900,
+      "end_ns": 615154620370800,
+      "eligible": false,
+      "reason": "['docker', 'exec', '--user', 'postgres', '-i']: psql: error: connection to server on socket \"/tmp/pgsock/.s.PGSQL.5432\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n",
+      "gate_written_boottime_us": 243319740791
+    },
+    {
+      "start_ns": 615154651723600,
+      "end_ns": 615156261657300,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243321403474
+    },
+    {
+      "start_ns": 615156261748700,
+      "end_ns": 615157939521100,
+      "eligible": true,
+      "reason": "CURRENT_EXACT_EXTERNAL_CUSTODY",
+      "gate_written_boottime_us": 243323074779
+    }
+  ],
+  "errors": [],
+  "experimental_controls": {
+    "abort_us": 5000000,
+    "observer_gate_lease_us": 20000000,
+    "cancel_to_terminate_us": 200000,
+    "registry_capacity": 128,
+    "receiver_poll_ms": 20,
+    "heartbeat_deadline_us": 10000000,
+    "heartbeat_payload": "kernel_sender_bound_monotonic_emission_stamp",
+    "observer_pause_seconds": 0.1,
+    "policy_authority": "NONE"
+  },
+  "canonical_access": false,
+  "canonical_mutation": false,
+  "isolation": {
+    "id": "4e190f79e8585d14b909820ffff32ed34cf054bd95a4ca904cbc299ad0595388",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "network": "none",
+    "mounts": [],
+    "tmpfs": {
+      "/run": "",
+      "/tmp": "",
+      "/var/lib/postgresql": ""
+    },
+    "nano_cpus": 1000000000,
+    "memory": 805306368
+  },
+  "private_key_erasure": true,
+  "private_key_absent": true,
+  "binary_hashes": "d6450e49c9e24e928a98a1870ed78f6c240899ef4ccbdae1333b9e8f8074c9a5  /usr/local/lib/flooow_test_login.so\nfc876998bbca6cd7ab7117d447c033f6712ff400d1ad22b2bb6661e8eba22f19  /usr/local/bin/flooow-test-receiver\n8ddf7b4a41decfaf503bfd44cab7134a5f3fa6bd4877ec4c78dfef78bd8cadc4  /usr/local/bin/flooow-test-supervisor\n",
+  "source_hashes": {
+    "audit_frozen.py": "607f111e61616bb4467529cc87264ea9aaa98e951fe7630bf5fda8ddd9965628",
+    "binding_codec.c": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+    "binding_encode.c": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+    "binding_encoding_probe.py": "efa87f04475be956acc4bfb91b0bd5f08ead0140968c3fa1ba8007b72c927e05",
+    "binding_parity.py": "727bb4a34c7856b91a5aef3ade1469789e117e8e834d2b1ff8ed77b68a0f8365",
+    "boottime.c": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+    "build.py": "010b2c514b49329010ac3d8fff050809bc31b1681a178f5594faa81ea8398453",
+    "census.h": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+    "census_probe.py": "2895fb1956012f799f4d70b4104fc3d20f706a5b050f66e9f458fbc0b7ccab98",
+    "clone3_probe.c": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+    "codec.py": "b2b5c9ae26d3d11a9e561aed84c3efaebe7ee1ae630687153f47570605978c30",
+    "consolidate.py": "c769b6ceda2ef7e40a2335bfb5744d3aa01ea8b8aba6e9f3f7d7080a6f5a6576",
+    "crypto_material_probe.py": "3730033720b9f421bc4fac8222983b6da2e33461c347543e1b40f8cbfbbf2751",
+    "domain_probe.py": "513cff5f30b2e462165462b9b8f9e3ecbde668ee7dbb9e66dd3cb72a9459ad06",
+    "drain_probe.py": "72cdbe6fd0953dec028de10a129271fb0701e5f148b0fe5b10256fdf3eca16ef",
+    "evolve.py": "38b51df81f020f99947dc13b1dc3f688aaadd170731a52228ff78acfc840c8d7",
+    "fake_receiver.c": "4fef2daa43201d89b116e41a8db38df66abc51e91ce7eef3a7bd2958a542b496",
+    "frame_tests.c": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+    "FrozenPublicParity.java": "130c9f5f5ee7dcbbeb904ed8ce812686c96f08318028ffca561f07475fc7dd83",
+    "heartbeat.h": "218d16d2c548684c855a023943fd8ea01a06ee76b4ba0d0cac90d89c18eebc28",
+    "heartbeat_tests.c": "ebd5a4c5f29de268d7a543a94d893c2cfc7b8a0b1d5dc6d0c386e828cc7f8b29",
+    "login.c": "702367a81d38bbbd388de4fc4b8667d378ed9e898e22cccb4617f56ac1f068da",
+    "native_parity.py": "afe7dbc94c1cc2b6ec21792cf222979e463c75282cad79b497d816ed762a1290",
+    "oid_probe.py": "120913df98d9ad779da0a5f7ec0ce90d66c79d85a8f1993de96b0cd797255f72",
+    "prepare_sources.py": "88b7eed47ad775aaad00bd21d4a9f8a58dc4c2d85bbdea659ca671418fef2dc3",
+    "progress_probe.py": "9aea4175626e014e0d4db559d9a92bea2b6092ea24385138659b71cfd8610761",
+    "protocol.h": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+    "public_parity.py": "3dce8e575cedf1973f23976ef62947707a27f24de1fdb99d71be0dafac31a547",
+    "qualification.py": "ba025487118c2a69448f1cd70eca1d86579d81ef8e006377de46348df2985eaa",
+    "README.md": "c1dd8d4d8cdc29680e419ab46638ce269edc11767e8b95183cec6f629696309e",
+    "receiver.c": "f941a3ef4a03bc8bb7cd45d34839ea15d5f57d8b771c60b117acd78faa32e9aa",
+    "restart_probe.py": "8d477e15e8fe0c684de1bc1c451be10a892e201a48911580411b2b9fc7fbc2f1",
+    "run_corrected_final.py": "ff920fc84467f45a7d6197db73bf97e8ad3203868d87749c200f0c6471bc5625",
+    "run_followups.py": "ed5780782ac0bbefc89e439c54a23a5dd580fe33c7cb524dd0210c57b306431f",
+    "run_gate.py": "2921f2e4e86f428e6a5ebdfc00b3044f4b220aa4d086bd759e5cce9a4608ecd4",
+    "run_hup_corrected_final.py": "9a4f9c5e5961dc305ddb9a7f6adb80fea300486a74badc0b3ef2dc09bf028854",
+    "run_last_regression.py": "f7eb3c8c8dd912d1bd6b05e42c19f688a0f7f9ab348d59cc512d404c5006e68a",
+    "run_socket_final.py": "d612fd936c7b2019b99bf65690e30d933d635b0246bd97845f16f19fac6d6e6e",
+    "scenarios.py": "9d091dc0ff2d73c1e82416ecb302070f552736de44dcf8c557b459f8a1edfcef",
+    "socket_probe.py": "839c06545f3dce178c4a1f77c4544ff922c9c46a9819836d620057ade948fba7",
+    "storage_probe.py": "06d4e4d15687dce1f3f231fced409f0f3a092fa3570bd8013994e6680fe0214d",
+    "supervisor.c": "58a386ef30af83652272acbfa52248b5d959d9f6b4b382c1c29182ddd391b160",
+    "supplement.py": "0c7a60c34ec4f07332d6742b3f22ec416610973731bc0c5b19243ab7b2d45101"
+  },
+  "owned_container_removed": true
+}
