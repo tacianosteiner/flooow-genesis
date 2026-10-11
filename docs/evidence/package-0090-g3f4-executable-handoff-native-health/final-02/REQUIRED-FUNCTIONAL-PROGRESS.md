@@ -1,0 +1,16 @@
+# Functional progress requirements — not provisioned
+
+The nine-dimension contract is a qualification obligation, not a new runtime protocol or approved numeric policy. No interval/threshold is selected. Any future producer must carry authenticated producer identity, postmaster and relevant supervisor/receiver generations, retained anchor identity, original monotonic emission epoch and a separately advancing completed-work sequence. The external observer must validate channel lineage and current dependencies immediately before eligibility decisions. A fresh heartbeat must not advance the completed-work sequence merely because a loop iterated.
+
+| Participant | Required completed-work witness | External observer | Required dependency context |
+|---|---|---|---|
+| Postmaster | Successfully completed server-derived catalog/identity observation for current postmaster start and retained process anchor; independently tracked server responsiveness | Supervisor and census observer | Current postmaster generation, server catalog and child anchor |
+| Supervisor | Completed dependency health evaluation and applicable gate/drain action, with recorded decision revision | Receiver and census observer | Receiver/observer/postmaster generations and acknowledged action |
+| Receiver | Completed authenticated admission validation and final freshness/applicability revalidation, including definitive reply outcome | Supervisor and census observer | Supervisor, observer, postmaster, current approval and registry/promotion revision |
+| Census observer | Successfully completed independent census with observed epoch and current-context CAS application, not entry into census loop | Supervisor and receiver | Postmaster/receiver/supervisor generations, backend pidfd, enrollment/anchor generation and registry revision |
+| Approval consumer | Completed signature/domain/current authority-consumption evaluation with immutable material digest and current approval-generation result | Native receiver/observer independent of producer | Current signed context and accepted consumption; publication alone is insufficient |
+| Enforcement worker | Completed cancellation/termination result observation and authoritative ownership/reconciliation transition; accepted signal issuance alone is insufficient | Supervisor/census observer independent of worker | Target pidfd and generation, ownership/attempt revision and retained authoritative effect/terminal state |
+
+Dead, stalled, wrong-identity/generation, disconnected, stale-heartbeat/progress or unavailable-dependency states must cause denial before promotion/ACCEPT, monotonic quarantine of affected eligible participants, owned drain initiation and retained ownership until authoritative reconciliation. Recovery observations cannot clear tombstones/quarantine or create eligibility. Generation replacement requires new independently validated current-context enrollment; no hot replacement protocol is inferred from the joint V1 epoch.
+
+These witnesses are incomplete in the current artifact. Their absence is recorded as HOLD, not repaired through an unapproved message/schema/channel extension. Existing applicable controls are all rerun; full-state NOT_RUN is explicit in `FULL-HEALTH-NOT-RUN.json`.
