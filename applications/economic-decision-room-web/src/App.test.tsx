@@ -200,6 +200,23 @@ describe('FLOOOW Executive Room V2', () => {
     ).toHaveTextContent('OBSERVED REVENUE · LIMITED INTELLIGENCE')
   })
 
+  it('surfaces decision pressure without inventing monetary materiality', async () => {
+    render(<App />)
+
+    const pressure = await screen.findByRole('region', {
+      name: 'Decision pressure',
+    })
+
+    expect(within(pressure).getByText('Truth unresolved')).toBeInTheDocument()
+    expect(
+      within(pressure).getByText('Economic incompleteness'),
+    ).toBeInTheDocument()
+    expect(within(pressure).getAllByText('UNQUANTIFIED').length).toBeGreaterThanOrEqual(2)
+    expect(within(pressure).getByText('Execution authority')).toBeInTheDocument()
+    expect(within(pressure).getByText('BLOCKED')).toBeInTheDocument()
+    expect(within(pressure).queryByText(/R\$/)).not.toBeInTheDocument()
+  })
+
   it('renders CFO lens', async () => {
     render(<App />)
     await userEvent.click(screen.getByRole('button', { name: 'CFO' }))

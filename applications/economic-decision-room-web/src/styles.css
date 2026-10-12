@@ -880,3 +880,132 @@ footer {
     border-bottom: 1px solid #1d2b3e;
   }
 }
+/* ROOM V2 - Materiality & Decision Pressure */
+
+.decision-pressure {
+  margin: 0 0 18px;
+  border: 1px solid #28394e;
+  border-radius: 11px;
+  overflow: hidden;
+  background: #09121d;
+}
+
+.decision-pressure-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #1d2b3e;
+}
+
+.decision-pressure-head > div {
+  display: grid;
+  gap: 5px;
+}
+
+.decision-pressure-head span,
+.pressure-item span {
+  color: #60738d;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1.15px;
+}
+
+.decision-pressure-head strong {
+  color: #e0e9f4;
+  font: 600 14px 'Space Grotesk';
+}
+
+.decision-pressure-head p {
+  max-width: 560px;
+  margin: 0;
+  color: #74849a;
+  font-size: 9px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.decision-pressure-list {
+  display: grid;
+}
+
+.pressure-item {
+  display: grid;
+  grid-template-columns: .78fr .82fr .72fr 1.35fr 1.35fr;
+  gap: 0;
+  align-items: stretch;
+  border-bottom: 1px solid #182638;
+}
+
+.pressure-item:last-child {
+  border-bottom: 0;
+}
+
+.pressure-item > div {
+  min-width: 0;
+  padding: 13px 14px;
+  border-right: 1px solid #182638;
+}
+
+.pressure-item > div:last-child {
+  border-right: 0;
+}
+
+.pressure-item strong {
+  display: block;
+  margin-top: 6px;
+  color: #d8e3ef;
+  font: 600 10px 'Space Grotesk';
+  line-height: 1.4;
+}
+
+.pressure-explanation p {
+  margin: 6px 0 0;
+  color: #7e8da1;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.pressure-item.warn .pressure-state > span,
+.pressure-item.warn .pressure-state > strong {
+  color: var(--amber);
+}
+
+.pressure-item.risk .pressure-state > span,
+.pressure-item.risk .pressure-state > strong {
+  color: var(--red);
+}
+
+.pressure-item.blocked .pressure-state > span,
+.pressure-item.blocked .pressure-state > strong {
+  color: #df9a75;
+}
+
+@media (max-width: 1350px) {
+  .pressure-item {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pressure-item > div {
+    border-bottom: 1px solid #182638;
+  }
+
+  .pressure-item > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .pressure-item > div:last-child {
+    grid-column: 1 / -1;
+    border-bottom: 0;
+  }
+
+  .decision-pressure-head {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .decision-pressure-head p {
+    text-align: left;
+  }
+}

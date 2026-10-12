@@ -356,6 +356,94 @@ function App() {
     reconciliationAvailability === 'AVAILABLE' &&
     cases.some((item) => item.status !== 'RESOLVED')
 
+  const openReconciliationCount =
+    reconciliationAvailability === 'AVAILABLE'
+      ? cases.filter((item) => item.status !== 'RESOLVED').length
+      : undefined
+
+  const decisionPressure = [
+    ...(unresolved.length > 0
+      ? [
+          {
+            id: 'truth-unresolved',
+            title: 'Truth unresolved',
+            pressure: 'BLOCKING',
+            observedScope: `${unresolved.length} observed order${unresolved.length === 1 ? '' : 's'}`,
+            materiality: 'UNQUANTIFIED',
+            reason:
+              'A verdade econômica não está resolvida; impacto monetário não pode ser presumido.',
+            next:
+              'Resolver identidade/evidência upstream antes de ampliar confiança executiva.',
+            tone: 'risk' as const,
+          },
+        ]
+      : []),
+    ...(incomplete.length > 0
+      ? [
+          {
+            id: 'truth-incomplete',
+            title: 'Economic incompleteness',
+            pressure: 'ATTENTION',
+            observedScope: `${incomplete.length} observed order${incomplete.length === 1 ? '' : 's'}`,
+            materiality: 'UNQUANTIFIED',
+            reason:
+              'Existem componentes econômicos ausentes; ausência não é convertida em zero.',
+            next:
+              'Completar os componentes faltantes antes de usar a projeção para conclusão financeira ampla.',
+            tone: 'warn' as const,
+          },
+        ]
+      : []),
+    ...(openReconciliationCount !== undefined && openReconciliationCount > 0
+      ? [
+          {
+            id: 'reconciliation-open',
+            title: 'Open reconciliation',
+            pressure: 'ATTENTION',
+            observedScope: `${openReconciliationCount} open case${openReconciliationCount === 1 ? '' : 's'}`,
+            materiality: 'UNQUANTIFIED',
+            reason:
+              'Há divergência persistida, mas esta superfície não possui quantificação econômica consolidada para presumir materialidade.',
+            next:
+              'Revisar os casos persistidos e sua evidência antes de fechamento ou ação.',
+            tone: 'warn' as const,
+          },
+        ]
+      : []),
+    ...(hasSystemicSignals
+      ? [
+          {
+            id: 'systemic-divergence',
+            title: 'Systemic divergence',
+            pressure: 'ATTENTION',
+            observedScope: `${signals.length} observed signal${signals.length === 1 ? '' : 's'}`,
+            materiality: 'UNQUANTIFIED',
+            reason:
+              'O sinal é sistêmico, porém o impacto econômico não é inferido sem evidência quantitativa.',
+            next:
+              'Investigar causa e escopo antes de qualquer recuperação.',
+            tone: 'risk' as const,
+          },
+        ]
+      : []),
+    ...(!ROOM_OPERATIONAL
+      ? [
+          {
+            id: 'execution-authority',
+            title: 'Execution authority',
+            pressure: 'BLOCKED',
+            observedScope: 'Room',
+            materiality: 'NOT APPLICABLE',
+            reason:
+              'A preview não possui autoridade operacional canônica.',
+            next:
+              'Manter qualquer execução fora desta superfície até prova e cerimônia governadas.',
+            tone: 'blocked' as const,
+          },
+        ]
+      : []),
+  ]
+
   const executiveSynthesis: Record<
     'CEO' | 'CFO' | 'COO' | 'CRO',
     {
@@ -647,6 +735,8 @@ function App() {
             hint={`${complete.length}/${orders.length} pedidos completos`}
           />
         </section>
+
+        <DecisionPressureBoard items={decisionPressure} />
 
         {lens === 'CEO' && (
           <>
@@ -1113,6 +1203,73 @@ function App() {
         </footer>
       </main>
     </div>
+  )
+}
+
+function DecisionPressureBoard({
+  items,
+}: {
+  items: Array<{
+    id: string
+    title: string
+    pressure: string
+    observedScope: string
+    materiality: string
+    reason: string
+    next: string
+    tone: 'warn' | 'risk' | 'blocked'
+  }>
+}) {
+  return (
+    <section
+      className="decision-pressure"
+      aria-label="Decision pressure"
+    >
+      <div className="decision-pressure-head">
+        <div>
+          <span>DECISION PRESSURE</span>
+          <strong>What requires attention now</strong>
+        </div>
+        <p>
+          Priority is derived from observed truth/governance state.
+          Monetary materiality remains unquantified unless evidence supports it.
+        </p>
+      </div>
+
+      <div className="decision-pressure-list">
+        {items.map((item) => (
+          <article
+            key={item.id}
+            className={`pressure-item ${item.tone}`}
+          >
+            <div className="pressure-state">
+              <span>{item.pressure}</span>
+              <strong>{item.title}</strong>
+            </div>
+
+            <div>
+              <span>OBSERVED SCOPE</span>
+              <strong>{item.observedScope}</strong>
+            </div>
+
+            <div>
+              <span>MATERIALITY</span>
+              <strong>{item.materiality}</strong>
+            </div>
+
+            <div className="pressure-explanation">
+              <span>WHY</span>
+              <p>{item.reason}</p>
+            </div>
+
+            <div className="pressure-explanation">
+              <span>NEXT</span>
+              <p>{item.next}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }
 
