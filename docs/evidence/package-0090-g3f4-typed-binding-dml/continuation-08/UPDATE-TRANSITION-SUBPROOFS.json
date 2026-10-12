@@ -1,0 +1,2590 @@
+{
+  "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN_N": 10,
+  "DML_COMPLETE_N": 0,
+  "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN_N": 9,
+  "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN_N": 9,
+  "UPDATE_SITE_N": 10,
+  "proofs": [
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "binding_id": {
+          "ParamRef": {
+            "location": 351,
+            "number": 1
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 371,
+            "number": 6
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 386,
+            "sval": {
+              "sval": "CREATED_NOT_DELIVERABLE"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 345,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 345,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_claim_attempt(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,uuid,uuid)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 338
+                  }
+                },
+                "location": 350,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 351,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 358
+                  }
+                },
+                "location": 370,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 371,
+                    "number": 6
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 378
+                  }
+                },
+                "location": 385,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 386,
+                    "sval": {
+                      "sval": "CREATED_NOT_DELIVERABLE"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 354
+        }
+      },
+      "id": "c61e15439a692261f685eec1",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_delivery_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                }
+              ],
+              "location": 37959
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 17398,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 17015,
+        "statement_ordinal": 1212,
+        "statement_sha256": "28bbc637e1d75104eea6b4c46de612a6fc77eb2221c6d1e3c8d0c4b69fd3d7e4",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 256,
+      "target_key": [
+        "binding_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "binding_id": {
+          "ParamRef": {
+            "location": 276,
+            "number": 1
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 296,
+            "number": 6
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 311,
+            "sval": {
+              "sval": "NOT_CREATED"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 1263,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 1263,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_apply_initial_credential(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 263
+                  }
+                },
+                "location": 275,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 276,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 283
+                  }
+                },
+                "location": 295,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 296,
+                    "number": 6
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 303
+                  }
+                },
+                "location": 310,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 311,
+                    "sval": {
+                      "sval": "NOT_CREATED"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 279
+        }
+      },
+      "id": "9d9f02756c5df1086e02f640",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_delivery_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                }
+              ],
+              "location": 37959
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 14387,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 13086,
+        "statement_ordinal": 1193,
+        "statement_sha256": "9da1ea905b8f0dc0b56c4e957f699c3e21c977dc626cfac4bd5510e20731e0a1",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 1119,
+      "target_key": [
+        "binding_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "decision_id": {
+          "ColumnRef": {
+            "fields": [
+              {
+                "String": {
+                  "sval": "new"
+                }
+              },
+              {
+                "String": {
+                  "sval": "supersedes_decision_id"
+                }
+              }
+            ],
+            "location": 342
+          }
+        },
+        "marketplace_order_id": {
+          "ColumnRef": {
+            "fields": [
+              {
+                "String": {
+                  "sval": "new"
+                }
+              },
+              {
+                "String": {
+                  "sval": "marketplace_order_id"
+                }
+              }
+            ],
+            "location": 289
+          }
+        },
+        "omie_connection_id": {
+          "ColumnRef": {
+            "fields": [
+              {
+                "String": {
+                  "sval": "new"
+                }
+              },
+              {
+                "String": {
+                  "sval": "omie_connection_id"
+                }
+              }
+            ],
+            "location": 175
+          }
+        },
+        "organization_id": {
+          "ColumnRef": {
+            "fields": [
+              {
+                "String": {
+                  "sval": "new"
+                }
+              },
+              {
+                "String": {
+                  "sval": "organization_id"
+                }
+              }
+            ],
+            "location": 132
+          }
+        },
+        "source_order_reference": {
+          "ColumnRef": {
+            "fields": [
+              {
+                "String": {
+                  "sval": "new"
+                }
+              },
+              {
+                "String": {
+                  "sval": "source_order_reference"
+                }
+              }
+            ],
+            "location": 237
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 11,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 11,
+              "message": "Identity head predecessor conflict",
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'23514'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.transaction_identity_advance()",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "organization_id"
+                        }
+                      }
+                    ],
+                    "location": 116
+                  }
+                },
+                "location": 131,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "new"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "organization_id"
+                        }
+                      }
+                    ],
+                    "location": 132
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "omie_connection_id"
+                        }
+                      }
+                    ],
+                    "location": 156
+                  }
+                },
+                "location": 174,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "new"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "omie_connection_id"
+                        }
+                      }
+                    ],
+                    "location": 175
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "source_order_reference"
+                        }
+                      }
+                    ],
+                    "location": 214
+                  }
+                },
+                "location": 236,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "new"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "source_order_reference"
+                        }
+                      }
+                    ],
+                    "location": 237
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "marketplace_order_id"
+                        }
+                      }
+                    ],
+                    "location": 268
+                  }
+                },
+                "location": 288,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "new"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "marketplace_order_id"
+                        }
+                      }
+                    ],
+                    "location": 289
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "decision_id"
+                        }
+                      }
+                    ],
+                    "location": 330
+                  }
+                },
+                "location": 341,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "new"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "supersedes_decision_id"
+                        }
+                      }
+                    ],
+                    "location": 342
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 152
+        }
+      },
+      "id": "b4f1cb89a5f04c65afb267e4",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "organization_id"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "omie_connection_id"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "source_order_reference"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "marketplace_order_id"
+                  }
+                }
+              ],
+              "location": 4197
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 255,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 240,
+        "statement_ordinal": 11,
+        "statement_sha256": "3a80fd3993a7609e765e9f35eba42c58ea90fcc9cc4d269b9b3f00b19959312f",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 2,
+      "target_key": [
+        "organization_id",
+        "omie_connection_id",
+        "source_order_reference",
+        "marketplace_order_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "binding_id": {
+          "ParamRef": {
+            "location": 128,
+            "number": 1
+          }
+        },
+        "delivery_receipt_id": {
+          "ParamRef": {
+            "location": 177,
+            "number": 10
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 148,
+            "number": 6
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 193,
+            "sval": {
+              "sval": "DELIVERY_ATTEMPTED"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 240,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 240,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_claim_attempt(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,text,timestamptz,text)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 115
+                  }
+                },
+                "location": 127,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 128,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 135
+                  }
+                },
+                "location": 147,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 148,
+                    "number": 6
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "delivery_receipt_id"
+                        }
+                      }
+                    ],
+                    "location": 155
+                  }
+                },
+                "location": 176,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 177,
+                    "number": 10
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "d"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 185
+                  }
+                },
+                "location": 192,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 193,
+                    "sval": {
+                      "sval": "DELIVERY_ATTEMPTED"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 131
+        }
+      },
+      "id": "45ce9c4b2b75964114571323",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_delivery_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                }
+              ],
+              "location": 37959
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 17684,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 17401,
+        "statement_ordinal": 1215,
+        "statement_sha256": "72db5798b46c1ace3d4b1c3bf53b133ab9df738427513bf5bb77bec997c6844d",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 155,
+      "target_key": [
+        "binding_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": false,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": false,
+      "bound_key_expressions": {
+        "attempt_id": {
+          "ParamRef": {
+            "location": 108,
+            "number": 5
+          }
+        },
+        "binding_id": {
+          "ParamRef": {
+            "location": 88,
+            "number": 1
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 128,
+            "number": 6
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 143,
+            "sval": {
+              "sval": "CLAIMED"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": null,
+      "function": "public.offline_persist_verification(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 75
+                  }
+                },
+                "location": 87,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 88,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "attempt_id"
+                        }
+                      }
+                    ],
+                    "location": 95
+                  }
+                },
+                "location": 107,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 108,
+                    "number": 5
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 115
+                  }
+                },
+                "location": 127,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 128,
+                    "number": 6
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 135
+                  }
+                },
+                "location": 142,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 143,
+                    "sval": {
+                      "sval": "CLAIMED"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 91
+        }
+      },
+      "id": "26c439e3e7985e3c27e13407",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_attempt_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "attempt_id"
+                  }
+                }
+              ],
+              "location": 34470
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 10007,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 9028,
+        "statement_ordinal": 1179,
+        "statement_sha256": "f1325987f8ca23f7310dd48ea4319ffad94e58f9b08ce1ba5cc386f827613d69",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 821,
+      "target_key": [
+        "binding_id",
+        "attempt_id"
+      ],
+      "zero_row_counterexample_required": true
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "admission_id": {
+          "ParamRef": {
+            "location": 156,
+            "number": 10
+          }
+        },
+        "durable_state": {
+          "A_Const": {
+            "location": 180,
+            "sval": {
+              "sval": "ISSUED"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 1319,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 1319,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "admission_id"
+                        }
+                      }
+                    ],
+                    "location": 141
+                  }
+                },
+                "location": 155,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 156,
+                    "number": 10
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "durable_state"
+                        }
+                      }
+                    ],
+                    "location": 164
+                  }
+                },
+                "location": 179,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 180,
+                    "sval": {
+                      "sval": "ISSUED"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 160
+        }
+      },
+      "id": "54bb7b85850cdd23b0282e79",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_admission_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "admission_id"
+                  }
+                }
+              ],
+              "location": 42600
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 20472,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 19124,
+        "statement_ordinal": 1226,
+        "statement_sha256": "96d1d8935a30ff553f6f4cee18358bc354d98d7dc717b766aa803523f37ed84b",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 1023,
+      "target_key": [
+        "admission_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "attempt_id": {
+          "ParamRef": {
+            "location": 100,
+            "number": 5
+          }
+        },
+        "binding_id": {
+          "ParamRef": {
+            "location": 80,
+            "number": 1
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 120,
+            "number": 6
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 135,
+            "sval": {
+              "sval": "EFFECTS_IN_PROGRESS"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 1321,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 1321,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 67
+                  }
+                },
+                "location": 79,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 80,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "attempt_id"
+                        }
+                      }
+                    ],
+                    "location": 87
+                  }
+                },
+                "location": 99,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 100,
+                    "number": 5
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 107
+                  }
+                },
+                "location": 119,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 120,
+                    "number": 6
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "a"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 127
+                  }
+                },
+                "location": 134,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 135,
+                    "sval": {
+                      "sval": "EFFECTS_IN_PROGRESS"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 83
+        }
+      },
+      "id": "7b308300018caae4500fa60e",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_attempt_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "attempt_id"
+                  }
+                }
+              ],
+              "location": 34470
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 20472,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 19124,
+        "statement_ordinal": 1226,
+        "statement_sha256": "96d1d8935a30ff553f6f4cee18358bc354d98d7dc717b766aa803523f37ed84b",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 1027,
+      "target_key": [
+        "binding_id",
+        "attempt_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "attempt_id": {
+          "ParamRef": {
+            "location": 94,
+            "number": 5
+          }
+        },
+        "binding_id": {
+          "ParamRef": {
+            "location": 74,
+            "number": 1
+          }
+        },
+        "execution_id": {
+          "ParamRef": {
+            "location": 136,
+            "number": 7
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 114,
+            "number": 6
+          }
+        },
+        "instance_id": {
+          "ParamRef": {
+            "location": 157,
+            "number": 8
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 172,
+            "sval": {
+              "sval": "OWNED"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 1323,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 1323,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "e"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 61
+                  }
+                },
+                "location": 73,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 74,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "e"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "attempt_id"
+                        }
+                      }
+                    ],
+                    "location": 81
+                  }
+                },
+                "location": 93,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 94,
+                    "number": 5
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "e"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 101
+                  }
+                },
+                "location": 113,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 114,
+                    "number": 6
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "e"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "execution_id"
+                        }
+                      }
+                    ],
+                    "location": 121
+                  }
+                },
+                "location": 135,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 136,
+                    "number": 7
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "e"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "instance_id"
+                        }
+                      }
+                    ],
+                    "location": 143
+                  }
+                },
+                "location": 156,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 157,
+                    "number": 8
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "e"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 164
+                  }
+                },
+                "location": 171,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 172,
+                    "sval": {
+                      "sval": "OWNED"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 77
+        }
+      },
+      "id": "cbe30d835adf434cdbbe9951",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_execution_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "attempt_id"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "generation"
+                  }
+                }
+              ],
+              "location": 35899
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 20472,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 19124,
+        "statement_ordinal": 1226,
+        "statement_sha256": "96d1d8935a30ff553f6f4cee18358bc354d98d7dc717b766aa803523f37ed84b",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 1031,
+      "target_key": [
+        "binding_id",
+        "attempt_id",
+        "generation"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "binding_id": {
+          "ParamRef": {
+            "location": 79,
+            "number": 1
+          }
+        },
+        "state": {
+          "A_Const": {
+            "location": 94,
+            "sval": {
+              "sval": "NOT_STARTED"
+            }
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 1325,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 1325,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "r"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 66
+                  }
+                },
+                "location": 78,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 79,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "r"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "state"
+                        }
+                      }
+                    ],
+                    "location": 86
+                  }
+                },
+                "location": 93,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "A_Const": {
+                    "location": 94,
+                    "sval": {
+                      "sval": "NOT_STARTED"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 82
+        }
+      },
+      "id": "531df9d03f0a1206b4121237",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_reconciliation_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                }
+              ],
+              "location": 47248
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 20472,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 19124,
+        "statement_ordinal": 1226,
+        "statement_sha256": "96d1d8935a30ff553f6f4cee18358bc354d98d7dc717b766aa803523f37ed84b",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 1035,
+      "target_key": [
+        "binding_id"
+      ],
+      "zero_row_counterexample_required": false
+    },
+    {
+      "AT_MOST_ONE_TARGET_ROW_SOURCE_PROVEN": true,
+      "EXACTLY_ONE_ON_NORMAL_CONTINUATION_SOURCE_PROVEN": true,
+      "IMMEDIATE_ZERO_ROW_DENIAL_SOURCE_PROVEN": true,
+      "bound_key_expressions": {
+        "binding_id": {
+          "ParamRef": {
+            "location": 100,
+            "number": 1
+          }
+        },
+        "generation": {
+          "ParamRef": {
+            "location": 120,
+            "number": 5
+          }
+        }
+      },
+      "exact_zero_row_guard": {
+        "cond": {
+          "PLpgSQL_expr": {
+            "parseMode": 2,
+            "query": "NOT FOUND"
+          }
+        },
+        "lineno": 373,
+        "then_body": [
+          {
+            "PLpgSQL_stmt_raise": {
+              "elog_level": 21,
+              "lineno": 373,
+              "options": [
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'P0017'"
+                      }
+                    },
+                    "opt_type": 0
+                  }
+                },
+                {
+                  "PLpgSQL_raise_option": {
+                    "expr": {
+                      "PLpgSQL_expr": {
+                        "parseMode": 2,
+                        "query": "'ACCESS_DENIED'"
+                      }
+                    },
+                    "opt_type": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "function": "public.offline_claim_attempt(uuid,bytea,uuid,text,int8,uuid,uuid,bytea,bytea)",
+      "grouped_predicate": {
+        "BoolExpr": {
+          "args": [
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "p"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "binding_id"
+                        }
+                      }
+                    ],
+                    "location": 87
+                  }
+                },
+                "location": 99,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 100,
+                    "number": 1
+                  }
+                }
+              }
+            },
+            {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "p"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "generation"
+                        }
+                      }
+                    ],
+                    "location": 107
+                  }
+                },
+                "location": 119,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "="
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "ParamRef": {
+                    "location": 120,
+                    "number": 5
+                  }
+                }
+              }
+            },
+            {
+              "NullTest": {
+                "arg": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "p"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "current_attempt_id"
+                        }
+                      }
+                    ],
+                    "location": 127
+                  }
+                },
+                "location": 148,
+                "nulltesttype": "IS_NULL"
+              }
+            }
+          ],
+          "boolop": "AND_EXPR",
+          "location": 103
+        }
+      },
+      "id": "54b8df68ec11d804ddf19eb6",
+      "primary_key_asts": [
+        {
+          "ast": {
+            "Constraint": {
+              "conname": "offline_attempt_pointer_pk",
+              "contype": "CONSTR_PRIMARY",
+              "keys": [
+                {
+                  "String": {
+                    "sval": "binding_id"
+                  }
+                }
+              ],
+              "location": 33486
+            }
+          },
+          "column": null
+        }
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE",
+        "CONSTRAINT_FAILURE",
+        "DML_STATE_TRANSITION"
+      ],
+      "remaining": "Catalog/constraint/trigger parity and complete caller path/authority proof; this is one subobligation only",
+      "source": {
+        "end_line": 17012,
+        "file": "docs/evidence/package-0090-g3f4-hash-bound-successor/envelope-02/V043__TEST_ONLY_NONCANONICAL_executable_successor.sql",
+        "source_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7",
+        "start_line": 16597,
+        "statement_ordinal": 1209,
+        "statement_sha256": "511d97601f73bc5d6b4391ab5fb155fd9ed9924c6a30c8aa91bdef3908643dff",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "statement_ordinal": 288,
+      "target_key": [
+        "binding_id"
+      ],
+      "zero_row_counterexample_required": false
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "EXTERNAL_ABI_SOURCE_DECLARATION_N": 3,
+  "EXTERNAL_AUTHORITY_INCOMPLETE_N": "UNKNOWN_FULL_SET_NOT_CLOSED",
+  "EXTERNAL_RUNTIME_PARITY_COMPLETE_N": 0,
+  "binary_parity": "NOT_OBSERVED",
+  "compiled": false,
+  "encoding_widths_are_not_numeric_policy": true,
+  "functions": [
+    {
+      "language": "C",
+      "remaining": "Installed ownership/ACL, binary/provider parity, caller NULL handling",
+      "return": "bool",
+      "signature": "offline_crypto.timing_safe_equal32(bytea,bytea)",
+      "source_behavior": "Exactly 32-byte inputs before/after detoast; wrong length ERROR; CRYPTO_memcmp==0 accepts; NULL bypasses C via SQL STRICT",
+      "strict": true,
+      "symbol": "timing_safe_equal32"
+    },
+    {
+      "language": "C",
+      "remaining": "Native point/algorithm qualification, installed ownership/ACL, loaded OpenSSL parity and caller true/NULL/error handling",
+      "return": "bool",
+      "signature": "offline_crypto.canonical_spki_ed25519_verify(bytea,bytea,bytea)",
+      "source_behavior": "44-byte SPKI/64-byte signature; exact DER consumption/re-encoding and Ed25519 key type; result 1 accepts, 0 false, structural/operational failures ERROR; verification only, no signing",
+      "strict": true,
+      "symbol": "canonical_spki_ed25519_verify"
+    },
+    {
+      "language": "C",
+      "remaining": "Extension relocation/membership, binary/hash/provider parity and ACL",
+      "return": "bytea",
+      "signature": "offline_crypto.hmac(bytea,bytea,text)",
+      "source_behavior": "REL_18_4 pgcrypto bytea/bytea/text overload, distinct text/text/text; offline_crypto relocation unobserved",
+      "strict": true,
+      "symbol": "pg_hmac"
+    }
+  ],
+  "source_only": true,
+  "sources": [
+    {
+      "HEAD_BLOB_EQUALS_FROZEN": true,
+      "frozen_git_blob_sha256": "ace92e57de85bff9e7f36d7ac38121513aa7fa3803c5fde84b8fc5b4f3a437fc",
+      "path": "applications/marketplace-operations-persistence-postgres/native/flooow_offline_mac32/flooow_offline_mac32--1.0.sql",
+      "source_head": "526bc9840854f91b9c78ba2c204344e608a6cbf3",
+      "working_copy_line_endings_may_differ": true,
+      "working_copy_sha256": "ace92e57de85bff9e7f36d7ac38121513aa7fa3803c5fde84b8fc5b4f3a437fc"
+    },
+    {
+      "HEAD_BLOB_EQUALS_FROZEN": true,
+      "frozen_git_blob_sha256": "e3aed9b0832364dd5eb00d57b34bf21cf4bd1843c7e8648e91e03d58fabe32c5",
+      "path": "applications/marketplace-operations-persistence-postgres/native/flooow_offline_mac32/flooow_offline_mac32.c",
+      "source_head": "526bc9840854f91b9c78ba2c204344e608a6cbf3",
+      "working_copy_line_endings_may_differ": true,
+      "working_copy_sha256": "a34e4b7f0290c85a3f1aa27e79212162d065fef547f34207b759f71fb961454c"
+    },
+    {
+      "HEAD_BLOB_EQUALS_FROZEN": true,
+      "frozen_git_blob_sha256": "95f99887f89ea0b4699f2f30b99e4b3253ce0f9cd44e101f6768ef49c408a362",
+      "path": "applications/marketplace-operations-persistence-postgres/native/flooow_offline_mac32/flooow_offline_mac32.control",
+      "source_head": "526bc9840854f91b9c78ba2c204344e608a6cbf3",
+      "working_copy_line_endings_may_differ": true,
+      "working_copy_sha256": "95f99887f89ea0b4699f2f30b99e4b3253ce0f9cd44e101f6768ef49c408a362"
+    },
+    {
+      "HEAD_BLOB_EQUALS_FROZEN": true,
+      "frozen_git_blob_sha256": "f0139047b687387cad3e98342a7ab1c19ed0a5cc1653cc9b98dd27837f4c2730",
+      "path": "applications/marketplace-operations-persistence-postgres/native/flooow_offline_mac32/Makefile",
+      "source_head": "526bc9840854f91b9c78ba2c204344e608a6cbf3",
+      "working_copy_line_endings_may_differ": true,
+      "working_copy_sha256": "f0139047b687387cad3e98342a7ab1c19ed0a5cc1653cc9b98dd27837f4c2730"
+    }
+  ]
+}
