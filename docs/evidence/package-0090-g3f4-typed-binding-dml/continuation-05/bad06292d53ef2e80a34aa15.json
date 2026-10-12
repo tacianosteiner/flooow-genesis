@@ -1,0 +1,1156 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "TG_OP='DELETE' OR pg_trigger_depth()<>2"
+              }
+            },
+            "lineno": 4,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_raise": {
+                  "elog_level": 21,
+                  "lineno": 4,
+                  "message": "Identity head is derived only",
+                  "options": [
+                    {
+                      "PLpgSQL_raise_option": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 2,
+                            "query": "'23514'"
+                          }
+                        },
+                        "opt_type": 0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_execsql": {
+            "into": true,
+            "lineno": 5,
+            "sqlstmt": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT *        FROM marketplace_transaction_identity_decision WHERE organization_id=NEW.organization_id AND decision_id=NEW.decision_id"
+              }
+            },
+            "target": {
+              "PLpgSQL_rec": {
+                "dno": 13,
+                "lineno": 2,
+                "refname": "d"
+              }
+            }
+          }
+        },
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "NOT FOUND OR d.omie_connection_id IS DISTINCT FROM NEW.omie_connection_id\n        OR d.source_order_reference IS DISTINCT FROM NEW.source_order_reference\n        OR d.marketplace_order_id IS DISTINCT FROM NEW.marketplace_order_id OR d.kind IS DISTINCT FROM NEW.kind\n        OR (TG_OP='UPDATE' AND (NEW.organization_id IS DISTINCT FROM OLD.organization_id\n            OR NEW.omie_connection_id IS DISTINCT FROM OLD.omie_connection_id OR NEW.source_order_reference IS DISTINCT FROM OLD.source_order_reference\n            OR NEW.marketplace_order_id IS DISTINCT FROM OLD.marketplace_order_id OR d.supersedes_decision_id IS DISTINCT FROM OLD.decision_id))\n        OR (TG_OP='INSERT' AND d.supersedes_decision_id IS NOT NULL)"
+              }
+            },
+            "lineno": 6,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_raise": {
+                  "elog_level": 21,
+                  "lineno": 13,
+                  "message": "Identity head lineage mismatch",
+                  "options": [
+                    {
+                      "PLpgSQL_raise_option": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 2,
+                            "query": "'23514'"
+                          }
+                        },
+                        "opt_type": 0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {
+            "lineno": 14
+          }
+        }
+      ],
+      "lineno": 3
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.transaction_identity_head_guard()",
+    "source": {
+      "end_line": 239,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+      "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+      "start_line": 224,
+      "statement_ordinal": 10,
+      "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 5
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "transaction_identity_head_guard"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 18749
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 18782,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 18793,
+                    "sval": {
+                      "sval": "public"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 18800,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 18782,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 18766
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nDECLARE d marketplace_transaction_identity_decision;\nBEGIN\n    IF TG_OP='DELETE' OR pg_trigger_depth()<>2 THEN RAISE EXCEPTION 'Identity head is derived only' USING ERRCODE='23514'; END IF;\n    SELECT * INTO d FROM marketplace_transaction_identity_decision WHERE organization_id=NEW.organization_id AND decision_id=NEW.decision_id;\n    IF NOT FOUND OR d.omie_connection_id IS DISTINCT FROM NEW.omie_connection_id\n        OR d.source_order_reference IS DISTINCT FROM NEW.source_order_reference\n        OR d.marketplace_order_id IS DISTINCT FROM NEW.marketplace_order_id OR d.kind IS DISTINCT FROM NEW.kind\n        OR (TG_OP='UPDATE' AND (NEW.organization_id IS DISTINCT FROM OLD.organization_id\n            OR NEW.omie_connection_id IS DISTINCT FROM OLD.omie_connection_id OR NEW.source_order_reference IS DISTINCT FROM OLD.source_order_reference\n            OR NEW.marketplace_order_id IS DISTINCT FROM OLD.marketplace_order_id OR d.supersedes_decision_id IS DISTINCT FROM OLD.decision_id))\n        OR (TG_OP='INSERT' AND d.supersedes_decision_id IS NOT NULL) THEN\n        RAISE EXCEPTION 'Identity head lineage mismatch' USING ERRCODE='23514'; END IF;\n    RETURN NEW;\nEND;\n"
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 18811,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 18808
+        }
+      }
+    ],
+    "returnType": {
+      "location": 18741,
+      "names": [
+        {
+          "String": {
+            "sval": "trigger"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "tg_op"
+                                        }
+                                      }
+                                    ],
+                                    "location": 7
+                                  }
+                                },
+                                "location": 12,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "="
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "A_Const": {
+                                    "location": 13,
+                                    "sval": {
+                                      "sval": "DELETE"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "FuncCall": {
+                                    "funcformat": "COERCE_EXPLICIT_CALL",
+                                    "funcname": [
+                                      {
+                                        "String": {
+                                          "sval": "pg_trigger_depth"
+                                        }
+                                      }
+                                    ],
+                                    "location": 25
+                                  }
+                                },
+                                "location": 43,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "A_Const": {
+                                    "ival": {
+                                      "ival": 2
+                                    },
+                                    "location": 45
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "boolop": "OR_EXPR",
+                          "location": 22
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "71693ed2f1b8371e5f7e53e246b6ab3091202e9bb88b2c7dd7413fa771779b45"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "23514"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "329834015dff4d9915b0ffa9bc949b95edbb429630256550d195e0a201fb479f"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 21,
+                      "relname": "marketplace_transaction_identity_decision",
+                      "relpersistence": "p"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "A_Star": {}
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 69
+                            }
+                          },
+                          "location": 84,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 85
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "decision_id"
+                                  }
+                                }
+                              ],
+                              "location": 109
+                            }
+                          },
+                          "location": 120,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "decision_id"
+                                  }
+                                }
+                              ],
+                              "location": 121
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 105
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 2,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "a61ca2248d32fde019f159caf1dc579cd4df6632e822eb726983d12c062bca49"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "BoolExpr": {
+                                "args": [
+                                  {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "found"
+                                          }
+                                        }
+                                      ],
+                                      "location": 11
+                                    }
+                                  }
+                                ],
+                                "boolop": "NOT_EXPR",
+                                "location": 7
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_DISTINCT",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "d"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "omie_connection_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 20
+                                  }
+                                },
+                                "location": 41,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "="
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "omie_connection_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 58
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_DISTINCT",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "d"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "source_order_reference"
+                                        }
+                                      }
+                                    ],
+                                    "location": 92
+                                  }
+                                },
+                                "location": 117,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "="
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "source_order_reference"
+                                        }
+                                      }
+                                    ],
+                                    "location": 134
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_DISTINCT",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "d"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "marketplace_order_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 172
+                                  }
+                                },
+                                "location": 195,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "="
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "marketplace_order_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 212
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_DISTINCT",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "d"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "kind"
+                                        }
+                                      }
+                                    ],
+                                    "location": 240
+                                  }
+                                },
+                                "location": 247,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "="
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "kind"
+                                        }
+                                      }
+                                    ],
+                                    "location": 264
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "BoolExpr": {
+                                "args": [
+                                  {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "tg_op"
+                                              }
+                                            }
+                                          ],
+                                          "location": 285
+                                        }
+                                      },
+                                      "location": 290,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "="
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "A_Const": {
+                                          "location": 291,
+                                          "sval": {
+                                            "sval": "UPDATE"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "BoolExpr": {
+                                      "args": [
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_DISTINCT",
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "new"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 305
+                                              }
+                                            },
+                                            "location": 325,
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "old"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "organization_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 342
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_DISTINCT",
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "new"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "omie_connection_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 377
+                                              }
+                                            },
+                                            "location": 400,
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "old"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "omie_connection_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 417
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_DISTINCT",
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "new"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "source_order_reference"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 443
+                                              }
+                                            },
+                                            "location": 470,
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "old"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "source_order_reference"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 487
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_DISTINCT",
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "new"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "marketplace_order_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 529
+                                              }
+                                            },
+                                            "location": 554,
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "old"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "marketplace_order_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 571
+                                              }
+                                            }
+                                          }
+                                        },
+                                        {
+                                          "A_Expr": {
+                                            "kind": "AEXPR_DISTINCT",
+                                            "lexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "d"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "supersedes_decision_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 599
+                                              }
+                                            },
+                                            "location": 624,
+                                            "name": [
+                                              {
+                                                "String": {
+                                                  "sval": "="
+                                                }
+                                              }
+                                            ],
+                                            "rexpr": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "old"
+                                                    }
+                                                  },
+                                                  {
+                                                    "String": {
+                                                      "sval": "decision_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 641
+                                              }
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "boolop": "OR_EXPR",
+                                      "location": 374
+                                    }
+                                  }
+                                ],
+                                "boolop": "AND_EXPR",
+                                "location": 300
+                              }
+                            },
+                            {
+                              "BoolExpr": {
+                                "args": [
+                                  {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "tg_op"
+                                              }
+                                            }
+                                          ],
+                                          "location": 671
+                                        }
+                                      },
+                                      "location": 676,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "="
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "A_Const": {
+                                          "location": 677,
+                                          "sval": {
+                                            "sval": "INSERT"
+                                          }
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "NullTest": {
+                                      "arg": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "d"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "supersedes_decision_id"
+                                              }
+                                            }
+                                          ],
+                                          "location": 690
+                                        }
+                                      },
+                                      "location": 715,
+                                      "nulltesttype": "IS_NOT_NULL"
+                                    }
+                                  }
+                                ],
+                                "boolop": "AND_EXPR",
+                                "location": 686
+                              }
+                            }
+                          ],
+                          "boolop": "OR_EXPR",
+                          "location": 17
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 3,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "e49b39d2369a140dc63193ca0f6d5ce6a626549aee7b7b253f886fa40cddae14"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "23514"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 4,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "329834015dff4d9915b0ffa9bc949b95edbb429630256550d195e0a201fb479f"
+    }
+  ]
+}

@@ -1,0 +1,261 @@
+{
+  "control_ast": null,
+  "function": {
+    "language": "sql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": false,
+    "signature": "public.s2a_governance_frame(bytea)",
+    "source": {
+      "end_line": 119,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+      "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+      "start_line": 117,
+      "statement_ordinal": 4,
+      "statement_sha256": "baa3aceaeeca77b476c3410b35f7b371d6bba36e88fb4c45f38667dd4283557d",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 1
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "s2a_governance_frame"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "sql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 5978
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "immutable"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "volatility",
+          "location": 5991
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "Boolean": {
+              "boolval": true
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "strict",
+          "location": 6001
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "safe"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "parallel",
+          "location": 6008
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 5957,
+            "names": [
+              {
+                "String": {
+                  "sval": "bytea"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 5951,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "value"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 5972,
+      "names": [
+        {
+          "String": {
+            "sval": "bytea"
+          }
+        }
+      ],
+      "typemod": -1
+    },
+    "sql_body": {
+      "ReturnStmt": {
+        "returnval": {
+          "A_Expr": {
+            "kind": "AEXPR_OP",
+            "lexpr": {
+              "FuncCall": {
+                "args": [
+                  {
+                    "FuncCall": {
+                      "args": [
+                        {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "value"
+                                }
+                              }
+                            ],
+                            "location": 6051
+                          }
+                        }
+                      ],
+                      "funcformat": "COERCE_EXPLICIT_CALL",
+                      "funcname": [
+                        {
+                          "String": {
+                            "sval": "octet_length"
+                          }
+                        }
+                      ],
+                      "location": 6038
+                    }
+                  }
+                ],
+                "funcformat": "COERCE_EXPLICIT_CALL",
+                "funcname": [
+                  {
+                    "String": {
+                      "sval": "int4send"
+                    }
+                  }
+                ],
+                "location": 6029
+              }
+            },
+            "location": 6059,
+            "name": [
+              {
+                "String": {
+                  "sval": "||"
+                }
+              }
+            ],
+            "rexpr": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "value"
+                    }
+                  }
+                ],
+                "location": 6062
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "ReturnStmt": {
+          "returnval": {
+            "A_Expr": {
+              "kind": "AEXPR_OP",
+              "lexpr": {
+                "FuncCall": {
+                  "args": [
+                    {
+                      "FuncCall": {
+                        "args": [
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "value"
+                                  }
+                                }
+                              ],
+                              "location": 6051
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_EXPLICIT_CALL",
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "octet_length"
+                            }
+                          }
+                        ],
+                        "location": 6038
+                      }
+                    }
+                  ],
+                  "funcformat": "COERCE_EXPLICIT_CALL",
+                  "funcname": [
+                    {
+                      "String": {
+                        "sval": "int4send"
+                      }
+                    }
+                  ],
+                  "location": 6029
+                }
+              },
+              "location": 6059,
+              "name": [
+                {
+                  "String": {
+                    "sval": "||"
+                  }
+                }
+              ],
+              "rexpr": {
+                "ColumnRef": {
+                  "fields": [
+                    {
+                      "String": {
+                        "sval": "value"
+                      }
+                    }
+                  ],
+                  "location": 6062
+                }
+              }
+            }
+          }
+        }
+      },
+      "ordinal": 0,
+      "provenance_kind": "ORIGINAL_STRUCTURED_SQL_BODY"
+    }
+  ]
+}

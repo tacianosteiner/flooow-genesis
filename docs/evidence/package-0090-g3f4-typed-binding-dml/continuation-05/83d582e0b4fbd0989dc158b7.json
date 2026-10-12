@@ -1,0 +1,823 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "NEW.supersedes_decision_id IS NULL"
+              }
+            },
+            "else_body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 7,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 0,
+                      "query": "UPDATE public.marketplace_transaction_identity_head SET decision_id=NEW.decision_id,kind=NEW.kind\n            WHERE organization_id=NEW.organization_id AND omie_connection_id=NEW.omie_connection_id\n            AND source_order_reference=NEW.source_order_reference AND marketplace_order_id=NEW.marketplace_order_id\n            AND decision_id=NEW.supersedes_decision_id"
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_if": {
+                  "cond": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 2,
+                      "query": "NOT FOUND"
+                    }
+                  },
+                  "lineno": 11,
+                  "then_body": [
+                    {
+                      "PLpgSQL_stmt_raise": {
+                        "elog_level": 21,
+                        "lineno": 11,
+                        "message": "Identity head predecessor conflict",
+                        "options": [
+                          {
+                            "PLpgSQL_raise_option": {
+                              "expr": {
+                                "PLpgSQL_expr": {
+                                  "parseMode": 2,
+                                  "query": "'23514'"
+                                }
+                              },
+                              "opt_type": 0
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "lineno": 3,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "lineno": 4,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 0,
+                      "query": "INSERT INTO public.marketplace_transaction_identity_head VALUES(NEW.organization_id,NEW.omie_connection_id,\n            NEW.source_order_reference,NEW.marketplace_order_id,NEW.decision_id,NEW.kind)"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {
+            "lineno": 13
+          }
+        }
+      ],
+      "lineno": 2
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.transaction_identity_advance()",
+    "source": {
+      "end_line": 255,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+      "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+      "start_line": 240,
+      "statement_ordinal": 11,
+      "statement_sha256": "3a80fd3993a7609e765e9f35eba42c58ea90fcc9cc4d269b9b3f00b19959312f",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 5
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "transaction_identity_advance"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 20055
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "Boolean": {
+              "boolval": true
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "security",
+          "location": 20072
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 20105,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 20116,
+                    "sval": {
+                      "sval": "public"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 20123,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 20105,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 20089
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nBEGIN\n    IF NEW.supersedes_decision_id IS NULL THEN\n        INSERT INTO public.marketplace_transaction_identity_head VALUES(NEW.organization_id,NEW.omie_connection_id,\n            NEW.source_order_reference,NEW.marketplace_order_id,NEW.decision_id,NEW.kind);\n    ELSE\n        UPDATE public.marketplace_transaction_identity_head SET decision_id=NEW.decision_id,kind=NEW.kind\n            WHERE organization_id=NEW.organization_id AND omie_connection_id=NEW.omie_connection_id\n            AND source_order_reference=NEW.source_order_reference AND marketplace_order_id=NEW.marketplace_order_id\n            AND decision_id=NEW.supersedes_decision_id;\n        IF NOT FOUND THEN RAISE EXCEPTION 'Identity head predecessor conflict' USING ERRCODE='23514'; END IF;\n    END IF;\n    RETURN NEW;\nEND;\n"
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 20134,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 20131
+        }
+      }
+    ],
+    "returnType": {
+      "location": 20047,
+      "names": [
+        {
+          "String": {
+            "sval": "trigger"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "NullTest": {
+                          "arg": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "supersedes_decision_id"
+                                  }
+                                }
+                              ],
+                              "location": 7
+                            }
+                          },
+                          "location": 34,
+                          "nulltesttype": "IS_NULL"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "e6c91b68b839a812b73fea9ae25b70eabdc6fcdc81f5c304473fbbdd7a6debca"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "InsertStmt": {
+                "override": "OVERRIDING_NOT_SET",
+                "relation": {
+                  "inh": true,
+                  "location": 12,
+                  "relname": "marketplace_transaction_identity_head",
+                  "relpersistence": "p",
+                  "schemaname": "public"
+                },
+                "selectStmt": {
+                  "SelectStmt": {
+                    "limitOption": "LIMIT_OPTION_DEFAULT",
+                    "op": "SETOP_NONE",
+                    "valuesLists": [
+                      {
+                        "List": {
+                          "items": [
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "new"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "organization_id"
+                                    }
+                                  }
+                                ],
+                                "location": 64
+                              }
+                            },
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "new"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "omie_connection_id"
+                                    }
+                                  }
+                                ],
+                                "location": 84
+                              }
+                            },
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "new"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "source_order_reference"
+                                    }
+                                  }
+                                ],
+                                "location": 120
+                              }
+                            },
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "new"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "marketplace_order_id"
+                                    }
+                                  }
+                                ],
+                                "location": 147
+                              }
+                            },
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "new"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "decision_id"
+                                    }
+                                  }
+                                ],
+                                "location": 172
+                              }
+                            },
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "new"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "kind"
+                                    }
+                                  }
+                                ],
+                                "location": 188
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "c3c8a776e286645637104562bbf4970a54473cca26387c006c201681ea2681d9"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "UpdateStmt": {
+                "relation": {
+                  "inh": true,
+                  "location": 7,
+                  "relname": "marketplace_transaction_identity_head",
+                  "relpersistence": "p",
+                  "schemaname": "public"
+                },
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 56,
+                      "name": "decision_id",
+                      "val": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "new"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "decision_id"
+                              }
+                            }
+                          ],
+                          "location": 68
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "ResTarget": {
+                      "location": 84,
+                      "name": "kind",
+                      "val": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "new"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "kind"
+                              }
+                            }
+                          ],
+                          "location": 89
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 116
+                            }
+                          },
+                          "location": 131,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 132
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "omie_connection_id"
+                                  }
+                                }
+                              ],
+                              "location": 156
+                            }
+                          },
+                          "location": 174,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "omie_connection_id"
+                                  }
+                                }
+                              ],
+                              "location": 175
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "source_order_reference"
+                                  }
+                                }
+                              ],
+                              "location": 214
+                            }
+                          },
+                          "location": 236,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "source_order_reference"
+                                  }
+                                }
+                              ],
+                              "location": 237
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "marketplace_order_id"
+                                  }
+                                }
+                              ],
+                              "location": 268
+                            }
+                          },
+                          "location": 288,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "marketplace_order_id"
+                                  }
+                                }
+                              ],
+                              "location": 289
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "decision_id"
+                                  }
+                                }
+                              ],
+                              "location": 330
+                            }
+                          },
+                          "location": 341,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "supersedes_decision_id"
+                                  }
+                                }
+                              ],
+                              "location": 342
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 152
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 2,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "4ef1eac591094af95d9108719248596a9e2936557e81cb2441629308a46d572b"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "found"
+                                    }
+                                  }
+                                ],
+                                "location": 11
+                              }
+                            }
+                          ],
+                          "boolop": "NOT_EXPR",
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 3,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "d262339346a267abf5207c549ae7a9c792fcbf1055be3dc5753dcda7176304e6"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "23514"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 4,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "329834015dff4d9915b0ffa9bc949b95edbb429630256550d195e0a201fb479f"
+    }
+  ]
+}

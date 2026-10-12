@@ -1,0 +1,463 @@
+{
+  "control_ast": null,
+  "function": {
+    "language": "sql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": false,
+    "signature": "public.s2a_v041_signature_preimage(text,uuid,text,text)",
+    "source": {
+      "end_line": 394,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+      "source_hash": "4f2c7dc6f9eddfc0d751206f2a0d7a6f51d92cb90345620da121ec0338b75024",
+      "start_line": 391,
+      "statement_ordinal": 12,
+      "statement_sha256": "4c0eeefe9b94dd22a36f0fe735f8884b96bdbf02c2a4f8620a310466489b6e70",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 1
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "public"
+        }
+      },
+      {
+        "String": {
+          "sval": "s2a_v041_signature_preimage"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "sql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 32010
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "immutable"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "volatility",
+          "location": 32023
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "Boolean": {
+              "boolval": true
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "strict",
+          "location": 32033
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 32056,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 32067,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 32056,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 32040
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": " SELECT\n public.s2a_v041_text('FLOOOW:S2A:APPROVAL-SIGNATURE:1')||public.s2a_v041_text(p_algorithm_id)||\n public.s2a_v041_text(p_signer_key_id::text)||public.s2a_v041_text(p_signer_key_fingerprint)||public.s2a_v041_text(p_manifest_digest) "
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 32078,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 32075
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 31916,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 31901,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_algorithm_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 31937,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 31921,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_signer_key_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 31967,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 31942,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_signer_key_fingerprint"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 31990,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 31972,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_manifest_digest"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 32004,
+      "names": [
+        {
+          "String": {
+            "sval": "bytea"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 9,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "lexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "FuncCall": {
+                                          "args": [
+                                            {
+                                              "A_Const": {
+                                                "location": 30,
+                                                "sval": {
+                                                  "sval": "FLOOOW:S2A:APPROVAL-SIGNATURE:1"
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "public"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "s2a_v041_text"
+                                              }
+                                            }
+                                          ],
+                                          "location": 9
+                                        }
+                                      },
+                                      "location": 64,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "FuncCall": {
+                                          "args": [
+                                            {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_algorithm_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 87
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "public"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "s2a_v041_text"
+                                              }
+                                            }
+                                          ],
+                                          "location": 66
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "location": 102,
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "||"
+                                      }
+                                    }
+                                  ],
+                                  "rexpr": {
+                                    "FuncCall": {
+                                      "args": [
+                                        {
+                                          "TypeCast": {
+                                            "arg": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_signer_key_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 127
+                                              }
+                                            },
+                                            "location": 142,
+                                            "typeName": {
+                                              "location": 144,
+                                              "names": [
+                                                {
+                                                  "String": {
+                                                    "sval": "text"
+                                                  }
+                                                }
+                                              ],
+                                              "typemod": -1
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "funcformat": "COERCE_EXPLICIT_CALL",
+                                      "funcname": [
+                                        {
+                                          "String": {
+                                            "sval": "public"
+                                          }
+                                        },
+                                        {
+                                          "String": {
+                                            "sval": "s2a_v041_text"
+                                          }
+                                        }
+                                      ],
+                                      "location": 106
+                                    }
+                                  }
+                                }
+                              },
+                              "location": 149,
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "||"
+                                  }
+                                }
+                              ],
+                              "rexpr": {
+                                "FuncCall": {
+                                  "args": [
+                                    {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "p_signer_key_fingerprint"
+                                            }
+                                          }
+                                        ],
+                                        "location": 172
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "public"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "s2a_v041_text"
+                                      }
+                                    }
+                                  ],
+                                  "location": 151
+                                }
+                              }
+                            }
+                          },
+                          "location": 197,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "||"
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "FuncCall": {
+                              "args": [
+                                {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "p_manifest_digest"
+                                        }
+                                      }
+                                    ],
+                                    "location": 220
+                                  }
+                                }
+                              ],
+                              "funcformat": "COERCE_EXPLICIT_CALL",
+                              "funcname": [
+                                {
+                                  "String": {
+                                    "sval": "public"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "s2a_v041_text"
+                                  }
+                                }
+                              ],
+                              "location": 199
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "stmt_location": 1
+          }
+        ],
+        "version": 180006
+      },
+      "ordinal": 0,
+      "provenance_kind": "ORIGINAL_SQL_AS_BODY",
+      "query_sha256": "14d17759130376f9106be0a5fe3c9d877de44a1825066766d1f23012a188be50"
+    }
+  ]
+}

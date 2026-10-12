@@ -1,0 +1,946 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_perform": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT 1 FROM public.command_principal WHERE organization_id=NEW.organization_id\n        AND principal_id=NEW.principal_id FOR UPDATE"
+              }
+            },
+            "lineno": 4
+          }
+        },
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "NEW.revision > 1"
+              }
+            },
+            "lineno": 6,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "into": true,
+                  "lineno": 7,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 0,
+                      "query": "SELECT *               FROM public.command_permission_grant\n            WHERE organization_id=NEW.organization_id AND grant_id=NEW.supersedes_grant_id"
+                    }
+                  },
+                  "target": {
+                    "PLpgSQL_rec": {
+                      "dno": 13,
+                      "lineno": 2,
+                      "refname": "previous"
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_if": {
+                  "cond": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 2,
+                      "query": "NOT FOUND OR previous.principal_id<>NEW.principal_id\n            OR previous.permission<>NEW.permission OR previous.revision<>NEW.revision-1\n            OR EXISTS (SELECT 1 FROM public.command_permission_grant\n                WHERE organization_id=NEW.organization_id AND supersedes_grant_id=previous.grant_id)"
+                    }
+                  },
+                  "lineno": 9,
+                  "then_body": [
+                    {
+                      "PLpgSQL_stmt_raise": {
+                        "elog_level": 21,
+                        "lineno": 13,
+                        "message": "Invalid command grant lineage",
+                        "options": [
+                          {
+                            "PLpgSQL_raise_option": {
+                              "expr": {
+                                "PLpgSQL_expr": {
+                                  "parseMode": 2,
+                                  "query": "'23514'"
+                                }
+                              },
+                              "opt_type": 0
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {
+            "lineno": 16
+          }
+        }
+      ],
+      "lineno": 3
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.command_grant_lineage()",
+    "source": {
+      "end_line": 91,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+      "start_line": 74,
+      "statement_ordinal": 3,
+      "statement_sha256": "7ce4ab36ff5e17064f1fc6e217b143884d263c3eb6e63c6e09f9f706c8e39969",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 5
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "public"
+        }
+      },
+      {
+        "String": {
+          "sval": "command_grant_lineage"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 3434
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nDECLARE previous public.command_permission_grant;\nBEGIN\n    PERFORM 1 FROM public.command_principal WHERE organization_id=NEW.organization_id\n        AND principal_id=NEW.principal_id FOR UPDATE;\n    IF NEW.revision > 1 THEN\n        SELECT * INTO previous FROM public.command_permission_grant\n            WHERE organization_id=NEW.organization_id AND grant_id=NEW.supersedes_grant_id;\n        IF NOT FOUND OR previous.principal_id<>NEW.principal_id\n            OR previous.permission<>NEW.permission OR previous.revision<>NEW.revision-1\n            OR EXISTS (SELECT 1 FROM public.command_permission_grant\n                WHERE organization_id=NEW.organization_id AND supersedes_grant_id=previous.grant_id) THEN\n            RAISE EXCEPTION 'Invalid command grant lineage' USING ERRCODE = '23514';\n        END IF;\n    END IF;\n    RETURN NEW;\nEND;\n"
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 3454,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 3451
+        }
+      }
+    ],
+    "replace": true,
+    "returnType": {
+      "location": 3426,
+      "names": [
+        {
+          "String": {
+            "sval": "trigger"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 14,
+                      "relname": "command_principal",
+                      "relpersistence": "p",
+                      "schemaname": "public"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "lockingClause": [
+                  {
+                    "LockingClause": {
+                      "strength": "LCS_FORUPDATE",
+                      "waitPolicy": "LockWaitBlock"
+                    }
+                  }
+                ],
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "ival": {
+                            "ival": 1
+                          },
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 45
+                            }
+                          },
+                          "location": 60,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 61
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "principal_id"
+                                  }
+                                }
+                              ],
+                              "location": 93
+                            }
+                          },
+                          "location": 105,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "principal_id"
+                                  }
+                                }
+                              ],
+                              "location": 106
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 89
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_perform",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "5648712e21f397ac02e6a754ef710e30712059fe0b781dcb32b19036d05f25f8"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "revision"
+                                  }
+                                }
+                              ],
+                              "location": 7
+                            }
+                          },
+                          "location": 20,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": ">"
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "ival": {
+                                "ival": 1
+                              },
+                              "location": 22
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "35f8aa334902e7cbb4c372b702599bf2e5c4bfc8683977bb2e6740c8737b1430"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 28,
+                      "relname": "command_permission_grant",
+                      "relpersistence": "p",
+                      "schemaname": "public"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "A_Star": {}
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 78
+                            }
+                          },
+                          "location": 93,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 94
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "grant_id"
+                                  }
+                                }
+                              ],
+                              "location": 118
+                            }
+                          },
+                          "location": 126,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "supersedes_grant_id"
+                                  }
+                                }
+                              ],
+                              "location": 127
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 114
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 2,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "e7256130ce236975dbfdf1ca0b1512f89a580c177a0e76731a08f766af0a1fee"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "BoolExpr": {
+                                "args": [
+                                  {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "found"
+                                          }
+                                        }
+                                      ],
+                                      "location": 11
+                                    }
+                                  }
+                                ],
+                                "boolop": "NOT_EXPR",
+                                "location": 7
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "previous"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "principal_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 20
+                                  }
+                                },
+                                "location": 41,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "principal_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 43
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "previous"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "permission"
+                                        }
+                                      }
+                                    ],
+                                    "location": 75
+                                  }
+                                },
+                                "location": 94,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "permission"
+                                        }
+                                      }
+                                    ],
+                                    "location": 96
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "previous"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "revision"
+                                        }
+                                      }
+                                    ],
+                                    "location": 114
+                                  }
+                                },
+                                "location": 131,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "A_Expr": {
+                                    "kind": "AEXPR_OP",
+                                    "lexpr": {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "new"
+                                            }
+                                          },
+                                          {
+                                            "String": {
+                                              "sval": "revision"
+                                            }
+                                          }
+                                        ],
+                                        "location": 133
+                                      }
+                                    },
+                                    "location": 145,
+                                    "name": [
+                                      {
+                                        "String": {
+                                          "sval": "-"
+                                        }
+                                      }
+                                    ],
+                                    "rexpr": {
+                                      "A_Const": {
+                                        "ival": {
+                                          "ival": 1
+                                        },
+                                        "location": 146
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "SubLink": {
+                                "location": 163,
+                                "subLinkType": "EXISTS_SUBLINK",
+                                "subselect": {
+                                  "SelectStmt": {
+                                    "fromClause": [
+                                      {
+                                        "RangeVar": {
+                                          "inh": true,
+                                          "location": 185,
+                                          "relname": "command_permission_grant",
+                                          "relpersistence": "p",
+                                          "schemaname": "public"
+                                        }
+                                      }
+                                    ],
+                                    "limitOption": "LIMIT_OPTION_DEFAULT",
+                                    "op": "SETOP_NONE",
+                                    "targetList": [
+                                      {
+                                        "ResTarget": {
+                                          "location": 178,
+                                          "val": {
+                                            "A_Const": {
+                                              "ival": {
+                                                "ival": 1
+                                              },
+                                              "location": 178
+                                            }
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "whereClause": {
+                                      "BoolExpr": {
+                                        "args": [
+                                          {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "organization_id"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 239
+                                                }
+                                              },
+                                              "location": 254,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "="
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "new"
+                                                      }
+                                                    },
+                                                    {
+                                                      "String": {
+                                                        "sval": "organization_id"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 255
+                                                }
+                                              }
+                                            }
+                                          },
+                                          {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "supersedes_grant_id"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 279
+                                                }
+                                              },
+                                              "location": 298,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "="
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "previous"
+                                                      }
+                                                    },
+                                                    {
+                                                      "String": {
+                                                        "sval": "grant_id"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 299
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ],
+                                        "boolop": "AND_EXPR",
+                                        "location": 275
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "boolop": "OR_EXPR",
+                          "location": 17
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 3,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "73db123e4f650ff0882948eca053803893c4d3abc5756825fb7896c9b2e97294"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "23514"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 4,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "329834015dff4d9915b0ffa9bc949b95edbb429630256550d195e0a201fb479f"
+    }
+  ]
+}

@@ -1,0 +1,1419 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_perform": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT 1\n      FROM integration_organization\n     WHERE organization_id=org\n       AND status='ACTIVE'\n     FOR SHARE"
+              }
+            },
+            "lineno": 5
+          }
+        },
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "NOT FOUND"
+              }
+            },
+            "lineno": 11,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_raise": {
+                  "elog_level": 21,
+                  "lineno": 12,
+                  "message": "Command authority unavailable",
+                  "options": [
+                    {
+                      "PLpgSQL_raise_option": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 2,
+                            "query": "'P0012'"
+                          }
+                        },
+                        "opt_type": 0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_perform": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT 1\n      FROM command_principal\n     WHERE organization_id=org\n       AND principal_id=actor\n     FOR UPDATE"
+              }
+            },
+            "lineno": 16
+          }
+        },
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "NOT FOUND"
+              }
+            },
+            "lineno": 22,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_raise": {
+                  "elog_level": 21,
+                  "lineno": 23,
+                  "message": "Command authority unavailable",
+                  "options": [
+                    {
+                      "PLpgSQL_raise_option": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 2,
+                            "query": "'P0012'"
+                          }
+                        },
+                        "opt_type": 0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_perform": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT pg_advisory_xact_lock(\n        hashtextextended(\n            'transaction-identity/id/1:' || org || ':' || id,\n            0\n        )\n    )"
+              }
+            },
+            "lineno": 27
+          }
+        },
+        {
+          "PLpgSQL_stmt_fors": {
+            "body": [
+              {
+                "PLpgSQL_stmt_perform": {
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 0,
+                      "query": "SELECT pg_advisory_xact_lock(\n            hashtextextended(resource,0)\n        )"
+                    }
+                  },
+                  "lineno": 47
+                }
+              }
+            ],
+            "lineno": 34,
+            "query": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT unnest(\n            ARRAY[\n                'transaction-identity/subject/1:' ||\n                    org || ':' || conn || ':' ||\n                    octet_length(ref) || ':' || ref,\n\n                'transaction-identity/target/1:' ||\n                    org || ':' || target\n            ]\n        )\n        ORDER BY 1"
+              }
+            },
+            "var": {
+              "PLpgSQL_row": {
+                "fields": [
+                  {
+                    "name": "resource",
+                    "varno": 7
+                  }
+                ],
+                "lineno": 34,
+                "refname": "(unnamed row)"
+              }
+            }
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {}
+        }
+      ],
+      "lineno": 4
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.transaction_identity_withdrawal_locks(uuid,uuid,uuid,uuid,text,uuid)",
+    "source": {
+      "end_line": 130,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V036__add_transaction_identity_withdrawal.sql",
+      "source_hash": "03d5ee9159a64a244ab07decd2318ff906d473e06c4c1249ed5a4ec42c703bca",
+      "start_line": 68,
+      "statement_ordinal": 4,
+      "statement_sha256": "6280788018473e8f9c06448532169006857bd092f299919675ed488a7a1e021e",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 9
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "transaction_identity_withdrawal_locks"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 2079
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 2112,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 2123,
+                    "sval": {
+                      "sval": "public"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 2130,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 2112,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 2096
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nDECLARE\n    resource text;\nBEGIN\n    PERFORM 1\n      FROM integration_organization\n     WHERE organization_id=org\n       AND status='ACTIVE'\n     FOR SHARE;\n\n    IF NOT FOUND THEN\n        RAISE EXCEPTION 'Command authority unavailable'\n            USING ERRCODE='P0012';\n    END IF;\n\n    PERFORM 1\n      FROM command_principal\n     WHERE organization_id=org\n       AND principal_id=actor\n     FOR UPDATE;\n\n    IF NOT FOUND THEN\n        RAISE EXCEPTION 'Command authority unavailable'\n            USING ERRCODE='P0012';\n    END IF;\n\n    PERFORM pg_advisory_xact_lock(\n        hashtextextended(\n            'transaction-identity/id/1:' || org || ':' || id,\n            0\n        )\n    );\n\n    FOR resource IN\n        SELECT unnest(\n            ARRAY[\n                'transaction-identity/subject/1:' ||\n                    org || ':' || conn || ':' ||\n                    octet_length(ref) || ':' || ref,\n\n                'transaction-identity/target/1:' ||\n                    org || ':' || target\n            ]\n        )\n        ORDER BY 1\n    LOOP\n        PERFORM pg_advisory_xact_lock(\n            hashtextextended(resource,0)\n        );\n    END LOOP;\nEND;\n"
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 2141,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 2138
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 1984,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 1980,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "org"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 2000,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 1994,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "actor"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 2013,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 2010,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 2028,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 2023,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "conn"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 2042,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 2038,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "ref"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 2059,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 2052,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "target"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 2074,
+      "names": [
+        {
+          "String": {
+            "sval": "void"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 20,
+                      "relname": "integration_organization",
+                      "relpersistence": "p"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "lockingClause": [
+                  {
+                    "LockingClause": {
+                      "strength": "LCS_FORSHARE",
+                      "waitPolicy": "LockWaitBlock"
+                    }
+                  }
+                ],
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "ival": {
+                            "ival": 1
+                          },
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 56
+                            }
+                          },
+                          "location": 71,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "org"
+                                  }
+                                }
+                              ],
+                              "location": 72
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "status"
+                                  }
+                                }
+                              ],
+                              "location": 87
+                            }
+                          },
+                          "location": 93,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "location": 94,
+                              "sval": {
+                                "sval": "ACTIVE"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 83
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_perform",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "a46aec63103795e012b3a8c7f91f6b6c7dbf3d325af5a2345928dba5f052dc6f"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "found"
+                                    }
+                                  }
+                                ],
+                                "location": 11
+                              }
+                            }
+                          ],
+                          "boolop": "NOT_EXPR",
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "d262339346a267abf5207c549ae7a9c792fcbf1055be3dc5753dcda7176304e6"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "P0012"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 2,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "cc2da4c90f9a08f69750cd5963933d5ab36d124beeb3b8cd5b5a046073f9cf97"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 20,
+                      "relname": "command_principal",
+                      "relpersistence": "p"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "lockingClause": [
+                  {
+                    "LockingClause": {
+                      "strength": "LCS_FORUPDATE",
+                      "waitPolicy": "LockWaitBlock"
+                    }
+                  }
+                ],
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "ival": {
+                            "ival": 1
+                          },
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 49
+                            }
+                          },
+                          "location": 64,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "org"
+                                  }
+                                }
+                              ],
+                              "location": 65
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "principal_id"
+                                  }
+                                }
+                              ],
+                              "location": 80
+                            }
+                          },
+                          "location": 92,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "actor"
+                                  }
+                                }
+                              ],
+                              "location": 93
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 76
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_perform",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 3,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "b8e54cba6acb6f9db23f5db91f7225450e5ba09b5a462dfd3884535f9c6fcc95"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "found"
+                                    }
+                                  }
+                                ],
+                                "location": 11
+                              }
+                            }
+                          ],
+                          "boolop": "NOT_EXPR",
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 4,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "d262339346a267abf5207c549ae7a9c792fcbf1055be3dc5753dcda7176304e6"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "P0012"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 5,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "cc2da4c90f9a08f69750cd5963933d5ab36d124beeb3b8cd5b5a046073f9cf97"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "FuncCall": {
+                                "args": [
+                                  {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "A_Const": {
+                                                  "location": 68,
+                                                  "sval": {
+                                                    "sval": "transaction-identity/id/1:"
+                                                  }
+                                                }
+                                              },
+                                              "location": 97,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "org"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 100
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 104,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "A_Const": {
+                                              "location": 107,
+                                              "sval": {
+                                                "sval": ":"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 111,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "id"
+                                              }
+                                            }
+                                          ],
+                                          "location": 114
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "A_Const": {
+                                      "ival": {},
+                                      "location": 130
+                                    }
+                                  }
+                                ],
+                                "funcformat": "COERCE_EXPLICIT_CALL",
+                                "funcname": [
+                                  {
+                                    "String": {
+                                      "sval": "hashtextextended"
+                                    }
+                                  }
+                                ],
+                                "location": 38
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "pg_advisory_xact_lock"
+                              }
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        4,
+        "PLpgSQL_stmt_perform",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 6,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "3cbcdebca2db1e32b5e828e621032d05a72d4c8cc627ae9aa43b537bba5502be"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "FuncCall": {
+                                "args": [
+                                  {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "resource"
+                                          }
+                                        }
+                                      ],
+                                      "location": 59
+                                    }
+                                  },
+                                  {
+                                    "A_Const": {
+                                      "ival": {},
+                                      "location": 68
+                                    }
+                                  }
+                                ],
+                                "funcformat": "COERCE_EXPLICIT_CALL",
+                                "funcname": [
+                                  {
+                                    "String": {
+                                      "sval": "hashtextextended"
+                                    }
+                                  }
+                                ],
+                                "location": 42
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "pg_advisory_xact_lock"
+                              }
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_fors",
+        "body",
+        0,
+        "PLpgSQL_stmt_perform",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 7,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "1934578a72e9867e30e26d7e89696b0b67f9e3c7aaf91437ef2fb4aaa18c0c5d"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "sortClause": [
+                  {
+                    "SortBy": {
+                      "location": -1,
+                      "node": {
+                        "A_Const": {
+                          "ival": {
+                            "ival": 1
+                          },
+                          "location": 324
+                        }
+                      },
+                      "sortby_dir": "SORTBY_DEFAULT",
+                      "sortby_nulls": "SORTBY_NULLS_DEFAULT"
+                    }
+                  }
+                ],
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "A_ArrayExpr": {
+                                "elements": [
+                                  {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "A_Expr": {
+                                                  "kind": "AEXPR_OP",
+                                                  "lexpr": {
+                                                    "A_Expr": {
+                                                      "kind": "AEXPR_OP",
+                                                      "lexpr": {
+                                                        "A_Expr": {
+                                                          "kind": "AEXPR_OP",
+                                                          "lexpr": {
+                                                            "A_Expr": {
+                                                              "kind": "AEXPR_OP",
+                                                              "lexpr": {
+                                                                "A_Const": {
+                                                                  "location": 50,
+                                                                  "sval": {
+                                                                    "sval": "transaction-identity/subject/1:"
+                                                                  }
+                                                                }
+                                                              },
+                                                              "location": 84,
+                                                              "name": [
+                                                                {
+                                                                  "String": {
+                                                                    "sval": "||"
+                                                                  }
+                                                                }
+                                                              ],
+                                                              "rexpr": {
+                                                                "ColumnRef": {
+                                                                  "fields": [
+                                                                    {
+                                                                      "String": {
+                                                                        "sval": "org"
+                                                                      }
+                                                                    }
+                                                                  ],
+                                                                  "location": 107
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+                                                          "location": 111,
+                                                          "name": [
+                                                            {
+                                                              "String": {
+                                                                "sval": "||"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "rexpr": {
+                                                            "A_Const": {
+                                                              "location": 114,
+                                                              "sval": {
+                                                                "sval": ":"
+                                                              }
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "location": 118,
+                                                      "name": [
+                                                        {
+                                                          "String": {
+                                                            "sval": "||"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "rexpr": {
+                                                        "ColumnRef": {
+                                                          "fields": [
+                                                            {
+                                                              "String": {
+                                                                "sval": "conn"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "location": 121
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "location": 126,
+                                                  "name": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "||"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "rexpr": {
+                                                    "A_Const": {
+                                                      "location": 129,
+                                                      "sval": {
+                                                        "sval": ":"
+                                                      }
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "location": 133,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "FuncCall": {
+                                                  "args": [
+                                                    {
+                                                      "ColumnRef": {
+                                                        "fields": [
+                                                          {
+                                                            "String": {
+                                                              "sval": "ref"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "location": 169
+                                                      }
+                                                    }
+                                                  ],
+                                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                                  "funcname": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "octet_length"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 156
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 174,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "A_Const": {
+                                              "location": 177,
+                                              "sval": {
+                                                "sval": ":"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 181,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "ref"
+                                              }
+                                            }
+                                          ],
+                                          "location": 184
+                                        }
+                                      }
+                                    }
+                                  },
+                                  {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "A_Const": {
+                                                  "location": 206,
+                                                  "sval": {
+                                                    "sval": "transaction-identity/target/1:"
+                                                  }
+                                                }
+                                              },
+                                              "location": 239,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "org"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 262
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 266,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "A_Const": {
+                                              "location": 269,
+                                              "sval": {
+                                                "sval": ":"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 273,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "target"
+                                              }
+                                            }
+                                          ],
+                                          "location": 276
+                                        }
+                                      }
+                                    }
+                                  }
+                                ],
+                                "list_end": 295,
+                                "list_start": 32,
+                                "location": 27
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "unnest"
+                              }
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        5,
+        "PLpgSQL_stmt_fors",
+        "query",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 8,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "071f4f997fd8fc52983e4d685bfbd4399df3961ccc06299dc0d606fc172a443b"
+    }
+  ]
+}

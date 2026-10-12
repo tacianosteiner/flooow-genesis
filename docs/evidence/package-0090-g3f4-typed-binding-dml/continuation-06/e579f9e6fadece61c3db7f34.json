@@ -1,0 +1,149 @@
+{
+  "edges": [
+    {
+      "condition": "EARLY_RETURN",
+      "from": "a46c1fa10d19b6ec1e183cbc",
+      "to": "FUNCTION_RETURN"
+    },
+    {
+      "condition": "RAISE_EXCEPTION",
+      "from": "65c2f151a31d0ec04630f75a",
+      "to": "PROPAGATE_SQL_EXCEPTION_TO_CALLER"
+    },
+    {
+      "condition": "TRUE",
+      "from": "13415b5c06b9d1a45c312a92",
+      "to": "65c2f151a31d0ec04630f75a"
+    },
+    {
+      "condition": "FALSE_OR_UNKNOWN",
+      "from": "13415b5c06b9d1a45c312a92",
+      "to": "a46c1fa10d19b6ec1e183cbc"
+    },
+    {
+      "condition": "ENTER_BLOCK",
+      "from": "6e5464be2cce08021e9a3c05",
+      "to": "13415b5c06b9d1a45c312a92"
+    }
+  ],
+  "entry": "6e5464be2cce08021e9a3c05",
+  "full_control_flow_semantics_complete": false,
+  "nodes": [
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "6e5464be2cce08021e9a3c05",
+      "kind": "PLpgSQL_stmt_block",
+      "line_in_compiled_body": 2,
+      "path": [],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 54,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+        "start_line": 44,
+        "statement_ordinal": 1,
+        "statement_sha256": "956056d42f0df80d12cbd50ec7496cf6d225ba8d79d3bb92bfdd0b80420e7e58",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "a46c1fa10d19b6ec1e183cbc",
+      "kind": "PLpgSQL_stmt_return",
+      "line_in_compiled_body": 9,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 54,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+        "start_line": 44,
+        "statement_ordinal": 1,
+        "statement_sha256": "956056d42f0df80d12cbd50ec7496cf6d225ba8d79d3bb92bfdd0b80420e7e58",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": "TRUE branch only; FALSE and UNKNOWN continue to next alternative",
+      "guard_ast": {
+        "PLpgSQL_expr": {
+          "parseMode": 2,
+          "query": "NOT EXISTS (SELECT 1 FROM public.integration_connection WHERE organization_id=NEW.organization_id\n        AND connection_id=NEW.mercado_livre_connection_id AND provider_key='br.com.mercadolivre')\n        OR NOT EXISTS (SELECT 1 FROM public.integration_connection WHERE organization_id=NEW.organization_id\n        AND connection_id=NEW.omie_connection_id AND provider_key='omie')"
+        }
+      },
+      "id": "13415b5c06b9d1a45c312a92",
+      "kind": "PLpgSQL_stmt_if",
+      "line_in_compiled_body": 3,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 54,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+        "start_line": 44,
+        "statement_ordinal": 1,
+        "statement_sha256": "956056d42f0df80d12cbd50ec7496cf6d225ba8d79d3bb92bfdd0b80420e7e58",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "65c2f151a31d0ec04630f75a",
+      "kind": "PLpgSQL_stmt_raise",
+      "line_in_compiled_body": 7,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 54,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+        "start_line": 44,
+        "statement_ordinal": 1,
+        "statement_sha256": "956056d42f0df80d12cbd50ec7496cf6d225ba8d79d3bb92bfdd0b80420e7e58",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    }
+  ],
+  "raw_source_ast_preserved": true,
+  "semantic_gaps": [],
+  "signature": "public.command_principal_scope()",
+  "structural_kind_coverage_complete": true
+}

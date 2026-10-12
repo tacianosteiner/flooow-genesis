@@ -1,0 +1,774 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_perform": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT 1 FROM public.command_principal WHERE organization_id=NEW.organization_id\n        AND principal_id=NEW.principal_id FOR UPDATE"
+              }
+            },
+            "lineno": 4
+          }
+        },
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "NEW.revision > 1"
+              }
+            },
+            "lineno": 6,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_execsql": {
+                  "into": true,
+                  "lineno": 7,
+                  "sqlstmt": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 0,
+                      "query": "SELECT *               FROM public.command_credential_revision\n            WHERE credential_id=NEW.credential_id ORDER BY revision DESC LIMIT 1"
+                    }
+                  },
+                  "target": {
+                    "PLpgSQL_rec": {
+                      "dno": 13,
+                      "lineno": 2,
+                      "refname": "previous"
+                    }
+                  }
+                }
+              },
+              {
+                "PLpgSQL_stmt_if": {
+                  "cond": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 2,
+                      "query": "NOT FOUND OR previous.organization_id<>NEW.organization_id\n            OR previous.principal_id<>NEW.principal_id\n            OR previous.revision<>NEW.supersedes_revision"
+                    }
+                  },
+                  "lineno": 9,
+                  "then_body": [
+                    {
+                      "PLpgSQL_stmt_raise": {
+                        "elog_level": 21,
+                        "lineno": 12,
+                        "message": "Invalid command credential lineage",
+                        "options": [
+                          {
+                            "PLpgSQL_raise_option": {
+                              "expr": {
+                                "PLpgSQL_expr": {
+                                  "parseMode": 2,
+                                  "query": "'23514'"
+                                }
+                              },
+                              "opt_type": 0
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {
+            "lineno": 15
+          }
+        }
+      ],
+      "lineno": 3
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.command_credential_lineage()",
+    "source": {
+      "end_line": 72,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+      "start_line": 56,
+      "statement_ordinal": 2,
+      "statement_sha256": "675bcc5f1045de3ad0056ce054ccfe522443efdabd7ab4c0e09481f8ceb0eaf1",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 5
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "public"
+        }
+      },
+      {
+        "String": {
+          "sval": "command_credential_lineage"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 2624
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nDECLARE previous public.command_credential_revision;\nBEGIN\n    PERFORM 1 FROM public.command_principal WHERE organization_id=NEW.organization_id\n        AND principal_id=NEW.principal_id FOR UPDATE;\n    IF NEW.revision > 1 THEN\n        SELECT * INTO previous FROM public.command_credential_revision\n            WHERE credential_id=NEW.credential_id ORDER BY revision DESC LIMIT 1;\n        IF NOT FOUND OR previous.organization_id<>NEW.organization_id\n            OR previous.principal_id<>NEW.principal_id\n            OR previous.revision<>NEW.supersedes_revision THEN\n            RAISE EXCEPTION 'Invalid command credential lineage' USING ERRCODE = '23514';\n        END IF;\n    END IF;\n    RETURN NEW;\nEND;\n"
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 2644,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 2641
+        }
+      }
+    ],
+    "replace": true,
+    "returnType": {
+      "location": 2616,
+      "names": [
+        {
+          "String": {
+            "sval": "trigger"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 14,
+                      "relname": "command_principal",
+                      "relpersistence": "p",
+                      "schemaname": "public"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "lockingClause": [
+                  {
+                    "LockingClause": {
+                      "strength": "LCS_FORUPDATE",
+                      "waitPolicy": "LockWaitBlock"
+                    }
+                  }
+                ],
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "ival": {
+                            "ival": 1
+                          },
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 45
+                            }
+                          },
+                          "location": 60,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 61
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "principal_id"
+                                  }
+                                }
+                              ],
+                              "location": 93
+                            }
+                          },
+                          "location": 105,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "principal_id"
+                                  }
+                                }
+                              ],
+                              "location": 106
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 89
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_perform",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "5648712e21f397ac02e6a754ef710e30712059fe0b781dcb32b19036d05f25f8"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "new"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "revision"
+                                  }
+                                }
+                              ],
+                              "location": 7
+                            }
+                          },
+                          "location": 20,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": ">"
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "ival": {
+                                "ival": 1
+                              },
+                              "location": 22
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "35f8aa334902e7cbb4c372b702599bf2e5c4bfc8683977bb2e6740c8737b1430"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 28,
+                      "relname": "command_credential_revision",
+                      "relpersistence": "p",
+                      "schemaname": "public"
+                    }
+                  }
+                ],
+                "limitCount": {
+                  "A_Const": {
+                    "ival": {
+                      "ival": 1
+                    },
+                    "location": 142
+                  }
+                },
+                "limitOption": "LIMIT_OPTION_COUNT",
+                "op": "SETOP_NONE",
+                "sortClause": [
+                  {
+                    "SortBy": {
+                      "location": -1,
+                      "node": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "revision"
+                              }
+                            }
+                          ],
+                          "location": 122
+                        }
+                      },
+                      "sortby_dir": "SORTBY_DESC",
+                      "sortby_nulls": "SORTBY_NULLS_DEFAULT"
+                    }
+                  }
+                ],
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "A_Star": {}
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "A_Expr": {
+                    "kind": "AEXPR_OP",
+                    "lexpr": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "credential_id"
+                            }
+                          }
+                        ],
+                        "location": 81
+                      }
+                    },
+                    "location": 94,
+                    "name": [
+                      {
+                        "String": {
+                          "sval": "="
+                        }
+                      }
+                    ],
+                    "rexpr": {
+                      "ColumnRef": {
+                        "fields": [
+                          {
+                            "String": {
+                              "sval": "new"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "credential_id"
+                            }
+                          }
+                        ],
+                        "location": 95
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 2,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "5d04a3536fa016a0b4002bbafce646be0d2dbff6c4272d242bf0fbedde51d31f"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "BoolExpr": {
+                          "args": [
+                            {
+                              "BoolExpr": {
+                                "args": [
+                                  {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "found"
+                                          }
+                                        }
+                                      ],
+                                      "location": 11
+                                    }
+                                  }
+                                ],
+                                "boolop": "NOT_EXPR",
+                                "location": 7
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "previous"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "organization_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 20
+                                  }
+                                },
+                                "location": 44,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "organization_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 46
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "previous"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "principal_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 81
+                                  }
+                                },
+                                "location": 102,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "principal_id"
+                                        }
+                                      }
+                                    ],
+                                    "location": 104
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "A_Expr": {
+                                "kind": "AEXPR_OP",
+                                "lexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "previous"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "revision"
+                                        }
+                                      }
+                                    ],
+                                    "location": 136
+                                  }
+                                },
+                                "location": 153,
+                                "name": [
+                                  {
+                                    "String": {
+                                      "sval": "<>"
+                                    }
+                                  }
+                                ],
+                                "rexpr": {
+                                  "ColumnRef": {
+                                    "fields": [
+                                      {
+                                        "String": {
+                                          "sval": "new"
+                                        }
+                                      },
+                                      {
+                                        "String": {
+                                          "sval": "supersedes_revision"
+                                        }
+                                      }
+                                    ],
+                                    "location": 155
+                                  }
+                                }
+                              }
+                            }
+                          ],
+                          "boolop": "OR_EXPR",
+                          "location": 17
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        1,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 3,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "cc581ab52dc501583a5f506ea79324ec54267232ec27085685c9fefa07f90b46"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "23514"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        1,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 4,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "329834015dff4d9915b0ffa9bc949b95edbb429630256550d195e0a201fb479f"
+    }
+  ]
+}

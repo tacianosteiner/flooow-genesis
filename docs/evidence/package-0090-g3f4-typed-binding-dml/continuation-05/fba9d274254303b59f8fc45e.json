@@ -1,0 +1,245 @@
+{
+  "control_ast": null,
+  "function": {
+    "language": "sql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": false,
+    "signature": "public.s2a_v041_local(timestamp)",
+    "source": {
+      "end_line": 367,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V041__create_s2a_accepted_attestation.sql",
+      "source_hash": "4f2c7dc6f9eddfc0d751206f2a0d7a6f51d92cb90345620da121ec0338b75024",
+      "start_line": 366,
+      "statement_ordinal": 9,
+      "statement_sha256": "3f4782ca9ffe03f080289021a309456e6e6d5852318f96dcb6fe0f2b4270e115",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 1
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "public"
+        }
+      },
+      {
+        "String": {
+          "sval": "s2a_v041_local"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "sql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 29522
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "immutable"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "volatility",
+          "location": 29535
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "Boolean": {
+              "boolval": true
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "strict",
+          "location": 29545
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 29568,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 29579,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 29568,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 29552
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": " SELECT public.s2a_v041_text(to_char(v,'YYYY-MM-DD\"T\"HH24:MI:SS.US')) "
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 29590,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 29587
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 29497,
+            "names": [
+              {
+                "String": {
+                  "sval": "pg_catalog"
+                }
+              },
+              {
+                "String": {
+                  "sval": "timestamp"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 29495,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "v"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 29516,
+      "names": [
+        {
+          "String": {
+            "sval": "bytea"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 8,
+                      "val": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "FuncCall": {
+                                "args": [
+                                  {
+                                    "ColumnRef": {
+                                      "fields": [
+                                        {
+                                          "String": {
+                                            "sval": "v"
+                                          }
+                                        }
+                                      ],
+                                      "location": 37
+                                    }
+                                  },
+                                  {
+                                    "A_Const": {
+                                      "location": 39,
+                                      "sval": {
+                                        "sval": "YYYY-MM-DD\"T\"HH24:MI:SS.US"
+                                      }
+                                    }
+                                  }
+                                ],
+                                "funcformat": "COERCE_EXPLICIT_CALL",
+                                "funcname": [
+                                  {
+                                    "String": {
+                                      "sval": "to_char"
+                                    }
+                                  }
+                                ],
+                                "location": 29
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "public"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "s2a_v041_text"
+                              }
+                            }
+                          ],
+                          "location": 8
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "stmt_location": 1
+          }
+        ],
+        "version": 180006
+      },
+      "ordinal": 0,
+      "provenance_kind": "ORIGINAL_SQL_AS_BODY",
+      "query_sha256": "4665e041a9062ba3f57f18505ff9ad79226e9be755a908a22dcc60dc7cd337cb"
+    }
+  ]
+}

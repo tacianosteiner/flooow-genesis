@@ -1,0 +1,490 @@
+{
+  "control_ast": null,
+  "function": {
+    "language": "sql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": false,
+    "signature": "public.s2a_governance_nullable_text(text)",
+    "source": {
+      "end_line": 141,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+      "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+      "start_line": 136,
+      "statement_ordinal": 8,
+      "statement_sha256": "efde6674839f620fea92bf972f4530e5d0bb1fb654ba1d8df547e01bd48d4222",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 1
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "s2a_governance_nullable_text"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "sql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 6858
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "immutable"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "volatility",
+          "location": 6871
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "safe"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "parallel",
+          "location": 6881
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 6838,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 6832,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "value"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 6852,
+      "names": [
+        {
+          "String": {
+            "sval": "bytea"
+          }
+        }
+      ],
+      "typemod": -1
+    },
+    "sql_body": {
+      "ReturnStmt": {
+        "returnval": {
+          "CaseExpr": {
+            "args": [
+              {
+                "CaseWhen": {
+                  "expr": {
+                    "NullTest": {
+                      "arg": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "value"
+                              }
+                            }
+                          ],
+                          "location": 6912
+                        }
+                      },
+                      "location": 6918,
+                      "nulltesttype": "IS_NULL"
+                    }
+                  },
+                  "location": 6907,
+                  "result": {
+                    "A_Expr": {
+                      "kind": "AEXPR_OP",
+                      "lexpr": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "A_Const": {
+                                "location": 6962,
+                                "sval": {
+                                  "sval": "NULL"
+                                }
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "public"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "s2a_governance_text"
+                              }
+                            }
+                          ],
+                          "location": 6935
+                        }
+                      },
+                      "location": 6970,
+                      "name": [
+                        {
+                          "String": {
+                            "sval": "||"
+                          }
+                        }
+                      ],
+                      "rexpr": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "TypeCast": {
+                                "arg": {
+                                  "A_Const": {
+                                    "location": 7001,
+                                    "sval": {
+                                      "sval": ""
+                                    }
+                                  }
+                                },
+                                "location": 7003,
+                                "typeName": {
+                                  "location": 7005,
+                                  "names": [
+                                    {
+                                      "String": {
+                                        "sval": "bytea"
+                                      }
+                                    }
+                                  ],
+                                  "typemod": -1
+                                }
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "public"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "s2a_governance_frame"
+                              }
+                            }
+                          ],
+                          "location": 6973
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "defresult": {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "A_Const": {
+                          "location": 7048,
+                          "sval": {
+                            "sval": "PRESENT"
+                          }
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "public"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "s2a_governance_text"
+                        }
+                      }
+                    ],
+                    "location": 7021
+                  }
+                },
+                "location": 7059,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "||"
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "value"
+                              }
+                            }
+                          ],
+                          "location": 7089
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "public"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "s2a_governance_text"
+                        }
+                      }
+                    ],
+                    "location": 7062
+                  }
+                }
+              }
+            },
+            "location": 6902
+          }
+        }
+      }
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "ReturnStmt": {
+          "returnval": {
+            "CaseExpr": {
+              "args": [
+                {
+                  "CaseWhen": {
+                    "expr": {
+                      "NullTest": {
+                        "arg": {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "value"
+                                }
+                              }
+                            ],
+                            "location": 6912
+                          }
+                        },
+                        "location": 6918,
+                        "nulltesttype": "IS_NULL"
+                      }
+                    },
+                    "location": 6907,
+                    "result": {
+                      "A_Expr": {
+                        "kind": "AEXPR_OP",
+                        "lexpr": {
+                          "FuncCall": {
+                            "args": [
+                              {
+                                "A_Const": {
+                                  "location": 6962,
+                                  "sval": {
+                                    "sval": "NULL"
+                                  }
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "public"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "s2a_governance_text"
+                                }
+                              }
+                            ],
+                            "location": 6935
+                          }
+                        },
+                        "location": 6970,
+                        "name": [
+                          {
+                            "String": {
+                              "sval": "||"
+                            }
+                          }
+                        ],
+                        "rexpr": {
+                          "FuncCall": {
+                            "args": [
+                              {
+                                "TypeCast": {
+                                  "arg": {
+                                    "A_Const": {
+                                      "location": 7001,
+                                      "sval": {
+                                        "sval": ""
+                                      }
+                                    }
+                                  },
+                                  "location": 7003,
+                                  "typeName": {
+                                    "location": 7005,
+                                    "names": [
+                                      {
+                                        "String": {
+                                          "sval": "bytea"
+                                        }
+                                      }
+                                    ],
+                                    "typemod": -1
+                                  }
+                                }
+                              }
+                            ],
+                            "funcformat": "COERCE_EXPLICIT_CALL",
+                            "funcname": [
+                              {
+                                "String": {
+                                  "sval": "public"
+                                }
+                              },
+                              {
+                                "String": {
+                                  "sval": "s2a_governance_frame"
+                                }
+                              }
+                            ],
+                            "location": 6973
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "defresult": {
+                "A_Expr": {
+                  "kind": "AEXPR_OP",
+                  "lexpr": {
+                    "FuncCall": {
+                      "args": [
+                        {
+                          "A_Const": {
+                            "location": 7048,
+                            "sval": {
+                              "sval": "PRESENT"
+                            }
+                          }
+                        }
+                      ],
+                      "funcformat": "COERCE_EXPLICIT_CALL",
+                      "funcname": [
+                        {
+                          "String": {
+                            "sval": "public"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "s2a_governance_text"
+                          }
+                        }
+                      ],
+                      "location": 7021
+                    }
+                  },
+                  "location": 7059,
+                  "name": [
+                    {
+                      "String": {
+                        "sval": "||"
+                      }
+                    }
+                  ],
+                  "rexpr": {
+                    "FuncCall": {
+                      "args": [
+                        {
+                          "ColumnRef": {
+                            "fields": [
+                              {
+                                "String": {
+                                  "sval": "value"
+                                }
+                              }
+                            ],
+                            "location": 7089
+                          }
+                        }
+                      ],
+                      "funcformat": "COERCE_EXPLICIT_CALL",
+                      "funcname": [
+                        {
+                          "String": {
+                            "sval": "public"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "s2a_governance_text"
+                          }
+                        }
+                      ],
+                      "location": 7062
+                    }
+                  }
+                }
+              },
+              "location": 6902
+            }
+          }
+        }
+      },
+      "ordinal": 0,
+      "provenance_kind": "ORIGINAL_STRUCTURED_SQL_BODY"
+    }
+  ]
+}

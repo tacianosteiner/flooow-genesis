@@ -1,0 +1,439 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_execsql": {
+            "into": true,
+            "lineno": 5,
+            "sqlstmt": {
+              "PLpgSQL_expr": {
+                "parseMode": 0,
+                "query": "SELECT true\n                        FROM public.integration_connector_progress\n     WHERE organization_id=org\n       AND connection_id=conn\n       AND capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3'\n     FOR UPDATE"
+              }
+            },
+            "target": {
+              "PLpgSQL_row": {
+                "fields": [
+                  {
+                    "name": "locked",
+                    "varno": 3
+                  }
+                ],
+                "lineno": 6,
+                "refname": "(unnamed row)"
+              }
+            }
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "coalesce(locked,false)"
+              }
+            },
+            "lineno": 13
+          }
+        }
+      ],
+      "lineno": 4
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.transaction_identity_progress_lock(uuid,uuid)",
+    "source": {
+      "end_line": 62,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V039__restrict_transaction_identity_runtime_privileges.sql",
+      "source_hash": "9a218b9d3a3615b8d2ad34c0b3d4fa3a4f7e2b12008acc99d81005a547d5207a",
+      "start_line": 40,
+      "statement_ordinal": 13,
+      "statement_sha256": "014d91c1b483def1856838444f0ec663346f041a384cc7b792596e272b6ded09",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 2
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "transaction_identity_progress_lock"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 2006
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "Boolean": {
+              "boolval": true
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "security",
+          "location": 2023
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 2056,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 2067,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 2056,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 2040
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nDECLARE\n    locked boolean;\nBEGIN\n    SELECT true\n      INTO locked\n      FROM public.integration_connector_progress\n     WHERE organization_id=org\n       AND connection_id=conn\n       AND capability='marketplace-economic.omie-transaction-evidence.reacquisition-v3'\n     FOR UPDATE;\n\n    RETURN coalesce(locked,false);\nEND;\n"
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 2078,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 2075
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 1968,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 1964,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "org"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 1983,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 1978,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "conn"
+        }
+      }
+    ],
+    "replace": true,
+    "returnType": {
+      "location": 1998,
+      "names": [
+        {
+          "String": {
+            "sval": "pg_catalog"
+          }
+        },
+        {
+          "String": {
+            "sval": "bool"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "fromClause": [
+                  {
+                    "RangeVar": {
+                      "inh": true,
+                      "location": 41,
+                      "relname": "integration_connector_progress",
+                      "relpersistence": "p",
+                      "schemaname": "public"
+                    }
+                  }
+                ],
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "lockingClause": [
+                  {
+                    "LockingClause": {
+                      "strength": "LCS_FORUPDATE",
+                      "waitPolicy": "LockWaitBlock"
+                    }
+                  }
+                ],
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "boolval": {
+                            "boolval": true
+                          },
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ],
+                "whereClause": {
+                  "BoolExpr": {
+                    "args": [
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "organization_id"
+                                  }
+                                }
+                              ],
+                              "location": 90
+                            }
+                          },
+                          "location": 105,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "org"
+                                  }
+                                }
+                              ],
+                              "location": 106
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "connection_id"
+                                  }
+                                }
+                              ],
+                              "location": 121
+                            }
+                          },
+                          "location": 134,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "conn"
+                                  }
+                                }
+                              ],
+                              "location": 135
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "capability"
+                                  }
+                                }
+                              ],
+                              "location": 151
+                            }
+                          },
+                          "location": 161,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "location": 162,
+                              "sval": {
+                                "sval": "marketplace-economic.omie-transaction-evidence.reacquisition-v3"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "boolop": "AND_EXPR",
+                    "location": 117
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_execsql",
+        "sqlstmt",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "3b87c7d82c983b2f8eb8b3f121934699babec6d322426df33a5634467c39edb1"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "CoalesceExpr": {
+                          "args": [
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "locked"
+                                    }
+                                  }
+                                ],
+                                "location": 16
+                              }
+                            },
+                            {
+                              "A_Const": {
+                                "boolval": {},
+                                "location": 23
+                              }
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_return",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "56c12d8fb9dbf557da768dee355af3b993d42d3a83017dc6c8619ffd4b9ccd4d"
+    }
+  ]
+}

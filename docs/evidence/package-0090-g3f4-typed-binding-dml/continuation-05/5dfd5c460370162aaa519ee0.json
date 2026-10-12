@@ -1,0 +1,293 @@
+{
+  "control_ast": null,
+  "function": {
+    "language": "sql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": false,
+    "signature": "public.s2a_governance_instant(timestamptz)",
+    "source": {
+      "end_line": 127,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+      "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+      "start_line": 125,
+      "statement_ordinal": 6,
+      "statement_sha256": "71943f38e68d266660fae38c4b3ba5554e38fd487e147acf8ed9a619d096c833",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 1
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "s2a_governance_instant"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "sql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 6312
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "immutable"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "volatility",
+          "location": 6325
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "Boolean": {
+              "boolval": true
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "strict",
+          "location": 6335
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "safe"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "parallel",
+          "location": 6342
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 6285,
+            "names": [
+              {
+                "String": {
+                  "sval": "timestamptz"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 6279,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "value"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 6306,
+      "names": [
+        {
+          "String": {
+            "sval": "bytea"
+          }
+        }
+      ],
+      "typemod": -1
+    },
+    "sql_body": {
+      "ReturnStmt": {
+        "returnval": {
+          "FuncCall": {
+            "args": [
+              {
+                "FuncCall": {
+                  "args": [
+                    {
+                      "FuncCall": {
+                        "args": [
+                          {
+                            "A_Const": {
+                              "location": 6417,
+                              "sval": {
+                                "sval": "UTC"
+                              }
+                            }
+                          },
+                          {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "value"
+                                  }
+                                }
+                              ],
+                              "location": 6398
+                            }
+                          }
+                        ],
+                        "funcformat": "COERCE_SQL_SYNTAX",
+                        "funcname": [
+                          {
+                            "String": {
+                              "sval": "pg_catalog"
+                            }
+                          },
+                          {
+                            "String": {
+                              "sval": "timezone"
+                            }
+                          }
+                        ],
+                        "location": 6404
+                      }
+                    },
+                    {
+                      "A_Const": {
+                        "location": 6424,
+                        "sval": {
+                          "sval": "YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\""
+                        }
+                      }
+                    }
+                  ],
+                  "funcformat": "COERCE_EXPLICIT_CALL",
+                  "funcname": [
+                    {
+                      "String": {
+                        "sval": "to_char"
+                      }
+                    }
+                  ],
+                  "location": 6390
+                }
+              }
+            ],
+            "funcformat": "COERCE_EXPLICIT_CALL",
+            "funcname": [
+              {
+                "String": {
+                  "sval": "public"
+                }
+              },
+              {
+                "String": {
+                  "sval": "s2a_governance_text"
+                }
+              }
+            ],
+            "location": 6363
+          }
+        }
+      }
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "ReturnStmt": {
+          "returnval": {
+            "FuncCall": {
+              "args": [
+                {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "A_Const": {
+                                "location": 6417,
+                                "sval": {
+                                  "sval": "UTC"
+                                }
+                              }
+                            },
+                            {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "value"
+                                    }
+                                  }
+                                ],
+                                "location": 6398
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_SQL_SYNTAX",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "pg_catalog"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "timezone"
+                              }
+                            }
+                          ],
+                          "location": 6404
+                        }
+                      },
+                      {
+                        "A_Const": {
+                          "location": 6424,
+                          "sval": {
+                            "sval": "YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\""
+                          }
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "to_char"
+                        }
+                      }
+                    ],
+                    "location": 6390
+                  }
+                }
+              ],
+              "funcformat": "COERCE_EXPLICIT_CALL",
+              "funcname": [
+                {
+                  "String": {
+                    "sval": "public"
+                  }
+                },
+                {
+                  "String": {
+                    "sval": "s2a_governance_text"
+                  }
+                }
+              ],
+              "location": 6363
+            }
+          }
+        }
+      },
+      "ordinal": 0,
+      "provenance_kind": "ORIGINAL_STRUCTURED_SQL_BODY"
+    }
+  ]
+}

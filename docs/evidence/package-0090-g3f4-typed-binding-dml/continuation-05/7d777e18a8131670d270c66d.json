@@ -1,0 +1,2383 @@
+{
+  "control_ast": {
+    "PLpgSQL_stmt_block": {
+      "body": [
+        {
+          "PLpgSQL_stmt_if": {
+            "cond": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "p_kind='PRINCIPAL'"
+              }
+            },
+            "else_body": [
+              {
+                "PLpgSQL_stmt_raise": {
+                  "elog_level": 21,
+                  "lineno": 10,
+                  "message": "Invalid V042 operation",
+                  "options": [
+                    {
+                      "PLpgSQL_raise_option": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 2,
+                            "query": "'P0018'"
+                          }
+                        },
+                        "opt_type": 0
+                      }
+                    },
+                    {
+                      "PLpgSQL_raise_option": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 2,
+                            "query": "'INTEGRITY_FAILURE'"
+                          }
+                        },
+                        "opt_type": 2
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "elsif_list": [
+              {
+                "PLpgSQL_if_elsif": {
+                  "cond": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 2,
+                      "query": "p_kind='INITIAL_CREDENTIAL'"
+                    }
+                  },
+                  "lineno": 6,
+                  "stmts": [
+                    {
+                      "PLpgSQL_stmt_assign": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 3,
+                            "query": "b:=b||public.s2a_v042_text('initial-credential')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_credential_id::text)||public.s2a_v042_text(encode(p_secret_verifier,'hex'))"
+                          }
+                        },
+                        "lineno": 7,
+                        "varno": 16
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "PLpgSQL_if_elsif": {
+                  "cond": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 2,
+                      "query": "p_kind='GRANT'"
+                    }
+                  },
+                  "lineno": 8,
+                  "stmts": [
+                    {
+                      "PLpgSQL_stmt_assign": {
+                        "expr": {
+                          "PLpgSQL_expr": {
+                            "parseMode": 3,
+                            "query": "b:=b||public.s2a_v042_text('grant')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_grant_id::text)||public.s2a_v042_text('TRANSACTION_IDENTITY_DECISION_WRITE')"
+                          }
+                        },
+                        "lineno": 9,
+                        "varno": 16
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "lineno": 4,
+            "then_body": [
+              {
+                "PLpgSQL_stmt_assign": {
+                  "expr": {
+                    "PLpgSQL_expr": {
+                      "parseMode": 3,
+                      "query": "b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text)"
+                    }
+                  },
+                  "lineno": 5,
+                  "varno": 16
+                }
+              }
+            ]
+          }
+        },
+        {
+          "PLpgSQL_stmt_return": {
+            "expr": {
+              "PLpgSQL_expr": {
+                "parseMode": 2,
+                "query": "encode(sha256(b||public.s2a_v042_text(p_reason)||public.s2a_v042_text(p_provenance)||public.s2a_v042_text(p_correlation_id::text)||public.s2a_v042_text(p_manifest_id::text)||public.s2a_v042_text(p_accepted_proof_fingerprint)||public.s2a_v042_text(p_manifest_digest)),'hex')"
+              }
+            },
+            "lineno": 11
+          }
+        }
+      ],
+      "lineno": 3
+    }
+  },
+  "function": {
+    "language": "plpgsql",
+    "parser_only_normalizations": [],
+    "plpgsql_ast_present": true,
+    "signature": "public.s2a_v042_authority_intent(text,uuid,uuid,uuid,uuid,uuid,uuid,bytea,uuid,text,text,uuid,uuid,text,text)",
+    "source": {
+      "end_line": 158,
+      "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+      "source_hash": "8079e307138c0fb24f00f07e081c3148a36c9a903099b8f61550a861ce3cb89a",
+      "start_line": 142,
+      "statement_ordinal": 19,
+      "statement_sha256": "9ef692bc27db78d69973f5a7a27b93972ce7549da5079c33830edb3a888fe800",
+      "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+    },
+    "statement_ast_n": 9
+  },
+  "original_definition": {
+    "funcname": [
+      {
+        "String": {
+          "sval": "public"
+        }
+      },
+      {
+        "String": {
+          "sval": "s2a_v042_authority_intent"
+        }
+      }
+    ],
+    "options": [
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "plpgsql"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "language",
+          "location": 8441
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "String": {
+              "sval": "immutable"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "volatility",
+          "location": 8458
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "VariableSetStmt": {
+              "args": [
+                {
+                  "A_Const": {
+                    "location": 8484,
+                    "sval": {
+                      "sval": "pg_catalog"
+                    }
+                  }
+                },
+                {
+                  "A_Const": {
+                    "location": 8495,
+                    "sval": {
+                      "sval": "pg_temp"
+                    }
+                  }
+                }
+              ],
+              "kind": "VAR_SET_VALUE",
+              "location": 8484,
+              "name": "search_path"
+            }
+          },
+          "arg_location": -1,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "set",
+          "location": 8468
+        }
+      },
+      {
+        "DefElem": {
+          "arg": {
+            "List": {
+              "items": [
+                {
+                  "String": {
+                    "sval": "\nDECLARE b bytea:=public.s2a_v042_text('controlled-command-authority/2');\nBEGIN\n  IF p_kind='PRINCIPAL' THEN\n    b:=b||public.s2a_v042_text('principal')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_mercado_livre_connection_id::text)||public.s2a_v042_text(p_omie_connection_id::text);\n  ELSIF p_kind='INITIAL_CREDENTIAL' THEN\n    b:=b||public.s2a_v042_text('initial-credential')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_credential_id::text)||public.s2a_v042_text(encode(p_secret_verifier,'hex'));\n  ELSIF p_kind='GRANT' THEN\n    b:=b||public.s2a_v042_text('grant')||public.s2a_v042_text(p_operation_id::text)||public.s2a_v042_text(p_organization_id::text)||public.s2a_v042_text(p_principal_id::text)||public.s2a_v042_text(p_grant_id::text)||public.s2a_v042_text('TRANSACTION_IDENTITY_DECISION_WRITE');\n  ELSE RAISE EXCEPTION 'Invalid V042 operation' USING ERRCODE='P0018',DETAIL='INTEGRITY_FAILURE'; END IF;\n  RETURN encode(sha256(b||public.s2a_v042_text(p_reason)||public.s2a_v042_text(p_provenance)||public.s2a_v042_text(p_correlation_id::text)||public.s2a_v042_text(p_manifest_id::text)||public.s2a_v042_text(p_accepted_proof_fingerprint)||public.s2a_v042_text(p_manifest_digest)),'hex');\nEND "
+                  }
+                }
+              ]
+            }
+          },
+          "arg_location": 8506,
+          "defaction": "DEFELEM_UNSPEC",
+          "defname": "as",
+          "location": 8503
+        }
+      }
+    ],
+    "parameters": [
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8097,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8090,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_kind"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8117,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8102,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_operation_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8140,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8122,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_organization_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8160,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8145,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_principal_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8198,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8168,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_mercado_livre_connection_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8224,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8203,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_omie_connection_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8245,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8229,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_credential_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8271,
+            "names": [
+              {
+                "String": {
+                  "sval": "bytea"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8253,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_secret_verifier"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8288,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8277,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_grant_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8302,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8293,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_reason"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8320,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8307,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_provenance"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8342,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8325,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_correlation_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8364,
+            "names": [
+              {
+                "String": {
+                  "sval": "uuid"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8350,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_manifest_id"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8398,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8369,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_accepted_proof_fingerprint"
+        }
+      },
+      {
+        "FunctionParameter": {
+          "argType": {
+            "location": 8421,
+            "names": [
+              {
+                "String": {
+                  "sval": "text"
+                }
+              }
+            ],
+            "typemod": -1
+          },
+          "location": 8403,
+          "mode": "FUNC_PARAM_DEFAULT",
+          "name": "p_manifest_digest"
+        }
+      }
+    ],
+    "returnType": {
+      "location": 8436,
+      "names": [
+        {
+          "String": {
+            "sval": "text"
+          }
+        }
+      ],
+      "typemod": -1
+    }
+  },
+  "statements": [
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_kind"
+                                  }
+                                }
+                              ],
+                              "location": 7
+                            }
+                          },
+                          "location": 13,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "location": 14,
+                              "sval": {
+                                "sval": "PRINCIPAL"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 0,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "4708507b0ff195ddbc5d19e5856be0f09d6e05a9f506274d6647962b5894bf74"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "lexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "b"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 7
+                                                }
+                                              },
+                                              "location": 8,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "FuncCall": {
+                                                  "args": [
+                                                    {
+                                                      "A_Const": {
+                                                        "location": 31,
+                                                        "sval": {
+                                                          "sval": "principal"
+                                                        }
+                                                      }
+                                                    }
+                                                  ],
+                                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                                  "funcname": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "public"
+                                                      }
+                                                    },
+                                                    {
+                                                      "String": {
+                                                        "sval": "s2a_v042_text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 10
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 43,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "FuncCall": {
+                                              "args": [
+                                                {
+                                                  "TypeCast": {
+                                                    "arg": {
+                                                      "ColumnRef": {
+                                                        "fields": [
+                                                          {
+                                                            "String": {
+                                                              "sval": "p_operation_id"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "location": 66
+                                                      }
+                                                    },
+                                                    "location": 80,
+                                                    "typeName": {
+                                                      "location": 82,
+                                                      "names": [
+                                                        {
+                                                          "String": {
+                                                            "sval": "text"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "typemod": -1
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "funcformat": "COERCE_EXPLICIT_CALL",
+                                              "funcname": [
+                                                {
+                                                  "String": {
+                                                    "sval": "public"
+                                                  }
+                                                },
+                                                {
+                                                  "String": {
+                                                    "sval": "s2a_v042_text"
+                                                  }
+                                                }
+                                              ],
+                                              "location": 45
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 87,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "FuncCall": {
+                                          "args": [
+                                            {
+                                              "TypeCast": {
+                                                "arg": {
+                                                  "ColumnRef": {
+                                                    "fields": [
+                                                      {
+                                                        "String": {
+                                                          "sval": "p_organization_id"
+                                                        }
+                                                      }
+                                                    ],
+                                                    "location": 110
+                                                  }
+                                                },
+                                                "location": 127,
+                                                "typeName": {
+                                                  "location": 129,
+                                                  "names": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "typemod": -1
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "public"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "s2a_v042_text"
+                                              }
+                                            }
+                                          ],
+                                          "location": 89
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "location": 134,
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "||"
+                                      }
+                                    }
+                                  ],
+                                  "rexpr": {
+                                    "FuncCall": {
+                                      "args": [
+                                        {
+                                          "TypeCast": {
+                                            "arg": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_principal_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 157
+                                              }
+                                            },
+                                            "location": 171,
+                                            "typeName": {
+                                              "location": 173,
+                                              "names": [
+                                                {
+                                                  "String": {
+                                                    "sval": "text"
+                                                  }
+                                                }
+                                              ],
+                                              "typemod": -1
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "funcformat": "COERCE_EXPLICIT_CALL",
+                                      "funcname": [
+                                        {
+                                          "String": {
+                                            "sval": "public"
+                                          }
+                                        },
+                                        {
+                                          "String": {
+                                            "sval": "s2a_v042_text"
+                                          }
+                                        }
+                                      ],
+                                      "location": 136
+                                    }
+                                  }
+                                }
+                              },
+                              "location": 178,
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "||"
+                                  }
+                                }
+                              ],
+                              "rexpr": {
+                                "FuncCall": {
+                                  "args": [
+                                    {
+                                      "TypeCast": {
+                                        "arg": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "p_mercado_livre_connection_id"
+                                                }
+                                              }
+                                            ],
+                                            "location": 201
+                                          }
+                                        },
+                                        "location": 230,
+                                        "typeName": {
+                                          "location": 232,
+                                          "names": [
+                                            {
+                                              "String": {
+                                                "sval": "text"
+                                              }
+                                            }
+                                          ],
+                                          "typemod": -1
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "public"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "s2a_v042_text"
+                                      }
+                                    }
+                                  ],
+                                  "location": 180
+                                }
+                              }
+                            }
+                          },
+                          "location": 237,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "||"
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "FuncCall": {
+                              "args": [
+                                {
+                                  "TypeCast": {
+                                    "arg": {
+                                      "ColumnRef": {
+                                        "fields": [
+                                          {
+                                            "String": {
+                                              "sval": "p_omie_connection_id"
+                                            }
+                                          }
+                                        ],
+                                        "location": 260
+                                      }
+                                    },
+                                    "location": 280,
+                                    "typeName": {
+                                      "location": 282,
+                                      "names": [
+                                        {
+                                          "String": {
+                                            "sval": "text"
+                                          }
+                                        }
+                                      ],
+                                      "typemod": -1
+                                    }
+                                  }
+                                }
+                              ],
+                              "funcformat": "COERCE_EXPLICIT_CALL",
+                              "funcname": [
+                                {
+                                  "String": {
+                                    "sval": "public"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "s2a_v042_text"
+                                  }
+                                }
+                              ],
+                              "location": 239
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 1,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "1494d7a35e311cd0d49fd722712bca91ce03ad304fa06d169d36a7744e2aa706"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_kind"
+                                  }
+                                }
+                              ],
+                              "location": 7
+                            }
+                          },
+                          "location": 13,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "location": 14,
+                              "sval": {
+                                "sval": "INITIAL_CREDENTIAL"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        0,
+        "PLpgSQL_if_elsif",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 2,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "69166276aadf0d3fe0b21d9f5e82368fd5f2368f82e778d6fee2096d0062af7a"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "lexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "b"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 7
+                                                }
+                                              },
+                                              "location": 8,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "FuncCall": {
+                                                  "args": [
+                                                    {
+                                                      "A_Const": {
+                                                        "location": 31,
+                                                        "sval": {
+                                                          "sval": "initial-credential"
+                                                        }
+                                                      }
+                                                    }
+                                                  ],
+                                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                                  "funcname": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "public"
+                                                      }
+                                                    },
+                                                    {
+                                                      "String": {
+                                                        "sval": "s2a_v042_text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 10
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 52,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "FuncCall": {
+                                              "args": [
+                                                {
+                                                  "TypeCast": {
+                                                    "arg": {
+                                                      "ColumnRef": {
+                                                        "fields": [
+                                                          {
+                                                            "String": {
+                                                              "sval": "p_operation_id"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "location": 75
+                                                      }
+                                                    },
+                                                    "location": 89,
+                                                    "typeName": {
+                                                      "location": 91,
+                                                      "names": [
+                                                        {
+                                                          "String": {
+                                                            "sval": "text"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "typemod": -1
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "funcformat": "COERCE_EXPLICIT_CALL",
+                                              "funcname": [
+                                                {
+                                                  "String": {
+                                                    "sval": "public"
+                                                  }
+                                                },
+                                                {
+                                                  "String": {
+                                                    "sval": "s2a_v042_text"
+                                                  }
+                                                }
+                                              ],
+                                              "location": 54
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 96,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "FuncCall": {
+                                          "args": [
+                                            {
+                                              "TypeCast": {
+                                                "arg": {
+                                                  "ColumnRef": {
+                                                    "fields": [
+                                                      {
+                                                        "String": {
+                                                          "sval": "p_organization_id"
+                                                        }
+                                                      }
+                                                    ],
+                                                    "location": 119
+                                                  }
+                                                },
+                                                "location": 136,
+                                                "typeName": {
+                                                  "location": 138,
+                                                  "names": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "typemod": -1
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "public"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "s2a_v042_text"
+                                              }
+                                            }
+                                          ],
+                                          "location": 98
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "location": 143,
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "||"
+                                      }
+                                    }
+                                  ],
+                                  "rexpr": {
+                                    "FuncCall": {
+                                      "args": [
+                                        {
+                                          "TypeCast": {
+                                            "arg": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_principal_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 166
+                                              }
+                                            },
+                                            "location": 180,
+                                            "typeName": {
+                                              "location": 182,
+                                              "names": [
+                                                {
+                                                  "String": {
+                                                    "sval": "text"
+                                                  }
+                                                }
+                                              ],
+                                              "typemod": -1
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "funcformat": "COERCE_EXPLICIT_CALL",
+                                      "funcname": [
+                                        {
+                                          "String": {
+                                            "sval": "public"
+                                          }
+                                        },
+                                        {
+                                          "String": {
+                                            "sval": "s2a_v042_text"
+                                          }
+                                        }
+                                      ],
+                                      "location": 145
+                                    }
+                                  }
+                                }
+                              },
+                              "location": 187,
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "||"
+                                  }
+                                }
+                              ],
+                              "rexpr": {
+                                "FuncCall": {
+                                  "args": [
+                                    {
+                                      "TypeCast": {
+                                        "arg": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "p_credential_id"
+                                                }
+                                              }
+                                            ],
+                                            "location": 210
+                                          }
+                                        },
+                                        "location": 225,
+                                        "typeName": {
+                                          "location": 227,
+                                          "names": [
+                                            {
+                                              "String": {
+                                                "sval": "text"
+                                              }
+                                            }
+                                          ],
+                                          "typemod": -1
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "public"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "s2a_v042_text"
+                                      }
+                                    }
+                                  ],
+                                  "location": 189
+                                }
+                              }
+                            }
+                          },
+                          "location": 232,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "||"
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "FuncCall": {
+                              "args": [
+                                {
+                                  "FuncCall": {
+                                    "args": [
+                                      {
+                                        "ColumnRef": {
+                                          "fields": [
+                                            {
+                                              "String": {
+                                                "sval": "p_secret_verifier"
+                                              }
+                                            }
+                                          ],
+                                          "location": 262
+                                        }
+                                      },
+                                      {
+                                        "A_Const": {
+                                          "location": 280,
+                                          "sval": {
+                                            "sval": "hex"
+                                          }
+                                        }
+                                      }
+                                    ],
+                                    "funcformat": "COERCE_EXPLICIT_CALL",
+                                    "funcname": [
+                                      {
+                                        "String": {
+                                          "sval": "encode"
+                                        }
+                                      }
+                                    ],
+                                    "location": 255
+                                  }
+                                }
+                              ],
+                              "funcformat": "COERCE_EXPLICIT_CALL",
+                              "funcname": [
+                                {
+                                  "String": {
+                                    "sval": "public"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "s2a_v042_text"
+                                  }
+                                }
+                              ],
+                              "location": 234
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        0,
+        "PLpgSQL_if_elsif",
+        "stmts",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 3,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "c04ac7def6a5eb40497909de6a623085f75c89b4d9c9fc7abb82195ce9384f79"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "ColumnRef": {
+                              "fields": [
+                                {
+                                  "String": {
+                                    "sval": "p_kind"
+                                  }
+                                }
+                              ],
+                              "location": 7
+                            }
+                          },
+                          "location": 13,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "="
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "A_Const": {
+                              "location": 14,
+                              "sval": {
+                                "sval": "GRANT"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        1,
+        "PLpgSQL_if_elsif",
+        "cond",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 4,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "27badd29ab514ff8978be6bdf679866cfc97e29177225390cc3aa52046e2e84a"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Expr": {
+                          "kind": "AEXPR_OP",
+                          "lexpr": {
+                            "A_Expr": {
+                              "kind": "AEXPR_OP",
+                              "lexpr": {
+                                "A_Expr": {
+                                  "kind": "AEXPR_OP",
+                                  "lexpr": {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "ColumnRef": {
+                                                  "fields": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "b"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 7
+                                                }
+                                              },
+                                              "location": 8,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "FuncCall": {
+                                                  "args": [
+                                                    {
+                                                      "A_Const": {
+                                                        "location": 31,
+                                                        "sval": {
+                                                          "sval": "grant"
+                                                        }
+                                                      }
+                                                    }
+                                                  ],
+                                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                                  "funcname": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "public"
+                                                      }
+                                                    },
+                                                    {
+                                                      "String": {
+                                                        "sval": "s2a_v042_text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 10
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 39,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "FuncCall": {
+                                              "args": [
+                                                {
+                                                  "TypeCast": {
+                                                    "arg": {
+                                                      "ColumnRef": {
+                                                        "fields": [
+                                                          {
+                                                            "String": {
+                                                              "sval": "p_operation_id"
+                                                            }
+                                                          }
+                                                        ],
+                                                        "location": 62
+                                                      }
+                                                    },
+                                                    "location": 76,
+                                                    "typeName": {
+                                                      "location": 78,
+                                                      "names": [
+                                                        {
+                                                          "String": {
+                                                            "sval": "text"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "typemod": -1
+                                                    }
+                                                  }
+                                                }
+                                              ],
+                                              "funcformat": "COERCE_EXPLICIT_CALL",
+                                              "funcname": [
+                                                {
+                                                  "String": {
+                                                    "sval": "public"
+                                                  }
+                                                },
+                                                {
+                                                  "String": {
+                                                    "sval": "s2a_v042_text"
+                                                  }
+                                                }
+                                              ],
+                                              "location": 41
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 83,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "FuncCall": {
+                                          "args": [
+                                            {
+                                              "TypeCast": {
+                                                "arg": {
+                                                  "ColumnRef": {
+                                                    "fields": [
+                                                      {
+                                                        "String": {
+                                                          "sval": "p_organization_id"
+                                                        }
+                                                      }
+                                                    ],
+                                                    "location": 106
+                                                  }
+                                                },
+                                                "location": 123,
+                                                "typeName": {
+                                                  "location": 125,
+                                                  "names": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "typemod": -1
+                                                }
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "public"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "s2a_v042_text"
+                                              }
+                                            }
+                                          ],
+                                          "location": 85
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "location": 130,
+                                  "name": [
+                                    {
+                                      "String": {
+                                        "sval": "||"
+                                      }
+                                    }
+                                  ],
+                                  "rexpr": {
+                                    "FuncCall": {
+                                      "args": [
+                                        {
+                                          "TypeCast": {
+                                            "arg": {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_principal_id"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 153
+                                              }
+                                            },
+                                            "location": 167,
+                                            "typeName": {
+                                              "location": 169,
+                                              "names": [
+                                                {
+                                                  "String": {
+                                                    "sval": "text"
+                                                  }
+                                                }
+                                              ],
+                                              "typemod": -1
+                                            }
+                                          }
+                                        }
+                                      ],
+                                      "funcformat": "COERCE_EXPLICIT_CALL",
+                                      "funcname": [
+                                        {
+                                          "String": {
+                                            "sval": "public"
+                                          }
+                                        },
+                                        {
+                                          "String": {
+                                            "sval": "s2a_v042_text"
+                                          }
+                                        }
+                                      ],
+                                      "location": 132
+                                    }
+                                  }
+                                }
+                              },
+                              "location": 174,
+                              "name": [
+                                {
+                                  "String": {
+                                    "sval": "||"
+                                  }
+                                }
+                              ],
+                              "rexpr": {
+                                "FuncCall": {
+                                  "args": [
+                                    {
+                                      "TypeCast": {
+                                        "arg": {
+                                          "ColumnRef": {
+                                            "fields": [
+                                              {
+                                                "String": {
+                                                  "sval": "p_grant_id"
+                                                }
+                                              }
+                                            ],
+                                            "location": 197
+                                          }
+                                        },
+                                        "location": 207,
+                                        "typeName": {
+                                          "location": 209,
+                                          "names": [
+                                            {
+                                              "String": {
+                                                "sval": "text"
+                                              }
+                                            }
+                                          ],
+                                          "typemod": -1
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                  "funcname": [
+                                    {
+                                      "String": {
+                                        "sval": "public"
+                                      }
+                                    },
+                                    {
+                                      "String": {
+                                        "sval": "s2a_v042_text"
+                                      }
+                                    }
+                                  ],
+                                  "location": 176
+                                }
+                              }
+                            }
+                          },
+                          "location": 214,
+                          "name": [
+                            {
+                              "String": {
+                                "sval": "||"
+                              }
+                            }
+                          ],
+                          "rexpr": {
+                            "FuncCall": {
+                              "args": [
+                                {
+                                  "A_Const": {
+                                    "location": 237,
+                                    "sval": {
+                                      "sval": "TRANSACTION_IDENTITY_DECISION_WRITE"
+                                    }
+                                  }
+                                }
+                              ],
+                              "funcformat": "COERCE_EXPLICIT_CALL",
+                              "funcname": [
+                                {
+                                  "String": {
+                                    "sval": "public"
+                                  }
+                                },
+                                {
+                                  "String": {
+                                    "sval": "s2a_v042_text"
+                                  }
+                                }
+                              ],
+                              "location": 216
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "elsif_list",
+        1,
+        "PLpgSQL_if_elsif",
+        "stmts",
+        0,
+        "PLpgSQL_stmt_assign",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 5,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "e8816f1d1a5671d38aef449a7249910b66715d94c4133f8f1a9ac9eb78906b58"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "P0018"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        0,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 6,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "0e8b44d4afa78e2c36da4b59be881ca34c8c78acf28eb575c98157b12873f21b"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "A_Const": {
+                          "location": 7,
+                          "sval": {
+                            "sval": "INTEGRITY_FAILURE"
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "else_body",
+        0,
+        "PLpgSQL_stmt_raise",
+        "options",
+        1,
+        "PLpgSQL_raise_option",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 7,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "1cb6f5586d4ba65241affe82c893bf6bd4e841ad539aa9a6b0c0f09f4695630d"
+    },
+    {
+      "ast": {
+        "stmts": [
+          {
+            "stmt": {
+              "SelectStmt": {
+                "limitOption": "LIMIT_OPTION_DEFAULT",
+                "op": "SETOP_NONE",
+                "targetList": [
+                  {
+                    "ResTarget": {
+                      "location": 7,
+                      "val": {
+                        "FuncCall": {
+                          "args": [
+                            {
+                              "FuncCall": {
+                                "args": [
+                                  {
+                                    "A_Expr": {
+                                      "kind": "AEXPR_OP",
+                                      "lexpr": {
+                                        "A_Expr": {
+                                          "kind": "AEXPR_OP",
+                                          "lexpr": {
+                                            "A_Expr": {
+                                              "kind": "AEXPR_OP",
+                                              "lexpr": {
+                                                "A_Expr": {
+                                                  "kind": "AEXPR_OP",
+                                                  "lexpr": {
+                                                    "A_Expr": {
+                                                      "kind": "AEXPR_OP",
+                                                      "lexpr": {
+                                                        "A_Expr": {
+                                                          "kind": "AEXPR_OP",
+                                                          "lexpr": {
+                                                            "ColumnRef": {
+                                                              "fields": [
+                                                                {
+                                                                  "String": {
+                                                                    "sval": "b"
+                                                                  }
+                                                                }
+                                                              ],
+                                                              "location": 21
+                                                            }
+                                                          },
+                                                          "location": 22,
+                                                          "name": [
+                                                            {
+                                                              "String": {
+                                                                "sval": "||"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "rexpr": {
+                                                            "FuncCall": {
+                                                              "args": [
+                                                                {
+                                                                  "ColumnRef": {
+                                                                    "fields": [
+                                                                      {
+                                                                        "String": {
+                                                                          "sval": "p_reason"
+                                                                        }
+                                                                      }
+                                                                    ],
+                                                                    "location": 45
+                                                                  }
+                                                                }
+                                                              ],
+                                                              "funcformat": "COERCE_EXPLICIT_CALL",
+                                                              "funcname": [
+                                                                {
+                                                                  "String": {
+                                                                    "sval": "public"
+                                                                  }
+                                                                },
+                                                                {
+                                                                  "String": {
+                                                                    "sval": "s2a_v042_text"
+                                                                  }
+                                                                }
+                                                              ],
+                                                              "location": 24
+                                                            }
+                                                          }
+                                                        }
+                                                      },
+                                                      "location": 54,
+                                                      "name": [
+                                                        {
+                                                          "String": {
+                                                            "sval": "||"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "rexpr": {
+                                                        "FuncCall": {
+                                                          "args": [
+                                                            {
+                                                              "ColumnRef": {
+                                                                "fields": [
+                                                                  {
+                                                                    "String": {
+                                                                      "sval": "p_provenance"
+                                                                    }
+                                                                  }
+                                                                ],
+                                                                "location": 77
+                                                              }
+                                                            }
+                                                          ],
+                                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                                          "funcname": [
+                                                            {
+                                                              "String": {
+                                                                "sval": "public"
+                                                              }
+                                                            },
+                                                            {
+                                                              "String": {
+                                                                "sval": "s2a_v042_text"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "location": 56
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "location": 90,
+                                                  "name": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "||"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "rexpr": {
+                                                    "FuncCall": {
+                                                      "args": [
+                                                        {
+                                                          "TypeCast": {
+                                                            "arg": {
+                                                              "ColumnRef": {
+                                                                "fields": [
+                                                                  {
+                                                                    "String": {
+                                                                      "sval": "p_correlation_id"
+                                                                    }
+                                                                  }
+                                                                ],
+                                                                "location": 113
+                                                              }
+                                                            },
+                                                            "location": 129,
+                                                            "typeName": {
+                                                              "location": 131,
+                                                              "names": [
+                                                                {
+                                                                  "String": {
+                                                                    "sval": "text"
+                                                                  }
+                                                                }
+                                                              ],
+                                                              "typemod": -1
+                                                            }
+                                                          }
+                                                        }
+                                                      ],
+                                                      "funcformat": "COERCE_EXPLICIT_CALL",
+                                                      "funcname": [
+                                                        {
+                                                          "String": {
+                                                            "sval": "public"
+                                                          }
+                                                        },
+                                                        {
+                                                          "String": {
+                                                            "sval": "s2a_v042_text"
+                                                          }
+                                                        }
+                                                      ],
+                                                      "location": 92
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              "location": 136,
+                                              "name": [
+                                                {
+                                                  "String": {
+                                                    "sval": "||"
+                                                  }
+                                                }
+                                              ],
+                                              "rexpr": {
+                                                "FuncCall": {
+                                                  "args": [
+                                                    {
+                                                      "TypeCast": {
+                                                        "arg": {
+                                                          "ColumnRef": {
+                                                            "fields": [
+                                                              {
+                                                                "String": {
+                                                                  "sval": "p_manifest_id"
+                                                                }
+                                                              }
+                                                            ],
+                                                            "location": 159
+                                                          }
+                                                        },
+                                                        "location": 172,
+                                                        "typeName": {
+                                                          "location": 174,
+                                                          "names": [
+                                                            {
+                                                              "String": {
+                                                                "sval": "text"
+                                                              }
+                                                            }
+                                                          ],
+                                                          "typemod": -1
+                                                        }
+                                                      }
+                                                    }
+                                                  ],
+                                                  "funcformat": "COERCE_EXPLICIT_CALL",
+                                                  "funcname": [
+                                                    {
+                                                      "String": {
+                                                        "sval": "public"
+                                                      }
+                                                    },
+                                                    {
+                                                      "String": {
+                                                        "sval": "s2a_v042_text"
+                                                      }
+                                                    }
+                                                  ],
+                                                  "location": 138
+                                                }
+                                              }
+                                            }
+                                          },
+                                          "location": 179,
+                                          "name": [
+                                            {
+                                              "String": {
+                                                "sval": "||"
+                                              }
+                                            }
+                                          ],
+                                          "rexpr": {
+                                            "FuncCall": {
+                                              "args": [
+                                                {
+                                                  "ColumnRef": {
+                                                    "fields": [
+                                                      {
+                                                        "String": {
+                                                          "sval": "p_accepted_proof_fingerprint"
+                                                        }
+                                                      }
+                                                    ],
+                                                    "location": 202
+                                                  }
+                                                }
+                                              ],
+                                              "funcformat": "COERCE_EXPLICIT_CALL",
+                                              "funcname": [
+                                                {
+                                                  "String": {
+                                                    "sval": "public"
+                                                  }
+                                                },
+                                                {
+                                                  "String": {
+                                                    "sval": "s2a_v042_text"
+                                                  }
+                                                }
+                                              ],
+                                              "location": 181
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "location": 231,
+                                      "name": [
+                                        {
+                                          "String": {
+                                            "sval": "||"
+                                          }
+                                        }
+                                      ],
+                                      "rexpr": {
+                                        "FuncCall": {
+                                          "args": [
+                                            {
+                                              "ColumnRef": {
+                                                "fields": [
+                                                  {
+                                                    "String": {
+                                                      "sval": "p_manifest_digest"
+                                                    }
+                                                  }
+                                                ],
+                                                "location": 254
+                                              }
+                                            }
+                                          ],
+                                          "funcformat": "COERCE_EXPLICIT_CALL",
+                                          "funcname": [
+                                            {
+                                              "String": {
+                                                "sval": "public"
+                                              }
+                                            },
+                                            {
+                                              "String": {
+                                                "sval": "s2a_v042_text"
+                                              }
+                                            }
+                                          ],
+                                          "location": 233
+                                        }
+                                      }
+                                    }
+                                  }
+                                ],
+                                "funcformat": "COERCE_EXPLICIT_CALL",
+                                "funcname": [
+                                  {
+                                    "String": {
+                                      "sval": "sha256"
+                                    }
+                                  }
+                                ],
+                                "location": 14
+                              }
+                            },
+                            {
+                              "A_Const": {
+                                "location": 274,
+                                "sval": {
+                                  "sval": "hex"
+                                }
+                              }
+                            }
+                          ],
+                          "funcformat": "COERCE_EXPLICIT_CALL",
+                          "funcname": [
+                            {
+                              "String": {
+                                "sval": "encode"
+                              }
+                            }
+                          ],
+                          "location": 7
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "version": 180006
+      },
+      "control_ast_path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1,
+        "PLpgSQL_stmt_return",
+        "expr",
+        "PLpgSQL_expr"
+      ],
+      "ordinal": 8,
+      "provenance_kind": "HASH_BOUND_SOURCE_EXTRACTED_SQL",
+      "query_sha256": "735e5d2106879b47f46da123aec7c9e816355f50e3adf215ea94fabacd0221a1"
+    }
+  ]
+}

@@ -1,0 +1,263 @@
+{
+  "edges": [
+    {
+      "condition": "EARLY_RETURN",
+      "from": "7e64ee85966d2acd9fbd8ed7",
+      "to": "FUNCTION_RETURN"
+    },
+    {
+      "condition": "RAISE_EXCEPTION",
+      "from": "2fb5f7a800d527a134ea0ea8",
+      "to": "PROPAGATE_SQL_EXCEPTION_TO_CALLER"
+    },
+    {
+      "condition": "TRUE",
+      "from": "6db8c6d5e226a59d66796939",
+      "to": "2fb5f7a800d527a134ea0ea8"
+    },
+    {
+      "condition": "FALSE_OR_UNKNOWN",
+      "from": "6db8c6d5e226a59d66796939",
+      "to": "7e64ee85966d2acd9fbd8ed7"
+    },
+    {
+      "condition": "NORMAL_COMPLETION",
+      "from": "0f199cefb73d67f997eb7564",
+      "to": "6db8c6d5e226a59d66796939"
+    },
+    {
+      "condition": "SQL_OR_EXPRESSION_ERROR",
+      "from": "0f199cefb73d67f997eb7564",
+      "to": "PROPAGATE_SQL_EXCEPTION_TO_CALLER"
+    },
+    {
+      "condition": "RAISE_EXCEPTION",
+      "from": "bee51cc263bc4073cbc01490",
+      "to": "PROPAGATE_SQL_EXCEPTION_TO_CALLER"
+    },
+    {
+      "condition": "TRUE",
+      "from": "d512714ceaeb9a4293ccdfc9",
+      "to": "bee51cc263bc4073cbc01490"
+    },
+    {
+      "condition": "FALSE_OR_UNKNOWN",
+      "from": "d512714ceaeb9a4293ccdfc9",
+      "to": "0f199cefb73d67f997eb7564"
+    },
+    {
+      "condition": "ENTER_BLOCK",
+      "from": "005da859802f969fd64ebda1",
+      "to": "d512714ceaeb9a4293ccdfc9"
+    }
+  ],
+  "entry": "005da859802f969fd64ebda1",
+  "full_control_flow_semantics_complete": false,
+  "nodes": [
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "005da859802f969fd64ebda1",
+      "kind": "PLpgSQL_stmt_block",
+      "line_in_compiled_body": 3,
+      "path": [],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "7e64ee85966d2acd9fbd8ed7",
+      "kind": "PLpgSQL_stmt_return",
+      "line_in_compiled_body": 14,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        3
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": "TRUE branch only; FALSE and UNKNOWN continue to next alternative",
+      "guard_ast": {
+        "PLpgSQL_expr": {
+          "parseMode": 2,
+          "query": "NOT FOUND OR d.omie_connection_id IS DISTINCT FROM NEW.omie_connection_id\n        OR d.source_order_reference IS DISTINCT FROM NEW.source_order_reference\n        OR d.marketplace_order_id IS DISTINCT FROM NEW.marketplace_order_id OR d.kind IS DISTINCT FROM NEW.kind\n        OR (TG_OP='UPDATE' AND (NEW.organization_id IS DISTINCT FROM OLD.organization_id\n            OR NEW.omie_connection_id IS DISTINCT FROM OLD.omie_connection_id OR NEW.source_order_reference IS DISTINCT FROM OLD.source_order_reference\n            OR NEW.marketplace_order_id IS DISTINCT FROM OLD.marketplace_order_id OR d.supersedes_decision_id IS DISTINCT FROM OLD.decision_id))\n        OR (TG_OP='INSERT' AND d.supersedes_decision_id IS NOT NULL)"
+        }
+      },
+      "id": "6db8c6d5e226a59d66796939",
+      "kind": "PLpgSQL_stmt_if",
+      "line_in_compiled_body": 6,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "2fb5f7a800d527a134ea0ea8",
+      "kind": "PLpgSQL_stmt_raise",
+      "line_in_compiled_body": 13,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        2,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "0f199cefb73d67f997eb7564",
+      "kind": "PLpgSQL_stmt_execsql",
+      "line_in_compiled_body": 5,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        1
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": "TRUE branch only; FALSE and UNKNOWN continue to next alternative",
+      "guard_ast": {
+        "PLpgSQL_expr": {
+          "parseMode": 2,
+          "query": "TG_OP='DELETE' OR pg_trigger_depth()<>2"
+        }
+      },
+      "id": "d512714ceaeb9a4293ccdfc9",
+      "kind": "PLpgSQL_stmt_if",
+      "line_in_compiled_body": 4,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    },
+    {
+      "NULL_CONTROL_RULE": null,
+      "guard_ast": null,
+      "id": "bee51cc263bc4073cbc01490",
+      "kind": "PLpgSQL_stmt_raise",
+      "line_in_compiled_body": 4,
+      "path": [
+        "PLpgSQL_stmt_block",
+        "body",
+        0,
+        "PLpgSQL_stmt_if",
+        "then_body",
+        0
+      ],
+      "proof_paths": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_POSITIVE",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "semantic_class": "CONTROL_STRUCTURE_SOURCE_FACT_NOT_FINAL_GOVERNED_ITEM",
+      "source": {
+        "end_line": 239,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+        "source_hash": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+        "start_line": 224,
+        "statement_ordinal": 10,
+        "statement_sha256": "69b2a3d7baac610adb23a011c2cebda456ed37d37750c052ac3aa7041ab397dd",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      }
+    }
+  ],
+  "raw_source_ast_preserved": true,
+  "semantic_gaps": [],
+  "signature": "public.transaction_identity_head_guard()",
+  "structural_kind_coverage_complete": true
+}
