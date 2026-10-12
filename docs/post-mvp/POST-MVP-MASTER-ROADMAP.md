@@ -12,8 +12,11 @@ This is a proposed documentation contract, not runtime, data-access, model-execu
 
 ```text
 ROOM V1 OPERATIONAL
+  -> POST-MVP-0000 OPERATIONAL RESILIENCE & OBSERVABILITY (P0)
   -> OUTCOME / LEARNING BASELINE
   -> POST-MVP-0001 PRODUCT INTELLIGENCE BENCHMARK
+  -> POST-MVP-0001B EXTERNAL WEB EVIDENCE BENCHMARK
+  -> POST-MVP-0001C GLOBAL SIGNAL INTELLIGENCE BENCHMARK
   -> POST-MVP-0002 EVIDENCE RETRIEVAL ENGINE
   -> POST-MVP-0003 OPPORTUNITY ENGINE V1
   -> REDMOTO REAL LAB
@@ -29,7 +32,10 @@ This orders dependencies, not delivery dates or current completion claims. Room 
 | Program | Required evidence before advancing |
 |---|---|
 | Room baseline | Immutable operational milestone, governed authority and reconciled real outcomes |
+| 0000 (P0) | Operational resilience and observability evidence; source program document not found in this worktree, exact artifact discovery pending |
 | 0001 | Rights-cleared adjudicated dataset, deterministic baseline, protected evaluation and adversarial results |
+| 0001B | Representative external-source corpus; provider-neutral acquisition contract; provenance/hash requirements; benchmark metrics; security/license/terms review; reproducible ADOPT / ADAPT / REJECT evidence |
+| 0001C | Rights-cleared global source/field corpus, identity/time/coverage contracts, independent reproduction, contradictions and empirical cross-market lead tests; no provider selected |
 | 0002 | Stable benchmark architecture; independently sourced support and contradictions with provenance |
 | 0003 | Usable product/retrieval capabilities and populated economic truth; candidate uncertainty and kill rules |
 | Redmoto | Real adjudicated inputs and risk-adjusted comparison including DO_NOT_INVEST; R$1M is a research scenario, not allocation authority |
@@ -52,8 +58,14 @@ Use FLOOOW CORE -> VERTICAL ADAPTER -> TENANT CONFIGURATION. Generic primitives 
 
 Registration audit: before writes, CURRENT_BRANCH=research/post-mvp-intelligence-program; LOCAL_HEAD=ORIGIN_POST_MVP_BRANCH_HEAD=b2d9f279c7b17055765c3cb4039b9589edf33068; ORIGIN_MAIN_HEAD=77d482c97a663a527dcacc85036c7577dfc92782; TRACKED_DIRTY_COUNT=0; STAGED_COUNT=0; UNTRACKED_COUNT=0. Fetch passed. Standalone sources were found in Downloads and matched both ZIP entries exactly (ZIP_FOUND=YES; HASH_CONFLICT=NO). Contract SHA256: `37126954a0f21adf24e991d774bd2cd1512bcee17b101c6557f9ccdc01823430`; addendum SHA256: `580224a2ffc3acf04c1a96eaa4d277deb5211142e92f0f84ba3991f78aa61e12`. Both are preserved byte-for-byte. Existing research contained no ambiguous Redmoto benchmark/engine names or brand-specific core primitives; forbidden strings in the imported documents are explicitly negative examples. Historical imports remain unchanged. No implementation authority is granted.
 
+## Research timing and 0001C registration
+
+RESEARCH_START_NOW=YES. IMPLEMENTATION_START_AFTER_ROOM_V1=YES. Research tracks may start before Room operational; production promotion remains ordered behind ROOM_OPERATIONAL=YES, P0 resilience and explicit scoped authority. No implementation or procurement authority is granted. The existing 0001B unpublished document and roadmap linkage are preserved. No unpublished 0000 artifact was found or discarded; its required P0 precedence is registered without claiming program-document completion.
+
 ## Preserved source links
 
+- [0001C Global Signal Intelligence Benchmark](POST-MVP-0001C-GLOBAL-SIGNAL-INTELLIGENCE-BENCHMARK.md): RESEARCH_AUTHORIZED; tenant/vertical/provider neutral; no Room impact or implementation authority.
+- [0001B External Web Evidence Benchmark](POST-MVP-0001B-EXTERNAL-WEB-EVIDENCE-BENCHMARK.md): research/design only; ROOM_CRITICAL_PATH_IMPACT=NONE; IMPLEMENTATION_AUTHORIZED=NO; PRODUCTION_INTEGRATION_AUTHORIZED=NO.
 - [Exact supplied execution blueprint](FLOOOW-POST-MVP-ENGINEERING-EXECUTION-PLAN-v1.md).
 - [Import audit and interpretation boundary](ARTIFACT-PRESERVATION-AUDIT.md).
 - [Evolution and promotion](ROOM-EVOLUTION-AND-PROMOTION-CONTRACT.md).
