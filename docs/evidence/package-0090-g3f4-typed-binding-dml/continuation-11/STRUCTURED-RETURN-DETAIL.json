@@ -1,0 +1,2080 @@
+{
+  "COMPLETE_N": 0,
+  "INCOMPLETE_N": 7,
+  "SOURCE_CONTROL_SHAPE_PROVEN_N": 7,
+  "TOTAL": 7,
+  "functions": [
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "4e1e2b4e1022e421544f2ebb2d40148e05863f11c8ab3a5041d1d3bddf5f5721",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "result",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "result",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_frame(bytea)"
+          ],
+          "spelling": "public.s2a_governance_frame"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "defresult",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "defresult",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_signer_authority_fingerprint(uuid,uuid,int4,uuid,uuid,text,uuid,int4,text,text,text,timestamptz,timestamptz,text,uuid,uuid,text)",
+        "public.s2a_signer_key_lineage_fingerprint(uuid,uuid,int4,uuid,text,bytea,text,text,timestamptz,timestamptz,int4,text)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "124889949b8c7885cda4c63d",
+      "FUNCTION_SIGNATURE": "public.s2a_governance_nullable_text(text)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Caller distinction between NULL marker and absent/empty state; nested callee behavior"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Body executes on NULL; nested CASE or strict builtins may produce NULL; caller acceptance unproven",
+      "NULL_SENSITIVE_PREDICATES": [
+        {
+          "FALSE_BEHAVIOR": "CASE chooses next/ELSE",
+          "TRUE_BEHAVIOR": "CASE chooses this WHEN only if TRUE; IS NULL on scalar is two-valued",
+          "UNKNOWN_BEHAVIOR": "Null test itself is two-valued; its input may be NULL",
+          "ast_path": [
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "expr",
+            "NullTest"
+          ],
+          "kind": "NullTest",
+          "source_ast": {
+            "arg": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "value"
+                    }
+                  }
+                ],
+                "location": 6912
+              }
+            },
+            "location": 6918,
+            "nulltesttype": "IS_NULL"
+          }
+        }
+      ],
+      "PREDICATES": [
+        {
+          "FALSE_BEHAVIOR": "CASE chooses next/ELSE",
+          "TRUE_BEHAVIOR": "Expression grouping retained",
+          "UNKNOWN_BEHAVIOR": "Needs operand/dataflow proof",
+          "ast_path": [
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen"
+          ],
+          "kind": "CaseWhen",
+          "source_ast": {
+            "expr": {
+              "NullTest": {
+                "arg": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "value"
+                        }
+                      }
+                    ],
+                    "location": 6912
+                  }
+                },
+                "location": 6918,
+                "nulltesttype": "IS_NULL"
+              }
+            },
+            "location": 6907,
+            "result": {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "A_Const": {
+                          "location": 6962,
+                          "sval": {
+                            "sval": "NULL"
+                          }
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "public"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "s2a_governance_text"
+                        }
+                      }
+                    ],
+                    "location": 6935
+                  }
+                },
+                "location": 6970,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "||"
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "TypeCast": {
+                          "arg": {
+                            "A_Const": {
+                              "location": 7001,
+                              "sval": {
+                                "sval": ""
+                              }
+                            }
+                          },
+                          "location": 7003,
+                          "typeName": {
+                            "location": 7005,
+                            "names": [
+                              {
+                                "String": {
+                                  "sval": "bytea"
+                                }
+                              }
+                            ],
+                            "typemod": -1
+                          }
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "public"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "s2a_governance_frame"
+                        }
+                      }
+                    ],
+                    "location": 6973
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "FALSE_BEHAVIOR": "CASE chooses next/ELSE",
+          "TRUE_BEHAVIOR": "CASE chooses this WHEN only if TRUE; IS NULL on scalar is two-valued",
+          "UNKNOWN_BEHAVIOR": "Null test itself is two-valued; its input may be NULL",
+          "ast_path": [
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "expr",
+            "NullTest"
+          ],
+          "kind": "NullTest",
+          "source_ast": {
+            "arg": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "value"
+                    }
+                  }
+                ],
+                "location": 6912
+              }
+            },
+            "location": 6918,
+            "nulltesttype": "IS_NULL"
+          }
+        }
+      ],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "CASE WHEN value IS NULL THEN framed NULL marker + empty frame ELSE framed PRESENT marker + framed typed value END",
+      "RETURN_TYPE": "bytea",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 141,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 136,
+        "statement_ordinal": 8,
+        "statement_sha256": "efde6674839f620fea92bf972f4530e5d0bb1fb654ba1d8df547e01bd48d4222",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": false,
+      "UNQUALIFIED_CALLS": []
+    },
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "a3617b620eb509cf44d1732d9d53d320aceb109e881e40fb53a515f2b21a1595",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_frame(bytea)"
+          ],
+          "spelling": "public.s2a_governance_frame"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "convert_to"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_governance_instant(timestamptz)",
+        "public.s2a_governance_nullable_integer(int4)",
+        "public.s2a_governance_nullable_text(text)",
+        "public.s2a_signer_authority_fingerprint(uuid,uuid,int4,uuid,uuid,text,uuid,int4,text,text,text,timestamptz,timestamptz,text,uuid,uuid,text)",
+        "public.s2a_signer_key_lineage_fingerprint(uuid,uuid,int4,uuid,text,bytea,text,text,timestamptz,timestamptz,int4,text)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "42210a76ce3081cfee334902",
+      "FUNCTION_SIGNATURE": "public.s2a_governance_text(text)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Exact builtin/operator overload and strictness; error propagation"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Whole function returns NULL without entering body when any input NULL",
+      "NULL_SENSITIVE_PREDICATES": [],
+      "PREDICATES": [],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "s2a_governance_frame(convert_to(value, UTF8))",
+      "RETURN_TYPE": "bytea",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 123,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 121,
+        "statement_ordinal": 5,
+        "statement_sha256": "e942fbf6375aefd15d3a2b0010c44837439ed6576bb03bc20e0dcfdc8d6409cf",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": true,
+      "UNQUALIFIED_CALLS": [
+        "convert_to"
+      ]
+    },
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "72fae64d0d4646432cfe3e0705664afa587efcc3d5b1cc9fa3d39b22dc25fdf7",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "to_char"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "pg_catalog.timezone"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_signer_authority_fingerprint(uuid,uuid,int4,uuid,uuid,text,uuid,int4,text,text,text,timestamptz,timestamptz,text,uuid,uuid,text)",
+        "public.s2a_signer_key_lineage_fingerprint(uuid,uuid,int4,uuid,text,bytea,text,text,timestamptz,timestamptz,int4,text)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "5dfd5c460370162aaa519ee0",
+      "FUNCTION_SIGNATURE": "public.s2a_governance_instant(timestamptz)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Exact builtin/operator overload and strictness; error propagation"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Whole function returns NULL without entering body when any input NULL",
+      "NULL_SENSITIVE_PREDICATES": [],
+      "PREDICATES": [],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "s2a_governance_text(to_char(timezone(UTC, value), fixed microsecond UTC pattern))",
+      "RETURN_TYPE": "bytea",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 127,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 125,
+        "statement_ordinal": 6,
+        "statement_sha256": "71943f38e68d266660fae38c4b3ba5554e38fd487e147acf8ed9a619d096c833",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": true,
+      "UNQUALIFIED_CALLS": [
+        "to_char"
+      ]
+    },
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "ff9a5c7641ad7563109a6ff056b50f0602a96c0af3c5278e18cdab6ef0a4ec77",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "result",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "result",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_frame(bytea)"
+          ],
+          "spelling": "public.s2a_governance_frame"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "defresult",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "CaseExpr",
+            "defresult",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_signer_key_lineage_fingerprint(uuid,uuid,int4,uuid,text,bytea,text,text,timestamptz,timestamptz,int4,text)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "652f9d7d4eea0cddc964cbf8",
+      "FUNCTION_SIGNATURE": "public.s2a_governance_nullable_integer(int4)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Caller distinction between NULL marker and absent/empty state; nested callee behavior"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Body executes on NULL; nested CASE or strict builtins may produce NULL; caller acceptance unproven",
+      "NULL_SENSITIVE_PREDICATES": [
+        {
+          "FALSE_BEHAVIOR": "CASE chooses next/ELSE",
+          "TRUE_BEHAVIOR": "CASE chooses this WHEN only if TRUE; IS NULL on scalar is two-valued",
+          "UNKNOWN_BEHAVIOR": "Null test itself is two-valued; its input may be NULL",
+          "ast_path": [
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "expr",
+            "NullTest"
+          ],
+          "kind": "NullTest",
+          "source_ast": {
+            "arg": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "value"
+                    }
+                  }
+                ],
+                "location": 6591
+              }
+            },
+            "location": 6597,
+            "nulltesttype": "IS_NULL"
+          }
+        }
+      ],
+      "PREDICATES": [
+        {
+          "FALSE_BEHAVIOR": "CASE chooses next/ELSE",
+          "TRUE_BEHAVIOR": "Expression grouping retained",
+          "UNKNOWN_BEHAVIOR": "Needs operand/dataflow proof",
+          "ast_path": [
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen"
+          ],
+          "kind": "CaseWhen",
+          "source_ast": {
+            "expr": {
+              "NullTest": {
+                "arg": {
+                  "ColumnRef": {
+                    "fields": [
+                      {
+                        "String": {
+                          "sval": "value"
+                        }
+                      }
+                    ],
+                    "location": 6591
+                  }
+                },
+                "location": 6597,
+                "nulltesttype": "IS_NULL"
+              }
+            },
+            "location": 6586,
+            "result": {
+              "A_Expr": {
+                "kind": "AEXPR_OP",
+                "lexpr": {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "A_Const": {
+                          "location": 6641,
+                          "sval": {
+                            "sval": "NULL"
+                          }
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "public"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "s2a_governance_text"
+                        }
+                      }
+                    ],
+                    "location": 6614
+                  }
+                },
+                "location": 6649,
+                "name": [
+                  {
+                    "String": {
+                      "sval": "||"
+                    }
+                  }
+                ],
+                "rexpr": {
+                  "FuncCall": {
+                    "args": [
+                      {
+                        "TypeCast": {
+                          "arg": {
+                            "A_Const": {
+                              "location": 6680,
+                              "sval": {
+                                "sval": ""
+                              }
+                            }
+                          },
+                          "location": 6682,
+                          "typeName": {
+                            "location": 6684,
+                            "names": [
+                              {
+                                "String": {
+                                  "sval": "bytea"
+                                }
+                              }
+                            ],
+                            "typemod": -1
+                          }
+                        }
+                      }
+                    ],
+                    "funcformat": "COERCE_EXPLICIT_CALL",
+                    "funcname": [
+                      {
+                        "String": {
+                          "sval": "public"
+                        }
+                      },
+                      {
+                        "String": {
+                          "sval": "s2a_governance_frame"
+                        }
+                      }
+                    ],
+                    "location": 6652
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "FALSE_BEHAVIOR": "CASE chooses next/ELSE",
+          "TRUE_BEHAVIOR": "CASE chooses this WHEN only if TRUE; IS NULL on scalar is two-valued",
+          "UNKNOWN_BEHAVIOR": "Null test itself is two-valued; its input may be NULL",
+          "ast_path": [
+            "CaseExpr",
+            "args",
+            0,
+            "CaseWhen",
+            "expr",
+            "NullTest"
+          ],
+          "kind": "NullTest",
+          "source_ast": {
+            "arg": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "value"
+                    }
+                  }
+                ],
+                "location": 6591
+              }
+            },
+            "location": 6597,
+            "nulltesttype": "IS_NULL"
+          }
+        }
+      ],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "CASE WHEN value IS NULL THEN framed NULL marker + empty frame ELSE framed PRESENT marker + framed typed value END",
+      "RETURN_TYPE": "bytea",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 134,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 129,
+        "statement_ordinal": 7,
+        "statement_sha256": "961dbb4e592f74c596b0a9822d23d4e69da665940c9292002d941870aceeea89",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": false,
+      "UNQUALIFIED_CALLS": []
+    },
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "6a49909195a7197593cb6d2b0a0ea8cea87d1c0a6a288379a02360ac3d9517f8",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "int4send"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "A_Expr",
+            "lexpr",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "octet_length"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_governance_nullable_integer(int4)",
+        "public.s2a_governance_nullable_text(text)",
+        "public.s2a_governance_text(text)",
+        "public.s2a_signer_key_lineage_fingerprint(uuid,uuid,int4,uuid,text,bytea,text,text,timestamptz,timestamptz,int4,text)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "b3ec02f489ef8f8ae96511fb",
+      "FUNCTION_SIGNATURE": "public.s2a_governance_frame(bytea)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Exact builtin/operator overload and strictness; error propagation"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Whole function returns NULL without entering body when any input NULL",
+      "NULL_SENSITIVE_PREDICATES": [],
+      "PREDICATES": [],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "int4send(octet_length(value)) || value; fixed length prefix and raw bytes, conditional on exact builtin/operator binding",
+      "RETURN_TYPE": "bytea",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 119,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 117,
+        "statement_ordinal": 4,
+        "statement_sha256": "baa3aceaeeca77b476c3410b35f7b371d6bba36e88fb4c45f38667dd4283557d",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": true,
+      "UNQUALIFIED_CALLS": [
+        "int4send",
+        "octet_length"
+      ]
+    },
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "29d7e3fcfc627cfb3aab49276e97be4e2235f86aeefece1d6daa8f83796a5ce6",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "encode"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "sha256"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_frame(bytea)"
+          ],
+          "spelling": "public.s2a_governance_frame"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_instant(timestamptz)"
+          ],
+          "spelling": "public.s2a_governance_instant"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_instant(timestamptz)"
+          ],
+          "spelling": "public.s2a_governance_instant"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_nullable_integer(int4)"
+          ],
+          "spelling": "public.s2a_governance_nullable_integer"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_nullable_text(text)"
+          ],
+          "spelling": "public.s2a_governance_nullable_text"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_begin_attestation_verification(int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text,int4,bytea,text,text,uuid,text,bytea)",
+        "public.s2a_v042_revalidate_snapshot(uuid,uuid,int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text,int4,int4,bytea,text,bytea,text,uuid,uuid,int4,text,text,bytea,bytea,uuid,int4,text,timestamptz,text,text)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "c2252d187f4faca3d5bbe86b",
+      "FUNCTION_SIGNATURE": "public.s2a_signer_key_lineage_fingerprint(uuid,uuid,int4,uuid,text,bytea,text,text,timestamptz,timestamptz,int4,text)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Non-STRICT input and nested concatenation NULL propagation; prove required non-NULL arguments or denial",
+        "Exact text cast, timestamp and hash serialization behavior"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Body executes on NULL; nested CASE or strict builtins may produce NULL; caller acceptance unproven",
+      "NULL_SENSITIVE_PREDICATES": [],
+      "PREDICATES": [],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "encode(sha256(concatenated ordered framed fields), hex); exact field order retained in body AST",
+      "RETURN_TYPE": "text",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 164,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 143,
+        "statement_ordinal": 9,
+        "statement_sha256": "c39a2e0df5df6a4bea59a21330cdc311a14bb90a7818752778c628cb59b72387",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": false,
+      "UNQUALIFIED_CALLS": [
+        "encode",
+        "sha256"
+      ]
+    },
+    {
+      "AUTHORITY_RELEVANT_PREDICATES": [],
+      "BODY_AST_SHA256": "55892c97e5b0181aca25e3bc461ee0104f8f69fc9b299bc2e7582422f4a8ac94",
+      "CALLEES": [
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "encode"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [],
+          "spelling": "sha256"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_instant(timestamptz)"
+          ],
+          "spelling": "public.s2a_governance_instant"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_instant(timestamptz)"
+          ],
+          "spelling": "public.s2a_governance_instant"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_text(text)"
+          ],
+          "spelling": "public.s2a_governance_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "lexpr",
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_nullable_text(text)"
+          ],
+          "spelling": "public.s2a_governance_nullable_text"
+        },
+        {
+          "ast_path": [
+            "ReturnStmt",
+            "returnval",
+            "FuncCall",
+            "args",
+            0,
+            "FuncCall",
+            "args",
+            0,
+            "A_Expr",
+            "rexpr",
+            "FuncCall"
+          ],
+          "exact_overload_proven": false,
+          "source_target_candidates": [
+            "public.s2a_governance_nullable_text(text)"
+          ],
+          "spelling": "public.s2a_governance_nullable_text"
+        }
+      ],
+      "CALLERS": [
+        "public.s2a_begin_attestation_verification(int4,uuid,uuid,uuid,uuid,text,text,uuid,text,uuid,uuid,timestamptz,timestamptz,uuid,uuid,text,uuid,text,text,text,uuid,text,int4,bytea,text,text,uuid,text,bytea)"
+      ],
+      "COMPLETE": false,
+      "DIRECT_DML": [],
+      "DIRECT_LOCKS": [],
+      "DIRECT_LOOP_EFFECTS": [],
+      "DIRECT_ROWCOUNT_EFFECTS": [],
+      "DIRECT_STATE_EFFECTS": [],
+      "EXCEPTION_PATHS": [
+        "Any argument cast, builtin, operator or callee ERROR propagates; SQL body has no exception handler"
+      ],
+      "FUNCTION_ID": "d51202e7782a3a078e0c8916",
+      "FUNCTION_SIGNATURE": "public.s2a_signer_authority_fingerprint(uuid,uuid,int4,uuid,uuid,text,uuid,int4,text,text,text,timestamptz,timestamptz,text,uuid,uuid,text)",
+      "MISSING_FACTS": [
+        "Exact unqualified pg_catalog function/operator binding under effective caller search_path",
+        "Downstream authority acceptance when result is NULL/error and exact caller context",
+        "Non-STRICT input and nested concatenation NULL propagation; prove required non-NULL arguments or denial",
+        "Exact text cast, timestamp and hash serialization behavior"
+      ],
+      "NULL_RETURN_BEHAVIOR": "Body executes on NULL; nested CASE or strict builtins may produce NULL; caller acceptance unproven",
+      "NULL_SENSITIVE_PREDICATES": [],
+      "PREDICATES": [],
+      "PROOF_PATHS": [
+        "STATIC_SOURCE_PROOF",
+        "EXECUTABLE_SQL_NEGATIVE"
+      ],
+      "RETURN_FORM": "SQL-standard parsed ReturnStmt",
+      "RETURN_TARGET": "encode(sha256(concatenated ordered framed fields), hex); exact field order retained in body AST",
+      "RETURN_TYPE": "text",
+      "SOURCE_CONTROL_SHAPE_PROVEN": true,
+      "SOURCE_PROVENANCE": {
+        "end_line": 194,
+        "file": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V040__create_s2a_approval_governance.sql",
+        "source_hash": "e65475ec69563dc24db5f9edeb4089efed78a6e1385fda20dd56591eed7476dc",
+        "start_line": 166,
+        "statement_ordinal": 10,
+        "statement_sha256": "85a45ff5df7fbf563ff4fc8ce5a863861a838c66d2646d6a2faf97c2d99c0366",
+        "successor_hash": "6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7"
+      },
+      "STRICT_DECLARED": false,
+      "UNQUALIFIED_CALLS": [
+        "encode",
+        "sha256"
+      ]
+    }
+  ],
+  "scope": "Frozen structured SQL return source, not executable authority closure"
+}
