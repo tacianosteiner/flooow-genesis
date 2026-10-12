@@ -217,6 +217,32 @@ describe('FLOOOW Executive Room V2', () => {
     expect(within(pressure).queryByText(/R\$/)).not.toBeInTheDocument()
   })
 
+  it('drills from unresolved and incomplete pressure into loaded evidence only', async () => {
+    render(<App />)
+    await screen.findByRole('region', { name: 'Decision pressure' })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Inspect evidence for Truth unresolved' }))
+    let path = screen.getByRole('region', { name: 'Executive evidence path' })
+    expect(within(path).getByText(/33333333-3333-4333-8333-333333333333/)).toBeInTheDocument()
+    expect(within(path).getByText('ORDER_IDENTITY_UNRESOLVED')).toBeInTheDocument()
+    expect(within(path).getByText('V023')).toBeInTheDocument()
+    expect(within(path).getByText('v1')).toBeInTheDocument()
+    expect(within(path).getByText('READ ONLY · DERIVED / NON-CANONICAL')).toBeInTheDocument()
+    expect(within(path).getByText(/NOT ORGANIZATION-WIDE/)).toBeInTheDocument()
+    expect(within(path).queryByText(/22222222-2222/)).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Inspect evidence for Economic incompleteness' }))
+    path = screen.getByRole('region', { name: 'Executive evidence path' })
+    expect(within(path).getByText(/22222222-2222-4222-8222-222222222222/)).toBeInTheDocument()
+    expect(within(path).getByText('PRODUCT_COST')).toBeInTheDocument()
+    expect(within(path).getByText('Unavailable / incomplete')).toBeInTheDocument()
+    expect(within(path).queryByText(/33333333-3333/)).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Inspect evidence for Execution authority' }))
+    path = screen.getByRole('region', { name: 'Executive evidence path' })
+    expect(within(path).getByText('Execution remains BLOCKED. ROOM_OPERATIONAL = NO.')).toBeInTheDocument()
+  })
+
   it('makes loaded scope and provenance explicit without claiming organization-wide truth', async () => {
     render(<App />)
 
@@ -524,6 +550,11 @@ describe('FLOOOW Executive Room V2', () => {
     expect(
       await screen.findAllByText('Indisponível'),
     ).not.toHaveLength(0)
+
+    await userEvent.click(screen.getByRole('button', { name: 'Inspect evidence for Execution authority' }))
+    expect(screen.getByRole('region', { name: 'Executive evidence path' })).toHaveTextContent(
+      'Optional sources: reconciliation UNAVAILABLE; systemic divergence UNAVAILABLE.',
+    )
   })
 
   it('keeps ROOM_OPERATIONAL fail closed in preview', async () => {

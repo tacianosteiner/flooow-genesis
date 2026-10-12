@@ -107,6 +107,7 @@ function App() {
   const [orders, setOrders] = useState<SalesOrder[]>(demo ? demoOrders : [])
   const [nextCursor, setNextCursor] = useState<string | undefined>()
   const [selected, setSelected] = useState<SalesOrder | undefined>()
+  const [evidencePathId, setEvidencePathId] = useState<string>()
   const [cases, setCases] = useState<ReconciliationCase[]>([])
   const [signals, setSignals] = useState<SystemicDivergenceSignal[]>([])
   const [identity, setIdentity] = useState<CommerceIdentityHealth | undefined>()
@@ -779,7 +780,19 @@ function App() {
           />
         </section>
 
-        <DecisionPressureBoard items={decisionPressure} />
+        <DecisionPressureBoard items={decisionPressure} onInspect={setEvidencePathId} />
+        {evidencePathId && (
+          <EvidencePath
+            pressureId={evidencePathId}
+            orders={orders}
+            cases={cases}
+            signals={signals}
+            reconciliationAvailability={reconciliationAvailability}
+            systemicAvailability={systemicAvailability}
+            projectionScope={projectionScope}
+            onClose={() => setEvidencePathId(undefined)}
+          />
+        )}
 
         {lens === 'CEO' && (
           <>
@@ -1320,6 +1333,7 @@ function ScopeContract({
 
 function DecisionPressureBoard({
   items,
+  onInspect,
 }: {
   items: Array<{
     id: string
@@ -1331,6 +1345,7 @@ function DecisionPressureBoard({
     next: string
     tone: 'warn' | 'risk' | 'blocked'
   }>
+  onInspect: (id: string) => void
 }) {
   return (
     <section
@@ -1378,9 +1393,91 @@ function DecisionPressureBoard({
               <span>NEXT</span>
               <p>{item.next}</p>
             </div>
+            <button type="button" className="detail-button" onClick={() => onInspect(item.id)}>
+              Inspect evidence for {item.title}
+            </button>
           </article>
         ))}
       </div>
+    </section>
+  )
+}
+
+function EvidencePath({
+  pressureId,
+  orders,
+  cases,
+  signals,
+  reconciliationAvailability,
+  systemicAvailability,
+  projectionScope,
+  onClose,
+}: {
+  pressureId: string
+  orders: SalesOrder[]
+  cases: ReconciliationCase[]
+  signals: SystemicDivergenceSignal[]
+  reconciliationAvailability: Availability
+  systemicAvailability: Availability
+  projectionScope: string
+  onClose: () => void
+}) {
+  const affectedOrders = pressureId === 'truth-unresolved'
+    ? orders.filter((order) => order.state === 'UNRESOLVED')
+    : pressureId === 'truth-incomplete'
+      ? orders.filter((order) => order.state === 'CALCULATED_INCOMPLETE')
+      : []
+  const affectedCases = pressureId === 'reconciliation-open' && reconciliationAvailability === 'AVAILABLE'
+    ? cases.filter((item) => item.status !== 'RESOLVED')
+    : []
+  const affectedSignals = pressureId === 'systemic-divergence' && systemicAvailability === 'AVAILABLE'
+    ? signals
+    : []
+
+  return (
+    <section className="evidence-path" aria-label="Executive evidence path">
+      <div className="detail-heading">
+        <div><span>READ ONLY · DERIVED / NON-CANONICAL</span><h2>Evidence path</h2></div>
+        <button type="button" aria-label="Close evidence path" onClick={onClose}>×</button>
+      </div>
+      <p>Observed scope: {projectionScope}. {orders.length} loaded order{orders.length === 1 ? '' : 's'}.</p>
+      <p>Optional sources: reconciliation {reconciliationAvailability}; systemic divergence {systemicAvailability}.</p>
+      {affectedOrders.map((order) => (
+        <article className="evidence-path-record" key={order.marketplaceOrderId}>
+          <h3>Order #{order.marketplaceOrderId}</h3>
+          <dl className="detail-grid">
+            <div><dt>State</dt><dd>{order.state}</dd></div>
+            <div><dt>Source evidence version</dt><dd>{order.sourceEvidenceVersion || 'Unavailable'}</dd></div>
+            <div><dt>Assembly policy version</dt><dd>{order.assemblyPolicyVersion || 'Unavailable'}</dd></div>
+            <div><dt>Unresolved reasons</dt><dd>{order.unresolvedReasons?.join(', ') || 'Unavailable'}</dd></div>
+            <div><dt>Missing components</dt><dd>{order.missingComponentTypes?.join(', ') || 'Unavailable'}</dd></div>
+            <div><dt>Partial components</dt><dd>{order.partialComponentTypes?.join(', ') || 'Unavailable'}</dd></div>
+            <div><dt>Economic result</dt><dd>{order.economicResult ? 'Present in loaded projection' : 'Unavailable / incomplete'}</dd></div>
+          </dl>
+          <p>Reconciliation: {reconciliationAvailability === 'AVAILABLE'
+            ? `${cases.filter((item) => item.marketplaceOrderId === order.marketplaceOrderId).length} loaded case(s) linked by exact order ID`
+            : reconciliationAvailability}</p>
+        </article>
+      ))}
+      {affectedCases.map((item) => (
+        <article className="evidence-path-record" key={item.caseId}>
+          <h3>Case {item.caseId}</h3>
+          <p>Order #{item.marketplaceOrderId} · {item.status} · policy {item.policyVersion}</p>
+          <p>Evidence entry IDs: {item.evidenceEntryIds.length ? item.evidenceEntryIds.join(', ') : 'Unavailable'}</p>
+        </article>
+      ))}
+      {affectedSignals.map((signal) => (
+        <article className="evidence-path-record" key={signal.signalId}>
+          <h3>Signal {signal.signalId}</h3>
+          <p>Stage {signal.stage} · policy {signal.policyVersion}</p>
+          <p>Linked case IDs: {signal.caseIds.length ? signal.caseIds.join(', ') : 'Unavailable'}</p>
+          <p>Case source: {reconciliationAvailability}</p>
+        </article>
+      ))}
+      {pressureId === 'execution-authority' && <p>Execution remains BLOCKED. ROOM_OPERATIONAL = NO.</p>}
+      {pressureId === 'reconciliation-open' && reconciliationAvailability !== 'AVAILABLE' && <p>Reconciliation source: {reconciliationAvailability}</p>}
+      {pressureId === 'systemic-divergence' && systemicAvailability !== 'AVAILABLE' && <p>Systemic source: {systemicAvailability}</p>}
+      <p className="scope-boundary">NOT ORGANIZATION-WIDE. This path explains only loaded evidence; it grants no execution or recovery authority and does not redefine Economic Truth.</p>
     </section>
   )
 }
