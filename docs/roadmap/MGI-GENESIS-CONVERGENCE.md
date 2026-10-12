@@ -87,6 +87,13 @@ The responsibility boundary is:
 These intelligence concepts remain downstream consumers until separately governed
 contracts authorize their implementation.
 
+The [Global Commerce Signal Intelligence research](../research/GLOBAL-COMMERCE-SIGNAL-INTELLIGENCE.md)
+preserves one possible downstream observation-to-opportunity path. It does not
+change this Economic Truth-first sequence: social, marketplace and shipment
+signals form hypotheses; only governed operational evidence and reconciliation
+establish actual economic outcome. This addition is non-normative and confers no
+P0.3, Room, provider, migration or capital execution authority.
+
 ## External technical review and production-infrastructure guardrail
 
 External experts, benchmark companies, investors, competitors, research,

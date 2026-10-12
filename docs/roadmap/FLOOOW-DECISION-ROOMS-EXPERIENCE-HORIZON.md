@@ -253,6 +253,13 @@ Potential future inputs include:
 
 Opportunity scores must remain explainable evaluation, not authority.
 
+A future dedicated Opportunity Intelligence area may show product identity,
+global signal provenance, market diffusion, Brazil mirror, supply/importability,
+economics maturity, validation and actual outcome. Executive summaries must
+drill down to observed evidence and contradictions; external signals must not
+appear as canonical Economic Truth. This remains [post-MVP research](../research/GLOBAL-COMMERCE-SIGNAL-INTELLIGENCE.md)
+and adds no current Room navigation, API or execution authority.
+
 ### 3PL Control Tower
 
 Strong fit when Flooow governs commitments rather than attempts to replace every

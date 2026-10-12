@@ -256,6 +256,14 @@ opportunity -> market validation -> sourcing -> FOB/MOQ
 GO, NEGOTIATE, WAIT, or NO-GO remain decision outputs subject to evidence,
 policy, and authority. No product-category example becomes a Genesis primitive.
 
+Global Commerce Signal Intelligence is a future research input to this radar:
+creator/live, marketplace, China-native and documentary trade observations may
+suggest a product candidate, but product identity, independent corroboration,
+Brazil evidence, supplier validation, importability and provisional economics
+remain separate gates. The [research contract](../research/GLOBAL-COMMERCE-SIGNAL-INTELLIGENCE.md)
+tracks contradictions and source maturity before any OpportunityCase proposal.
+No signal, score or lifecycle label grants purchasing, import or capital authority.
+
 ### Economic objective and coordinated strategy
 
 Optimization requires an explicit objective. Maximize contribution, maximize
