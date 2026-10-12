@@ -348,6 +348,114 @@ function App() {
       ? 'OPERATIONAL'
       : 'BLOCKED'
 
+  const hasTruthExceptions = exceptionCount > 0
+  const hasUnresolvedTruth = unresolved.length > 0
+  const hasSystemicSignals =
+    systemicAvailability === 'AVAILABLE' && signals.length > 0
+  const hasOpenReconciliation =
+    reconciliationAvailability === 'AVAILABLE' &&
+    cases.some((item) => item.status !== 'RESOLVED')
+
+  const executiveSynthesis: Record<
+    'CEO' | 'CFO' | 'COO' | 'CRO',
+    {
+      state: string
+      meaning: string
+      attention: string
+      boundary: string
+      tone: 'neutral' | 'good' | 'warn' | 'risk'
+    }
+  > = {
+    CEO: {
+      state:
+        hasUnresolvedTruth || hasSystemicSignals || hasOpenReconciliation
+          ? 'ATTENTION REQUIRED'
+          : hasTruthExceptions
+            ? 'INCOMPLETE OBSERVATION'
+            : 'OBSERVED STATE STABLE',
+      meaning:
+        hasTruthExceptions
+          ? 'A visão executiva está condicionada por exceções na Economic Truth; decisões materiais devem considerar essa incompletude.'
+          : 'A leitura executiva atual não apresenta exceções econômicas conhecidas na projeção observada.',
+      attention:
+        hasUnresolvedTruth
+          ? 'Resolver identidade ou verdade não resolvida antes de tratar a leitura como completa.'
+          : hasOpenReconciliation
+            ? 'Priorizar casos de reconciliação ainda abertos.'
+            : hasSystemicSignals
+              ? 'Investigar sinais sistêmicos antes de ampliar confiança operacional.'
+              : 'Nenhuma exceção material adicional é inferida além do que está observado.',
+      boundary:
+        'A Room interpreta e prioriza atenção; não concede autoridade de execução.',
+      tone:
+        hasUnresolvedTruth || hasSystemicSignals || hasOpenReconciliation
+          ? 'risk'
+          : hasTruthExceptions
+            ? 'warn'
+            : 'good',
+    },
+    CFO: {
+      state:
+        hasTruthExceptions || hasOpenReconciliation
+          ? 'FINANCIAL CONFIDENCE CONSTRAINED'
+          : 'OBSERVED ECONOMICS COMPLETE',
+      meaning:
+        hasTruthExceptions
+          ? 'Receita e contribuição publicadas permanecem limitadas aos pedidos economicamente completos.'
+          : 'A projeção observada está completa para os pedidos atualmente carregados.',
+      attention:
+        hasOpenReconciliation
+          ? 'Revisar divergências persistidas antes de considerar fechamento econômico.'
+          : hasTruthExceptions
+            ? 'Completar componentes econômicos ausentes antes de ampliar conclusões sobre margem.'
+            : 'Manter reconciliação e proveniência como controles de fechamento.',
+      boundary:
+        'Ausência de evidência não é convertida em zero, estimativa ou vazamento presumido.',
+      tone:
+        hasTruthExceptions || hasOpenReconciliation ? 'warn' : 'good',
+    },
+    COO: {
+      state:
+        hasUnresolvedTruth || hasSystemicSignals
+          ? 'OPERATIONAL EXCEPTIONS PRESENT'
+          : hasTruthExceptions
+            ? 'PROCESS COMPLETENESS LIMITED'
+            : 'OBSERVED FLOW STABLE',
+      meaning:
+        hasUnresolvedTruth
+          ? 'Existem ocorrências cuja verdade operacional ainda não pode ser resolvida.'
+          : hasSystemicSignals
+            ? 'Sinais sistêmicos exigem investigação antes de qualquer recuperação operacional.'
+            : 'Nenhum bloqueio operacional adicional é inferido além do estado observado.',
+      attention:
+        hasUnresolvedTruth
+          ? 'Tratar primeiro os itens não resolvidos e suas causas upstream.'
+          : hasSystemicSignals
+            ? 'Isolar a divergência e sua evidência antes de autorizar recuperação.'
+            : 'Preservar monitoramento de exceções e completude.',
+      boundary:
+        'Detecção de falha ou divergência não concede autorização de recovery.',
+      tone:
+        hasUnresolvedTruth || hasSystemicSignals
+          ? 'risk'
+          : hasTruthExceptions
+            ? 'warn'
+            : 'good',
+    },
+    CRO: {
+      state: 'OBSERVED REVENUE · LIMITED INTELLIGENCE',
+      meaning:
+        'A Room mostra receita e margem observadas, mas ainda não possui evidência suficiente para transformar isso em previsão ou oportunidade futura.',
+      attention:
+        hasTruthExceptions
+          ? 'Aumentar cobertura econômica antes de comparar pressão comercial com confiança elevada.'
+          : 'Usar somente sinais comerciais suportados por evidência quando essa camada estiver disponível.',
+      boundary:
+        'Forecast, oportunidade e recomendação comercial não são inventados a partir de dados ausentes.',
+      tone: 'warn',
+    },
+  }
+
   return (
     <div className="shell">
       <aside className="rail">
@@ -541,7 +649,13 @@ function App() {
         </section>
 
         {lens === 'CEO' && (
-          <ExecutiveGrid>
+          <>
+            <ExecutiveBrief
+              lens="CEO"
+              synthesis={executiveSynthesis.CEO}
+            />
+
+            <ExecutiveGrid>
             <Panel title="Executive pulse" eyebrow="BUSINESS STATE">
               <Signal
                 label="Economic coverage"
@@ -600,11 +714,18 @@ function App() {
                 body="Nenhuma ação econômica é autorizada por esta preview."
               />
             </Panel>
-          </ExecutiveGrid>
+            </ExecutiveGrid>
+          </>
         )}
 
         {lens === 'CFO' && (
-          <ExecutiveGrid>
+          <>
+            <ExecutiveBrief
+              lens="CFO"
+              synthesis={executiveSynthesis.CFO}
+            />
+
+            <ExecutiveGrid>
             <Panel title="Economic control" eyebrow="MARGIN & COST">
               <Signal
                 label="Gross revenue"
@@ -654,11 +775,18 @@ function App() {
                 }
               />
             </Panel>
-          </ExecutiveGrid>
+            </ExecutiveGrid>
+          </>
         )}
 
         {lens === 'COO' && (
-          <ExecutiveGrid>
+          <>
+            <ExecutiveBrief
+              lens="COO"
+              synthesis={executiveSynthesis.COO}
+            />
+
+            <ExecutiveGrid>
             <Panel title="Operational exceptions" eyebrow="OPERATIONS">
               <Signal label="Orders observed" value={String(orders.length)} />
               <Signal
@@ -694,11 +822,18 @@ function App() {
                 body="Divergência não concede autorização de recuperação."
               />
             </Panel>
-          </ExecutiveGrid>
+            </ExecutiveGrid>
+          </>
         )}
 
         {lens === 'CRO' && (
-          <ExecutiveGrid>
+          <>
+            <ExecutiveBrief
+              lens="CRO"
+              synthesis={executiveSynthesis.CRO}
+            />
+
+            <ExecutiveGrid>
             <Panel title="Revenue posture" eyebrow="GROWTH">
               <Signal
                 label="Observed revenue"
@@ -731,7 +866,8 @@ function App() {
                 body="Receita observada permanece separada de previsão."
               />
             </Panel>
-          </ExecutiveGrid>
+            </ExecutiveGrid>
+          </>
         )}
 
         {lens === 'TRUTH' && (
@@ -977,6 +1113,47 @@ function App() {
         </footer>
       </main>
     </div>
+  )
+}
+
+function ExecutiveBrief({
+  lens,
+  synthesis,
+}: {
+  lens: 'CEO' | 'CFO' | 'COO' | 'CRO'
+  synthesis: {
+    state: string
+    meaning: string
+    attention: string
+    boundary: string
+    tone: 'neutral' | 'good' | 'warn' | 'risk'
+  }
+}) {
+  return (
+    <section
+      className={`executive-brief ${synthesis.tone}`}
+      aria-label={`${lens} executive synthesis`}
+    >
+      <div className="executive-brief-state">
+        <span>EXECUTIVE SYNTHESIS</span>
+        <strong>{synthesis.state}</strong>
+      </div>
+
+      <div className="executive-brief-item">
+        <span>WHY IT MATTERS</span>
+        <p>{synthesis.meaning}</p>
+      </div>
+
+      <div className="executive-brief-item">
+        <span>ATTENTION</span>
+        <p>{synthesis.attention}</p>
+      </div>
+
+      <div className="executive-brief-item boundary-item">
+        <span>BOUNDARY</span>
+        <p>{synthesis.boundary}</p>
+      </div>
+    </section>
   )
 }
 

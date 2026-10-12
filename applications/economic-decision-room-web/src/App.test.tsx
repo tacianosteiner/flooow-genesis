@@ -177,6 +177,29 @@ describe('FLOOOW Executive Room V2', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders truthful executive synthesis for all executive lenses', async () => {
+    render(<App />)
+
+    expect(
+      await screen.findByRole('region', { name: 'CEO executive synthesis' }),
+    ).toHaveTextContent('ATTENTION REQUIRED')
+
+    await userEvent.click(screen.getByRole('button', { name: 'CFO' }))
+    expect(
+      screen.getByRole('region', { name: 'CFO executive synthesis' }),
+    ).toHaveTextContent('FINANCIAL CONFIDENCE CONSTRAINED')
+
+    await userEvent.click(screen.getByRole('button', { name: 'COO' }))
+    expect(
+      screen.getByRole('region', { name: 'COO executive synthesis' }),
+    ).toHaveTextContent('OPERATIONAL EXCEPTIONS PRESENT')
+
+    await userEvent.click(screen.getByRole('button', { name: 'CRO' }))
+    expect(
+      screen.getByRole('region', { name: 'CRO executive synthesis' }),
+    ).toHaveTextContent('OBSERVED REVENUE · LIMITED INTELLIGENCE')
+  })
+
   it('renders CFO lens', async () => {
     render(<App />)
     await userEvent.click(screen.getByRole('button', { name: 'CFO' }))
