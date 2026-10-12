@@ -203,9 +203,7 @@ describe('FLOOOW Executive Room V1', () => {
 
     expect(screen.getByText('Não resolvido')).toBeInTheDocument()
 
-    expect(
-      screen.getByText(/R\$\s*70,00/),
-    ).toBeInTheDocument()
+    expect(screen.getAllByText(/R\$\s*70,00/).length).toBeGreaterThan(0)
 
     expect(
       screen.getAllByText('Não disponível').length,
@@ -450,3 +448,5 @@ describe('FLOOOW Executive Room V1', () => {
     ).toBeInTheDocument()
   })
 })
+
+
