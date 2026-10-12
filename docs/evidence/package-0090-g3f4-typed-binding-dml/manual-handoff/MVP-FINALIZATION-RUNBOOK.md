@@ -1,0 +1,42 @@
+# MVP Finalization Runbook — fail-closed manual handoff
+
+Date: 2026-10-12 (America/Sao_Paulo). Branch: checkpoint/package-0090-cloud-handoff.
+Input: 406b446d0b00abf1a45d86c7c8baeee640bc9d4d.
+Status: BEST_SAFE_CHECKPOINT; semantic closure is HOLD, not Room readiness.
+
+## Execution boundary
+
+Seven PowerShell scripts are supplied and were NOT EXECUTED. 01 and 99 perform read-only verification/collection. 02–06 are deliberately blocked orchestration gates, not runnable qualification recipes. Each has a false authorization flag followed by an independent contract/recipe-incomplete stop. Changing the flag cannot make them safe or complete. No dynamically supplied runner, command or unsigned local approval file is accepted.
+
+Do not delete either stop to “make progress.” A later engineering change must bind the approved source/binary/fixture/runner bytes, checked resources, precise authority and expected evidence. That change needs review before execution. No numeric policy is selected by this handoff. No credentials, canonical IDs, keys or T0 are embedded. Dispose only positively identified owned rehearsal resources; scripts here create none and delete none.
+
+## Exact order — no stage inferred from an earlier PASS
+
+| STEP | PURPOSE | SCRIPT | PRECONDITIONS | AUTHORIZATION REQUIRED | EXPECTED OUTPUT | PASS CONDITION | FAIL CONDITION | NEXT STEP |
+|---|---|---|---|---|---|---|---|---|
+| A1 | Verify published handoff baseline | 01-VERIFY-BASELINE.ps1 | Git/PowerShell; published branch clean; local equals live remote; input ancestor; changed scope limited; manifest present | Read-only verification already permitted | BASELINE_VERIFIED with HEAD and CONTRACT_CLOSURE=HOLD | Every identity/scope/hash check succeeds | Missing file/hash, dirty state, branch/divergence; stop | A2 |
+| A2 | Finish SQL/implicit DML semantic contract | Existing semantic_checkpoint.py plus the required resolver work | Frozen 13 case paths; 17 exact signatures; original source and cached AST hashes | Existing offline analysis authority; no SQL execution | Exact bindings, proven call/control/DML graph and unique typed closure ledger | All execution-relevant edges/identifiers/provenance and DML obligations closed; adversarial review complete | Any unresolved edge or semantic check, including variadic dependency; HOLD | A3 |
+| A3 | Complete two-layer fixture preflight design and then approved disposable preflight | 02-RUN-POSITIVE-FIXTURE-PREFLIGHT.ps1 (BLOCKED) | A2; complete 11 frame schemas/encoding/verifier design; exact witness/corroboration map; independently isolated synthetic fixture; approved runner recipe | Explicit disposable preflight execution authority before any SQL/runtime call | Hash-bound fixture precondition report with SQL/external coverage | FULL_DOMAIN_FIXTURE_CONTRACT_READY=YES supported by every required closure item | SQL-only fixture, self-reported health, missing witness or incomplete recipe | B |
+| B | FC01 positive execution | 03-RUN-FC01-POSITIVE-EXECUTION.ps1 (BLOCKED) | A3; separately authorized immutable successor/fixture/runner/binary; original attestation material and bounded case evidence; cleanup ownership plan | Explicit FC01 positive execution; synthetic signing/role mutations separately scoped if needed | All 13 case trajectories with real SQL results, side effects/receipts and cleanup | No unexplained failure; exact expected effects and invariant preservation | Any failure or inherited PASS from altered bytes | B-negative |
+| B-negative | FC01 negative and implicit-effect controls | 04-RUN-FC01-NEGATIVE-CONTROLS.ps1 (BLOCKED) | Same final bytes; complete control denominator; independent fresh prerequisite state | Explicit disposable negative/fault-injection scope | Exact denial/SQLSTATE, zero/multirow, constraint and NULL/control-flow evidence | Every planned control assessed against final code; no unexplained NOT_RUN | Silent denominator reduction, unexpected effects or invalid fixture prep | C |
+| C | Dependent FC03/04/05/07 qualification | 06-RUN-FINAL-QUALIFICATION.ps1 (BLOCKED; recipe absent) | FC01 proven; exact definitions and dependencies of each named gate linked; no inferred meaning from ID | Each applicable disposable qualification authority | Separate gate reports with dependency/source hashes and case denominator | Each relevant gate independently closes on final bytes | Gate definition/matrix absent, stale evidence or missing execution proof | D |
+| D | Native health implementation and qualification | 05-RUN-NATIVE-HEALTH-PREFLIGHT.ps1 then 06 (both BLOCKED) | Independently anchored producer/consumer/verifier and replaceable generations; current census/promotions, completion corroboration, active enforcement and replay contracts | Separate minimal native implementation/compilation plus isolated qualification authority; NOT granted here | Implemented source/binary and complete final runtime matrix | Stale heartbeat never renews; stale census never harms current enrollment; PROCESS_ALIVE != PARTICIPANT_MAKING_PROGRESS; enforcement outcomes independently witnessed | Model-only receipts, self assertion, stale generation, open race or missing owned cleanup | E |
+| E | Numeric policy qualification/adoption | NO SCRIPT — intentionally gated | Real measured data, operational assumptions, downside/failure evidence and applicable governance | Explicit numeric policy authority; experimental harness controls confer none | Versioned approved bounds, rationale and qualified behavior | Governed authority approves exact applicable values and all affected tests rerun | A measurement or harness number silently becomes policy | F |
+| F | Canonical ADMIN / TREG / final runner | NO SCRIPT — intentionally excluded | B–E accepted; canonical deployment/identity/key/time/storage approvals and reviewed recovery plan | Exact canonical authority for each act; NOT granted | Governed canonical ceremony evidence | Every applicable original contract satisfied; no substitute signature/context | Missing original authority/material, signing window, T0 or readiness proof | G |
+| G | ROOM_OPERATIONAL proof | NO SCRIPT — evidence gate, not a switch | Canonical milestone, production health/security/ownership/reconciliation and real operation evidence | Governed production acceptance/release authority | Independently reviewable ROOM_OPERATIONAL proof | Actual operational criteria satisfied and approved | Disposable/model/engineering PASS substituted for production operation | Governed Room operation |
+
+FC03/04/05/07 IDs are preserved as requested; this mission does not invent definitions or assert their readiness. Their exact existing gate documents/runners must be linked before step C is executable.
+
+## Manual commands after publication
+
+From this dedicated worktree, run 01 only after reviewing its read-only behavior. Run 99 to print the persisted status and hashes. The deterministic Python analyzers can run offline without Docker or PostgreSQL; their output remains candidate/design evidence. intake.py asserts the historical input HEAD and is a frozen historical intake, not a post-publication replay command. semantic_checkpoint.py and witness_design_review.py are the current offline follow-up scripts.
+
+Do not run 02–06 now. They must produce AUTHORIZATION REQUIRED by default and must still stop at CONTRACT OR EXECUTION RECIPE INCOMPLETE if only the flag changes. No script in this package starts Docker, executes a positive SQL wrapper, implements native code, adopts policy, invokes canonical ADMIN/TREG or the final runner.
+
+## Required evidence by later runner recipe
+
+Record precise command/environment, source/binary/fixture/authority hashes, original case universe, start/end clocks, independent observation origin, expected/actual effects and SQLSTATE, failed preparation versus evaluated case, all missing/NOT_RUN cases, owned resources and verified cleanup. Preserve negative evidence. No skipped case counts as qualification. Never average contradictory authority evidence or erase HOLD.
+
+## Next authorization
+
+No new authorization is needed to finish A2 offline reasoning. After A2/A3 design closure, request a hash-bound disposable preflight/FC01 authorization specifying exact successor, complete fixture contract, runner, synthetic signing and allowed role mutations/resources. A generic execution flag is insufficient. Native implementation, numeric adoption and canonical ceremony remain separate later transitions.

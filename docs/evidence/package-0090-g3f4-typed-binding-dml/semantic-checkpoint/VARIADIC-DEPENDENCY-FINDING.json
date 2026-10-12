@@ -1,0 +1,26 @@
+{
+  "END_LINE": 74,
+  "OBJECT_HASH": "a9552412b81944cf581ad8a266a7845fbfff1debaf2015865a4c55da90140867",
+  "SOURCE_FILE": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V035__create_explicit_transaction_identity.sql",
+  "SOURCE_HASH": "75635967e95789e00bfd6368b906bebf36055bae8737b061a57a39d102dad7fb",
+  "SOURCE_HEAD": "526bc9840854f91b9c78ba2c204344e608a6cbf3",
+  "SOURCE_OBJECT": "public.transaction_identity_hash(text[])",
+  "START_LINE": 71,
+  "binding_status": "DECLARATION_PROVEN_CALL_COERCION_SEARCH_PATH_PENDING",
+  "cached_source_target_present": false,
+  "declaration_mode": "VARIADIC",
+  "exact_source_definition": "CREATE FUNCTION transaction_identity_hash(VARIADIC fields text[]) RETURNS text LANGUAGE sql IMMUTABLE SET search_path=pg_catalog,public,pg_temp AS $$\n    SELECT encode(sha256(convert_to(string_agg(octet_length(value)::text || ':' || value,'' ORDER BY ordinal),'UTF8')),'hex')\n        FROM unnest(fields) WITH ORDINALITY AS f(value,ordinal);\n$$;",
+  "finding_id": "F-VARIADIC-REACHABILITY",
+  "frozen_source_changed": false,
+  "new_semantic_obligations": [
+    "variadic expansion and overload resolution",
+    "NULL element elision by strict expressions/string_agg",
+    "UTF8 octet-length framing",
+    "aggregate order and empty-array result",
+    "all reachable caller non-NULL and field-order preconditions",
+    "ACL/security-definer execute privilege context"
+  ],
+  "production_exploit_claim": false,
+  "severity": "BLOCKER",
+  "sql_execution": false
+}
