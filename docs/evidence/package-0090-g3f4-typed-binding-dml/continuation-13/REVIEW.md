@@ -1,0 +1,9 @@
+# Catalog call signature evidence — continuation 13
+
+Status: **HOLD**. Offline source analysis only. The preceding continuation-11 and continuation-12 artifacts remain intact.
+
+`catalog_call_successor.py` groups the 15,513 previously frozen source call sites into 175 spelling/argument-type/variadic shapes and compares them with the pinned PostgreSQL 18.4 `pg_proc.dat`. A qualified `pg_catalog` spelling and an exactly matching argument list yield one catalog signature candidate at 11,065 sites. Another 4,026 sites lack an exact argument-list match; this is expected for contextual literals, casts, optional arguments, aggregate syntax and other parser/catalog distinctions. The remaining 422 sites need source-function or unqualified namespace analysis. These classes are **candidate facts, not bound execution results**. The generated JSON preserves caller counts and an example source provenance for every shape.
+
+No call is marked fully bound. The exact match does not prove overload selection under PostgreSQL's function resolution rules, effective `search_path`, security-definer context, extension installation, caller `EXECUTE` privilege, implicit coercion, STRICT/NULL consequences or runtime catalog state. Operators have not been enumerated, so the combined call-or-operator denominator is deliberately unknown. An exact OID candidate such as `pg_catalog.uuid_send(uuid)` can narrow later review without closing those obligations.
+
+The next bounded proof should enumerate operators from the same frozen 68-function AST corpus, then bind function/operator candidates with effective search path and casts at each execution-relevant source location. Preserve HOLD until that work and integrated negative/positive qualification are complete. No script, SQL, native component, fixture, signing operation or canonical resource was executed here.
