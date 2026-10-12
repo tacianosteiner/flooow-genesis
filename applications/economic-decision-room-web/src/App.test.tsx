@@ -144,10 +144,37 @@ beforeEach(() => {
   installHealthyBackend()
 })
 
-describe('FLOOOW Executive Room V1', () => {
+describe('FLOOOW Executive Room V2', () => {
   it('renders CEO lens by default', async () => {
     render(<App />)
     expect(await screen.findByRole('heading', { name: 'CEO Room' })).toBeInTheDocument()
+  })
+
+  it('separates executive lenses from the institutional spine', async () => {
+    render(<App />)
+
+    expect(await screen.findByText('EXECUTIVE LENSES')).toBeInTheDocument()
+    expect(screen.getByText('INSTITUTIONAL SPINE')).toBeInTheDocument()
+    expect(
+      screen.getByRole('navigation', { name: 'Room navigation' }),
+    ).toBeInTheDocument()
+  })
+
+  it('shows shared institutional context without granting authority', async () => {
+    render(<App />)
+
+    const context = await screen.findByRole('region', {
+      name: 'Contexto institucional compartilhado',
+    })
+
+    expect(
+      within(context).getByText('Shared institutional context'),
+    ).toBeInTheDocument()
+    expect(within(context).getByText('Execution authority')).toBeInTheDocument()
+    expect(within(context).getByText('BLOCKED')).toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Shared Economic Truth metrics' }),
+    ).toBeInTheDocument()
   })
 
   it('renders CFO lens', async () => {
@@ -387,7 +414,7 @@ describe('FLOOOW Executive Room V1', () => {
     render(<App />)
 
     expect(
-      await screen.findByText('ROOM V1 · PREVIEW'),
+      await screen.findByText('ROOM V2 · EXECUTIVE PREVIEW'),
     ).toBeInTheDocument()
 
     expect(

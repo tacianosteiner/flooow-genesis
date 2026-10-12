@@ -82,6 +82,15 @@ const lensMeta: Record<
   },
 }
 
+const executiveLenses: Lens[] = ['CEO', 'CFO', 'COO', 'CRO']
+
+const institutionalLenses: Lens[] = [
+  'TRUTH',
+  'RECONCILIATION',
+  'DECISIONS',
+  'HEALTH',
+]
+
 const money = (value?: string, currency = 'BRL') => {
   if (value === undefined) return 'Não disponível'
 
@@ -316,6 +325,29 @@ function App() {
         ? 'Indisponível'
         : 'Carregando'
 
+  const exceptionCount = incomplete.length + unresolved.length
+
+  const truthPosture =
+    loading
+      ? 'LOADING'
+      : unresolved.length > 0
+        ? 'UNRESOLVED'
+        : incomplete.length > 0
+          ? 'INCOMPLETE'
+          : orders.length > 0
+            ? 'COMPLETE'
+            : 'NO OBSERVATION'
+
+  const evidencePosture =
+    orders.length > 0
+      ? `${coverage}% COMPLETE`
+      : 'NO OBSERVATION'
+
+  const executionPosture =
+    ROOM_OPERATIONAL
+      ? 'OPERATIONAL'
+      : 'BLOCKED'
+
   return (
     <div className="shell">
       <aside className="rail">
@@ -327,18 +359,36 @@ function App() {
           </div>
         </div>
 
-        <div className="preview-chip">ROOM V1 · PREVIEW</div>
+        <div className="preview-chip">ROOM V2 · EXECUTIVE PREVIEW</div>
 
-        <nav aria-label="Lentes executivas">
-          {(Object.keys(lensMeta) as Lens[]).map((key) => (
-            <button
-              key={key}
-              className={lens === key ? 'active' : ''}
-              onClick={() => setLens(key)}
-            >
-              {lensMeta[key].label}
-            </button>
-          ))}
+        <nav aria-label="Room navigation">
+          <div className="nav-group">
+            <span className="nav-group-label">EXECUTIVE LENSES</span>
+
+            {executiveLenses.map((key) => (
+              <button
+                key={key}
+                className={lens === key ? 'active' : ''}
+                onClick={() => setLens(key)}
+              >
+                {lensMeta[key].label}
+              </button>
+            ))}
+          </div>
+
+          <div className="nav-group institutional">
+            <span className="nav-group-label">INSTITUTIONAL SPINE</span>
+
+            {institutionalLenses.map((key) => (
+              <button
+                key={key}
+                className={lens === key ? 'active' : ''}
+                onClick={() => setLens(key)}
+              >
+                {lensMeta[key].label}
+              </button>
+            ))}
+          </div>
         </nav>
 
         <div className="rail-footer">
@@ -349,7 +399,7 @@ function App() {
 
       <main>
         <header className="topbar">
-          <span className="breadcrumb">FLOOOW / EXECUTIVE ROOM</span>
+          <span className="breadcrumb">FLOOOW / EXECUTIVE ROOM / V2</span>
 
           <div className="top-status">
             <span className="status-dot hold" />
@@ -392,6 +442,49 @@ function App() {
           </div>
         )}
 
+        <section
+          className="institutional-context"
+          aria-label="Contexto institucional compartilhado"
+        >
+          <div className="institutional-context-heading">
+            <span>ONE ECONOMIC REALITY</span>
+            <strong>Shared institutional context</strong>
+            <p>
+              CEO, CFO, COO e CRO observam a mesma Economic Truth.
+              A lente muda; a realidade institucional não.
+            </p>
+          </div>
+
+          <div className="institutional-context-grid">
+            <ContextFact
+              label="Truth posture"
+              value={truthPosture}
+              state={
+                truthPosture === 'COMPLETE'
+                  ? 'good'
+                  : truthPosture === 'UNRESOLVED'
+                    ? 'risk'
+                    : 'warn'
+              }
+            />
+            <ContextFact
+              label="Truth exceptions"
+              value={String(exceptionCount)}
+              state={exceptionCount > 0 ? 'warn' : 'good'}
+            />
+            <ContextFact
+              label="Evidence completeness"
+              value={evidencePosture}
+              state={coverage === 100 ? 'good' : 'warn'}
+            />
+            <ContextFact
+              label="Execution authority"
+              value={executionPosture}
+              state={ROOM_OPERATIONAL ? 'good' : 'blocked'}
+            />
+          </div>
+        </section>
+
         {coreError && (
           <div className="error" role="alert">
             <strong>Fail closed</strong>
@@ -406,7 +499,21 @@ function App() {
           </div>
         )}
 
-        <section className="metrics">
+        <div className="section-intro">
+          <div>
+            <span>SHARED ECONOMIC TRUTH</span>
+            <strong>Observed economics</strong>
+          </div>
+          <p>
+            Estes números são compartilhados entre todas as lentes executivas.
+            Nenhuma lente redefine a verdade econômica.
+          </p>
+        </div>
+
+        <section
+          className="metrics"
+          aria-label="Shared Economic Truth metrics"
+        >
           <Metric
             label="Receita observada"
             value={money(totals.revenue.toString())}
@@ -869,6 +976,23 @@ function App() {
           <span>Preview surface · no execution authority</span>
         </footer>
       </main>
+    </div>
+  )
+}
+
+function ContextFact({
+  label,
+  value,
+  state = 'neutral',
+}: {
+  label: string
+  value: string
+  state?: 'neutral' | 'good' | 'warn' | 'risk' | 'blocked'
+}) {
+  return (
+    <div className={`context-fact ${state}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   )
 }
