@@ -3,6 +3,7 @@ import {
   ApiError,
   demoModeEnabled,
   getCommerceIdentityHealth,
+  getOrder,
   listOrders,
   listReconciliationCases,
   listSystemicDivergences,
@@ -25,16 +26,15 @@ type Lens =
   | 'DECISIONS'
   | 'HEALTH'
 
-const money = (value?: string, currency = 'BRL') =>
-  value === undefined
-    ? '—'
-    : new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency,
-      }).format(Number(value))
+type Availability = 'LOADING' | 'AVAILABLE' | 'UNAVAILABLE'
 
-const pct = (value?: string) =>
-  value === undefined ? '—' : `${(Number(value) * 100).toFixed(1)}%`
+const ROOM_OPERATIONAL = false
+
+const stateLabel: Record<SalesOrder['state'], string> = {
+  CALCULATED_COMPLETE: 'Calculado · Completo',
+  CALCULATED_INCOMPLETE: 'Calculado · Incompleto',
+  UNRESOLVED: 'Não resolvido',
+}
 
 const lensMeta: Record<
   Lens,
@@ -82,68 +82,159 @@ const lensMeta: Record<
   },
 }
 
+const money = (value?: string, currency = 'BRL') => {
+  if (value === undefined) return 'Não disponível'
+
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency,
+  }).format(Number(value))
+}
+
 function App() {
   const demo = demoModeEnabled()
 
   const [lens, setLens] = useState<Lens>('CEO')
   const [orders, setOrders] = useState<SalesOrder[]>(demo ? demoOrders : [])
+  const [nextCursor, setNextCursor] = useState<string | undefined>()
+  const [selected, setSelected] = useState<SalesOrder | undefined>()
   const [cases, setCases] = useState<ReconciliationCase[]>([])
   const [signals, setSignals] = useState<SystemicDivergenceSignal[]>([])
   const [identity, setIdentity] = useState<CommerceIdentityHealth | undefined>()
+
   const [loading, setLoading] = useState(!demo)
+  const [detailLoading, setDetailLoading] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
-  const [error, setError] = useState<string>()
 
-  const load = useCallback(async () => {
-    if (demo) {
-      setOrders(demoPage.orders)
-      return
-    }
+  const [coreError, setCoreError] = useState<string>()
+  const [refreshSuccess, setRefreshSuccess] = useState(false)
 
-    setLoading(true)
-    setError(undefined)
+  const [reconciliationAvailability, setReconciliationAvailability] =
+    useState<Availability>(demo ? 'AVAILABLE' : 'LOADING')
+  const [systemicAvailability, setSystemicAvailability] =
+    useState<Availability>(demo ? 'AVAILABLE' : 'LOADING')
+  const [identityAvailability, setIdentityAvailability] =
+    useState<Availability>(demo ? 'AVAILABLE' : 'LOADING')
 
-    try {
-      const [orderPage, reconciliation, systemic, health] =
-        await Promise.all([
-          listOrders(),
-          listReconciliationCases(),
-          listSystemicDivergences(),
-          getCommerceIdentityHealth(),
-        ])
+  const loadOrders = useCallback(
+    async (cursor?: string) => {
+      if (demo) {
+        setOrders(demoPage.orders)
+        setNextCursor(demoPage.nextCursor)
+        return
+      }
 
-      setOrders(orderPage.orders)
-      setCases(reconciliation.cases ?? [])
-      setSignals(systemic.signals ?? [])
-      setIdentity(health)
-    } catch (cause) {
-      setError(
-        cause instanceof ApiError
-          ? cause.message
-          : 'Não foi possível montar a projeção executiva.',
-      )
-    } finally {
-      setLoading(false)
-    }
+      if (!cursor) setLoading(true)
+      setCoreError(undefined)
+
+      try {
+        const page = await listOrders(cursor)
+
+        setOrders((current) =>
+          cursor ? [...current, ...page.orders] : page.orders,
+        )
+
+        setNextCursor(page.nextCursor)
+      } catch (cause) {
+        setCoreError(
+          cause instanceof ApiError
+            ? cause.message
+            : 'Falha ao carregar a projeção econômica.',
+        )
+      } finally {
+        if (!cursor) setLoading(false)
+      }
+    },
+    [demo],
+  )
+
+  const loadOptionalSources = useCallback(async () => {
+    if (demo) return
+
+    setReconciliationAvailability('LOADING')
+    setSystemicAvailability('LOADING')
+    setIdentityAvailability('LOADING')
+
+    void listReconciliationCases()
+      .then((response) => {
+        setCases(response.cases ?? [])
+        setReconciliationAvailability('AVAILABLE')
+      })
+      .catch(() => {
+        setCases([])
+        setReconciliationAvailability('UNAVAILABLE')
+      })
+
+    void listSystemicDivergences()
+      .then((response) => {
+        setSignals(response.signals ?? [])
+        setSystemicAvailability('AVAILABLE')
+      })
+      .catch(() => {
+        setSignals([])
+        setSystemicAvailability('UNAVAILABLE')
+      })
+
+    void getCommerceIdentityHealth()
+      .then((response) => {
+        setIdentity(response)
+        setIdentityAvailability('AVAILABLE')
+      })
+      .catch(() => {
+        setIdentity(undefined)
+        setIdentityAvailability('UNAVAILABLE')
+      })
   }, [demo])
 
   useEffect(() => {
-    if (!demo) void load()
-  }, [demo, load])
+    void loadOrders()
+
+    if (!demo) {
+      void loadOptionalSources()
+    }
+  }, [demo, loadOrders, loadOptionalSources])
+
+  const selectOrder = async (order: SalesOrder) => {
+    setDetailLoading(true)
+    setCoreError(undefined)
+
+    try {
+      const detail = demo
+        ? demoOrders.find(
+            (item) => item.marketplaceOrderId === order.marketplaceOrderId,
+          ) ?? order
+        : await getOrder(order.marketplaceOrderId)
+
+      setSelected(detail)
+    } catch (cause) {
+      setCoreError(
+        cause instanceof ApiError
+          ? cause.message
+          : 'Não foi possível abrir o detalhe do pedido.',
+      )
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   const refresh = async () => {
     setRefreshing(true)
-    setError(undefined)
+    setCoreError(undefined)
+    setRefreshSuccess(false)
 
     try {
       if (demo) {
         await Promise.resolve(demoRefresh)
+        setOrders(demoPage.orders)
       } else {
         await refreshOrders()
-        await load()
+        await loadOrders()
+        await loadOptionalSources()
       }
+
+      setRefreshSuccess(true)
     } catch (cause) {
-      setError(
+      setCoreError(
         cause instanceof ApiError
           ? cause.message
           : 'A atualização governada falhou com segurança.',
@@ -165,31 +256,34 @@ function App() {
     (order) => order.state === 'UNRESOLVED',
   )
 
-  const totals = useMemo(() => {
-    return complete.reduce(
-      (acc, order) => {
-        const result = order.economicResult
-        if (!result) return acc
+  const totals = useMemo(
+    () =>
+      complete.reduce(
+        (acc, order) => {
+          const result = order.economicResult
 
-        acc.revenue += Number(result.grossRevenue || 0)
-        acc.contribution += Number(result.contribution || 0)
-        acc.fees += Number(result.totalMarketplaceFees || 0)
-        acc.shipping += Number(result.totalShipping || 0)
-        acc.taxes += Number(result.totalTaxes || 0)
-        acc.cost += Number(result.totalProductCost || 0)
+          if (!result) return acc
 
-        return acc
-      },
-      {
-        revenue: 0,
-        contribution: 0,
-        fees: 0,
-        shipping: 0,
-        taxes: 0,
-        cost: 0,
-      },
-    )
-  }, [complete])
+          acc.revenue += Number(result.grossRevenue || 0)
+          acc.contribution += Number(result.contribution || 0)
+          acc.fees += Number(result.totalMarketplaceFees || 0)
+          acc.shipping += Number(result.totalShipping || 0)
+          acc.taxes += Number(result.totalTaxes || 0)
+          acc.productCost += Number(result.totalProductCost || 0)
+
+          return acc
+        },
+        {
+          revenue: 0,
+          contribution: 0,
+          fees: 0,
+          shipping: 0,
+          taxes: 0,
+          productCost: 0,
+        },
+      ),
+    [complete],
+  )
 
   const contributionMargin =
     totals.revenue > 0 ? totals.contribution / totals.revenue : undefined
@@ -200,6 +294,27 @@ function App() {
       : 0
 
   const meta = lensMeta[lens]
+
+  const reconciliationValue =
+    reconciliationAvailability === 'AVAILABLE'
+      ? String(cases.length)
+      : reconciliationAvailability === 'UNAVAILABLE'
+        ? 'Indisponível'
+        : 'Carregando'
+
+  const systemicValue =
+    systemicAvailability === 'AVAILABLE'
+      ? String(signals.length)
+      : systemicAvailability === 'UNAVAILABLE'
+        ? 'Indisponível'
+        : 'Carregando'
+
+  const identityUnresolvedValue =
+    identityAvailability === 'AVAILABLE'
+      ? String(identity?.unresolved ?? 0)
+      : identityAvailability === 'UNAVAILABLE'
+        ? 'Indisponível'
+        : 'Carregando'
 
   return (
     <div className="shell">
@@ -214,14 +329,14 @@ function App() {
 
         <div className="preview-chip">ROOM V1 · PREVIEW</div>
 
-        <nav>
+        <nav aria-label="Lentes executivas">
           {(Object.keys(lensMeta) as Lens[]).map((key) => (
             <button
               key={key}
               className={lens === key ? 'active' : ''}
               onClick={() => setLens(key)}
             >
-              <span>{lensMeta[key].label}</span>
+              {lensMeta[key].label}
             </button>
           ))}
         </nav>
@@ -234,13 +349,13 @@ function App() {
 
       <main>
         <header className="topbar">
-          <div>
-            <span className="breadcrumb">FLOOOW / EXECUTIVE ROOM</span>
-          </div>
+          <span className="breadcrumb">FLOOOW / EXECUTIVE ROOM</span>
 
           <div className="top-status">
             <span className="status-dot hold" />
-            <span>ROOM_OPERATIONAL = NO</span>
+            <span>
+              ROOM_OPERATIONAL = {ROOM_OPERATIONAL ? 'YES' : 'NO'}
+            </span>
           </div>
         </header>
 
@@ -263,15 +378,31 @@ function App() {
         <div className="preview-warning">
           <strong>Executive Preview</strong>
           <span>
-            Esta interface evolui o Room sem declarar prontidão operacional.
-            Economic Truth, autoridade e execução continuam governados pelo core.
+            Esta superfície não concede autoridade operacional ou de execução.
+            Economic Truth permanece governado pelo core.
           </span>
         </div>
 
-        {error && (
-          <div className="error">
+        {demo && (
+          <div className="preview-warning" role="status">
+            <strong>Modo demonstração</strong>
+            <span>
+              Dados determinísticos locais. Nenhuma chamada ao backend é feita.
+            </span>
+          </div>
+        )}
+
+        {coreError && (
+          <div className="error" role="alert">
             <strong>Fail closed</strong>
-            <span>{error}</span>
+            <span>{coreError}</span>
+          </div>
+        )}
+
+        {refreshSuccess && !coreError && (
+          <div className="success" role="status">
+            <strong>Realidade atualizada com governança</strong>
+            <span>A projeção foi recarregada após o refresh governado.</span>
           </div>
         )}
 
@@ -290,15 +421,15 @@ function App() {
             label="Margem de contribuição"
             value={
               contributionMargin === undefined
-                ? '—'
+                ? 'Não disponível'
                 : `${(contributionMargin * 100).toFixed(1)}%`
             }
-            hint="não estimada quando verdade incompleta"
+            hint="não estimada quando a verdade está incompleta"
           />
           <Metric
             label="Cobertura"
             value={`${coverage}%`}
-            hint={`${complete.length}/${orders.length} ordens completas`}
+            hint={`${complete.length}/${orders.length} pedidos completos`}
           />
         </section>
 
@@ -312,31 +443,49 @@ function App() {
               />
               <Signal
                 label="Open reconciliation"
-                value={String(cases.filter((item) => item.status !== 'RESOLVED').length)}
-                state={cases.some((item) => item.status !== 'RESOLVED') ? 'risk' : 'good'}
+                value={reconciliationValue}
+                state={
+                  reconciliationAvailability !== 'AVAILABLE'
+                    ? 'warn'
+                    : cases.some((item) => item.status !== 'RESOLVED')
+                      ? 'risk'
+                      : 'good'
+                }
               />
               <Signal
                 label="Systemic divergence signals"
-                value={String(signals.length)}
-                state={signals.length ? 'risk' : 'good'}
+                value={systemicValue}
+                state={
+                  systemicAvailability !== 'AVAILABLE'
+                    ? 'warn'
+                    : signals.length
+                      ? 'risk'
+                      : 'good'
+                }
               />
               <Signal
                 label="Identity unresolved"
-                value={String(identity?.unresolved ?? 0)}
-                state={(identity?.unresolved ?? 0) > 0 ? 'warn' : 'good'}
+                value={identityUnresolvedValue}
+                state={
+                  identityAvailability !== 'AVAILABLE'
+                    ? 'warn'
+                    : (identity?.unresolved ?? 0) > 0
+                      ? 'warn'
+                      : 'good'
+                }
               />
             </Panel>
 
             <Panel title="Decision posture" eyebrow="EXECUTIVE ACTION">
               <Decision
+                title="Analyze"
+                state="AVAILABLE"
+                body="A superfície de leitura continua disponível sem autoridade de execução."
+              />
+              <Decision
                 title="Operate"
                 state="BLOCKED"
                 body="O Room ainda não possui prova operacional canônica."
-              />
-              <Decision
-                title="Analyze"
-                state="AVAILABLE"
-                body="A camada de leitura e análise pode continuar evoluindo."
               />
               <Decision
                 title="Execute"
@@ -350,21 +499,52 @@ function App() {
         {lens === 'CFO' && (
           <ExecutiveGrid>
             <Panel title="Economic control" eyebrow="MARGIN & COST">
-              <Signal label="Gross revenue" value={money(totals.revenue.toString())} />
-              <Signal label="Marketplace fees" value={money(totals.fees.toString())} />
-              <Signal label="Shipping" value={money(totals.shipping.toString())} />
-              <Signal label="Taxes" value={money(totals.taxes.toString())} />
-              <Signal label="Product cost" value={money(totals.cost.toString())} />
+              <Signal
+                label="Gross revenue"
+                value={money(totals.revenue.toString())}
+              />
+              <Signal
+                label="Marketplace fees"
+                value={money(totals.fees.toString())}
+              />
+              <Signal
+                label="Shipping"
+                value={money(totals.shipping.toString())}
+              />
+              <Signal
+                label="Taxes"
+                value={money(totals.taxes.toString())}
+              />
+              <Signal
+                label="Product cost"
+                value={money(totals.productCost.toString())}
+              />
             </Panel>
 
             <Panel title="Truth exceptions" eyebrow="FINANCIAL CONFIDENCE">
-              <Signal label="Complete" value={String(complete.length)} state="good" />
-              <Signal label="Incomplete" value={String(incomplete.length)} state="warn" />
-              <Signal label="Unresolved" value={String(unresolved.length)} state="risk" />
+              <Signal
+                label="Complete"
+                value={String(complete.length)}
+                state="good"
+              />
+              <Signal
+                label="Incomplete"
+                value={String(incomplete.length)}
+                state="warn"
+              />
+              <Signal
+                label="Unresolved"
+                value={String(unresolved.length)}
+                state="risk"
+              />
               <Signal
                 label="Reconciliation cases"
-                value={String(cases.length)}
-                state={cases.length ? 'warn' : 'good'}
+                value={reconciliationValue}
+                state={
+                  reconciliationAvailability === 'AVAILABLE' && cases.length === 0
+                    ? 'good'
+                    : 'warn'
+                }
               />
             </Panel>
           </ExecutiveGrid>
@@ -374,21 +554,37 @@ function App() {
           <ExecutiveGrid>
             <Panel title="Operational exceptions" eyebrow="OPERATIONS">
               <Signal label="Orders observed" value={String(orders.length)} />
-              <Signal label="Incomplete" value={String(incomplete.length)} state="warn" />
-              <Signal label="Unresolved" value={String(unresolved.length)} state="risk" />
-              <Signal label="Systemic signals" value={String(signals.length)} state={signals.length ? 'risk' : 'good'} />
+              <Signal
+                label="Incomplete"
+                value={String(incomplete.length)}
+                state="warn"
+              />
+              <Signal
+                label="Unresolved"
+                value={String(unresolved.length)}
+                state="risk"
+              />
+              <Signal
+                label="Systemic signals"
+                value={systemicValue}
+                state={
+                  systemicAvailability === 'AVAILABLE' && signals.length === 0
+                    ? 'good'
+                    : 'warn'
+                }
+              />
             </Panel>
 
             <Panel title="Operational posture" eyebrow="CONTROL">
               <Decision
                 title="Refresh"
                 state={demo ? 'DEMO' : 'GOVERNED'}
-                body="Atualização permanece separada de autoridade de execução."
+                body="Refresh permanece separado de autoridade de execução."
               />
               <Decision
                 title="Recovery"
                 state="NOT AUTHORIZED"
-                body="Recuperação automática não é inferida por divergência."
+                body="Divergência não concede autorização de recuperação."
               />
             </Panel>
           </ExecutiveGrid>
@@ -397,12 +593,15 @@ function App() {
         {lens === 'CRO' && (
           <ExecutiveGrid>
             <Panel title="Revenue posture" eyebrow="GROWTH">
-              <Signal label="Observed revenue" value={money(totals.revenue.toString())} />
+              <Signal
+                label="Observed revenue"
+                value={money(totals.revenue.toString())}
+              />
               <Signal
                 label="Contribution margin"
                 value={
                   contributionMargin === undefined
-                    ? '—'
+                    ? 'Não disponível'
                     : `${(contributionMargin * 100).toFixed(1)}%`
                 }
               />
@@ -417,39 +616,165 @@ function App() {
               <Decision
                 title="Opportunity Intelligence"
                 state="POST-MVP"
-                body="Não será simulada com dados inexistentes nesta versão."
+                body="Nenhuma oportunidade futura é inventada com dados inexistentes."
               />
               <Decision
                 title="Current Room"
                 state="TRUTH-FIRST"
-                body="Receita observada permanece separada de oportunidade prevista."
+                body="Receita observada permanece separada de previsão."
               />
             </Panel>
           </ExecutiveGrid>
         )}
 
         {lens === 'TRUTH' && (
-          <Panel title="Economic Truth" eyebrow="CANONICAL EVIDENCE">
-            <Table
-              rows={orders.map((order) => ({
-                id: order.marketplaceOrderId,
-                state: order.state,
-                version: order.sourceEvidenceVersion,
-                policy: order.assemblyPolicyVersion,
-                value: order.economicResult
-                  ? money(
-                      order.economicResult.contribution,
-                      order.economicResult.currency,
-                    )
-                  : 'Não disponível',
-              }))}
-            />
-          </Panel>
+          <>
+            <Panel title="Economic Truth" eyebrow="CANONICAL EVIDENCE">
+              {loading ? (
+                <Empty text="Carregando projeção econômica…" />
+              ) : orders.length === 0 ? (
+                <Empty text="Nenhum pedido projetado" />
+              ) : (
+                <>
+                  <div className="truth-table-scroll">
+                    <table className="truth-table">
+                      <thead>
+                        <tr>
+                          <th scope="col">Order</th>
+                          <th scope="col">State</th>
+                          <th scope="col">Evidence</th>
+                          <th scope="col">Policy</th>
+                          <th scope="col">Contribution</th>
+                          <th scope="col">Detail</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {orders.map((order) => (
+                          <tr key={order.marketplaceOrderId}>
+                            <td>
+                              #{order.marketplaceOrderId.slice(0, 8)}
+                            </td>
+                            <td>{stateLabel[order.state]}</td>
+                            <td>{order.sourceEvidenceVersion}</td>
+                            <td>{order.assemblyPolicyVersion}</td>
+                            <td>
+                              {order.economicResult
+                                ? money(
+                                    order.economicResult.contribution,
+                                    order.economicResult.currency,
+                                  )
+                                : 'Não disponível'}
+                            </td>
+                            <td>
+                              <button
+                                className="detail-button"
+                                disabled={detailLoading}
+                                aria-label={`Abrir #${order.marketplaceOrderId.slice(0, 8)}`}
+                                onClick={() => void selectOrder(order)}
+                              >
+                                Abrir
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {nextCursor && (
+                    <button
+                      className="pagination-button"
+                      onClick={() => void loadOrders(nextCursor)}
+                    >
+                      Próxima →
+                    </button>
+                  )}
+                </>
+              )}
+            </Panel>
+
+            {selected && (
+              <section className="detail-card" aria-label="Detalhe econômico">
+                <div className="detail-heading">
+                  <div>
+                    <span>DERIVED / NON-CANONICAL</span>
+                    <h2>#{selected.marketplaceOrderId.slice(0, 8)}</h2>
+                  </div>
+                  <button
+                    aria-label="Fechar detalhe"
+                    onClick={() => setSelected(undefined)}
+                  >
+                    ×
+                  </button>
+                </div>
+
+                <div className="boundary">
+                  <strong>Derivado · não canônico</strong>
+                  <span>
+                    Economic Truth permanece a autoridade upstream.
+                  </span>
+                </div>
+
+                <dl className="detail-grid">
+                  <div>
+                    <dt>Estado</dt>
+                    <dd>{stateLabel[selected.state]}</dd>
+                  </div>
+                  <div>
+                    <dt>Evidence</dt>
+                    <dd>{selected.sourceEvidenceVersion}</dd>
+                  </div>
+                  <div>
+                    <dt>Policy</dt>
+                    <dd>{selected.assemblyPolicyVersion}</dd>
+                  </div>
+                  <div>
+                    <dt>Receita</dt>
+                    <dd>
+                      {selected.economicResult
+                        ? money(
+                            selected.economicResult.grossRevenue,
+                            selected.economicResult.currency,
+                          )
+                        : 'Não disponível'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Contribuição</dt>
+                    <dd>
+                      {selected.economicResult
+                        ? money(
+                            selected.economicResult.contribution,
+                            selected.economicResult.currency,
+                          )
+                        : 'Não disponível'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Margem</dt>
+                    <dd>
+                      {selected.economicResult?.contributionMargin !== undefined
+                        ? `${(
+                            Number(
+                              selected.economicResult.contributionMargin,
+                            ) * 100
+                          ).toFixed(1)}%`
+                        : 'Não disponível'}
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+            )}
+          </>
         )}
 
         {lens === 'RECONCILIATION' && (
           <Panel title="Reconciliation" eyebrow="DIVERGENCE MEMORY">
-            {cases.length === 0 ? (
+            {reconciliationAvailability === 'UNAVAILABLE' ? (
+              <Unavailable text="Fonte de reconciliação indisponível." />
+            ) : reconciliationAvailability === 'LOADING' ? (
+              <Empty text="Carregando reconciliação…" />
+            ) : cases.length === 0 ? (
               <Empty text="Nenhum caso persistido nesta projeção." />
             ) : (
               cases.map((item) => (
@@ -488,28 +813,53 @@ function App() {
         {lens === 'HEALTH' && (
           <ExecutiveGrid>
             <Panel title="System health" eyebrow="READINESS">
-              <Signal label="Room engineering" value="HOLD" state="warn" />
-              <Signal label="Room operational" value="NO" state="risk" />
-              <Signal label="Canonical execution" value="NOT RUN" state="warn" />
-              <Signal label="Preview surface" value="AVAILABLE" state="good" />
+              <Signal
+                label="Room operational"
+                value={ROOM_OPERATIONAL ? 'YES' : 'NO'}
+                state="risk"
+              />
+              <Signal
+                label="Canonical execution"
+                value="NOT RUN"
+                state="warn"
+              />
+              <Signal
+                label="Preview surface"
+                value="AVAILABLE"
+                state="good"
+              />
             </Panel>
 
             <Panel title="Identity health" eyebrow="COMMERCE IDENTITY">
-              <Signal
-                label="Coverage"
-                value={
-                  identity?.coveragePercentage
-                    ? `${identity.coveragePercentage}%`
-                    : '—'
-                }
-              />
-              <Signal label="Exact confirmed" value={String(identity?.exactConfirmed ?? 0)} />
-              <Signal label="Candidates" value={String(identity?.candidate ?? 0)} />
-              <Signal
-                label="Conflicts"
-                value={String(identity?.conflict ?? 0)}
-                state={(identity?.conflict ?? 0) ? 'risk' : 'good'}
-              />
+              {identityAvailability === 'UNAVAILABLE' ? (
+                <Unavailable text="Fonte de identidade indisponível." />
+              ) : identityAvailability === 'LOADING' ? (
+                <Empty text="Carregando identity health…" />
+              ) : (
+                <>
+                  <Signal
+                    label="Coverage"
+                    value={
+                      identity?.coveragePercentage !== undefined
+                        ? `${identity.coveragePercentage}%`
+                        : 'Não disponível'
+                    }
+                  />
+                  <Signal
+                    label="Exact confirmed"
+                    value={String(identity?.exactConfirmed ?? 0)}
+                  />
+                  <Signal
+                    label="Candidates"
+                    value={String(identity?.candidate ?? 0)}
+                  />
+                  <Signal
+                    label="Conflicts"
+                    value={String(identity?.conflict ?? 0)}
+                    state={(identity?.conflict ?? 0) > 0 ? 'risk' : 'good'}
+                  />
+                </>
+              )}
             </Panel>
           </ExecutiveGrid>
         )}
@@ -631,35 +981,11 @@ function Empty({ text }: { text: string }) {
   return <div className="empty">{text}</div>
 }
 
-function Table({
-  rows,
-}: {
-  rows: Array<{
-    id: string
-    state: string
-    version: string
-    policy: string
-    value: string
-  }>
-}) {
+function Unavailable({ text }: { text: string }) {
   return (
-    <div className="table">
-      <div className="table-head">
-        <span>Order</span>
-        <span>State</span>
-        <span>Evidence</span>
-        <span>Policy</span>
-        <span>Contribution</span>
-      </div>
-      {rows.map((row) => (
-        <div className="table-row" key={row.id}>
-          <span>{row.id.slice(0, 12)}…</span>
-          <span>{row.state}</span>
-          <span>{row.version}</span>
-          <span>{row.policy}</span>
-          <strong>{row.value}</strong>
-        </div>
-      ))}
+    <div className="unavailable">
+      <strong>Indisponível</strong>
+      <span>{text}</span>
     </div>
   )
 }
