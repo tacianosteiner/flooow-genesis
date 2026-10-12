@@ -348,6 +348,39 @@ function App() {
       ? 'OPERATIONAL'
       : 'BLOCKED'
 
+  const sourceEvidenceVersions = Array.from(
+    new Set(orders.map((order) => order.sourceEvidenceVersion)),
+  )
+
+  const assemblyPolicyVersions = Array.from(
+    new Set(orders.map((order) => order.assemblyPolicyVersion)),
+  )
+
+  const projectionScope =
+    demo
+      ? 'DETERMINISTIC DEMO DATASET'
+      : nextCursor
+        ? 'LOADED PAGE · MORE AVAILABLE'
+        : 'LOADED RESULT SET'
+
+  const provenanceMode =
+    orders.length === 0
+      ? 'NO OBSERVATION'
+      : sourceEvidenceVersions.length === 1 &&
+          assemblyPolicyVersions.length === 1
+        ? 'CONSISTENT LOADED LINEAGE'
+        : 'MIXED LOADED LINEAGE'
+
+  const evidenceVersionLabel =
+    sourceEvidenceVersions.length === 0
+      ? 'NO OBSERVATION'
+      : sourceEvidenceVersions.join(', ')
+
+  const policyVersionLabel =
+    assemblyPolicyVersions.length === 0
+      ? 'NO OBSERVATION'
+      : assemblyPolicyVersions.join(', ')
+
   const hasTruthExceptions = exceptionCount > 0
   const hasUnresolvedTruth = unresolved.length > 0
   const hasSystemicSignals =
@@ -653,7 +686,7 @@ function App() {
 
           <div className="institutional-context-grid">
             <ContextFact
-              label="Truth posture"
+              label="Loaded truth posture"
               value={truthPosture}
               state={
                 truthPosture === 'COMPLETE'
@@ -669,7 +702,7 @@ function App() {
               state={exceptionCount > 0 ? 'warn' : 'good'}
             />
             <ContextFact
-              label="Evidence completeness"
+              label="Loaded evidence completeness"
               value={evidencePosture}
               state={coverage === 100 ? 'good' : 'warn'}
             />
@@ -680,6 +713,16 @@ function App() {
             />
           </div>
         </section>
+
+        <ScopeContract
+          scope={projectionScope}
+          observedCount={orders.length}
+          moreAvailable={Boolean(nextCursor)}
+          provenance={provenanceMode}
+          evidenceVersions={evidenceVersionLabel}
+          policyVersions={policyVersionLabel}
+          demo={demo}
+        />
 
         {coreError && (
           <div className="error" role="alert">
@@ -697,18 +740,18 @@ function App() {
 
         <div className="section-intro">
           <div>
-            <span>SHARED ECONOMIC TRUTH</span>
-            <strong>Observed economics</strong>
+            <span>ECONOMIC TRUTH PROJECTION</span>
+            <strong>Loaded observed economics</strong>
           </div>
           <p>
-            Estes números são compartilhados entre todas as lentes executivas.
-            Nenhuma lente redefine a verdade econômica.
+            Estes números usam somente as observações atualmente carregadas.
+            Eles não afirmam cobertura econômica de toda a organização.
           </p>
         </div>
 
         <section
           className="metrics"
-          aria-label="Shared Economic Truth metrics"
+          aria-label="Loaded economic projection metrics"
         >
           <Metric
             label="Receita observada"
@@ -1203,6 +1246,75 @@ function App() {
         </footer>
       </main>
     </div>
+  )
+}
+
+function ScopeContract({
+  scope,
+  observedCount,
+  moreAvailable,
+  provenance,
+  evidenceVersions,
+  policyVersions,
+  demo,
+}: {
+  scope: string
+  observedCount: number
+  moreAvailable: boolean
+  provenance: string
+  evidenceVersions: string
+  policyVersions: string
+  demo: boolean
+}) {
+  return (
+    <section
+      className="scope-contract"
+      aria-label="Projection scope and provenance"
+    >
+      <div className="scope-contract-head">
+        <span>PROJECTION CONTRACT</span>
+        <strong>What this Room actually knows</strong>
+        <p>
+          Loaded observations are not presented as organization-wide truth.
+          Provenance and pagination remain visible at the executive surface.
+        </p>
+      </div>
+
+      <div className="scope-contract-grid">
+        <div>
+          <span>SCOPE</span>
+          <strong>{scope}</strong>
+        </div>
+        <div>
+          <span>OBSERVED RECORDS</span>
+          <strong>{observedCount}</strong>
+        </div>
+        <div>
+          <span>PAGINATION</span>
+          <strong>{moreAvailable ? 'MORE AVAILABLE' : 'NO NEXT CURSOR'}</strong>
+        </div>
+        <div>
+          <span>LINEAGE</span>
+          <strong>{provenance}</strong>
+        </div>
+        <div>
+          <span>EVIDENCE VERSION</span>
+          <strong>{evidenceVersions}</strong>
+        </div>
+        <div>
+          <span>ASSEMBLY POLICY</span>
+          <strong>{policyVersions}</strong>
+        </div>
+        <div>
+          <span>DATA MODE</span>
+          <strong>{demo ? 'DEMO' : 'LIVE SOURCE'}</strong>
+        </div>
+        <div className="scope-boundary">
+          <span>CLAIM BOUNDARY</span>
+          <strong>NOT ORGANIZATION-WIDE</strong>
+        </div>
+      </div>
+    </section>
   )
 }
 

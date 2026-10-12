@@ -173,7 +173,7 @@ describe('FLOOOW Executive Room V2', () => {
     expect(within(context).getByText('Execution authority')).toBeInTheDocument()
     expect(within(context).getByText('BLOCKED')).toBeInTheDocument()
     expect(
-      screen.getByRole('region', { name: 'Shared Economic Truth metrics' }),
+      screen.getByRole('region', { name: 'Loaded economic projection metrics' }),
     ).toBeInTheDocument()
   })
 
@@ -215,6 +215,25 @@ describe('FLOOOW Executive Room V2', () => {
     expect(within(pressure).getByText('Execution authority')).toBeInTheDocument()
     expect(within(pressure).getByText('BLOCKED')).toBeInTheDocument()
     expect(within(pressure).queryByText(/R\$/)).not.toBeInTheDocument()
+  })
+
+  it('makes loaded scope and provenance explicit without claiming organization-wide truth', async () => {
+    render(<App />)
+
+    const scope = await screen.findByRole('region', {
+      name: 'Projection scope and provenance',
+    })
+
+    expect(within(scope).getByText('LOADED PAGE · MORE AVAILABLE')).toBeInTheDocument()
+    expect(within(scope).getByText('MORE AVAILABLE')).toBeInTheDocument()
+    expect(within(scope).getByText('CONSISTENT LOADED LINEAGE')).toBeInTheDocument()
+    expect(within(scope).getByText('V023')).toBeInTheDocument()
+    expect(within(scope).getByText('v1')).toBeInTheDocument()
+    expect(within(scope).getByText('NOT ORGANIZATION-WIDE')).toBeInTheDocument()
+    expect(
+      screen.getByRole('region', { name: 'Loaded economic projection metrics' }),
+    ).toBeInTheDocument()
+    expect(screen.queryByText('SHARED ECONOMIC TRUTH')).not.toBeInTheDocument()
   })
 
   it('renders CFO lens', async () => {
