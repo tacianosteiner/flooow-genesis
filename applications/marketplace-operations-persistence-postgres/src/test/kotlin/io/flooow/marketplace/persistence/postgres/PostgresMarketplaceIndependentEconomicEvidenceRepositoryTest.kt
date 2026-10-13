@@ -33,6 +33,7 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependen
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceResult
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicEvidenceUpdate
 import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependentEconomicFact
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicObservationIdentifierKind
 import io.flooow.organization.OrganizationId
 import java.math.BigDecimal
 import java.sql.Connection
@@ -80,6 +81,53 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
 
     @AfterTest
     fun stopPostgres() = postgres.stop()
+
+    @Test
+    fun `exact observation lineage survives durable replay correction duplicate and subject isolation`() {
+        val subject = domainSubject()
+        createOrganization(subject.organizationId.value)
+        val first = factUpdate(subject)
+        val second = attemptUpdate(subject)
+        val corrected = correctionUpdate(subject, first.fact)
+        val updates = listOf(first, second, corrected)
+        updates.forEachIndexed { index, update ->
+            assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Applied>(repository.apply(MarketplaceEconomicEvidenceVersion(index.toLong()), update))
+        }
+        val found = assertIs<MarketplaceIndependentEconomicEvidenceReadResult.Found>(repository.find(subject)).versionedEvidence
+        val members = checkNotNull(found.observationLineage).observations.associateBy { it.observationId }
+        assertEquals(4, members.size)
+        assertEquals(3L, found.version.valueForPersistence())
+        assertEquals(1L, members.getValue(first.fact.id).evidenceVersion.valueForPersistence())
+        assertEquals(MarketplaceEconomicObservationIdentifierKind.FACT, members.getValue(first.fact.id).identifierKind)
+        assertEquals(2L, members.getValue(second.attempt.id).evidenceVersion.valueForPersistence())
+        assertEquals(second.attempt.family, members.getValue(second.attempt.id).family)
+        assertEquals(MarketplaceEconomicObservationIdentifierKind.ATTEMPT, members.getValue(second.attempt.id).identifierKind)
+        val edge = members.getValue(corrected.correction.id)
+        assertEquals(first.fact.id, edge.supersedesObservationId)
+        assertEquals(corrected.correction.replacement.id, edge.replacementObservationId)
+        assertEquals(3L, edge.evidenceVersion.valueForPersistence())
+        assertEquals(edge.evidenceVersion, members.getValue(corrected.correction.replacement.id).evidenceVersion)
+        assertEquals(MarketplaceEconomicObservationIdentifierKind.FACT, members.getValue(corrected.correction.replacement.id).identifierKind)
+        val duplicate = assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Duplicate>(repository.apply(MarketplaceEconomicEvidenceVersion.ZERO, corrected))
+        assertEquals(found.observationLineage, duplicate.versionedEvidence.observationLineage)
+        assertIs<MarketplaceIndependentEconomicEvidenceReadResult.NotFound>(repository.find(subject.copy(organizationId = OrganizationId(uuid()))))
+        assertIs<MarketplaceIndependentEconomicEvidenceReadResult.NotFound>(repository.find(subject.copy(orderId = MarketplaceOrderId(uuid()))))
+    }
+
+    @Test
+    fun `multiple durable facts preserve their individual update versions`() {
+        val subject = domainSubject()
+        createOrganization(subject.organizationId.value)
+        val first = orderOccurrenceUpdate(subject)
+        val second = factUpdate(subject)
+        assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Applied>(repository.apply(MarketplaceEconomicEvidenceVersion.ZERO, first))
+        assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Applied>(repository.apply(MarketplaceEconomicEvidenceVersion(1), second))
+        val found = assertIs<MarketplaceIndependentEconomicEvidenceReadResult.Found>(repository.find(subject)).versionedEvidence
+        val members = checkNotNull(found.observationLineage).observations.associateBy { it.observationId }
+        assertEquals(1L, members.getValue(first.fact.id).evidenceVersion.valueForPersistence())
+        assertEquals(2L, members.getValue(second.fact.id).evidenceVersion.valueForPersistence())
+        assertEquals(2L, found.version.valueForPersistence())
+    }
 
     @Test
     fun `V015 migrates complete structural boundary`() {

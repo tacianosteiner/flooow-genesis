@@ -32,8 +32,10 @@ class MarketplaceEconomicEvidenceVersion(private val value: Long) :
 
 data class VersionedMarketplaceIndependentEconomicEvidence(
     val evidence: MarketplaceIndependentEconomicEvidence,
-    val version: MarketplaceEconomicEvidenceVersion
+    val version: MarketplaceEconomicEvidenceVersion,
+    val observationLineage: MarketplaceEconomicObservationLineage? = null
 ) {
+    init { observationLineage?.validate(evidence, version) }
     override fun toString(): String = "[REDACTED]"
 }
 

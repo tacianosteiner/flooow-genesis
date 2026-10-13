@@ -43,6 +43,8 @@ import io.flooow.marketplace.operations.economics.evidence.MarketplaceIndependen
 import io.flooow.marketplace.operations.economics.evidence.VersionedMarketplaceIndependentEconomicEvidence
 import io.flooow.marketplace.operations.economics.evidence.valueForPersistence
 import io.flooow.organization.OrganizationId
+import io.flooow.marketplace.operations.economics.evidence.MarketplaceEconomicObservationLineage
+import io.flooow.marketplace.operations.economics.evidence.VersionedEconomicEvidenceObservation
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
@@ -249,7 +251,9 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         advanceRoot(connection, root, nextVersion)
         return commit(
             MarketplaceIndependentEconomicEvidencePersistResult.Applied(
-                VersionedMarketplaceIndependentEconomicEvidence(applied.evidence, nextVersion)
+                VersionedMarketplaceIndependentEconomicEvidence(applied.evidence, nextVersion,
+                    MarketplaceEconomicObservationLineage(update.subject,
+                        checkNotNull(current.observationLineage).observations + MarketplaceEconomicObservationLineage.membersOf(update, nextVersion)))
             )
         )
     }
@@ -259,6 +263,7 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
         root: StoredRoot
     ): VersionedMarketplaceIndependentEconomicEvidence {
         var evidence = MarketplaceIndependentEconomicEvidence.empty(root.subject)
+        val observations = mutableListOf<VersionedEconomicEvidenceObservation>()
         var expectedVersion = 1L
         connection.prepareStatement(
             "SELECT evidence_version,update_id,change_kind " +
@@ -281,13 +286,29 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepository(
                     )
                     val replayed = MarketplaceIndependentEconomicEvidenceMerger.apply(evidence, update)
                     check(replayed is MarketplaceIndependentEconomicEvidenceResult.Applied)
+                    observations += MarketplaceEconomicObservationLineage.membersOf(update, MarketplaceEconomicEvidenceVersion(storedVersion))
                     evidence = replayed.evidence
                     expectedVersion += 1
                 }
             }
         }
         check(root.version.valueForPersistence() == expectedVersion - 1)
-        return VersionedMarketplaceIndependentEconomicEvidence(evidence, root.version)
+        val expectedIdentifiers = observations.associate { it.observationId.valueForPersistence() to
+            Pair(it.evidenceVersion.valueForPersistence(), it.identifierKind.name) }
+        val storedIdentifiers = mutableMapOf<UUID, Pair<Long, String>>()
+        connection.prepareStatement("SELECT observation_id,evidence_version,identifier_kind FROM marketplace_economic_evidence_identifier WHERE organization_id=? AND marketplace_order_id=?").use { statement ->
+            statement.setObject(1, root.subject.organizationId.value)
+            statement.setObject(2, root.subject.orderId.value)
+            statement.executeQuery().use { rows ->
+                while (rows.next()) {
+                    val id = rows.getObject("observation_id", UUID::class.java)
+                    check(storedIdentifiers.put(id, Pair(rows.getLong("evidence_version"), rows.getString("identifier_kind"))) == null)
+                }
+            }
+        }
+        check(storedIdentifiers == expectedIdentifiers)
+        return VersionedMarketplaceIndependentEconomicEvidence(evidence, root.version,
+            MarketplaceEconomicObservationLineage(root.subject, observations))
     }
 
     private fun storedUpdate(
