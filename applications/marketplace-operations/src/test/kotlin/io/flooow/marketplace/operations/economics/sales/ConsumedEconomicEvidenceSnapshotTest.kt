@@ -208,4 +208,28 @@ class ConsumedEconomicEvidenceSnapshotTest {
         }
         assertTrue(baseline.canonicalManifest().size < 250_000)
     }
+    @Test fun `persistence rehydration preserves bytes and never shares mutable storage`() {
+        val original=snapshot(replay(fact(10),correction(10,11,12)))
+        val members=original.members.reversed().toMutableList()
+        val coverage=original.componentCoverage.toMutableMap()
+        val stored=ConsumedEconomicEvidenceSnapshot.rehydratePersisted(original.subject,original.readEvidenceVersion,original.triggerChangeSequence,original.projectedAt,original.outcome,members,coverage)
+        members.clear();coverage.clear()
+        assertContentEquals(original.canonicalManifestForPersistence(),stored.canonicalManifestForPersistence())
+        val exposed=stored.canonicalManifestForPersistence();exposed[0]=(exposed[0].toInt() xor 1).toByte()
+        assertFalse(exposed.contentEquals(stored.canonicalManifestForPersistence()))
+        assertEquals(original.manifestDigest,stored.manifestDigest)
+    }
+    @Test fun `rehydration rejects incorrect role scope outcome and repeated correction target`() {
+        val original=snapshot(replay(fact(10)))
+        fun reconstruct(members: List<ConsumedEconomicEvidenceMember> = original.members, state: MarketplaceSalesIntelligenceState = original.outcome) =
+            ConsumedEconomicEvidenceSnapshot.rehydratePersisted(original.subject,original.readEvidenceVersion,original.triggerChangeSequence,original.projectedAt,state,members,original.componentCoverage)
+        assertFailsWith<IllegalArgumentException> { reconstruct(original.members.map { it.copy(contextRole=ConsumedEconomicEvidenceContextRole.ATTEMPT_CONTEXT) }) }
+        val state=assertIs<MarketplaceSalesIntelligenceState.Calculated>(original.outcome)
+        val calculation=assertIs<MarketplaceEconomicTruthCalculationResult.Incomplete>(state.calculationResult)
+        assertFailsWith<IllegalArgumentException> { reconstruct(state=state.copy(calculationResult=calculation.copy(organizationId=OrganizationId(UUID(0,99))))) }
+        val chain=snapshot(replay(fact(10),correction(10,11,12),correction(11,13,14)))
+        val bad=chain.members.map { if(it.observation.observationId==id(14)) it.copy(observation=it.observation.copy(supersedesObservationId=id(10))) else it }
+        assertFailsWith<IllegalArgumentException> { ConsumedEconomicEvidenceSnapshot.rehydratePersisted(chain.subject,chain.readEvidenceVersion,chain.triggerChangeSequence,chain.projectedAt,chain.outcome,bad,chain.componentCoverage) }
+    }
+
 }

@@ -12,8 +12,7 @@ enum class ConsumedEconomicEvidenceContextRole {
     CONSUMED_ACTIVE_FACT, HISTORICAL_SUPERSEDED_FACT, CORRECTION_CONTEXT, ATTEMPT_CONTEXT
 }
 
-@ConsistentCopyVisibility
-data class ConsumedEconomicEvidenceMember internal constructor(
+data class ConsumedEconomicEvidenceMember(
     val observation: VersionedEconomicEvidenceObservation,
     val contextRole: ConsumedEconomicEvidenceContextRole
 ) { override fun toString(): String = "[REDACTED]" }
@@ -26,10 +25,11 @@ class ConsumedEconomicEvidenceSnapshot private constructor(
     val readEvidenceVersion: MarketplaceEconomicEvidenceVersion,
     val triggerChangeSequence: ChangeSequenceCheckpoint,
     val projectedAt: Instant,
-    val outcome: MarketplaceSalesIntelligenceState,
+    outcome: MarketplaceSalesIntelligenceState,
     members: Collection<ConsumedEconomicEvidenceMember>,
     coverage: Map<EconomicComponentType, EconomicComponentCoverage>
 ) {
+    val outcome: MarketplaceSalesIntelligenceState = freezeOutcome(outcome)
     val members: List<ConsumedEconomicEvidenceMember> = Collections.unmodifiableList(
         members.sortedBy { it.observation.observationId }
     )
@@ -37,6 +37,69 @@ class ConsumedEconomicEvidenceSnapshot private constructor(
         Collections.unmodifiableMap(coverage.toMap())
     val orderAssemblyState = if (outcome is MarketplaceSalesIntelligenceState.Unresolved)
         EconomicOrderAssemblyState.NOT_READY else EconomicOrderAssemblyState.READY
+    init {
+        require(readEvidenceVersion > MarketplaceEconomicEvidenceVersion.ZERO)
+        require(triggerChangeSequence > ChangeSequenceCheckpoint.NONE && projectedAt.nano % 1_000 == 0)
+        require(this.members.map { it.observation.observationId }.toSet().size == this.members.size)
+        val byId = this.members.associateBy { it.observation.observationId }
+        val observations = this.members.map { it.observation }
+        val groups = observations.groupBy { it.evidenceVersion }
+        require(groups.size.toLong() == readEvidenceVersion.valueForPersistence())
+        require(groups.keys.sorted().withIndex().all { (index, version) -> version.valueForPersistence() == index.toLong() + 1 })
+        val superseded = observations.filter { it.identifierKind == MarketplaceEconomicObservationIdentifierKind.CORRECTION }.map { it.supersedesObservationId }.toSet()
+        val edges = observations.filter { it.identifierKind == MarketplaceEconomicObservationIdentifierKind.CORRECTION }
+        require(edges.map { it.supersedesObservationId }.distinct().size == edges.size)
+        edges.forEach { edge ->
+            val old = byId.getValue(requireNotNull(edge.supersedesObservationId)).observation
+            val replacement = byId.getValue(requireNotNull(edge.replacementObservationId)).observation
+            require(old.identifierKind == MarketplaceEconomicObservationIdentifierKind.FACT && old.evidenceVersion < edge.evidenceVersion)
+            require(replacement.identifierKind == MarketplaceEconomicObservationIdentifierKind.FACT && replacement.evidenceVersion == edge.evidenceVersion)
+            require(!edge.recordedAt.isBefore(old.recordedAt) && !edge.recordedAt.isBefore(replacement.recordedAt))
+            require(edge.observationId != old.observationId && edge.observationId != replacement.observationId && old.observationId != replacement.observationId)
+        }
+        groups.values.forEach { values ->
+            val correction = values.filter { it.identifierKind == MarketplaceEconomicObservationIdentifierKind.CORRECTION }
+            require(if (correction.isEmpty()) values.size == 1 else correction.size == 1 && values.size == 2 && values.any { it.observationId == correction.single().replacementObservationId })
+        }
+        this.members.forEach { member ->
+            val expected = when(member.observation.identifierKind) {
+                MarketplaceEconomicObservationIdentifierKind.FACT -> if(member.observation.observationId in superseded) ConsumedEconomicEvidenceContextRole.HISTORICAL_SUPERSEDED_FACT else ConsumedEconomicEvidenceContextRole.CONSUMED_ACTIVE_FACT
+                MarketplaceEconomicObservationIdentifierKind.ATTEMPT -> ConsumedEconomicEvidenceContextRole.ATTEMPT_CONTEXT
+                MarketplaceEconomicObservationIdentifierKind.CORRECTION -> ConsumedEconomicEvidenceContextRole.CORRECTION_CONTEXT
+            }
+            require(member.contextRole == expected)
+        }
+        require(componentCoverage.values.none { it == EconomicComponentCoverage.NOT_APPLICABLE })
+        when(val state = this.outcome) {
+            is MarketplaceSalesIntelligenceState.Unresolved -> require(componentCoverage.isEmpty())
+            is MarketplaceSalesIntelligenceState.Calculated -> {
+                val components = when(val result = state.calculationResult) {
+                    is MarketplaceEconomicTruthCalculationResult.Incomplete -> {
+                        require(result.organizationId == subject.organizationId && result.orderId == subject.orderId)
+                        require(result.missingTypes.distinct().size == result.missingTypes.size && result.partialTypes.distinct().size == result.partialTypes.size)
+                        require(result.missingTypes.toSet() == componentCoverage.filterValues { it == EconomicComponentCoverage.MISSING }.keys)
+                        require(result.partialTypes.toSet() == componentCoverage.filterValues { it == EconomicComponentCoverage.PARTIAL }.keys)
+                        require(result.missingTypes.isNotEmpty() || result.partialTypes.isNotEmpty())
+                        result.suppliedComponents
+                    }
+                    is MarketplaceEconomicTruthCalculationResult.Complete -> {
+                        require(result.result.organizationId == subject.organizationId && result.result.orderId == subject.orderId)
+                        require(result.result.marketplace == subject.marketplace && result.result.externalOrderId == subject.externalOrderId && result.result.currency == subject.currency)
+                        require(result.result.orderOccurredAt.nano % 1_000 == 0)
+                        require(listOf(result.result.grossRevenue,result.result.totalMarketplaceFees,result.result.totalShipping,result.result.totalAdvertising,
+                            result.result.totalTaxes,result.result.totalProductCost,result.result.totalFinancialCost,result.result.totalOtherAdjustments,result.result.contribution).all { it.currency == subject.currency })
+                        require(componentCoverage.values.all { it == EconomicComponentCoverage.COMPLETE })
+                        result.result.components
+                    }
+                }
+                require(components.map { it.id }.distinct().size == components.size)
+                require(components.all { it.organizationId == subject.organizationId && it.orderId == subject.orderId && it.magnitude.currency == subject.currency && it.occurredAt.nano % 1_000 == 0 })
+            }
+        }
+    }
+    /** Fresh canonical bytes for persistence integrity; no execution/retrieval authority. */
+    fun canonicalManifestForPersistence(): ByteArray = canonicalManifest()
+
     val manifestDigest: String = MessageDigest.getInstance("SHA-256").digest(canonicalManifest())
         .joinToString("") { HEX[it.toInt().and(255).ushr(4)].toString() + HEX[it.toInt().and(15)] }
 
@@ -109,7 +172,22 @@ class ConsumedEconomicEvidenceSnapshot private constructor(
 
     companion object {
         private const val HEX = "0123456789abcdef"
-        internal fun capture(versioned: VersionedMarketplaceIndependentEconomicEvidence, trigger: ChangeSequenceCheckpoint): Input {
+        /** Validates stored typed context only; never runs an assembler or calculator. */
+        fun rehydratePersisted(subject: MarketplaceEconomicEvidenceSubject, readEvidenceVersion: MarketplaceEconomicEvidenceVersion,
+            triggerChangeSequence: ChangeSequenceCheckpoint, projectedAt: Instant, outcome: MarketplaceSalesIntelligenceState,
+            members: Collection<ConsumedEconomicEvidenceMember>, coverage: Map<EconomicComponentType, EconomicComponentCoverage>): ConsumedEconomicEvidenceSnapshot =
+            ConsumedEconomicEvidenceSnapshot(subject, readEvidenceVersion, triggerChangeSequence, projectedAt, outcome, members, coverage)
+
+        private fun freezeOutcome(state: MarketplaceSalesIntelligenceState): MarketplaceSalesIntelligenceState = when(state) {
+            is MarketplaceSalesIntelligenceState.Unresolved -> state
+            is MarketplaceSalesIntelligenceState.Calculated -> state.copy(calculationResult = when(val result = state.calculationResult) {
+                is MarketplaceEconomicTruthCalculationResult.Incomplete -> result.copy(
+                    missingTypes = Collections.unmodifiableList(result.missingTypes.toList()), partialTypes = Collections.unmodifiableList(result.partialTypes.toList()),
+                    suppliedComponents = Collections.unmodifiableList(result.suppliedComponents.toList()))
+                is MarketplaceEconomicTruthCalculationResult.Complete -> result.copy(result = result.result.copy(components = Collections.unmodifiableList(result.result.components.toList())))
+            })
+        }
+        fun capture(versioned: VersionedMarketplaceIndependentEconomicEvidence, trigger: ChangeSequenceCheckpoint): Input {
             require(trigger > ChangeSequenceCheckpoint.NONE)
             val lineage = requireNotNull(versioned.observationLineage) { "Exact durable membership unavailable" }
             lineage.validate(versioned.evidence, versioned.version)
@@ -117,7 +195,7 @@ class ConsumedEconomicEvidenceSnapshot private constructor(
         }
     }
 
-    internal class Input internal constructor(
+    class Input internal constructor(
         private val versioned: VersionedMarketplaceIndependentEconomicEvidence,
         private val trigger: ChangeSequenceCheckpoint
     ) {
