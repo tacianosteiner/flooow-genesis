@@ -1,0 +1,59 @@
+{
+  "status": "PROPOSED_NOT_APPROVED",
+  "technical_fixture_approval_pattern_exists": true,
+  "precedent": {
+    "commit": "60f7bbe13f4c2b44d8e070a41d60dc5e28ae988d",
+    "source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:2263",
+    "approval_provenance": "FLOOOW_TECHNICAL_FIXTURE_APPROVAL_2026-10-03",
+    "scope": "TEST_GOLDEN_REHEARSAL_ONLY",
+    "delegated_new_approval_authority": false
+  },
+  "current_tranche_can_adopt_test_fixture_decision": false,
+  "reason": "A recorded independent approval is precedent, not delegation. AGENTS sections5/7 prohibit manufacturing approval identity/authority; current phases2/10 expressly condition adoption on governing authority.",
+  "test_policy_values_approved": true,
+  "test_policy_activation_approved": false,
+  "test_activation_recipe_approved": false,
+  "test_approval_identity_approved": false,
+  "test_change_identity_approved": false,
+  "test_admin_audit_contract_approved": false,
+  "existing_admin_audit_obligation": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md:2236",
+  "existing_admin_audit_store_identified": false,
+  "excluded_store": {
+    "table": "public.integration_control_audit",
+    "source": "V004:59",
+    "reason": "Integration organization/connection action/time/correlation log; lacks canonical policy, activation, actor, approval/change, deployment/incarnation and commit binding; no governing designation as deployment provisioning audit"
+  },
+  "new_package_audit_table_authorized": false,
+  "proposed_recipe": {
+    "identity": "TEST_ONLY/0090/activation/db-clock-in-transaction/v1",
+    "time_source": "pg_catalog.clock_timestamp() exactly once after approval/audit PREPARED validation inside isolated ADMIN registration transaction",
+    "precision": "PostgreSQL finite timestamptz(6); integer microseconds; no floating epoch conversion",
+    "effective_from": "captured database clock; offset=0",
+    "capture_order": [
+      "verify independent approved immutable decision and exact target",
+      "durably prepare audit",
+      "BEGIN ADMIN",
+      "capture clock and transaction identity",
+      "validate exact29 fields/digest/version",
+      "INSERT immutable policy and associate audit",
+      "COMMIT",
+      "independently confirm commit and audit acknowledgment before eligibility"
+    ],
+    "canonical_representation": "Existing29-field policy bytes unchanged; effective_from separate immutable activation metadata encoded UTC six fractional digits plus integer signed epoch microseconds",
+    "audit_representation": "Complete SPEC25.4 fields; prepared/transaction-associated/COMMITTED-or-ROLLED_BACK-or-UNKNOWN records, target and recipe binding",
+    "replay": "Plain duplicate SQL registration fails; exact approved replay only reconciles original acknowledged commit; divergent metadata/version/digest denied without upsert or renewal",
+    "failure": "No ACTIVE eligibility/READY while approval/audit/commit uncertain. No transaction claims external audit and PostgreSQL atomicity without demonstrated implementation.",
+    "absolute_time_reproducible": false,
+    "semantic_recipe_reproducible_design": true
+  },
+  "proposed_identities": {
+    "approval_id": null,
+    "change_id": null,
+    "actor_identity": null,
+    "reason": "Must come from independent recorded TEST_ONLY approval; proposal intentionally does not mint an approval principal",
+    "target_policy_version": "fixture-1",
+    "target_policy_digest": "e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d",
+    "scope": "TEST_ONLY_DISPOSABLE_S04_NO_FIELD_AUTHORITY"
+  },
+  "activation_proven": false
+}
