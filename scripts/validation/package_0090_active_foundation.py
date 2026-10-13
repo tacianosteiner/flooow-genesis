@@ -30,6 +30,7 @@ def quote(value):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--parser-path', required=True); ap.add_argument('--directory', required=True)
+    ap.add_argument('--first-positive-preparation', action='store_true')
     args = ap.parse_args(); sys.path.insert(0, args.parser_path)
     from pglast.parser import parse_sql_json
     folder = Path(args.directory).resolve()
@@ -166,6 +167,10 @@ def main():
         # No policy ACTIVE row is silently provisioned without explicit activation instant/audit.
         case('no_fabricated_READY', sql('SELECT count(*) FROM public.offline_readiness;').stdout.strip() == b'0', 'No health/READY state fabricated', 'FIXTURE')
         record['positive_wrapper_results'] = {'expected': 18, 'proven': 0, 'blocked': 18, 'reason': 'Live ACTIVE binding/readiness/native health/original attestation manifest not proven'}
+        if args.first_positive_preparation:
+            import package_0090_first_positive as extension
+            record['recipe_hashes'][Path(extension.__file__).name] = q.sha(Path(extension.__file__).read_bytes())
+            extension.prepare(sql, run, container, folder, record, fixture)
     except Exception as e:
         record['errors'].append(type(e).__name__ + ': ' + str(e))
     finally:
