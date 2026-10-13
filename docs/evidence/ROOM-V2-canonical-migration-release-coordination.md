@@ -1,0 +1,73 @@
+# Room V2 — canonical migration release coordination
+
+Date: 2026-10-13. Documentation-only audit on `feature/room-v2-executive-product-evolution`. Package 0090 is read only. This supersedes the sequencing uncertainty in [the earlier coordination checkpoint](ROOM-V2-historical-lineage-migration-coordination.md), without allocating a version or authorizing execution.
+
+## Exact reference and inventory evidence
+
+After `git fetch origin`, the Room expected baseline and remote were `e10859d6309b9ffbcf7e0e5940b53fc57fa5ff23`; main/origin/main were `77d482c97a663a527dcacc85036c7577dfc92782`; Package 0090 local/remote were `a34bcd0782d0b3c6cb895ab08b0ab46701224974`. All three 30-entry decorated logs were inspected. Package's latest commit narrows catalog call candidates without claiming execution binding; Room's latest commit records the disposable proof; main's latest commit merges the offline launcher, not V043.
+
+Tracked inventories: main 42 migrations, highest V042; Package 43, highest V043; Room 42, highest V042, no historical production migration. A fresh scan of all 293 local/origin refs found version >=43 only at Package local/remote V043. No V044 exists in that scan. Absence does not establish a reservation.
+
+Room test-only candidate: `applications/marketplace-operations-persistence-postgres/src/test/resources/room-lineage/historical_lineage_candidate.sql`. It remains outside main resources. The applicable parser/alignment check passed. Its disposable execution evidence remains [the prior proof](ROOM-V2-disposable-postgres-historical-lineage-proof.md); no database or container was contacted in this audit.
+
+## V043 source and authority boundary
+
+The entire 20,485-line, 2,426,865-byte working-copy V043 was loaded and parsed, with targeted inspection of preconditions, creation/ownership/ACL effects, crypto checks, readiness/history checks and governing amendments. This is not independent semantic requalification of its large wrapper bodies. Parsed top-level inventory: 1,235 statements: 15 tables, 24 function definitions (22 names, including claim overloads), four triggers, three indexes, 33 ALTER TABLE statements, 24 owner transfers, 1,119 grant/revoke statements, 12 DO blocks and one SET LOCAL. Seven restricted NOLOGIN owners are created inside DO blocks. No extension or schema installation is performed.
+
+Git-blob SHA-256 of V043 at the audited ref: `b0ea86b6ba355fdf25fe09836bd4b75e4a4a2ad88ab7ef0e4724ca0d5a013e7d`. Working-copy SHA-256: `3301b254e883ae2ebf9e1d41036f15bc7839c1ae9e2404e692bc2ec864204109`. These differ because of line endings and are not equated to Flyway's CRC32 checksum.
+
+`V043_EXECUTABLE_NOW=NO`. The first DO raises SQLSTATE 55000 unconditionally, before DDL, with implementation closure incomplete/execution denied. There is no approval flag or GUC escape. Neither comments nor a file merge remove that fence.
+
+Deployment prerequisites in source include direct `SESSION_USER=CURRENT_USER=postgres`, PostgreSQL 18 UTF8, a safe public schema, separately provisioned administrative identity/default privileges, restricted owner attributes/zero memberships/ownership adoption, and exact preinstalled crypto ownership/membership/ACL/ABI. Seven created owners are verification, issuance, execution, audit, principal lock, readiness and intent audit; the separate control owner is required. Operational VERIFIER, ISSUER, EXECUTOR and AUDITOR logins/slots are separately governed, not provisioned by this migration. Table ownership goes to the control owner; wrappers/helpers have exact owner transfers and capability grants. Frozen V039–V042 functions receive narrowly enumerated grants, not body changes.
+
+Crypto requires `offline_crypto`, postgres ownership, `pgcrypto` 1.4 and `flooow_offline_mac32` 1.0, exact native HMAC, timing-safe equality and canonical SPKI Ed25519 interfaces, restricted grants, and independently qualified binary/OpenSSL/provider provenance. V043 inspects prerequisites and grants the approved verification bridge; it does not install crypto or repair general crypto/default ACLs.
+
+Current state is **source-composed, structurally qualified in bounded areas, but semantic and integrated runtime closure incomplete**. It is not production-ready-but-merely-gated, not withdrawn and not superseded. ADR-0090's historical design approvals cannot override latest continuation HOLD or the executable interlock. Promotion requires recorded Package implementation/review closure, exact governed rehearsal/execution authority, installed qualification and canonical release review; none is supplied by this task.
+
+## Current Package gates, without resurrecting stale findings
+
+Paths below are on the audited Package ref, not Room's similarly numbered raw-evidence documents. `docs/evidence/package-0090-g3f4-typed-binding-dml/` is abbreviated as `typed/`.
+
+| Gate | Latest status/evidence | Qualification required | Room dependency |
+|---|---|---|---|
+| Exact call/operator/security/NULL/authority semantics | HOLD; `typed/continuation-13/REVIEW.md` and `CATALOG-CALL-STATUS.json`: 15,513 call sites, 175 shapes, binding complete 0; operator denominator unknown | Exact casts/overloads/search path/security/ACL/STRICT and grouped authority/NULL acceptance proof | Required to close V043 source promotion |
+| DML, locks and control trajectories | HOLD; continuation-12 retains all 28 writes/109 locks, full completion 0; continuation-11 has 13 structural graphs, semantic completion 0 | Implicit defaults/FKs/triggers/conflicts, concurrency/retry, lock order/isolation, terminal/exception/loop and grouped-path proof | Required for Package closure; source inventory alone is insufficient |
+| Installed crypto and owner/service privilege qualification | HOLD; continuation-08 locates three native ABI sources; continuation-10 explicitly leaves loaded binary/provider/member/owner/ACL and nine cross-layer bindings unobserved | Exact installed provenance, effective privileges and caller true/NULL/error behavior under approved identities | Crypto/admin prerequisites block V043; operational logins remain a distinct readiness gate |
+| Independent runtime witness and full-domain fixture | HOLD; continuation-10 logical eleven-frame model is closed, integrated verifier 0; full fixture/runner recipes incomplete, five scripts blocked by missing recipes | Complete immutable fixture/runner/cleanup ownership; independent observer authentication, durable CAS, SQL/OS corroboration, generation/restart/enforcement integration | Must qualify Package promotion; synthetic/model PASS is not integrated PASS |
+| Execution and canonical promotion authority | NOT ISSUED; continuation-10 runbook steps 5–7; ADR original-input amendment preserves unconditional interlock | Reviewable hashed recipes, exact isolated scope, recorded implementation closure and separately governed migration/release authority | Direct canonical release blocker |
+| Numeric production policy and real field operation | Unprovisioned/not adopted; ADR policy-bootstrap amendment and SPEC 25 | Separate later ADMIN approval/provisioning, immutable complete policy/audit, activation and all field-operation guards | **Not a pre-schema prerequisite**; bootstrap explicitly allows schema without policy row. No real field proof authority is inferred |
+
+Structural source fields, explicit variadic arguments, native source locations, bounded UPDATE cardinality and logical witness contracts are already evidenced. They are not reopened as missing inventory. Their remaining semantic/runtime boundaries persist. Historical Package `ROOM_ENGINEERING_READY=NO` refers to its own operational gate, not the newer Room lineage disposable proof.
+
+## Flyway and collision evidence
+
+Production persistence uses Flyway 13.2.0 in three `connect` paths: `PostgresInventoryRiskAssessmentJournal`, `PostgresIntegrationControlPlaneRepository`, and `PostgresOutboxDeliveryStore`. They configure datasource then load/migrate without sequencing overrides. API Application.kt calls the first two and composes the legacy sales projection adapter. `compose.yaml` supplies normal `flooow` credentials, PostgreSQL 18.4 and no Flyway overrides. CI `ci.yml` builds/tests and boots that compose runtime; it supplies no independent migration lane. Offline launcher uses frozen migration history, not another migration executor.
+
+Repository/default composition: locations `classpath:db/migration`; outOfOrder false; cherryPick unset; validateOnMigrate true; target latest; baselineOnMigrate false; executeInTransaction true. No runtime `.sql.conf` override was found for V043 or the Room candidate. These are source/default values, not an observation of external deployed configuration. Before any release, effective configuration must be captured and required to match. Official references: [locations](https://documentation.red-gate.com/fd/flyway-locations-setting-277579008.html), [outOfOrder](https://documentation.red-gate.com/fd/flyway-out-of-order-setting-277579015.html), [validateOnMigrate](https://documentation.red-gate.com/fd/flyway-validate-on-migrate-setting-277579048.html), [target](https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-target-setting), [baselineOnMigrate](https://documentation.red-gate.com/flyway/reference/configuration/flyway-namespace/flyway-baseline-on-migrate-setting), [transaction handling](https://documentation.red-gate.com/fd/migration-transaction-handling-273973399.html).
+
+The controlled V029–V038 script explicitly uses filesystem:/flyway/sql, outOfOrder=false, validateOnMigrate=true, target=38. Its pre-migrate validation allows pending migrations only. It is an historical exact-target executor, not permission to skip V043 or ignore failure; it never reaches a later Room version.
+
+In a **future combined canonical classpath**, default migrate encounters V043 before any later Room version and aborts at its first DO. Room's present branch does not contain V043 and no later migration exists; therefore this is a proven conditional release dependency, not a claim that current Room startup executes Package source.
+
+Object comparison found no shared newly created table/function/trigger/index names, and no new Room object name referenced in V043. Package uses `public.offline_*`; Room uses sales history tables, `msi_*` constraints and sales history functions. Room has no roles/extensions/schema creation, so it adds no crypto installation/ownership collision. Package depends on frozen V001–V042 and separately installed/provisioned dependencies; neither candidate has a structural table dependency on the other's new objects. Both affect governance of the same database: Package validates full live history/ACL; default-principle and migration-identity compatibility still require joint qualification. No combined migration execution is claimed.
+
+## Decision and findings
+
+`CANONICAL_RELEASE_MODEL=MODEL_A`: Package must close and promote executable V043 first; Room is eligible for a freshly audited next slot afterward. This is accepted **conditional precedence**, not approval of either deployment. `ORDER_V043_THEN_ROOM=BLOCKED` now. `ROOM_BEFORE_V043_ALLOWED=NO`: there is no approved withdrawal, supersession, independent lane or fractional/lower-version insertion protocol. Earlier ADR-0091 already records no reservation mechanism; the fresh inventories/configuration audit supplies no contrary evidence. V044 is not reserved. `ROOM_MIGRATION_SLOT_READY=NO`, `ROOM_MIGRATION_VERSION=NONE`.
+
+The raw Room body is PostgreSQL-proven and structurally transaction-compatible, but **production promotion technically ready remains NO**. The proof uses one disposable creator/writer identity and no separated production role qualification. V043 requires postgres deployment and checks closed defaults; normal runtime uses flooow. Room candidate contains no owner/grant contract and its reader directly calls the boundary validator. Installing it under postgres does not establish flooow table/identity-sequence/function privileges, nor safe ownership separation. Deploying the whole chain as flooow contradicts V043. This task neither invents a runtime role nor changes ACLs. Exact identity/ownership/grants must be governed and tested before production conversion.
+
+| ID/severity | Finding and disposition |
+|---|---|
+| B1 BLOCKER | V043 is non-executable and unpromoted; no exclusive Room slot. Conditional MODEL_A resolves direction, not completion. Package gates above remain owned by Package work. |
+| B2 BLOCKER | Room production migration identity/ownership/effective runtime ACL contract and role-separated qualification are absent. Disposable owner-session PASS does not close this. |
+| H1 HIGH | Frozen launcher `PostgresOfflineMigrationHistory.provesV042` rejects any extra migration. Package SPEC section 14 requires matching client to append exact future versions/checksums; old+new must fail closed. Full live history/ACL manifest also changes on later Room DDL. Matching clients and independent governed requalification must precede operational exposure; never hide history or adopt server manifests. |
+| H2 HIGH | Runtime still composes the projection-only adapter. Schema triggers require linked revisions for new publications, so enabling schema while legacy writers run produces failures; mixing modes cannot be the cutover strategy. Drain/exclusion, matching producer/checkpoint semantics and production-form tests remain future implementation gates. |
+
+Counts: BLOCKER 2, HIGH 2, MEDIUM 0, LOW 0. These are promotion gates, not newly claimed defects in the disposable engineering proof. No bypass was attempted. The [promotion plan](../specifications/SPEC-0091-production-schema-promotion-plan.md) defines their closure and rollback boundaries. No main/Package/research mutation, SQL execution, endpoint, UI or operational authority occurred.
+
+## Applicable validation and next boundary
+
+Read-only commands: fetch; exact rev-parse and three decorated 30-entry logs; git ls-tree inventories and all-ref scan; full V043 pglast parse plus bounded effect/source searches; candidate parser/alignment verifier; runtime/compose/launcher/CI inspection; latest Package continuations 10–13 and governing ADR/SPEC review. Documentation validation: `git diff --check`, staged diff check and intended-path audit. No unrelated full build or database proof was rerun.
+
+Next: Package-owned semantic/integrated closure and reviewable execution recipes, plus a separately bounded Room production identity/ACL contract and qualification design. No implementation or execution of that next work is included here. Raw retrieval remains independently gated.
