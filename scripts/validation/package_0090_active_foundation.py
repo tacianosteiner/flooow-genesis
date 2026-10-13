@@ -31,6 +31,7 @@ def quote(value):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--parser-path', required=True); ap.add_argument('--directory', required=True)
     ap.add_argument('--first-positive-preparation', action='store_true')
+    ap.add_argument('--authorized-s04', action='store_true')
     args = ap.parse_args(); sys.path.insert(0, args.parser_path)
     from pglast.parser import parse_sql_json
     folder = Path(args.directory).resolve()
@@ -171,6 +172,11 @@ def main():
             import package_0090_first_positive as extension
             record['recipe_hashes'][Path(extension.__file__).name] = q.sha(Path(extension.__file__).read_bytes())
             extension.prepare(sql, run, container, folder, record, fixture)
+        if args.authorized_s04:
+            q.require(not args.first_positive_preparation, 'Do not mix historical preparation with authorized campaign')
+            import package_0090_authorized_s04 as authorized
+            record['recipe_hashes'][Path(authorized.__file__).name] = q.sha(Path(authorized.__file__).read_bytes())
+            authorized.qualify(sql, run, container, folder, record, fixture, runtime_work=work)
     except Exception as e:
         record['errors'].append(type(e).__name__ + ': ' + str(e))
     finally:
