@@ -1,10 +1,10 @@
 # SPEC-0091 — production schema promotion plan
 
-Status: **bounded future plan; promotion HOLD; no version allocated**. Date: 2026-10-13. Governing [ADR-0091](../adr/ADR-0091-economic-projection-consumed-evidence-lineage.md); [coordination audit](../evidence/ROOM-V2-canonical-migration-release-coordination.md). This plan creates no migration, role, runtime mode, endpoint or execution authority.
+Status: **identity/ACL candidate qualified; production composition/promotion HOLD; no version allocated**. Date: 2026-10-13. Governing [ADR-0091](../adr/ADR-0091-economic-projection-consumed-evidence-lineage.md); [coordination audit](../evidence/ROOM-V2-canonical-migration-release-coordination.md). This plan creates no migration, production role, runtime mode, endpoint or execution authority.
 
 ## Gates and exact candidate boundary
 
-HISTORICAL_PERSISTENCE_ENGINEERING_READY=YES from disposable PostgreSQL 18.4 proof. ROOM_SCHEMA_PROMOTION_TECHNICALLY_READY=NO until production identity/ACL and combined-history compatibility are qualified. ROOM_MIGRATION_SLOT_READY=NO. WRITER_COMPOSITION_READY=NO. PRODUCTION_SCHEMA_PROMOTION_READY=NO.
+HISTORICAL_PERSISTENCE_ENGINEERING_READY=YES from disposable PostgreSQL 18.4 proof. ROOM_SCHEMA_PROMOTION_TECHNICALLY_READY=YES for the reviewed base-plus-ACL candidate under separated identities; see the qualification amendment below. Full canonical-chain/client qualification awaits V043 and a final allocated migration. ROOM_MIGRATION_SLOT_READY=NO. WRITER_COMPOSITION_TECHNICALLY_READY=NO. WRITER_COMPOSITION_READY=NO. PRODUCTION_SCHEMA_PROMOTION_READY=NO.
 
 The test-only resource matches the [accepted SQL blueprint](SPEC-0091-historical-lineage-ddl-blueprint.md): six historical tables, six functions, 26 triggers, 13 FKs and the V018 nullable current revision column/FK. Deferred validation, publication receipt, exact frozen payload/member/correction binding and immutable-history guards remain unchanged. Legacy rows retain NULL; no backfill or policy recomputation is authorized. All new accepted publications require a linked revision; legacy current rows are not permission to bypass that requirement. PostgreSQL 18.4 execution passed. No top-level transaction control, extension installation or concurrent index operation requires opting out of a transactional Flyway migration. The identity may consume sequence values on rollback; gaps are accepted, never repaired or used as evidence of publication.
 
@@ -58,3 +58,51 @@ Migration commit is not an automatically reversible application deployment. Once
 | Accidental Package/main/research modification or raw read exposure | Intended Room documentation-only path audit, protected ref/worktree checks; no endpoint/UI/runtime changes |
 
 This plan closes the sequencing decision, exposes production-specific gaps and defines executable acceptance criteria. It executes none of the future promotion steps.
+
+## Qualified identity/ACL amendment
+
+The earlier ownership/ACL gaps above are now closed as a disposable-tested contract, not a deployed state. Exact evidence and operation matrix: [identity/ACL qualification](../evidence/ROOM-V2-production-identity-acl-cutover-qualification.md). Production form is the base candidate plus the reviewed unnumbered ACL overlay, not the base SQL alone. Deployment is direct postgres; owner is flooow_room_history_owner NOLOGIN; writer and internal reconciliation reader use separately provisioned flooow_room_history_runtime. No Package role is reused. LOGIN secret provisioning is external, with restricted attributes/zero memberships independently verified.
+
+The owner receives all six history tables, their identity sequence, six functions and V018 table ownership. Runtime receives exact header column INSERT excluding the identity, four detail table SELECT/INSERT, receipt SELECT, V018 SELECT/INSERT and nine mutable column UPDATEs, six bounded V015 SELECT column sets, subject currency UPDATE solely for row-lock eligibility, and one validator EXECUTE. Owner needs the same bounded source SELECT sets for deferred receipt validation. No source payload, receipt INSERT, identity sequence privileges, historical UPDATE/DELETE/TRUNCATE, schema CREATE, table TRIGGER, grant option or owner membership is authorized. Public CREATE and all six PUBLIC function EXECUTEs are removed. PUBLIC historical ACLs and unexpected existing grants must be rejected by production preflight; no default privilege assumption supplies authority.
+
+All six functions use pg_catalog,public,pg_temp with protected public schema; five remain INVOKER and only the exact current-publication trigger is DEFINER to create its receipt. Runtime cannot directly execute/attach that trigger function. Writer/read transaction search paths are pinned too. Full restricted publication/rollback/race/read campaign and negative/catalog/shadowing tests passed. Runtime never runs as postgres and owns no historical object. New startup must not call general Flyway migrate as this restricted worker.
+
+## Exact startup compatibility contract — implementation still gated
+
+The future matching binary must carry a release-reviewed immutable manifest from source, never derive expected values from the connected database. Once allocation is legitimate, the manifest includes every ordered required migration version, SQL type, script filename and actual Flyway checksum through the new Room migration, including final executable V043. Until that artifact exists, production historical startup stays denied.
+
+Before any processor/worker is composed, use one read-only snapshot to check:
+
+1. Flyway history has exactly the approved required entries in increasing installed order, no missing/duplicate/failed/NULL/changed checksum/script/type or unapproved later version. Any compatible later release needs its own explicitly reviewed manifest; do not cap/filter away future history.
+2. The six tables, generated identity, V018 column/FK, 13 FK targets, exact six function signatures/body provenance/security/search_path, 26 enabled triggers with expected timing/deferred attributes, owners and effective ACLs match the release manifest. Table existence alone never passes.
+3. session_user=current_user is the approved restricted runtime; all forbidden role attributes/memberships/ownership/schema CREATE/grant options are absent. Public/untrusted operational roles have no protected-schema CREATE or historical access; no arbitrary role adoption. Required column/function privileges are exact.
+4. Binary writer mode requires this historical contract, and its publication adapter consumes the exact frozen snapshot/record pair. No configured legacy materializer/current-row bypass is present. Missing history/ACL/schema returns NOT_READY and starts no writer or checkpoint loop; it does not fall back to legacy mode.
+
+The current API has no such guard/composition and remains unchanged. Its sole production legacy constructor is Application.kt:270. Other legacy constructors are tests in the current-projection and lineage classes; all history constructors are in lineage tests. No CLI/scheduler/script alternate source construction was found. Exact client-history logic may reuse frozen-history verification patterns without copying the Package operational authority model. Its current provesV042 rejects future rows; update compatibility only in a matching reviewed release.
+
+| Schema/binary | Proven behavior / release rule |
+|---|---|
+| OLD + OLD | Existing legacy publication works on V001–V042 |
+| NEW + OLD | Genuine new projection-only publication rejects; old credentials must also be retired. This is DB/write fencing, not a retroactively installed old startup guard |
+| OLD + NEW | Historical publication fails closed; future matching startup must deny before composing it |
+| NEW + NEW | Restricted history-aware writer/read works on qualified candidate; production composition only after exact numbered-history guard qualification |
+
+## Fleet exclusion state machine and reconciliation
+
+No production orchestrator is created here. The governed deployment record must track these exact states/proofs; any missing/uncertain proof enters HOLD with writes excluded:
+
+| State/transition | Required durable evidence |
+|---|---|
+| LEGACY_ACTIVE → DRAIN_REQUESTED | Enumerated every fleet instance/image, worker/schedule/operator/startup route; pause evidence materialization dispatch; record current organization checkpoint and V018 context; install restart/autoscale/health/operator exclusion |
+| DRAIN_REQUESTED → LEGACY_DRAINED | Fence new legacy DB logins/credential reuse; drain/terminate existing tagged legacy sessions; independent pg_stat_activity/transaction inspection confirms none remain; stable repeated checkpoint/current reads and durable transaction receipts/logs reconcile every unknown acknowledgement |
+| LEGACY_DRAINED → SCHEMA_MIGRATION_WINDOW | Approved schema/migration manifest, exact identity/preconditions and canonical slot; fleet exclusion still enforced; no legacy database sessions or write transactions |
+| SCHEMA_MIGRATION_WINDOW → HISTORY_BINARY_DEPLOYING | Confirmed migration commit/history/checksum/catalog/ACL; unknown migration outcome holds, never infers rollback |
+| HISTORY_BINARY_DEPLOYING → HISTORY_BINARY_VERIFIED | Every deployed instance is the matched digest, startup guard passed, no legacy construction/restart route, restricted credentials only; old credential remains retired |
+| HISTORY_BINARY_VERIFIED → HISTORY_ACTIVE | Scoped known publication/read and checkpoint reconciliation pass; release exclusion only for matched history workers |
+| Any uncertain transition → HOLD | Keep logins/routes/writers fenced; record exact gap; separately governed reconciliation before proceeding |
+
+NOLOGIN alone leaves existing sessions alive: the disposable retirement test proves that fact and separately terminates its owned old backend before testing restart denial. Production cannot reuse that test as fleet proof. Retiring an identity shared with other services requires inventory and replacement credentials for legitimate unaffected users before its exclusion; it is not permission to disable a shared live role here. Do not rely on revoking CONNECT while PUBLIC still grants it, or on a process stop while restart routes remain enabled.
+
+The current processor reads a checkpoint, handles ordered coalesced changes and advances its checkpoint only after successful materialization; its existing port recognizes Applied/NoOp/IntegrityFailure. Future adapter must map Published/IdenticalPublished/verified Superseded to known completion, IntegrityFailure to failure, and CommitOutcomeUnknown to HOLD/reconciliation before advancement. Never map uncertainty to success. Capture current trigger/read/policy/time/payload and authoritative V015 boundary without reconstructing legacy history. A stable consumer cursor is required while drained; providers need not stop canonical evidence ingestion. New genuine events after the captured cursor are processed after cutover, not skipped.
+
+Resume from the reconciled checkpoint and legitimate current projection. Old NULL-linked rows stay unlinked. A later genuine trigger creates the first real revision; no backfill or regenerated historical policy outcome. Exact-key retry reuses frozen committed revision, not a new projectedAt; divergent candidate fails. Cursor leaps, guessed zero boundaries and mixed old/new writers are denied. Production-form processor/startup/fleet integration remains the single grouped Room HIGH gate; it is not installed by this contract task.
