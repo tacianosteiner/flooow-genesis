@@ -1,6 +1,6 @@
 # SPEC-0091 historical lineage atomic publication contract
 
-Date: 2026-10-13. **Design closed; implementation HOLD** until PostgreSQL foundation qualification and migration coordination are YES. Parent [SPEC-0091](SPEC-0091-economic-projection-consumed-evidence-lineage.md); exact schema [DDL blueprint](SPEC-0091-historical-lineage-ddl-blueprint.md). No API, UI, execution, recovery or provider authority.
+Date: 2026-10-13. **Implemented and proven in disposable PostgreSQL; uncomposed in production.** Production rollout remains HOLD until canonical migration coordination/promotion is independently authorized. Parent [SPEC-0091](SPEC-0091-economic-projection-consumed-evidence-lineage.md); exact schema [DDL blueprint](SPEC-0091-historical-lineage-ddl-blueprint.md). No API, UI, execution, recovery or provider authority.
 
 ## Actual composition seam
 
@@ -150,3 +150,12 @@ The future port exposes only typed internal `findHistoricalRevision(subject,revi
 ## Test fixture cutover constraint
 
 The current projection test class resets with TRUNCATE integration_organization CASCADE and writes through the projection-only adapter. Neither is compatible with the future append-only/sealed history and mandatory linkage triggers. Keep present qualification on unchanged V001-V042. In the eligible historical tranche, use a fresh disposable database/container per historical test or unique organization/order fixtures without TRUNCATE, and update publication tests to the history-aware input. A separately scoped legacy test may explicitly target the old schema solely to qualify its old contract; it must not be reported as new historical schema PASS or used to bypass Package 0090 deployment order. Do not disable triggers or mutate history for test cleanup. Current-row DELETE/TRUNCATE/key movement must be tested as rejected because the current row preserves the publication monotonic floor.
+
+
+## Implemented proof mapping
+
+The earlier pseudocode is now realized by PostgresMarketplaceSalesIntelligenceLineagePublicationRepository. MarketplaceSalesIntelligenceStateCodecV1 is the bounded extraction of the existing codec, not a second serialization system. Snapshot canonicalManifestForPersistence and rehydratePersisted are installed with validation/defensive copies. No public API route, runtime mode switch or ordinary composition invokes the writer.
+
+The writer uses one explicit owned connection and stable scoped root lock; helpers never acquire/commit separate connections. It validates the trigger boundary, frozen input/record equality, complete stored context and byte/digest equality, then writes all details/current receipt atomically and forces deferred checks. Header/current/receipt verification precedes commit. Concurrent newer-first loses no candidate history; older-first records only accepted intermediate publication. Legacy current coverage resolves genuine durable subject/trigger/read context without claiming a historical backfill. Commit acknowledgement loss returns CommitOutcomeUnknown and is reconciled by exact stored-key lookup; this is distinct from proved pre-commit rollback.
+
+All eight failure points, deferred orphan rejection, real lock-waiting independent backends, duplicate races, scoped SQL attacks, mutation/pointer attacks and controlled corruption are [executed](../evidence/ROOM-V2-disposable-postgres-historical-lineage-proof.md). Current producer Complete is unreachable; current acceptance uses legitimate Ready/Incomplete history, and future Complete-policy qualification remains an extension obligation. The candidate exists only in test resources, never production Flyway locations.

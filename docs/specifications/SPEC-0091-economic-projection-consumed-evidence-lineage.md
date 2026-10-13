@@ -1,6 +1,6 @@
 # SPEC-0091 — Economic projection consumed-evidence lineage
 
-Status: **in-memory foundation contract; historical persistence HOLD, not migration authorization**. Governs the future producer slice described by [ADR-0091](../adr/ADR-0091-economic-projection-consumed-evidence-lineage.md). Existing `ROOM_OPERATIONAL=false` and all execution/recovery gates remain unchanged.
+Status: **historical engine disposable-qualified; production schema HOLD, not migration authorization**. Governs the future producer slice described by [ADR-0091](../adr/ADR-0091-economic-projection-consumed-evidence-lineage.md). Existing `ROOM_OPERATIONAL=false` and all execution/recovery gates remain unchanged.
 
 ## Typed claim and snapshot semantics
 
@@ -95,3 +95,16 @@ MIGRATION_SLOT_READY=NO (V043 owner/interlock and canonical release coordination
 PERSISTENCE_IMPLEMENTATION_READY=NO.
 
 No migration, atomic writer, historical read port or production composition cutover is installed in this tranche. The required unresolved-to-Complete proof remains blocked by current policy capability and must use a legitimate accepted complete-coverage fixture; do not infer missing evidence to zero. Raw retrieval/UI/authority remain separate and unavailable. Qualification and findings are recorded in [gate evidence](../evidence/ROOM-V2-postgres-historical-lineage-gate.md); [migration coordination](../evidence/ROOM-V2-historical-lineage-migration-coordination.md) allocates no number.
+
+
+## Disposable engineering PASS; production promotion remains separate
+
+The [disposable proof](../evidence/ROOM-V2-disposable-postgres-historical-lineage-proof.md) supersedes the previous Docker/SQL execution HOLD checkpoint for engineering qualification. The unnumbered test resource and blueprint are checked for exact alignment. Actual PostgreSQL catalogs and DML validate the declared schema, scoped FKs, deferred/immutability/publication triggers and V018 linkage. The real writer/read port are implemented, strictly versioned and directly tested; ordinary composition remains projection-only and never requires absent historical tables.
+
+ConsumedEconomicEvidenceSnapshot now provides a fresh-byte persistence bridge and strict immutable rehydratePersisted factory. Rehydration validates stored context without invoking business assembly/calculation. MarketplaceSalesIntelligenceStateCodecV1 extracts the existing codec; legacy encode/decode preserves existing behavior, while frozen encode/decode canonicalizes collections and rejects unknown nested keys or invalid typed values. Historic members/edges/policies/results and canonical bytes/digest are read from stored frozen values and checked against immutable bounded V015 identity context.
+
+Current-state persistence acceptance is NOT_READY -> READY/INCOMPLETE, correction history, exact duplicates/divergence, rollback, real races, tenant isolation and manifest round-trip. All are executable proof obligations. The previously required unresolved-to-Complete case applies only to a future legitimate complete-coverage producer policy. It is not a reason to fake COMPLETE or block acceptance of states the current assembly/1 actually produces. No economic policy was changed.
+
+TEST_ONLY_DDL_EXECUTION=YES. PRODUCTION_MIGRATION_EXECUTION=NO. POSTGRES_FOUNDATION_QUALIFIED=YES. DDL_EXECUTION_QUALIFIED=YES. ATOMIC_WRITER_PROVEN=YES. ROLLBACK_PROVEN=YES. RACE_MODEL_PROVEN=YES. TENANT_ISOLATION_PROVEN=YES. HISTORICAL_READ_PROVEN=YES. HISTORICAL_PERSISTENCE_ENGINEERING_READY=YES. MIGRATION_SLOT_READY=NO. PRODUCTION_SCHEMA_PROMOTION_READY=NO. Raw retrieval remains NO.
+
+CommitOutcomeUnknown is the fail-closed result for a commit attempt whose acknowledgement is lost. It must not advance a checkpoint or be reported as rollback proof until the exact publication key/context is reconciled. Pre-commit injected failures leave all rows/current pointers unchanged. Legacy NULL rows are never backfilled; stale legacy coverage must resolve real scoped trigger/read boundary and a typed current state before returning Superseded.

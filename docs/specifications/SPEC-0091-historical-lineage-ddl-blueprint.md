@@ -1,6 +1,6 @@
 # SPEC-0091 historical lineage DDL blueprint
 
-Date: 2026-10-13. Status: **reviewed design, PostgreSQL execution UNQUALIFIED, migration allocation HOLD**. This document is not a Flyway migration and is not loaded by application resources. It grants no runtime or retrieval authority. Parent: [SPEC-0091](SPEC-0091-economic-projection-consumed-evidence-lineage.md).
+Date: 2026-10-13. Status: **executed and catalog-qualified in disposable PostgreSQL; production migration allocation HOLD**. This document is not a Flyway migration and is not loaded by application resources. It grants no runtime or retrieval authority. Parent: [SPEC-0091](SPEC-0091-economic-projection-consumed-evidence-lineage.md).
 
 ## Decisions and limits
 
@@ -20,7 +20,7 @@ A database-owned append-only publication receipt is required. A header alone is 
 
 ## Exact candidate DDL
 
-Names below are selected, unnumbered and unallocated. Target database is PostgreSQL 18.4, matching existing Testcontainers tests; no server version was observed on this run. All constraints use default NO ACTION (no destructive cascades). SQL remains unexecuted; static parsing is not PostgreSQL qualification.
+Names below are selected, unnumbered and unallocated. Target database is PostgreSQL 18.4, matching existing Testcontainers tests; PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) was observed in the disposable proof. All constraints use default NO ACTION (no destructive cascades). The exact unnumbered [test resource](../../applications/marketplace-operations-persistence-postgres/src/test/resources/room-lineage/historical_lineage_candidate.sql) has executed in disposable PostgreSQL; the test and static verifier enforce alignment with this SQL block. No numbered or production migration is created. Static parsing alone remains insufficient.
 
 ```sql
 CREATE TABLE marketplace_sales_intelligence_revision (
@@ -432,3 +432,8 @@ SQL checks reference identity, scoped completeness, correction context, normaliz
 Before migration promotion, execute this exact candidate on disposable PostgreSQL, including deferred COMMIT checks; parser success alone is insufficient. `coverage_count` freezes the actual snapshot map size (current assembly/1 emits all nine types when Ready; NotReady emits none). It prevents omitted normalized claims without pretending every future policy must produce nine claims. NOT_APPLICABLE is deliberately not converted to COMPLETE or MISSING: it is omitted exactly as in the current snapshot builder, with count/manifest/policy preserving the map boundary. A future policy expanding the enum universe or codec still needs schema/version review. Current policy cannot produce Complete: the mandatory unresolved-to-complete historical case needs a legitimate future assembly policy fixture that proves complete coverage, or remains explicitly blocked; it must not fake production readiness by patching coverage or supplying fabricated observations.
 
 Primary references used for the design: PostgreSQL [constraints](https://www.postgresql.org/docs/18/ddl-constraints.html) (FK/unique/null behavior; cross-row restrictions) and [constraint triggers](https://www.postgresql.org/docs/18/sql-createtrigger.html) (deferred validation). These justify mechanisms, not execution PASS.
+
+
+## Executed qualification
+
+The [proof evidence](../evidence/ROOM-V2-disposable-postgres-historical-lineage-proof.md) records actual PostgreSQL catalogs, deferred commit checks, normal-DML rejection and atomic writer tests. The SQL block remains the documented candidate and is byte/text aligned (line endings normalized) with the unnumbered test-only resource. The normal-DML guarantees deliberately exclude a privileged owner disabling triggers: a disposable controlled-corruption test re-enables the header trigger before commit and proves the historical reader rejects wrong frozen integrity context. No production trigger or shared database is altered.

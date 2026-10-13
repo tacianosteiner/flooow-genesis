@@ -388,4 +388,3 @@ CREATE TRIGGER msi_publication_no_truncate BEFORE TRUNCATE ON marketplace_sales_
     FOR EACH STATEMENT EXECUTE FUNCTION reject_marketplace_sales_history_mutation();
 CREATE CONSTRAINT TRIGGER msi_publication_boundary AFTER INSERT ON marketplace_sales_intelligence_revision_publication
     DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION check_marketplace_sales_revision_boundary();
-

@@ -1,6 +1,6 @@
 # ADR-0091 — Economic projection consumed-evidence lineage
 
-Status: **accepted design; in-memory foundation implemented; historical persistence HOLD**. Date: 2026-10-12. Follows [ADR-0090](ADR-0090-governed-raw-evidence-reference.md). The in-memory producer foundation is implemented under this contract. No migration, retrieval endpoint or Room execution authority is granted.
+Status: **accepted design; disposable PostgreSQL engineering proven; production schema HOLD**. Date: 2026-10-12. Follows [ADR-0090](ADR-0090-governed-raw-evidence-reference.md). The in-memory producer foundation is implemented under this contract. No migration, retrieval endpoint or Room execution authority is granted.
 
 ## Decision
 
@@ -52,3 +52,14 @@ Choose short READ COMMITTED publication transactions locking the scoped existing
 [Migration coordination evidence](../evidence/ROOM-V2-historical-lineage-migration-coordination.md) records V043 ownership and its unconditional execution interlock. No approved parallel sequencing/reservation mechanism was found. An unnumbered coordination artifact is selected; V044 is not reserved and neither Package 0090 nor Flyway configuration is changed. Filename merger alone would not resolve the interlock.
 
 DDL, identity, idempotency, race and rollback models are ready as reviewed design; PostgreSQL execution and migration slot remain NO. The actual producer cannot currently yield Complete because its assembler emits PARTIAL/MISSING; the mandatory historical Complete case cannot be faked and needs a legitimate accepted policy fixture before historical proof PASS. HOLD remains accurate. See [qualification evidence](../evidence/ROOM-V2-postgres-historical-lineage-gate.md).
+
+
+## 2026-10-13 disposable PostgreSQL qualification and current-policy acceptance
+
+The new authorized proof tranche explicitly separates disposable schema execution from production migration allocation. The exact blueprint executes as an unnumbered test-only resource after V001-V042 in a fresh loopback Testcontainer; V043 is not loaded. Foundation tests now execute successfully. See [executed proof](../evidence/ROOM-V2-disposable-postgres-historical-lineage-proof.md). Earlier environment HOLD statements above record their checkpoints and are not the latest result.
+
+The history-aware writer, strict shared V018 codec and typed stored-snapshot rehydration are implemented and tested directly. The writer is not constructed in normal application composition. One owned connection/transaction publishes header, members, edges, normalized outcomes, V018 pointer and database receipt, validates deferred constraints and verifies frozen bytes. Duplicate equality, divergence, all eight rollback points, real overlapping backend locks, tenant/subject attacks, immutability and corruption rejection are PostgreSQL-proven. Lost COMMIT acknowledgement returns CommitOutcomeUnknown; exact-key reconciliation is required, never an inferred rollback.
+
+Current-policy acceptance requires legitimate NOT_READY -> READY/INCOMPLETE history and correction preservation. That transition is PostgreSQL-proven. MarketplaceEconomicTruthAssembler assembly/1 marks every present component PARTIAL and every absent type MISSING, so its Ready order always makes calculator/1 return Incomplete. Complete remains supported by the standalone calculator for explicit complete/not-applicable coverage, but is not reachable from this production evidence producer. Therefore unresolved-to-Complete is NOT_APPLICABLE_TO_CURRENT_PRODUCER_POLICY and does not block current historical engineering acceptance. A future legitimate complete-coverage producer policy requires its own extension fixture/proof; no production policy or observations were altered to fabricate it.
+
+HISTORICAL_PERSISTENCE_ENGINEERING_READY=YES. MIGRATION_SLOT_READY=NO. PRODUCTION_SCHEMA_PROMOTION_READY=NO. Package 0090 V043 ownership/interlock and canonical sequencing remain unchanged; no V044 claim, production migration, production writer composition, retrieval endpoint, UI or execution/recovery authority.

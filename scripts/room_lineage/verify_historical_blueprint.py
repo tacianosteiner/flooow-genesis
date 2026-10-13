@@ -22,6 +22,12 @@ blocks = re.findall(r"```sql\n(.*?)```", blueprint.read_text(encoding="utf-8"), 
 if len(blocks) != 1:
     raise SystemExit("Expected exactly one candidate SQL block")
 sql = blocks[0]
+candidate_path = root / "applications/marketplace-operations-persistence-postgres/src/test/resources/room-lineage/historical_lineage_candidate.sql"
+if candidate_path.exists():
+    candidate = candidate_path.read_text(encoding="utf-8").split("\n", 1)[1]
+    if candidate.strip() != sql.strip():
+        raise SystemExit("Test-only candidate resource differs from documented SQL")
+
 statements = parse_sql(sql)
 functions = re.findall(r"CREATE FUNCTION .*?\$\$;", sql, re.S)
 for function in functions:
