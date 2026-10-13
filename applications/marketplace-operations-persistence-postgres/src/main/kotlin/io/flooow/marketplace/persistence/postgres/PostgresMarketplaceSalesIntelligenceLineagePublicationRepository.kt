@@ -21,13 +21,6 @@ sealed interface EconomicLineageReadResult {
     data object NotFound: EconomicLineageReadResult
     data object IntegrityFailure: EconomicLineageReadResult
 }
-sealed interface EconomicLineagePublicationResult {
-    data class Published(val revisionId: Long): EconomicLineagePublicationResult { override fun toString(): String = "[REDACTED]" }
-    data class IdenticalPublished(val revisionId: Long): EconomicLineagePublicationResult { override fun toString(): String = "[REDACTED]" }
-    data class Superseded(val currentRevisionId: Long?): EconomicLineagePublicationResult { override fun toString(): String = "[REDACTED]" }
-    data object CommitOutcomeUnknown: EconomicLineagePublicationResult
-    data object IntegrityFailure: EconomicLineagePublicationResult
-}
 internal enum class EconomicLineageWriteStage {
     AFTER_LOCK, AFTER_HEADER, DURING_FIRST_MEMBER, DURING_LATER_MEMBER, DURING_CORRECTION_EDGE,
     DURING_NORMALIZED_OUTCOME, BEFORE_CURRENT_PUBLICATION, DURING_CURRENT_PUBLICATION, AFTER_CURRENT_BEFORE_COMMIT
@@ -38,11 +31,11 @@ class PostgresMarketplaceSalesIntelligenceLineagePublicationRepository internal 
     private val configuration: PostgresConfiguration,
     private val hook: (EconomicLineageWriteStage, Connection) -> Unit,
     private val acquire: () -> Connection
-) {
+) : MarketplaceSalesIntelligenceHistoryPublication {
     constructor(configuration: PostgresConfiguration): this(configuration, { _, _ -> },
         { DriverManager.getConnection(configuration.url,configuration.user,configuration.password) })
 
-    fun publish(snapshot: ConsumedEconomicEvidenceSnapshot, record: MarketplaceSalesIntelligenceProjectionRecord): EconomicLineagePublicationResult {
+    override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot, record: MarketplaceSalesIntelligenceProjectionRecord): EconomicLineagePublicationResult {
         var commitAttempted = false
         return try {
         val scope = snapshot.subject
@@ -124,6 +117,39 @@ class PostgresMarketplaceSalesIntelligenceLineagePublicationRepository internal 
         }
     } catch (_: Exception) { if(commitAttempted) EconomicLineagePublicationResult.CommitOutcomeUnknown else EconomicLineagePublicationResult.IntegrityFailure }
     }
+
+    override fun reconcile(change: MarketplaceEconomicEvidenceChange, expected: ConsumedEconomicEvidenceSnapshot?): EconomicLineageReconciliationResult = try {
+        val subject = change.subject
+        require(expected == null || expected.subject == subject && expected.triggerChangeSequence == change.changeSequence)
+        acquire().use { c ->
+            c.autoCommit = false; c.transactionIsolation = Connection.TRANSACTION_REPEATABLE_READ
+            try {
+                c.createStatement().use { it.execute("SET LOCAL search_path=pg_catalog,public,pg_temp") }
+                val exact = readRevision(c, subject.organizationId, subject.orderId, "h.trigger_change_sequence", change.changeSequence.valueForPersistence())
+                val result = if (exact != null) {
+                    check(exact.snapshot.subject == subject && exact.snapshot.readEvidenceVersion >= change.evidenceVersion)
+                    if (expected != null) check(exact.snapshot.canonicalManifestForPersistence().contentEquals(expected.canonicalManifestForPersistence()) && exact.snapshot.manifestDigest == expected.manifestDigest)
+                    EconomicLineageReconciliationResult.Known(EconomicLineagePublicationResult.IdenticalPublished(exact.revisionId))
+                } else {
+                    val current = c.prepareStatement("SELECT current_revision_id,last_applied_change_sequence,source_evidence_version FROM public.marketplace_sales_intelligence_projection WHERE organization_id=? AND marketplace_order_id=?").use { q ->
+                        bind(q,subject.organizationId.value,subject.orderId.value);q.executeQuery().use { r -> if(r.next()) Triple(r.getObject(1) as Long?,r.getLong(2),r.getLong(3)) else null }
+                    }
+                    if (current?.first != null && current.second >= change.changeSequence.valueForPersistence()) {
+                        val id = checkNotNull(current.first)
+                        val winner = checkNotNull(readRevision(c,subject.organizationId,subject.orderId,"h.projection_revision",id))
+                        verifyCurrent(c,subject.organizationId,subject.orderId,id)
+                        check(winner.snapshot.subject == subject && current.third >= change.evidenceVersion.valueForPersistence())
+                        // Verify the skipped trigger belongs to this source scope, not just a caller's sequence.
+                        check(c.prepareStatement("SELECT evidence_version FROM public.marketplace_economic_evidence_update WHERE organization_id=? AND marketplace_order_id=? AND change_sequence=?").use { q ->
+                            bind(q,subject.organizationId.value,subject.orderId.value,change.changeSequence.valueForPersistence());q.executeQuery().use { r ->r.next() && r.getLong(1)==change.evidenceVersion.valueForPersistence() }
+                        })
+                        EconomicLineageReconciliationResult.Known(EconomicLineagePublicationResult.Superseded(id))
+                    } else EconomicLineageReconciliationResult.Absent
+                }
+                c.commit(); result
+            } catch(e: Exception) { try { c.rollback() } catch (_: Exception) { }; throw e }
+        }
+    } catch (_: Exception) { EconomicLineageReconciliationResult.IntegrityFailure }
 
     fun findHistoricalRevision(org: OrganizationId, order: MarketplaceOrderId, revision: Long): EconomicLineageReadResult = read(org,order,"h.projection_revision",revision)
     fun findPublishedRevisionForTrigger(org: OrganizationId, order: MarketplaceOrderId, trigger: ChangeSequenceCheckpoint): EconomicLineageReadResult = read(org,order,"h.trigger_change_sequence",trigger.valueForPersistence())

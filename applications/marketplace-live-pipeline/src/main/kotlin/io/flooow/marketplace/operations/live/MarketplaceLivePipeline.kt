@@ -727,7 +727,8 @@ class MarketplaceLivePipelineService(
                         summary
                     )
 
-                MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure ->
+                MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure,
+                MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired ->
                     return ProjectionPhase.Blocked(
                         MarketplaceLivePipelineBlockDetail.ProjectionIntegrityFailure,
                         summary

@@ -33,6 +33,10 @@ sealed interface MarketplaceSalesIntelligenceProjectionProcessorResult {
         override fun toString(): String = "[REDACTED]"
     }
 
+    data object ReconciliationRequired : MarketplaceSalesIntelligenceProjectionProcessorResult {
+        override fun toString(): String = "[REDACTED]"
+    }
+
     data object IntegrityFailure : MarketplaceSalesIntelligenceProjectionProcessorResult {
         override fun toString(): String = "[REDACTED]"
     }
@@ -46,8 +50,10 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
     private val calculator: (MarketplaceOrder) -> MarketplaceEconomicTruthCalculationResult = {
         order -> MarketplaceEconomicTruthCalculator.calculate(order)
     },
-    internal val snapshotObserver: (ConsumedEconomicEvidenceSnapshot) -> Unit = {}
+    internal val snapshotObserver: (ConsumedEconomicEvidenceSnapshot) -> Unit = {},
+    private val historyPublication: MarketplaceSalesIntelligenceHistoryPublication? = null
 ) {
+    @Synchronized
     fun processBatch(
         organizationId: OrganizationId,
         limit: Int
@@ -60,6 +66,17 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
             is MarketplaceEconomicEvidenceChangeFeedResult.Success -> result.value
             MarketplaceEconomicEvidenceChangeFeedResult.IntegrityFailure ->
                 return MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure
+        }
+
+        val uncertain = pending
+        if (historyPublication != null && uncertain != null && uncertain.first.subject.organizationId == organizationId &&
+            checkpoint >= uncertain.first.triggerChangeSequence) {
+            val resolution = try { historyPublication.reconcile(checkNotNull(pendingChange), uncertain.first) }
+                catch (_: Exception) { return MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired }
+            when (resolution) {
+                is EconomicLineageReconciliationResult.Known -> { pending = null; pendingChange = null; reconciliationRequired = false }
+                else -> return MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired
+            }
         }
 
         val changes = when (
@@ -81,7 +98,8 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
             when (materializeChange(organizationId, change)) {
                 MaterializeOutcome.Complete -> Unit
                 MaterializeOutcome.Failure ->
-                    return MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure
+                    return if (reconciliationRequired) MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired
+                    else MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure
             }
         }
 
@@ -124,6 +142,7 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
         organizationId: OrganizationId,
         change: MarketplaceEconomicEvidenceChange
     ): MaterializeOutcome {
+        if (historyPublication != null) return materializeHistorical(change)
         val current = when (
             val result = projection.currentBySubject(organizationId, change.subject.orderId)
         ) {
@@ -193,6 +212,58 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
         }
     }
 
+    private var pending: Pair<ConsumedEconomicEvidenceSnapshot, MarketplaceSalesIntelligenceProjectionRecord>? = null
+    private var pendingChange: MarketplaceEconomicEvidenceChange? = null
+    internal var reconciliationRequired: Boolean = false
+        private set
+
+    private fun materializeHistorical(change: MarketplaceEconomicEvidenceChange): MaterializeOutcome {
+        val port = checkNotNull(historyPublication)
+        try {
+            val frozen = pending?.takeIf { it.first.subject == change.subject && it.first.triggerChangeSequence == change.changeSequence }
+            when (val resolution = port.reconcile(change, frozen?.first)) {
+                is EconomicLineageReconciliationResult.Known -> { if (frozen != null) { pending = null; pendingChange = null }; pendingChange = null; reconciliationRequired = false; return MaterializeOutcome.Complete }
+                EconomicLineageReconciliationResult.IntegrityFailure -> return MaterializeOutcome.Failure
+                EconomicLineageReconciliationResult.Absent -> Unit
+            }
+            // Do not skip an unresolved pending input from a different subject/trigger.
+            if (pending != null && frozen == null) return MaterializeOutcome.Failure
+            val pair = frozen ?: run {
+                val evidence = (evidenceRepository.find(change.subject) as? MarketplaceIndependentEconomicEvidenceReadResult.Found)?.versionedEvidence
+                    ?: return MaterializeOutcome.Failure
+                if (evidence.evidence.subject != change.subject || evidence.version < change.evidenceVersion) return MaterializeOutcome.Failure
+                val input = ConsumedEconomicEvidenceSnapshot.capture(evidence, change.changeSequence)
+                val assembly = MarketplaceEconomicTruthAssembler.assemble(evidence.evidence)
+                val state = when (assembly) {
+                    is MarketplaceEconomicTruthAssemblyResult.NotReady -> MarketplaceSalesIntelligenceState.Unresolved(assembly.assemblyPolicyVersion, assembly.reasons)
+                    is MarketplaceEconomicTruthAssemblyResult.Ready -> {
+                        val calculation = calculator(assembly.order)
+                        MarketplaceSalesIntelligenceState.Calculated(assembly.assemblyPolicyVersion, calculationPolicyVersionOf(calculation), calculation)
+                    }
+                }
+                val record = MarketplaceSalesIntelligenceProjectionRecord(change.subject.organizationId, change.subject.orderId,
+                    evidence.version, state, change.changeSequence, clock.instant().truncatedTo(ChronoUnit.MICROS))
+                val snapshot = input.finalize(assembly, state, record.projectedAt)
+                snapshotObserver(snapshot)
+                snapshot to record
+            }
+            pending = pair
+            pendingChange = change
+            reconciliationRequired = true // An exception after submission cannot establish rollback.
+            return when (val result = port.publish(pair.first, pair.second)) {
+                is EconomicLineagePublicationResult.Published, is EconomicLineagePublicationResult.IdenticalPublished -> { pending = null; pendingChange = null; reconciliationRequired = false; MaterializeOutcome.Complete }
+                is EconomicLineagePublicationResult.Superseded -> {
+                    reconciliationRequired = false
+                    if (result.currentRevisionId != null && port.reconcile(change, pair.first) is EconomicLineageReconciliationResult.Known) {
+                        pending = null; pendingChange = null; reconciliationRequired = false; MaterializeOutcome.Complete
+                    } else MaterializeOutcome.Failure
+                }
+                EconomicLineagePublicationResult.CommitOutcomeUnknown -> { pending = pair; reconciliationRequired = true; MaterializeOutcome.Failure }
+                EconomicLineagePublicationResult.IntegrityFailure -> { pending = null; pendingChange = null; reconciliationRequired = false; MaterializeOutcome.Failure }
+            }
+        } catch (_: Exception) { return MaterializeOutcome.Failure }
+    }
+
     private fun isValidBatch(
         organizationId: OrganizationId,
         checkpoint: ChangeSequenceCheckpoint,
@@ -216,6 +287,19 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
     }
 
     companion object {
+        fun historical(
+            evidenceRepository: MarketplaceIndependentEconomicEvidenceRepository,
+            changeFeed: MarketplaceEconomicEvidenceChangeFeed,
+            publication: MarketplaceSalesIntelligenceHistoryPublication,
+            clock: Clock = Clock.systemUTC()
+        ): MarketplaceSalesIntelligenceProjectionProcessor = MarketplaceSalesIntelligenceProjectionProcessor(
+            evidenceRepository, changeFeed, object: MarketplaceSalesIntelligenceProjection {
+                override fun currentBySubject(organizationId: OrganizationId, marketplaceOrderId: io.flooow.marketplace.operations.economics.MarketplaceOrderId) = error("legacy path forbidden")
+                override fun materializeIfNewer(record: MarketplaceSalesIntelligenceProjectionRecord) = error("legacy path forbidden")
+                override fun listByOrganization(organizationId: OrganizationId, cursor: MarketplaceSalesIntelligenceProjectionCursor?, limit: Int) = error("legacy path forbidden")
+                override fun detailByOrganizationAndSubject(organizationId: OrganizationId, marketplaceOrderId: io.flooow.marketplace.operations.economics.MarketplaceOrderId) = error("legacy path forbidden")
+            }, clock, historyPublication = publication)
+
         val PROJECTION_NAME: ProjectionName = ProjectionName("sales-intelligence")
     }
 }

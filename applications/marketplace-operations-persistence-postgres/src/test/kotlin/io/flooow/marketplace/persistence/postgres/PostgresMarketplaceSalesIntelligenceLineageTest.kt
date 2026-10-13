@@ -34,6 +34,7 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
     private lateinit var postgres: PostgreSQLContainer
     private lateinit var configuration: PostgresConfiguration
     private lateinit var writerConfiguration: PostgresConfiguration
+    private lateinit var sourceReaderConfiguration: PostgresConfiguration
     private val fixturePassword = UUID.randomUUID().toString()
     private lateinit var legacy: ConsumedEconomicEvidenceSnapshot
     private lateinit var invalidLegacy: ConsumedEconomicEvidenceSnapshot
@@ -58,17 +59,29 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
         assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.Applied>(PostgresMarketplaceSalesIntelligenceProjection(configuration).materializeIfNewer(record(invalidLegacy)))
         connection().use { c -> execute(c,"UPDATE marketplace_sales_intelligence_projection SET source_evidence_version=999999 WHERE organization_id=? AND marketplace_order_id=?",invalidScope.organizationId.value,invalidScope.orderId.value) }
         assertIs<EconomicLineagePublicationResult.IntegrityFailure>(PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration).publish(legacy,record(legacy)))
-        connection().use { c ->
-            c.autoCommit = false
-            try { c.createStatement().use {
+        connection().use { c ->c.createStatement().use { it ->
                 it.execute("CREATE ROLE flooow_room_history_owner NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
                 it.execute("CREATE ROLE flooow_room_history_runtime LOGIN PASSWORD '$fixturePassword' NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
                 it.execute("CREATE ROLE room_qualification_outsider LOGIN PASSWORD '$fixturePassword' NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
+            it.execute("GRANT SELECT(installed_rank,version,type,script,checksum,success,description) ON public.flyway_schema_history TO flooow_room_history_runtime")
+        } }
+        writerConfiguration = PostgresConfiguration(postgres.jdbcUrl,"flooow_room_history_runtime",fixturePassword)
+        assertTrue(guard().verifyQualification(guardManifest()) != RoomHistoryStartupStatus.READY)
+        assertIs<RoomHistoryWriterComposition.Blocked>(RoomHistoryWriterCompositionFactory(writerConfiguration).createQualification(guardManifest(),evidence(),feed()))
+        connection().use { c ->
+            c.autoCommit = false
+            try { c.createStatement().use {
                 it.execute(candidate)
                 it.execute(checkNotNull(javaClass.getResource("/room-lineage/historical_lineage_acl_candidate.sql")).readText())
             }; c.commit() }
             catch (e: Exception) { c.rollback(); throw e }
         }
+        connection().use { c ->c.createStatement().use { q ->
+            q.execute("CREATE ROLE room_qualification_source_reader LOGIN PASSWORD '$fixturePassword' NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
+            q.execute("GRANT USAGE ON SCHEMA public TO room_qualification_source_reader")
+            q.execute("GRANT SELECT ON public.marketplace_economic_evidence_subject,public.marketplace_economic_evidence_update,public.marketplace_economic_evidence_identifier,public.marketplace_economic_evidence_fact,public.marketplace_economic_evidence_component_fact,public.marketplace_economic_evidence_external_identity_fact,public.marketplace_economic_evidence_order_occurrence_fact,public.marketplace_economic_evidence_collection_attempt,public.marketplace_economic_evidence_correction TO room_qualification_source_reader")
+        } }
+        sourceReaderConfiguration = PostgresConfiguration(postgres.jdbcUrl,"room_qualification_source_reader",fixturePassword)
         writerConfiguration = PostgresConfiguration(postgres.jdbcUrl,"flooow_room_history_runtime",fixturePassword)
     }
     @AfterAll fun stop() { if (::postgres.isInitialized) postgres.stop() }
@@ -593,14 +606,15 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
         runtimeConnection().use { c ->
             assertEquals("P0001",assertFailsWith<SQLException> { c.createStatement().use { it.execute(grants) } }.sqlState)
         }
-        val sourceGrants=Regex("GRANT SELECT \\(([^)]+)\\)\\s+ON public\\.(marketplace_economic_evidence_[a-z_]+) TO",RegexOption.MULTILINE).findAll(grants).toList()
-        assertEquals(6,sourceGrants.size)
+        val sourceGrants=Regex("""GRANT SELECT \(([^)]+)\)\s+ON public\.(marketplace_economic_evidence_[a-z_]+) TO ([^;]+);""",RegexOption.MULTILINE).findAll(grants).toList()
+        assertEquals(6,sourceGrants.map { it.groupValues[2] }.distinct().size)
         connection().use { c ->
-            for(g in sourceGrants) {
-                val expected=g.groupValues[1].split(',').map { it.trim() }.sorted()
+            for(table in sourceGrants.map { it.groupValues[2] }.distinct()) {
                 for(role in listOf("flooow_room_history_runtime","flooow_room_history_owner")) {
+                    val expected=sourceGrants.filter { it.groupValues[2]==table && role in it.groupValues[3].split(',').map { it.trim() } }
+                        .flatMap { it.groupValues[1].split(',').map { it.trim() } }.distinct().sorted()
                     c.prepareStatement("SELECT a.attname FROM pg_attribute a WHERE a.attrelid=?::regclass AND a.attnum>0 AND NOT a.attisdropped AND has_column_privilege(?,a.attrelid,a.attnum,'SELECT') ORDER BY a.attname").use { q ->
-                        bind(q,g.groupValues[2],role);q.executeQuery().use { r ->val actual=mutableListOf<String>();while(r.next())actual+=r.getString(1);assertEquals(expected,actual,g.groupValues[2]+role) }
+                        bind(q,table,role);q.executeQuery().use { r ->val actual=mutableListOf<String>();while(r.next())actual+=r.getString(1);assertEquals(expected,actual,table+role) }
                     }
                 }
             }
@@ -628,6 +642,252 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
             assertFailsWith<SQLException> { DriverManager.getConnection(postgres.jdbcUrl,"room_retired_legacy",retiredPassword).use { } }
             assertFailsWith<SQLException> { old.createStatement().use { it.executeQuery("SELECT 1") } }
         } finally { old.close() }
+    }
+
+
+    private fun guardManifest(): RoomHistoryStartupManifest {
+        val root=kotlinx.serialization.json.Json.parseToJsonElement(checkNotNull(javaClass.getResource("/room-lineage/history_guard_qualification_manifest.json")).readText()) as kotlinx.serialization.json.JsonObject
+        val rows=root.getValue("catalog") as kotlinx.serialization.json.JsonObject
+        val catalog=RoomHistoryCatalogSection.entries.associateWith { section ->
+            (rows.getValue(section.name) as kotlinx.serialization.json.JsonArray).map { row ->(row as kotlinx.serialization.json.JsonArray).map { (it as kotlinx.serialization.json.JsonPrimitive).content } }
+        }
+        val migrations=(root.getValue("migrations") as kotlinx.serialization.json.JsonArray).map { item ->
+            val m=item as kotlinx.serialization.json.JsonObject
+            fun value(k: String)=(m.getValue(k) as kotlinx.serialization.json.JsonPrimitive).content
+            RoomHistoryMigrationEntry(value("version"),value("type"),value("script"),value("checksum").toInt())
+        }
+        return RoomHistoryStartupManifest(migrations,catalog,"flooow_room_history_runtime",true)
+    }
+    private fun guard()=RoomHistoryWriterStartupGuard(writerConfiguration)
+    private fun feed()=PostgresMarketplaceEconomicEvidenceChangeFeed(writerConfiguration)
+    private fun inputRepository()=PostgresMarketplaceIndependentEconomicEvidenceRepository(sourceReaderConfiguration)
+    private fun checkpoint(subject: MarketplaceEconomicEvidenceSubject)=assertIs<MarketplaceEconomicEvidenceChangeFeedResult.Success<ChangeSequenceCheckpoint>>(feed().currentCheckpoint(subject.organizationId,MarketplaceSalesIntelligenceProjectionProcessor.PROJECTION_NAME)).value
+    private fun matchedProcessor()=assertIs<RoomHistoryWriterComposition.Ready>(RoomHistoryWriterCompositionFactory(writerConfiguration).createQualification(guardManifest(),inputRepository(),feed(),java.time.Clock.fixed(time,java.time.ZoneOffset.UTC))).processor
+    private fun changeFor(s: ConsumedEconomicEvidenceSnapshot)=assertIs<MarketplaceEconomicEvidenceChangeFeedResult.Success<List<MarketplaceEconomicEvidenceChange>>>(feed().changesSince(s.subject.organizationId,ChangeSequenceCheckpoint.NONE,200)).value.single { it.changeSequence==s.triggerChangeSequence }
+
+    @Test fun `STARTUP immutable qualification manifest passes but production is not configured`() {
+        val manifest=guardManifest()
+        assertEquals(RoomHistoryStartupStatus.READY,guard().verifyQualification(manifest))
+        assertEquals(RoomHistoryStartupStatus.NOT_CONFIGURED,guard().verify(manifest))
+        assertEquals(RoomHistoryStartupStatus.NOT_CONFIGURED,guard().verify(null))
+        assertIs<RoomHistoryWriterComposition.Blocked>(RoomHistoryWriterCompositionFactory(writerConfiguration).create(manifest,inputRepository(),feed()))
+        // A caller cannot relabel the V001-V042 qualification profile as a production release.
+        assertEquals(RoomHistoryStartupStatus.NOT_CONFIGURED,guard().verify(RoomHistoryStartupManifest(manifest.migrations,manifest.catalog,manifest.runtimeIdentity,false)))
+    }
+
+    @Test fun `STARTUP source body provenance and manifest immutable copies are enforced`() {
+        val manifest=guardManifest()
+        val root=kotlinx.serialization.json.Json.parseToJsonElement(checkNotNull(javaClass.getResource("/room-lineage/history_guard_qualification_manifest.json")).readText()) as kotlinx.serialization.json.JsonObject
+        val source=root.getValue("source") as kotlinx.serialization.json.JsonObject
+        source.forEach { (name,expected) ->
+            val text=checkNotNull(javaClass.getResource("/room-lineage/$name")).readText().replace("\r\n","\n")
+            val sha=java.security.MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") { "%02x".format(it.toInt() and 255) }
+            assertEquals((expected as kotlinx.serialization.json.JsonPrimitive).content,sha)
+        }
+        val mutable=manifest.catalog.mapValues { (_,v) ->v.map { it.toMutableList() }.toMutableList() }.toMutableMap()
+        val frozen=RoomHistoryStartupManifest(manifest.migrations.toMutableList(),mutable,manifest.runtimeIdentity,true)
+        mutable.clear()
+        assertEquals(RoomHistoryStartupStatus.READY,guard().verifyQualification(frozen))
+    }
+
+    @Test fun `STARTUP catalog owner ACL function trigger role and constraint drift fail closed`() {
+        val internalTrigger=connection().use { c ->c.createStatement().use { q ->q.executeQuery("SELECT t.tgname FROM pg_trigger t JOIN pg_constraint k ON k.oid=t.tgconstraint WHERE t.tgrelid='marketplace_sales_intelligence_revision'::regclass AND t.tgisinternal AND k.contype='f' ORDER BY t.tgname LIMIT 1").use { r ->assertTrue(r.next());r.getString(1) } } }
+        val attacks=listOf(
+            "ALTER TABLE marketplace_sales_intelligence_revision DISABLE TRIGGER \"$internalTrigger\"" to "ALTER TABLE marketplace_sales_intelligence_revision ENABLE TRIGGER \"$internalTrigger\"",
+            "ALTER TABLE marketplace_sales_intelligence_revision RENAME TO room_missing_revision" to "ALTER TABLE room_missing_revision RENAME TO marketplace_sales_intelligence_revision",
+            "ALTER TABLE marketplace_sales_intelligence_revision DISABLE TRIGGER msi_header_immutable" to "ALTER TABLE marketplace_sales_intelligence_revision ENABLE TRIGGER msi_header_immutable",
+            "ALTER TABLE marketplace_sales_intelligence_revision OWNER TO postgres" to "ALTER TABLE marketplace_sales_intelligence_revision OWNER TO flooow_room_history_owner",
+            "ALTER FUNCTION validate_marketplace_sales_revision_boundary(uuid,uuid,bigint) SECURITY DEFINER" to "ALTER FUNCTION validate_marketplace_sales_revision_boundary(uuid,uuid,bigint) SECURITY INVOKER",
+            "ALTER FUNCTION validate_marketplace_sales_revision_boundary(uuid,uuid,bigint) SET search_path=public,pg_temp" to "ALTER FUNCTION validate_marketplace_sales_revision_boundary(uuid,uuid,bigint) SET search_path=pg_catalog,public,pg_temp",
+            "GRANT EXECUTE ON FUNCTION reject_marketplace_sales_history_mutation() TO PUBLIC" to "REVOKE EXECUTE ON FUNCTION reject_marketplace_sales_history_mutation() FROM PUBLIC",
+            "GRANT CREATE ON SCHEMA public TO PUBLIC" to "REVOKE CREATE ON SCHEMA public FROM PUBLIC",
+            "GRANT CREATE ON SCHEMA public TO room_qualification_outsider" to "REVOKE CREATE ON SCHEMA public FROM room_qualification_outsider",
+            "GRANT EXECUTE ON FUNCTION reject_marketplace_sales_history_mutation() TO room_qualification_outsider" to "REVOKE EXECUTE ON FUNCTION reject_marketplace_sales_history_mutation() FROM room_qualification_outsider",
+            "GRANT SELECT ON marketplace_sales_intelligence_revision TO room_qualification_outsider" to "REVOKE SELECT ON marketplace_sales_intelligence_revision FROM room_qualification_outsider",
+            "GRANT flooow_room_history_owner TO flooow_room_history_runtime" to "REVOKE flooow_room_history_owner FROM flooow_room_history_runtime",
+            "ALTER ROLE flooow_room_history_runtime CREATEDB" to "ALTER ROLE flooow_room_history_runtime NOCREATEDB",
+            "ALTER ROLE flooow_room_history_runtime BYPASSRLS" to "ALTER ROLE flooow_room_history_runtime NOBYPASSRLS",
+            "GRANT SELECT ON marketplace_economic_evidence_fact TO flooow_room_history_owner" to "REVOKE SELECT ON marketplace_economic_evidence_fact FROM flooow_room_history_owner; GRANT SELECT(organization_id,marketplace_order_id,fact_id,evidence_version,family,observed_at) ON marketplace_economic_evidence_fact TO flooow_room_history_owner",
+            "GRANT UPDATE ON marketplace_sales_intelligence_revision TO flooow_room_history_runtime" to "REVOKE UPDATE ON marketplace_sales_intelligence_revision FROM flooow_room_history_runtime",
+            "GRANT SELECT(manifest_digest) ON marketplace_sales_intelligence_revision TO PUBLIC" to "REVOKE SELECT(manifest_digest) ON marketplace_sales_intelligence_revision FROM PUBLIC",
+            "ALTER TABLE marketplace_sales_intelligence_projection DROP CONSTRAINT msi_current_revision_fk; ALTER TABLE marketplace_sales_intelligence_projection ADD CONSTRAINT msi_current_revision_fk FOREIGN KEY(current_revision_id) REFERENCES marketplace_sales_intelligence_revision(projection_revision)" to "ALTER TABLE marketplace_sales_intelligence_projection DROP CONSTRAINT msi_current_revision_fk; ALTER TABLE marketplace_sales_intelligence_projection ADD CONSTRAINT msi_current_revision_fk FOREIGN KEY(organization_id,marketplace_order_id,current_revision_id) REFERENCES marketplace_sales_intelligence_revision(organization_id,marketplace_order_id,projection_revision)",
+            "ALTER TABLE marketplace_sales_intelligence_revision DROP CONSTRAINT msi_revision_positive; ALTER TABLE marketplace_sales_intelligence_revision ADD CONSTRAINT msi_revision_positive CHECK(projection_revision>=0)" to "ALTER TABLE marketplace_sales_intelligence_revision DROP CONSTRAINT msi_revision_positive; ALTER TABLE marketplace_sales_intelligence_revision ADD CONSTRAINT msi_revision_positive CHECK(projection_revision>0)"
+        )
+        for((attack,restore) in attacks) {
+            assertEquals(RoomHistoryStartupStatus.READY,guard().verifyQualification(guardManifest()),attack)
+            try {
+                connection().use { c ->c.createStatement().use { it.execute(attack) } }
+                assertTrue(guard().verifyQualification(guardManifest())!=RoomHistoryStartupStatus.READY,attack)
+                assertIs<RoomHistoryWriterComposition.Blocked>(RoomHistoryWriterCompositionFactory(writerConfiguration).createQualification(guardManifest(),inputRepository(),feed()),attack)
+            } finally { connection().use { c ->c.createStatement().use { it.execute(restore) } } }
+        }
+        assertEquals(RoomHistoryStartupStatus.READY,guard().verifyQualification(guardManifest()))
+    }
+
+    @Test fun `STARTUP history missing unexpected failed checksum or script mismatch denies readiness`() {
+        val last=guardManifest().migrations.last()
+        val attacks=listOf(
+            "UPDATE flyway_schema_history SET version='TEST_ONLY_UNEXPECTED' WHERE version='${last.version}'" to "UPDATE flyway_schema_history SET version='${last.version}' WHERE version='TEST_ONLY_UNEXPECTED'",
+            "UPDATE flyway_schema_history SET checksum=123 WHERE version='${last.version}'" to "UPDATE flyway_schema_history SET checksum=${last.checksum} WHERE version='${last.version}'",
+            "UPDATE flyway_schema_history SET success=false WHERE version='${last.version}'" to "UPDATE flyway_schema_history SET success=true WHERE version='${last.version}'",
+            "UPDATE flyway_schema_history SET script='TEST_ONLY_WRONG_SCRIPT' WHERE version='${last.version}'" to "UPDATE flyway_schema_history SET script='${last.script}' WHERE version='${last.version}'"
+        )
+        for((attack,restore) in attacks) try {
+            connection().use { c ->c.createStatement().use { it.execute(attack) } }
+            assertEquals(RoomHistoryStartupStatus.MIGRATION_HISTORY_MISMATCH,guard().verifyQualification(guardManifest()))
+        } finally { connection().use { c ->c.createStatement().use { it.execute(restore) } } }
+        val manifest=guardManifest()
+        assertEquals(RoomHistoryStartupStatus.MIGRATION_HISTORY_MISMATCH,guard().verifyQualification(RoomHistoryStartupManifest(manifest.migrations.dropLast(1),manifest.catalog,manifest.runtimeIdentity,true)))
+    }
+
+    @Test fun `INTEGRATION matched producer persists unresolved ready incomplete correction and checkpoints`() {
+        val subject=scope();apply(subject,attempt(subject));val first=snapshot(subject)
+        val processor=matchedProcessor()
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(subject.organizationId,100))
+        assertEquals(first.triggerChangeSequence,checkpoint(subject))
+        val r1=assertIs<EconomicLineageReadResult.Found>(writer().findPublishedRevisionForTrigger(subject.organizationId,subject.orderId,first.triggerChangeSequence)).revision
+        assertIs<MarketplaceSalesIntelligenceState.Unresolved>(r1.snapshot.outcome)
+        val f1=fact(subject);apply(subject,MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(f1));val second=snapshot(subject)
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(subject.organizationId,100))
+        val r2=assertIs<EconomicLineageReadResult.Found>(writer().findPublishedRevisionForTrigger(subject.organizationId,subject.orderId,second.triggerChangeSequence)).revision
+        assertIs<MarketplaceEconomicTruthCalculationResult.Incomplete>(assertIs<MarketplaceSalesIntelligenceState.Calculated>(r2.snapshot.outcome).calculationResult)
+        val f2=fact(subject);apply(subject,MarketplaceIndependentEconomicEvidenceUpdate.Correct(MarketplaceEconomicEvidenceCorrection(observation(),subject,f2,f1.id,MarketplaceEconomicEvidenceCorrectionReason.SOURCE_CORRECTION,time)))
+        val third=snapshot(subject);assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(subject.organizationId,100))
+        val r3=assertIs<EconomicLineageReadResult.Found>(writer().findPublishedRevisionForTrigger(subject.organizationId,subject.orderId,third.triggerChangeSequence)).revision
+        assertTrue(r3.snapshot.members.any { it.contextRole==ConsumedEconomicEvidenceContextRole.HISTORICAL_SUPERSEDED_FACT })
+        assertEquals(r1.snapshot.manifestDigest,read(first,r1.revisionId).snapshot.manifestDigest)
+        assertEquals(r2.snapshot.manifestDigest,read(second,r2.revisionId).snapshot.manifestDigest)
+        assertEquals(third.triggerChangeSequence,checkpoint(subject))
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.NoChanges>(matchedProcessor().processBatch(subject.organizationId,100))
+        assertEquals(3L,counts(subject)["revision"])
+    }
+
+    @Test fun `INTEGRATION lost commit acknowledgement holds checkpoint and reconciles exact retry`() {
+        val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject)
+        val unknown=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{_,_->},{
+            val real=runtimeConnection()
+            Proxy.newProxyInstance(Connection::class.java.classLoader,arrayOf(Connection::class.java)) { _,method,args ->
+                try { val value=method.invoke(real,*(args ?: emptyArray()));if(method.name=="commit") throw SQLException("qualification lost commit ack","08006");value }
+                catch(e: InvocationTargetException) { throw e.targetException }
+            } as Connection
+        })
+        // Reconciliation uses a healthy independent reader, publication uses lost ack connection.
+        val port=object: MarketplaceSalesIntelligenceHistoryPublication {
+            override fun reconcile(change: MarketplaceEconomicEvidenceChange,expected: ConsumedEconomicEvidenceSnapshot?)=writer().reconcile(change,expected)
+            override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot,record: MarketplaceSalesIntelligenceProjectionRecord)=unknown.publish(snapshot,record)
+        }
+        val processor=MarketplaceSalesIntelligenceProjectionProcessor.historical(inputRepository(),feed(),port,java.time.Clock.fixed(time,java.time.ZoneOffset.UTC))
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired>(processor.processBatch(subject.organizationId,100))
+        assertEquals(ChangeSequenceCheckpoint.NONE,checkpoint(subject));assertEquals(1L,counts(subject)["revision_publication"])
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(subject.organizationId,100))
+        assertEquals(s.triggerChangeSequence,checkpoint(subject));assertEquals(1L,counts(subject)["revision"])
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.NoChanges>(matchedProcessor().processBatch(subject.organizationId,100))
+    }
+
+    @Test fun `INTEGRATION unknown with no commit safely retries same frozen input and rejects divergence`() {
+        val subject=scope();apply(subject,attempt(subject));var calls=0
+        val pairs=mutableListOf<ConsumedEconomicEvidenceSnapshot>()
+        val port=object: MarketplaceSalesIntelligenceHistoryPublication {
+            override fun reconcile(change: MarketplaceEconomicEvidenceChange,expected: ConsumedEconomicEvidenceSnapshot?)=writer().reconcile(change,expected)
+            override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot,record: MarketplaceSalesIntelligenceProjectionRecord): EconomicLineagePublicationResult {
+                pairs+=snapshot
+                if(calls++==0) return EconomicLineagePublicationResult.CommitOutcomeUnknown
+                return writer().publish(snapshot,record)
+            }
+        }
+        val processor=MarketplaceSalesIntelligenceProjectionProcessor.historical(inputRepository(),feed(),port)
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired>(processor.processBatch(subject.organizationId,100))
+        assertEquals(ChangeSequenceCheckpoint.NONE,checkpoint(subject));assertEquals(0L,counts(subject)["revision"])
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(subject.organizationId,100))
+        assertSame(pairs[0],pairs[1])
+        val s=pairs.last();val change=changeFor(s)
+        assertIs<EconomicLineageReconciliationResult.IntegrityFailure>(writer().reconcile(change,clone(s,projectedAt=s.projectedAt.plusSeconds(1))))
+        assertIs<EconomicLineageReconciliationResult.Known>(writer().reconcile(change,s))
+    }
+
+    @Test fun `INTEGRATION later verified winner and restart batch retry skip business recomputation`() {
+        val subject=scope();apply(subject,attempt(subject));val old=snapshot(subject);apply(subject,MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(fact(subject)));val newer=snapshot(subject);publish(newer)
+        val resolution=assertIs<EconomicLineageReconciliationResult.Known>(writer().reconcile(changeFor(old)))
+        assertIs<EconomicLineagePublicationResult.Superseded>(resolution.publication)
+        val repo=object: MarketplaceIndependentEconomicEvidenceRepository {
+            override fun find(subject: MarketplaceEconomicEvidenceSubject): MarketplaceIndependentEconomicEvidenceReadResult = error("winner retry must not assemble")
+            override fun apply(expectedVersion: MarketplaceEconomicEvidenceVersion,update: MarketplaceIndependentEconomicEvidenceUpdate): MarketplaceIndependentEconomicEvidencePersistResult = error("unused")
+        }
+        val processor=MarketplaceSalesIntelligenceProjectionProcessor.historical(repo,feed(),writer())
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(subject.organizationId,100))
+        assertEquals(newer.triggerChangeSequence,checkpoint(subject));assertEquals(1L,counts(subject)["revision"])
+    }
+
+    @Test fun `INTEGRATION multi order batch failure retains barrier and restart resumes known publications`() {
+        val first=scope();val second=first.copy(orderId=MarketplaceOrderId(uuid()),externalOrderId=MarketplaceExternalOrderId("batch-second"))
+        val third=first.copy(orderId=MarketplaceOrderId(uuid()),externalOrderId=MarketplaceExternalOrderId("batch-third"))
+        for(subject in listOf(first,second,third)) apply(subject,attempt(subject))
+        val expected=snapshot(third)
+        val port=object: MarketplaceSalesIntelligenceHistoryPublication {
+            override fun reconcile(change: MarketplaceEconomicEvidenceChange,expected: ConsumedEconomicEvidenceSnapshot?)=writer().reconcile(change,expected)
+            override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot,record: MarketplaceSalesIntelligenceProjectionRecord)=
+                if(snapshot.subject==third) EconomicLineagePublicationResult.CommitOutcomeUnknown else writer().publish(snapshot,record)
+        }
+        val processor=MarketplaceSalesIntelligenceProjectionProcessor.historical(inputRepository(),feed(),port)
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired>(processor.processBatch(first.organizationId,100))
+        assertEquals(ChangeSequenceCheckpoint.NONE,checkpoint(first));assertEquals(1L,counts(first)["revision"]);assertEquals(1L,counts(second)["revision"])
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(matchedProcessor().processBatch(first.organizationId,100))
+        assertEquals(expected.triggerChangeSequence,checkpoint(first));assertEquals(1L,counts(first)["revision"]);assertEquals(1L,counts(second)["revision"]);assertEquals(1L,counts(third)["revision"])
+    }
+
+    @Test fun `STARTUP body replacement and unavailable connection cannot authorize composition`() {
+        val source=candidate.substringAfter("CREATE FUNCTION validate_marketplace_sales_revision_boundary(").substringBefore("CREATE FUNCTION check_marketplace_sales_revision_boundary()")
+        val declaration="CREATE OR REPLACE FUNCTION validate_marketplace_sales_revision_boundary("+source.substringBefore("$$;")+"$$;"
+        val restored=declaration.replace("RETURNS void LANGUAGE plpgsql AS", "RETURNS void LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog,public,pg_temp AS")
+        try {
+            connection().use { c ->c.createStatement().use { it.execute("CREATE OR REPLACE FUNCTION validate_marketplace_sales_revision_boundary(org uuid,ord uuid,rev bigint) RETURNS void LANGUAGE plpgsql SECURITY INVOKER SET search_path=pg_catalog,public,pg_temp AS 'BEGIN RETURN; END'") } }
+            assertEquals(RoomHistoryStartupStatus.FUNCTION_MISMATCH,guard().verifyQualification(guardManifest()))
+        } finally { connection().use { c ->c.createStatement().use { it.execute(restored) } } }
+        assertEquals(RoomHistoryStartupStatus.READY,guard().verifyQualification(guardManifest()))
+        var acquired=0
+        val unavailable=RoomHistoryWriterStartupGuard { acquired++;throw SQLException("qualification unavailable") }
+        assertEquals(RoomHistoryStartupStatus.NOT_CONFIGURED,unavailable.verify(null));assertEquals(0,acquired)
+        assertEquals(RoomHistoryStartupStatus.UNAVAILABLE,unavailable.verifyQualification(guardManifest()));assertEquals(1,acquired)
+    }
+
+    @Test fun `INTEGRATION rollback integrity and thrown publication do not advance batch cursor`() {
+        val subject=scope();apply(subject,attempt(subject));val failed=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{stage,_->if(stage==EconomicLineageWriteStage.AFTER_HEADER) throw SQLException("qualification rollback")},{runtimeConnection()})
+        val processor=MarketplaceSalesIntelligenceProjectionProcessor.historical(inputRepository(),feed(),failed)
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(processor.processBatch(subject.organizationId,100))
+        assertEquals(ChangeSequenceCheckpoint.NONE,checkpoint(subject));assertEquals(0L,counts(subject)["revision"])
+        val throwing=object: MarketplaceSalesIntelligenceHistoryPublication {
+            override fun reconcile(change: MarketplaceEconomicEvidenceChange,expected: ConsumedEconomicEvidenceSnapshot?)=writer().reconcile(change,expected)
+            override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot,record: MarketplaceSalesIntelligenceProjectionRecord): EconomicLineagePublicationResult = throw SQLException("unacknowledged submission")
+        }
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired>(MarketplaceSalesIntelligenceProjectionProcessor.historical(inputRepository(),feed(),throwing).processBatch(subject.organizationId,100))
+        assertEquals(ChangeSequenceCheckpoint.NONE,checkpoint(subject));assertEquals(0L,counts(subject)["revision"])
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(matchedProcessor().processBatch(subject.organizationId,100))
+    }
+
+    @Test fun `INTEGRATION concurrent matched processors publish once and covered unknown still reconciles`() {
+        val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject)
+        val first=matchedProcessor();val second=matchedProcessor();val pool=Executors.newFixedThreadPool(2);val go=CountDownLatch(1)
+        try {
+            val futures=listOf(first,second).map { p ->pool.submit<MarketplaceSalesIntelligenceProjectionProcessorResult> { assertTrue(go.await(10,TimeUnit.SECONDS));p.processBatch(subject.organizationId,100) } }
+            go.countDown();futures.forEach { result ->val r=result.get(30,TimeUnit.SECONDS);assertTrue(r is MarketplaceSalesIntelligenceProjectionProcessorResult.Success || r==MarketplaceSalesIntelligenceProjectionProcessorResult.NoChanges) }
+        } finally { go.countDown();pool.shutdownNow() }
+        assertEquals(1L,counts(subject)["revision"]);assertEquals(s.triggerChangeSequence,checkpoint(subject))
+        // A different subject holds an actual committed publication behind a lost
+        // acknowledgement, then another matched worker advances its known cursor.
+        val other=scope();apply(other,attempt(other))
+        val port=object: MarketplaceSalesIntelligenceHistoryPublication {
+            override fun reconcile(change: MarketplaceEconomicEvidenceChange,expected: ConsumedEconomicEvidenceSnapshot?)=writer().reconcile(change,expected)
+            override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot,record: MarketplaceSalesIntelligenceProjectionRecord): EconomicLineagePublicationResult {
+                assertIs<EconomicLineagePublicationResult.Published>(writer().publish(snapshot,record))
+                return EconomicLineagePublicationResult.CommitOutcomeUnknown
+            }
+        }
+        val held=MarketplaceSalesIntelligenceProjectionProcessor.historical(inputRepository(),feed(),port,java.time.Clock.fixed(time,java.time.ZoneOffset.UTC))
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired>(held.processBatch(other.organizationId,100))
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(matchedProcessor().processBatch(other.organizationId,100))
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.NoChanges>(held.processBatch(other.organizationId,100))
+        assertEquals(1L,counts(other)["revision"])
+        assertIs<MarketplaceSalesIntelligenceProjectionReadResult.Success<MarketplaceSalesIntelligenceProjectionRecord?>>(PostgresMarketplaceSalesIntelligenceProjection(writerConfiguration).currentBySubject(other.organizationId,other.orderId))
     }
 
 }

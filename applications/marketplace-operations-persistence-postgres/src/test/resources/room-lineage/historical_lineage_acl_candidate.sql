@@ -6,7 +6,7 @@ DO $$ BEGIN
     END IF;
 END $$;
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
-GRANT USAGE ON SCHEMA public TO flooow_room_history_runtime;
+GRANT USAGE ON SCHEMA public TO flooow_room_history_runtime, flooow_room_history_owner;
 
 ALTER TABLE public.marketplace_sales_intelligence_revision OWNER TO flooow_room_history_owner;
 ALTER TABLE public.marketplace_sales_intelligence_revision_observation OWNER TO flooow_room_history_owner;
@@ -70,3 +70,10 @@ GRANT SELECT (organization_id,marketplace_order_id,correction_id,evidence_versio
 -- GENERATED ALWAYS identity allocation needs no runtime sequence grant.
 -- No DELETE/UPDATE/TRUNCATE/TRIGGER history, receipt INSERT, owner membership,
 -- schema CREATE, source payload SELECT, setval or general EXECUTE is granted.
+
+-- Matched producer/feed checkpoint port: no raw source payload privileges.
+GRANT SELECT (organization_id) ON public.integration_organization TO flooow_room_history_runtime;
+GRANT SELECT, INSERT ON public.marketplace_economic_evidence_projection_checkpoint TO flooow_room_history_runtime;
+GRANT UPDATE (last_change_sequence) ON public.marketplace_economic_evidence_projection_checkpoint TO flooow_room_history_runtime;
+GRANT SELECT (installed_rank,version,type,script,checksum,success,description) ON public.flyway_schema_history TO flooow_room_history_runtime;
+GRANT SELECT (update_id,change_kind) ON public.marketplace_economic_evidence_update TO flooow_room_history_runtime;

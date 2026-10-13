@@ -393,6 +393,39 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
         clock = clock
     )
 
+    @Test fun `history submits the observed frozen pair once without legacy writes`() {
+        val subject=subject(908);val repository=MutableRepository();repository.put(subject,versioned(withOccurrence(subject),1))
+        val feed=FakeFeed(mutableListOf(change(subject,1,1)));val legacy=FakeProjection()
+        var observed: ConsumedEconomicEvidenceSnapshot?=null;var calculations=0
+        val port=object: MarketplaceSalesIntelligenceHistoryPublication {
+            override fun reconcile(change: MarketplaceEconomicEvidenceChange, expected: ConsumedEconomicEvidenceSnapshot?) = EconomicLineageReconciliationResult.Absent
+            override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot, record: MarketplaceSalesIntelligenceProjectionRecord): EconomicLineagePublicationResult {
+                kotlin.test.assertSame(observed,snapshot);assertEquals(snapshot.outcome,record.state);assertEquals(snapshot.projectedAt,record.projectedAt)
+                return EconomicLineagePublicationResult.Published(1)
+            }
+        }
+        val processor=MarketplaceSalesIntelligenceProjectionProcessor(repository,feed,legacy,clock,
+            calculator={ calculations++;io.flooow.marketplace.operations.economics.MarketplaceEconomicTruthCalculator.calculate(it) },
+            snapshotObserver={observed=it},historyPublication=port)
+        assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.Success>(processor.processBatch(organization,10))
+        assertEquals(1,calculations);assertEquals(1,repository.findCalls);assertTrue(legacy.records.isEmpty())
+    }
+
+    @Test fun `history failures unknown exceptions and unverified superseded never advance`() {
+        for(result in listOf(EconomicLineagePublicationResult.IntegrityFailure,EconomicLineagePublicationResult.CommitOutcomeUnknown,EconomicLineagePublicationResult.Superseded(null))) {
+            val subject=subject(909);val repository=MutableRepository();repository.put(subject,versioned(withOccurrence(subject),1))
+            val feed=FakeFeed(mutableListOf(change(subject,1,1)))
+            val port=object: MarketplaceSalesIntelligenceHistoryPublication {
+                override fun reconcile(change: MarketplaceEconomicEvidenceChange, expected: ConsumedEconomicEvidenceSnapshot?) = EconomicLineageReconciliationResult.Absent
+                override fun publish(snapshot: ConsumedEconomicEvidenceSnapshot, record: MarketplaceSalesIntelligenceProjectionRecord) = result
+            }
+            val p=MarketplaceSalesIntelligenceProjectionProcessor.historical(repository,feed,port,clock)
+            if(result==EconomicLineagePublicationResult.CommitOutcomeUnknown) assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.ReconciliationRequired>(p.processBatch(organization,10))
+            else assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(p.processBatch(organization,10))
+            assertEquals(ChangeSequenceCheckpoint.NONE,feed.checkpoint)
+        }
+    }
+
     private fun subject(
         seed: Long,
         organizationId: OrganizationId = organization
