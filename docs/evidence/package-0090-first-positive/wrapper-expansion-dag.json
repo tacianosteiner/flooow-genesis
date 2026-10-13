@@ -1,0 +1,307 @@
+{
+  "status": "SOURCE_DERIVED_PLAN_NOT_EXECUTED",
+  "provenance": "SPEC-0090 sections8/10/11/21.1; all nodes additionally require exact R/M/READY/policy/current original authority guards",
+  "nodes": [
+    {
+      "id": "S04",
+      "wrapper_signature": "public.offline_read_history(uuid,bytea,uuid,text)",
+      "caller": "AUDITOR",
+      "predecessors": [],
+      "authority_guard_class": "R",
+      "mutating": false,
+      "physical_write_effects": "NONE",
+      "expected_logical_output": "complete ordered history; no writes",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S01",
+      "wrapper_signature": "public.offline_preflight(uuid,bytea,uuid,text,bytea,bytea,bytea)",
+      "caller": "AUDITOR",
+      "predecessors": [],
+      "authority_guard_class": "R",
+      "mutating": false,
+      "physical_write_effects": "NONE",
+      "expected_logical_output": "authenticated scope receipt; no writes",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S02",
+      "wrapper_signature": "public.offline_inspect(uuid,bytea,uuid,text)",
+      "caller": "AUDITOR",
+      "predecessors": [],
+      "authority_guard_class": "R",
+      "mutating": false,
+      "physical_write_effects": "NONE",
+      "expected_logical_output": "bounded domain/control inspection; no writes",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S03",
+      "wrapper_signature": "public.offline_reconcile(uuid,bytea,uuid,text)",
+      "caller": "AUDITOR",
+      "predecessors": [],
+      "authority_guard_class": "R",
+      "mutating": false,
+      "physical_write_effects": "NONE",
+      "expected_logical_output": "bounded reconciliation snapshot; no result recording",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S13",
+      "wrapper_signature": "public.offline_claim_attempt(uuid,bytea,uuid,text,int8,uuid,uuid,bytea,bytea)",
+      "caller": "EXECUTOR",
+      "predecessors": [
+        "S01"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "CLAIMED/OWNED, original possession/deadlines",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S05",
+      "wrapper_signature": "public.offline_begin_verification(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "VERIFIER",
+      "predecessors": [
+        "S13"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "frozen verification begin/replay projection",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S06",
+      "wrapper_signature": "public.offline_persist_verification(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "VERIFIER",
+      "predecessors": [
+        "S05"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "verified original evidence/receipt, effects progress",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S07",
+      "wrapper_signature": "public.offline_begin_principal(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "ISSUER",
+      "predecessors": [
+        "S06"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "principal verification projection",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S08",
+      "wrapper_signature": "public.offline_apply_principal(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "ISSUER",
+      "predecessors": [
+        "S07"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "exact principal/operation receipt",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S09",
+      "wrapper_signature": "public.offline_begin_initial_credential(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "ISSUER",
+      "predecessors": [
+        "S08"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "fresh credential-origin verification",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S10",
+      "wrapper_signature": "public.offline_apply_initial_credential(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "ISSUER",
+      "predecessors": [
+        "S09"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "credential receipt and CREATED_NOT_DELIVERABLE",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S14",
+      "wrapper_signature": "public.offline_claim_attempt(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,uuid,uuid)",
+      "caller": "EXECUTOR",
+      "predecessors": [
+        "S10"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "one delivery consumption, DELIVERY_ATTEMPTED",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S15",
+      "wrapper_signature": "public.offline_claim_attempt(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,text,timestamptz,text)",
+      "caller": "EXECUTOR",
+      "predecessors": [
+        "S14"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "bounded original delivery outcome report",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S11",
+      "wrapper_signature": "public.offline_begin_grant(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "ISSUER",
+      "predecessors": [
+        "S15"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "requires exact DELIVERY_ACKNOWLEDGED",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S12",
+      "wrapper_signature": "public.offline_apply_grant(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,bytea)",
+      "caller": "ISSUER",
+      "predecessors": [
+        "S11"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "original grant/operation receipt",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S16",
+      "wrapper_signature": "public.offline_authenticate_command(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,int4,bytea)",
+      "caller": "EXECUTOR",
+      "predecessors": [
+        "S12"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "bound admission, current authority and possession",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S17",
+      "wrapper_signature": "public.offline_prepare_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+      "caller": "EXECUTOR",
+      "predecessors": [
+        "S16"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "bounded decision/JCA projection",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    },
+    {
+      "id": "S18",
+      "wrapper_signature": "public.offline_apply_attested_decision(uuid,bytea,uuid,text,uuid,int8,uuid,uuid,bytea,uuid,bytea)",
+      "caller": "EXECUTOR",
+      "predecessors": [
+        "S17"
+      ],
+      "authority_guard_class": "M",
+      "mutating": "M_GUARDED_POTENTIALLY_WRITING_OR_LOCKING",
+      "physical_write_effects": "SOURCE_TRAJECTORY_QUALIFICATION_PENDING",
+      "expected_logical_output": "decision/head + consumed admission + completion/reconciliation required",
+      "new_semantic_groups": "UNPROVEN_RUNTIME_DEPENDENT",
+      "fixture_dependencies": [
+        "governed ACTIVE foundation",
+        "exact original stage/possession/authority inputs where M applies"
+      ]
+    }
+  ],
+  "count": 18,
+  "execution_authority": "BLOCKED",
+  "terminal_or_expired_readers": "R ignores mutation expiry but still requires authentic slot/current READY/effective read policy"
+}
