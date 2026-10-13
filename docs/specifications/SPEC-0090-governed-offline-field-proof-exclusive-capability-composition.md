@@ -2560,3 +2560,16 @@ DELIVERY_ACKNOWLEDGED prerequisite already mandatory in I5 and section8's M
 contract. The existing S07-S12 delivery lock and I column privileges are unchanged.
 This aligns entrypoint labels with the previously authorized mandatory guard;
 no new grant, helper, public projection, owner or execution capability is added.
+
+## Disposable source-body qualification status — 2026-10-13
+
+[Consolidated executed evidence](../evidence/PACKAGE-0090-V043-semantic-integrated-closure.md)
+qualifies the exact fence-only test body on PostgreSQL 18.4 after exact V001–V042,
+without a V043 Flyway success row or numeric policy row. The 18 wrappers explicitly
+deny NULL and unbound bootstrap requests; restricted ACL negatives and native
+crypto vectors pass. This does not close successful authentic-slot semantics,
+all effective ACLs, full installed crypto/provider provenance, DML/lock/control
+trajectories, ACTIVE restart/failure behavior or independent integrated witness.
+The four-site NULLIF candidate-type correction yields 174 source call shapes,
+none fully semantically bound. SOURCE_PROMOTION_READY=NO; all frozen migrations,
+authority separation and canonical execution interlock remain unchanged.
