@@ -1,0 +1,1346 @@
+FLOOOW — PACKAGE 0090
+AUTHORIZED TEST-ONLY ACTIVATION + NATIVE HEALTH
++ LEGITIMATE READINESS + FIRST S04 POSITIVE
+
+Repository:
+tacianosteiner/flooow-genesis
+
+TARGET BRANCH:
+checkpoint/package-0090-cloud-handoff
+
+Expected baseline:
+caef8dd8a964a9eb173deda40f85449b43b970dd
+
+CANONICAL V043 SHA-256:
+b0ea86b6ba355fdf25fe09836bd4b75e4a4a2ad88ab7ef0e4724ca0d5a013e7d
+
+============================================================
+EXPLICIT USER AUTHORITY
+============================================================
+
+The user has explicitly approved:
+
+DECISION_ID=
+TEST_ONLY/0090/activation-and-native-health/s04/v1
+
+Scope:
+Disposable TEST qualification only for:
+
+public.offline_read_history(uuid,bytea,uuid,text)
+
+Caller:
+test_0090_audit
+
+Authorized TEST-only decisions:
+
+1. policy activation recipe:
+   TEST_ONLY/0090/activation/db-clock-in-transaction/v1
+
+2. effective_from:
+   capture exactly once via pg_catalog.clock_timestamp()
+   inside ADMIN registration transaction,
+   timestamptz(6),
+   zero offset.
+
+3. independent immutable TEST_ONLY identities:
+   approval_id
+   change_id
+   approving actor
+
+4. trusted TEST administrative audit external to operational Package tables,
+   append-only, hash-chained or equivalent tamper-evident mechanism.
+
+5. TEST_ONLY native-health harness for exactly:
+   POSTMASTER
+   SUPERVISOR
+   RECEIVER
+   CENSUS_OBSERVER
+   APPROVAL_PRODUCER
+   APPROVAL_CONSUMER
+   ENFORCEMENT_WORKER
+
+   with:
+   HEALTH_GUARD = independent observer
+   HOST_PLATFORM = trusted qualification root
+
+6. TEST_ONLY:
+   generation ledger
+   enrollment
+   authenticated channel
+   participant/process identity
+   functional-work witness
+   dependency/catalog binding
+   freshness
+   restart/replacement semantics
+
+7. existing approved fixture-1 values:
+   TTL=1000000us
+   APPROVED_MAX=2000000us
+
+8. approved positive/negative qualification campaigns.
+
+9. readiness may be created only after:
+   TEST_POLICY_ACTIVATION_PROVEN=YES
+   FIRST_PATH_NATIVE_HEALTH_READY=YES
+
+10. after legitimate readiness:
+    atomic header + original signed attestation registration
+    auditor slot authentication
+    ACTIVE_FIXTURE_PRECHECK=PASS
+    direct S04 execution as test_0090_audit
+    exact 42-row comparison
+    sibling/search-path attacks
+    first real semantic BOUND contexts
+
+============================================================
+EXPLICIT NON-AUTHORITY
+============================================================
+
+The authorization DOES NOT permit:
+
+CANONICAL_V043_MUTATION
+V043_FENCE_REMOVAL
+CANONICAL_V043_EXECUTION
+V001_V042_CHANGE
+PRODUCTION_CONTACT
+SHARED_DB_CONTACT
+PRODUCTION_POLICY
+PRODUCTION_KEYS
+FIELD_AUTHORITY
+EXECUTION_AUTHORITY
+RECOVERY_AUTHORITY
+ROOM_OPERATIONAL
+V043_PROMOTION
+PRODUCTION_ACTIVATION
+
+These remain NO/BLOCKED.
+
+============================================================
+MISSION
+============================================================
+
+Execute the previously blocked qualification tranche now that bounded TEST
+authority exists.
+
+Primary goals:
+
+TEST_POLICY_ACTIVATION_PROVEN=YES
+FIRST_PATH_NATIVE_HEALTH_READY=YES
+READINESS_CREATED=YES
+IMMUTABLE_HEADER_REGISTERED=YES
+ORIGINAL_ATTESTATION_REGISTERED=YES
+AUDITOR_SLOT_AUTHENTIC=YES
+ACTIVE_FIXTURE_PRECHECK=PASS
+
+FIRST_AUTHENTIC_POSITIVE_EXECUTED=YES
+FIRST_AUTHENTIC_POSITIVE_PASS=YES
+S04_ACTUAL_ROWS=42
+S04_EXACT_HISTORY_MATCH=YES
+
+Then bind only the S04 semantic contexts actually proven.
+
+============================================================
+PHASE 0 — BASELINE
+============================================================
+
+git fetch origin
+
+Verify:
+
+branch
+HEAD
+origin HEAD
+status
+diff
+worktrees
+
+Require:
+
+BRANCH=checkpoint/package-0090-cloud-handoff
+HEAD=caef8dd8a964a9eb173deda40f85449b43b970dd
+HEAD == REMOTE
+TRACKED_DIRTY=0
+STAGED=0
+
+Preserve all authorized evidence.
+
+Read-only verify:
+
+origin/main
+origin/feature/room-v2-executive-product-evolution
+origin/research/global-commerce-signal-intelligence
+
+============================================================
+PHASE 1 — ADOPT THE TEST-ONLY DECISION
+============================================================
+
+Promote the previously proposed amendment from:
+
+PROPOSED_NOT_APPROVED
+
+to:
+
+APPROVED_TEST_ONLY
+
+for exactly:
+
+TEST_ONLY/0090/activation-and-native-health/s04/v1
+
+Update ADR-0090 and SPEC-0090 with the accepted bounded decision.
+
+Do not change production contracts beyond recording the TEST-only exception.
+
+Explicitly state:
+
+PRODUCTION_AUTHORITY=NO
+MIGRATION_AUTHORITY=NO
+FIELD_AUTHORITY=NO
+EXECUTION_AUTHORITY=NO
+RECOVERY_AUTHORITY=NO
+
+Record the exact user-authorized scope.
+
+============================================================
+PHASE 2 — FREEZE TEST APPROVAL IDENTITIES
+============================================================
+
+Create immutable TEST-only identities:
+
+approval_id
+change_id
+approving_actor
+
+Use deterministic identifiers derived from an explicit TEST namespace and
+accepted decision identity, or another existing repository-consistent
+deterministic mechanism.
+
+Do not derive them from:
+
+postgres owner
+commit author
+production identities
+service login OID
+VECTOR_1 business IDs
+
+Freeze:
+
+decision_id
+approval_id
+change_id
+approving_actor
+scope
+baseline HEAD
+V043 hash
+fixture-1 policy version
+fixture-1 policy digest
+activation recipe identity
+
+Store only non-secret identifiers.
+
+============================================================
+PHASE 3 — TRUSTED TEST ADMIN AUDIT IMPLEMENTATION
+============================================================
+
+Implement an external qualification audit store outside Package operational
+tables.
+
+Requirements:
+
+append-only
+tamper-evident hash chain or equivalent
+TEST_ONLY scope
+no secrets
+no private keys
+no production credentials
+
+Each record must bind:
+
+sequence
+previous_hash
+record_hash
+decision_id
+approval_id
+change_id
+actor
+deployment_id
+incarnation_id
+policy_version
+policy_digest
+effective_from
+activation_recipe
+transaction_identity
+status
+
+Statuses:
+
+PREPARED
+COMMITTED
+ROLLED_BACK
+UNKNOWN
+
+Add exact timestamps.
+
+Hash canonical serialized bytes.
+
+Validate entire chain before it can be consumed as eligibility evidence.
+
+No rewrite/update of old audit records.
+
+============================================================
+PHASE 4 — AUDIT FAILURE SEMANTICS
+============================================================
+
+Test external audit behavior:
+
+missing PREPARED
+bad previous hash
+modified record
+duplicate sequence
+divergent record
+COMMITTED without PREPARED
+wrong decision ID
+wrong target
+wrong policy digest
+UNKNOWN outcome
+missing final reconciliation
+
+All must deny readiness.
+
+Set:
+
+TEST_ADMIN_AUDIT_CONTRACT_READY=YES only after executable proof.
+
+============================================================
+PHASE 5 — POLICY ACTIVATION
+============================================================
+
+Implement:
+
+TEST_ONLY/0090/activation/db-clock-in-transaction/v1
+
+Inside ADMIN policy registration transaction:
+
+1. BEGIN
+2. capture pg_catalog.clock_timestamp() exactly once
+3. cast/store as timestamptz(6)
+4. encode same instant as exact signed epoch microseconds
+5. verify round trip
+6. bind to external PREPARED audit record
+7. insert exact fixture-1 policy
+8. commit
+9. reconcile DB commit with audit
+10. append COMMITTED or ROLLED_BACK/UNKNOWN
+
+effective_from =
+captured timestamp
+offset = 0
+
+Do not recapture on retry.
+
+Exact replay must reconcile existing registration and original activation instant.
+
+Divergent replay must fail.
+
+============================================================
+PHASE 6 — ACTIVATION TEST MATRIX
+============================================================
+
+Run at least:
+
+valid registration
+missing approval
+wrong approval
+missing change identity
+wrong change identity
+wrong actor
+wrong decision
+wrong policy digest
+wrong policy version
+future mismatched activation
+NULL activation
+duplicate exact replay
+divergent replay
+audit tamper
+commit/audit uncertainty
+
+Target:
+
+TEST_POLICY_ACTIVATION_PROVEN=YES
+
+No readiness yet.
+
+============================================================
+PHASE 7 — NATIVE HEALTH HARNESS IMPLEMENTATION
+============================================================
+
+Implement only TEST harness semantics authorized by the decision.
+
+Participants exactly:
+
+POSTMASTER
+SUPERVISOR
+RECEIVER
+CENSUS_OBSERVER
+APPROVAL_PRODUCER
+APPROVAL_CONSUMER
+ENFORCEMENT_WORKER
+
+Observer:
+
+HEALTH_GUARD
+
+Trusted root:
+
+HOST_PLATFORM
+
+Create an external qualification generation ledger.
+
+It is NOT a production generation schema.
+
+For every participant store:
+
+participant identity
+generation
+process identity
+pid/start identity
+host/container identity
+binary identity/hash where applicable
+enrollment record
+authenticated channel identity
+functional work request identity
+functional work result
+dependency/catalog identity
+observation time
+observer identity
+
+============================================================
+PHASE 8 — ENROLLMENT
+============================================================
+
+For each participant:
+
+establish actual process/session identity
+assign a fresh generation
+bind it to HOST_PLATFORM observation
+enroll before health eligibility
+bind exact dependencies
+bind exact catalog expectations
+
+Do not use:
+
+healthy=true
+alive=true
+heartbeat=true
+
+as eligibility proof.
+
+Enrollment alone is not health.
+
+============================================================
+PHASE 9 — AUTHENTICATED CHANNEL
+============================================================
+
+Implement the bounded TEST authenticated channel allowed by the amendment.
+
+Use the existing design's framing/counter/channel semantics as far as defined.
+
+Where SCM_RIGHTS/pidfd anchoring is specified and available in the disposable
+Linux environment, use actual OS semantics.
+
+Do not claim Windows host process identity as the participant proof when the
+participant lives inside the Linux qualification environment.
+
+Bind:
+
+sender identity
+receiver/observer identity
+generation
+counter/replay state
+process anchor
+
+Reject replay/out-of-generation messages.
+
+============================================================
+PHASE 10 — FUNCTIONAL WORK
+============================================================
+
+For every participant execute real functional work appropriate to its role.
+
+No heartbeat-only evidence.
+
+Map exact contract-required functional operation from NATIVE-HEALTH design.
+
+At minimum the first S04 readiness path must have all seven participant
+requirements satisfied because the approved decision does not exempt a subset.
+
+Capture:
+
+request
+result
+generation
+dependency
+catalog
+timestamp
+observer
+
+============================================================
+PHASE 11 — HEALTH GUARD INDEPENDENCE
+============================================================
+
+HEALTH_GUARD must independently observe/correlate participant evidence.
+
+It must not trust a participant's own boolean result.
+
+Correlate:
+
+actual process/session identity
+generation
+authenticated observation
+functional result
+dependency/catalog
+freshness
+HOST_PLATFORM anchor
+
+Set:
+
+NATIVE_HEALTH_OBSERVER_INDEPENDENT=YES only with actual executable evidence.
+
+============================================================
+PHASE 12 — HEALTH FRESHNESS
+============================================================
+
+Use only approved temporal semantics.
+
+Existing fixture-1 watchdog:
+
+actual=100us
+approved maximum=200us
+
+Do not invent another window.
+
+Where the native-health contract lacks an independently adopted different
+participant window, do not silently create one.
+
+Design the harness execution tightly enough to observe within the approved
+S04 readiness boundary if semantically valid.
+
+Capture actual DB/monotonic times precisely.
+
+============================================================
+PHASE 13 — NATIVE HEALTH NEGATIVE CAMPAIGN
+============================================================
+
+Execute:
+
+participant missing
+wrong participant
+wrong generation
+not enrolled
+stale observation
+future observation where applicable
+replayed observation
+wrong binary/process identity
+wrong host identity
+wrong dependency
+wrong catalog
+unauthenticated channel
+failed functional work
+heartbeat-only
+cross-participant evidence
+observer unavailable
+host-root mismatch
+
+All expected denials must pass.
+
+Set:
+
+FIRST_PATH_NATIVE_HEALTH_READY=YES
+
+only after complete positive + negative campaign.
+
+Do not automatically set:
+
+FULL_PACKAGE_NATIVE_HEALTH_READY=YES
+
+unless all Package-wide requirements were in fact exercised.
+
+============================================================
+PHASE 14 — LEGITIMATE READINESS CREATION
+============================================================
+
+Proceed only if:
+
+TEST_POLICY_ACTIVATION_PROVEN=YES
+TEST_ADMIN_AUDIT_CONTRACT_READY=YES
+FIRST_PATH_NATIVE_HEALTH_READY=YES
+NATIVE_HEALTH_OBSERVER_INDEPENDENT=YES
+
+Construct readiness through the actual Package contract.
+
+Readiness must bind:
+
+deployment
+incarnation
+policy version
+policy digest
+history expectation
+ACL expectation
+participant identities
+participant generations
+health evidence
+catalog/dependency identity
+activation audit provenance
+time/freshness
+
+Do not INSERT arbitrary READY merely to satisfy FK.
+
+============================================================
+PHASE 15 — READINESS NEGATIVE MATRIX
+============================================================
+
+Attack one dimension at a time:
+
+policy inactive
+wrong policy
+wrong policy digest
+audit missing
+audit tampered
+participant missing
+generation stale
+health stale
+catalog mismatch
+history mismatch
+ACL mismatch
+incarnation mismatch
+deployment mismatch
+
+Expected:
+
+readiness denied/not eligible.
+
+Then restore exact valid state in disposable environment.
+
+Set:
+
+READINESS_NEGATIVE_TESTS_PASS=YES
+
+============================================================
+PHASE 16 — IMMUTABLE HEADER + ORIGINAL ATTESTATION
+============================================================
+
+With legitimate readiness parent:
+
+register:
+
+immutable binding header
++
+expected original signed attestation
+
+in one transaction as already contracted.
+
+Use the same frozen original signed material from the prior preparation unless
+the accepted fixture contract requires a fresh TEST-only key for this run.
+
+Verify:
+
+header row
+expected original row
+lifecycle
+FKs
+canonical bytes
+manifest digest
+signature
+fingerprint
+readiness reference
+policy reference
+
+No partial row on failure.
+
+Set:
+
+IMMUTABLE_HEADER_REGISTERED=YES
+ORIGINAL_ATTESTATION_REGISTERED=YES
+
+============================================================
+PHASE 17 — AUDITOR SLOT
+============================================================
+
+Create/bind actual `test_0090_audit` using the canonical TEST-only slot mechanism.
+
+Connect independently as that LOGIN.
+
+Prove:
+
+SESSION_USER=test_0090_audit
+CURRENT_USER=test_0090_audit
+expected role OID
+LOGIN
+NOINHERIT
+NOSUPERUSER
+NOCREATEDB
+NOCREATEROLE
+NOREPLICATION
+NOBYPASSRLS
+zero unexpected memberships
+exact slot binding
+exact deployment/incarnation
+exact policy/readiness references
+
+No postgres SET ROLE.
+
+Set:
+
+AUDITOR_SLOT_AUTHENTIC=YES
+
+============================================================
+PHASE 18 — ACTIVE FIXTURE PRECHECK
+============================================================
+
+Independently verify:
+
+policy ACTIVE
+audit chain valid
+readiness eligible
+native health fresh
+header exact
+original attestation exact
+auditor slot authentic
+history exact
+ACL exact
+no extra grants
+time windows valid
+
+Set:
+
+ACTIVE_FIXTURE_PRECHECK=PASS
+
+If anything fails:
+STOP before S04.
+
+============================================================
+PHASE 19 — S04 EXPECTATION
+============================================================
+
+Reuse the independently frozen expected 42 rows.
+
+Recompute only from immutable source if needed and verify unchanged.
+
+Expected:
+
+rank
+version
+type
+script
+checksum
+success
+
+Do not copy expectations from actual database output.
+
+S04_EXPECTED_ROWS=42
+
+============================================================
+PHASE 20 — EXECUTE S04
+============================================================
+
+Direct connection as:
+
+test_0090_audit
+
+Use:
+
+REPEATABLE READ
+READ ONLY
+
+Invoke exactly:
+
+public.offline_read_history(uuid,bytea,uuid,text)
+
+with frozen valid inputs.
+
+Capture:
+
+SESSION_USER
+CURRENT_USER
+backend PID
+tx isolation
+read-only flag
+input hashes
+returned rows
+SQLSTATE
+duration
+
+Compare exact row ordering and values.
+
+Require:
+
+S04_ACTUAL_ROWS=42
+S04_EXACT_HISTORY_MATCH=YES
+
+Then:
+
+FIRST_AUTHENTIC_POSITIVE_EXECUTED=YES
+FIRST_AUTHENTIC_POSITIVE_PASS=YES
+
+============================================================
+PHASE 21 — S04 NEGATIVE SIBLINGS
+============================================================
+
+With otherwise-valid ACTIVE state execute:
+
+wrong caller
+wrong organization/scope
+wrong binding
+wrong deployment
+wrong incarnation
+wrong plan fingerprint
+NULL inputs
+wrong policy reference
+stale readiness
+wrong participant generation
+tampered audit
+inactive policy
+
+Capture expected semantic class for each.
+
+Set:
+
+S04_SIBLING_ATTACKS_PASS=YES
+
+============================================================
+PHASE 22 — SEARCH PATH / OVERLOAD ATTACKS
+============================================================
+
+In disposable environment, with legitimate positive state:
+
+pg_temp shadow
+public shadow under controlled privileged mutation
+same-name overload
+implicit-cast lure
+
+Do not grant attacker CREATE to operational user.
+
+Validate that S04 either:
+
+still resolves canonical path
+
+or
+
+fails closed.
+
+Set:
+
+S04_SEARCH_PATH_ATTACKS_PASS=YES
+
+============================================================
+PHASE 23 — S04 SOURCE ADDENDUM RUNTIME BINDING
+============================================================
+
+Use the already created S04 addendum:
+
+S04_CALL_SITES=45
+S04_CANDIDATE_CONTEXTS=33 static unvalidated groups
+
+Now runtime-bind them.
+
+For every exercised context prove:
+
+actual resolved function/operator
+OID/signature
+argument SQL types
+casts
+effective identity
+SECURITY DEFINER/INVOKER
+search_path
+NULL behavior
+consumer behavior
+authority consequence
+
+If a static group must split:
+split honestly and update denominator.
+
+Do not preserve 33 artificially.
+
+============================================================
+PHASE 24 — BIND ONLY PROVEN S04 CONTEXTS
+============================================================
+
+Set BOUND only when all mandatory semantic dimensions are proven.
+
+Return:
+
+S04_FINAL_CONTEXTS=
+S04_CONTEXTS_BOUND=
+S04_CONTEXTS_UNBOUND=
+
+Update successor global ledger:
+
+BASE_GLOBAL_CANDIDATE_CONTEXTS=818
++
+S04 final nonduplicate contexts
+
+Do not rewrite original 818 artifact.
+
+Set:
+
+GLOBAL_BOUND_CALL_SHAPES=
+GLOBAL_UNBOUND_CALL_SHAPES=
+
+============================================================
+PHASE 25 — S04 NULL / CONSUMER MATRIX
+============================================================
+
+For every S04 context requiring state semantics prove:
+
+TRUE
+FALSE
+NULL
+ABSENT
+DENIED
+EXPIRED/STALE
+other actual contract state
+
+Map:
+
+callee
+result
+consumer
+wrapper outcome
+authority consequence
+
+Set:
+
+S04_NULL_CONSUMER_COMPLETE=YES only if complete.
+
+Global B02 remains OPEN.
+
+============================================================
+PHASE 26 — S04 ACL CLOSURE
+============================================================
+
+Build independently expected effective ACL for the complete S04 path.
+
+Verify actual:
+
+schema
+function
+table/column
+history
+readiness
+binding
+slot
+role
+PUBLIC
+SET ROLE
+owner paths
+
+Set:
+
+S04_ACL_COMPLETE=YES
+
+Global B03 remains OPEN.
+
+============================================================
+PHASE 27 — REPRODUCIBILITY
+============================================================
+
+Run the entire authorized sequence from scratch in a second fresh disposable DB:
+
+activation
+audit
+native health
+readiness
+header/original
+auditor slot
+precheck
+S04
+negative sibling subset
+semantic binding
+
+Require semantically equivalent outcome.
+
+Absolute wall-clock values may differ according to approved activation recipe.
+
+Identity/hash relationships and results must remain equivalent.
+
+Set:
+
+ACTIVE_LOADER_REPRODUCIBLE=YES
+
+============================================================
+PHASE 28 — REASSESS FIXTURE GAPS
+============================================================
+
+Set G1-G8:
+
+CLOSED
+PARTIAL
+OPEN
+
+Expected possible outcome:
+
+G1 CLOSED
+G2 improved/CLOSED for S04
+G3 CLOSED for first path
+G4 CLOSED for authorized TEST path
+G5 CLOSED for first path
+G6 PARTIAL because later MAC custody may remain
+G7 PARTIAL because later authority lineage remains
+G8 PARTIAL because only S04 outcome is complete
+
+Therefore distinguish:
+
+FIRST_POSITIVE_FIXTURE_READY=YES
+
+from:
+
+FULL_FIXTURE_READY=NO
+
+Do not force B06 globally closed if 17 wrappers remain.
+
+============================================================
+PHASE 29 — REASSESS BLOCKERS
+============================================================
+
+Do not claim global closure from S04.
+
+Report:
+
+B01 progress
+B02 progress
+B03 progress
+B06 progress
+
+B04 OPEN
+B05 OPEN unless independently fully closed
+B07 OPEN
+B08 OPEN
+
+Count known blocker groups honestly.
+
+The goal is to produce the FIRST actual reduction/proof path, not fake Package
+completion.
+
+============================================================
+PHASE 30 — EVIDENCE
+============================================================
+
+Update/create bounded evidence:
+
+docs/evidence/
+PACKAGE-0090-authorized-test-activation-native-health-s04.md
+
+Machine-readable:
+
+accepted-test-decision.json
+test-identities.json
+test-admin-audit-chain.json
+test-policy-activation.json
+native-health-contract.json
+native-health-runtime.json
+readiness-runtime.json
+header-original-registration.json
+auditor-slot-runtime.json
+s04-runtime.json
+s04-negative-runtime.json
+s04-search-path-runtime.json
+s04-semantic-runtime.json
+s04-null-runtime.json
+s04-acl-runtime.json
+READINESS.json
+SHA256-MANIFEST.json
+
+Do not store private keys.
+
+============================================================
+PHASE 31 — TESTS
+============================================================
+
+Record distinct tests only.
+
+Classify:
+
+activation
+admin audit
+native health
+readiness
+header/original
+slot
+S04 positive
+S04 negative
+search-path
+semantic bindings
+ACL
+
+Zero failure required for final accepted campaign.
+
+Failed development attempts remain separate.
+
+============================================================
+PHASE 32 — COMMIT DISCIPLINE
+============================================================
+
+Suggested narrow commits if earned:
+
+docs(package0090): adopt bounded S04 test qualification authority
+
+test(package0090): qualify test activation and native functional health
+
+test(package0090): prove first authentic S04 auditor read
+
+docs(package0090): record S04 runtime semantic evidence
+
+Do NOT claim:
+
+V043 executable
+V043 promotion
+Package closure
+Room unblocked
+
+Push.
+
+Verify:
+
+LOCAL_HEAD == REMOTE_HEAD
+WORKTREE_CLEAN=YES
+
+============================================================
+PHASE 33 — FINAL INTEGRITY
+============================================================
+
+Require:
+
+V043_SOURCE_HASH=
+b0ea86b6ba355fdf25fe09836bd4b75e4a4a2ad88ab7ef0e4724ca0d5a013e7d
+
+V043_FENCE_PRESENT=YES
+CANONICAL_V043_MUTATED=NO
+CANONICAL_V043_EXECUTED=NO
+V001_V042_CHANGED=NO
+
+MAIN_CHANGED=NO
+ROOM_CHANGED=NO
+GLOBAL_COMMERCE_CHANGED=NO
+
+SHARED_DB_CONTACTED=NO
+PRODUCTION_CONTACTED=NO
+
+PRODUCTION_POLICY_CREATED=NO
+PRODUCTION_KEY_CREATED=NO
+FIELD_AUTHORITY_GRANTED=NO
+
+EXECUTION_AUTHORITY=BLOCKED
+RECOVERY_AUTHORITY=BLOCKED
+ROOM_OPERATIONAL=NO
+
+============================================================
+FINAL RETURN
+============================================================
+
+Return exactly:
+
+============================================================
+PACKAGE 0090 — AUTHORIZED TEST ACTIVATION / NATIVE HEALTH / S04
+============================================================
+
+BASELINE_HEAD=
+FINAL_HEAD=
+REMOTE_HEAD=
+WORKTREE_CLEAN=
+
+------------------------------------------------------------
+AUTHORIZATION
+------------------------------------------------------------
+
+DECISION_ID=TEST_ONLY/0090/activation-and-native-health/s04/v1
+
+TEST_DECISION_ADOPTED=
+PRODUCTION_AUTHORITY_GRANTED=NO
+MIGRATION_AUTHORITY_GRANTED=NO
+FIELD_AUTHORITY_GRANTED=NO
+
+------------------------------------------------------------
+TEST ACTIVATION
+------------------------------------------------------------
+
+TEST_APPROVAL_IDENTITY=
+TEST_CHANGE_IDENTITY=
+TEST_APPROVING_ACTOR=
+
+TEST_ADMIN_AUDIT_CONTRACT_READY=
+TEST_ADMIN_AUDIT_TAMPER_EVIDENT=
+
+TEST_POLICY_ACTIVATION_PROVEN=
+TEST_ACTIVATION_EFFECTIVE_FROM_SOURCE=
+TEST_ACTIVATION_REPLAY_PROVEN=
+
+------------------------------------------------------------
+NATIVE HEALTH
+------------------------------------------------------------
+
+MANAGED_PARTICIPANTS=7
+HEALTH_GUARD_INDEPENDENT=
+HOST_PLATFORM_ANCHORED=
+
+PARTICIPANT_GENERATIONS_PROVEN=
+ENROLLMENT_PROVEN=
+AUTHENTICATED_CHANNELS_PROVEN=
+FUNCTIONAL_WORK_PROVEN=
+DEPENDENCY_CATALOG_BINDING_PROVEN=
+FRESHNESS_PROVEN=
+
+FIRST_PATH_NATIVE_HEALTH_READY=
+FULL_PACKAGE_NATIVE_HEALTH_READY=
+
+------------------------------------------------------------
+READINESS
+------------------------------------------------------------
+
+READINESS_CREATED=
+READINESS_NEGATIVE_TESTS_PASS=
+
+IMMUTABLE_HEADER_REGISTERED=
+ORIGINAL_ATTESTATION_REGISTERED=
+AUDITOR_SLOT_AUTHENTIC=
+
+ACTIVE_FIXTURE_PRECHECK=
+
+------------------------------------------------------------
+S04
+------------------------------------------------------------
+
+FIRST_AUTHENTIC_POSITIVE_EXECUTED=
+FIRST_AUTHENTIC_POSITIVE_PASS=
+
+S04_EXPECTED_ROWS=42
+S04_ACTUAL_ROWS=
+S04_EXACT_HISTORY_MATCH=
+
+S04_SIBLING_ATTACKS_PASS=
+S04_SEARCH_PATH_ATTACKS_PASS=
+
+------------------------------------------------------------
+SEMANTIC PROGRESS
+------------------------------------------------------------
+
+BASE_GLOBAL_CANDIDATE_CONTEXTS=818
+
+S04_STATIC_CALL_SITES=45
+S04_STATIC_CANDIDATE_CONTEXTS=33
+S04_FINAL_CONTEXTS=
+
+S04_CONTEXTS_BOUND=
+S04_CONTEXTS_UNBOUND=
+
+GLOBAL_BOUND_CALL_SHAPES=
+GLOBAL_UNBOUND_CALL_SHAPES=
+
+S04_NULL_CONSUMER_COMPLETE=
+S04_ACL_COMPLETE=
+
+------------------------------------------------------------
+FIXTURE
+------------------------------------------------------------
+
+G1_HEADER_LIFECYCLE=
+G2_READINESS_HISTORY_ACL=
+G3_NATIVE_FUNCTIONAL_HEALTH=
+G4_RUNTIME_WINDOWS=
+G5_ORIGINAL_ATTESTATION=
+G6_KEY_CUSTODY=
+G7_AUTHORITY_LINEAGE=
+G8_EXPECTED_DURABLE_OUTCOMES=
+
+ACTIVE_FIXTURE_FOUNDATION_READY=
+FIRST_POSITIVE_FIXTURE_READY=
+FULL_FIXTURE_READY=
+
+ACTIVE_LOADER_REPRODUCIBLE=
+
+------------------------------------------------------------
+PACKAGE BLOCKERS
+------------------------------------------------------------
+
+B01_STATUS=
+B02_STATUS=
+B03_STATUS=
+B04_STATUS=OPEN
+B05_STATUS=
+B06_STATUS=
+B07_STATUS=OPEN
+B08_STATUS=OPEN
+
+KNOWN_BLOCKER_GROUPS_REMAINING=
+
+------------------------------------------------------------
+TESTING
+------------------------------------------------------------
+
+ACTIVATION_TESTS=
+AUDIT_TESTS=
+NATIVE_HEALTH_TESTS=
+READINESS_TESTS=
+HEADER_ATTESTATION_TESTS=
+SLOT_TESTS=
+S04_POSITIVE_TESTS=
+S04_NEGATIVE_TESTS=
+SEARCH_PATH_TESTS=
+SEMANTIC_BINDING_TESTS=
+ACL_TESTS=
+
+TOTAL_DISTINCT_TESTS=
+FAILURES=
+
+------------------------------------------------------------
+FINDINGS
+------------------------------------------------------------
+
+SCOPE_REVIEW=AUTHORIZED_TEST_ACTIVATION_NATIVE_HEALTH_READINESS_S04
+
+BLOCKER_COUNT=
+HIGH_COUNT=
+MEDIUM_COUNT=
+LOW_COUNT=
+
+BLOCKERS=
+HIGH=
+MEDIUM=
+LOW=
+
+------------------------------------------------------------
+INTEGRITY
+------------------------------------------------------------
+
+V043_FENCE_PRESENT=YES
+CANONICAL_V043_MUTATED=NO
+CANONICAL_V043_EXECUTED=NO
+V001_V042_CHANGED=NO
+
+MAIN_CHANGED=NO
+ROOM_CHANGED=NO
+GLOBAL_COMMERCE_CHANGED=NO
+
+SHARED_DB_CONTACTED=NO
+PRODUCTION_CONTACTED=NO
+
+PRODUCTION_POLICY_CREATED=NO
+PRODUCTION_KEY_CREATED=NO
+FIELD_AUTHORITY_GRANTED=NO
+
+EXECUTION_AUTHORITY=BLOCKED
+RECOVERY_AUTHORITY=BLOCKED
+ROOM_OPERATIONAL=NO
+
+COMMITS_CREATED=
+FILES_CHANGED=
+
+------------------------------------------------------------
+NEXT
+------------------------------------------------------------
+
+NEXT=
+
+============================================================
+END
+============================================================
+
+Do not execute NEXT.

@@ -500,3 +500,42 @@ SOURCE_PROMOTION_READY=NO; canonical fence remains; no removal/promotion authori
 is inferred. Full ACTIVE fixture, exact source-context bindings, DML/concurrency,
 control and independent runtime witness remain open. Production numeric policy
 and real field operation are not added as schema-source prerequisites.
+
+
+## Approved TEST-only S04 activation and native-health qualification â€” 2026-10-13
+
+DECISION_ID=TEST_ONLY/0090/activation-and-native-health/s04/v1
+STATUS=APPROVED_TEST_ONLY
+
+Explicit user approval supplies the bounded authority previously absent. Adopt
+TEST_ONLY/0090/activation/db-clock-in-transaction/v1: capture
+pg_catalog.clock_timestamp() exactly once inside ADMIN registration, finite
+timestamptz(6), zero offset, exact integer-microsecond roundtrip. Freeze
+deterministic TEST-only approval/change/actor identities in the accepted
+decision. Provision an external append-only tamper-evident TEST administrative
+audit with complete25.4 binding and independent commit reconciliation.
+
+Authorize a disposable TEST harness for POSTMASTER, SUPERVISOR, RECEIVER,
+CENSUS_OBSERVER, APPROVAL_PRODUCER, APPROVAL_CONSUMER and ENFORCEMENT_WORKER,
+independent HEALTH_GUARD and trusted HOST_PLATFORM. This includes bounded
+TEST generation ledger/enrollment/authenticated channel/pidfd/SCM_RIGHTS,
+functional-work/dependency/catalog/freshness/restart qualification only;
+production generation implementation remains unauthorized. All seven
+requirements remain mandatory. Keep fixture-1 TTL1000000us/max2000000us
+and watchdog100us/max200us unchanged. Original VECTOR_1 signed windows
+are not renewed. No heartbeat/alive/JSON flag is health evidence.
+
+Readiness is allowed only after proven activation, trusted audit, independent
+observer and complete fresh functional health. Only then register immutable
+header/original atomically, authenticate actual audit LOGIN, require PASS
+precheck and invoke S04 repeatable-read/read-only with frozen42-row equality.
+Authorize bounded negative/namespace/semantic/ACL campaigns and two fresh
+repetitions, not the remaining17 wrappers. Failed prerequisites deny READY
+and invocation; authority itself proves no implementation or runtime result.
+
+PRODUCTION_AUTHORITY=NO; MIGRATION_AUTHORITY=NO; FIELD_AUTHORITY=NO;
+EXECUTION_AUTHORITY=NO; RECOVERY_AUTHORITY=NO. Canonical V043/fence and
+V001-V042 remain unchanged; canonical V043 execution/promotion, shared DB,
+production contact, production keys/policy and Room activation remain denied.
+
+Exact user-authorized scope and provenance: [accepted decision](../evidence/package-0090-authorized-test-activation-native-health-s04/accepted-test-decision.json).
