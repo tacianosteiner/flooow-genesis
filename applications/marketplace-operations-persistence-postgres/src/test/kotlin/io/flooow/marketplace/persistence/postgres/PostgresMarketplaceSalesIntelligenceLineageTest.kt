@@ -33,12 +33,14 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 class PostgresMarketplaceSalesIntelligenceLineageTest {
     private lateinit var postgres: PostgreSQLContainer
     private lateinit var configuration: PostgresConfiguration
+    private lateinit var writerConfiguration: PostgresConfiguration
+    private val fixturePassword = UUID.randomUUID().toString()
     private lateinit var legacy: ConsumedEconomicEvidenceSnapshot
     private lateinit var invalidLegacy: ConsumedEconomicEvidenceSnapshot
     private val candidate: String get() = checkNotNull(javaClass.getResource("/room-lineage/historical_lineage_candidate.sql")).readText()
 
     @BeforeAll fun start() {
-        postgres = PostgreSQLContainer("postgres:18.4").withCreateContainerCmdModifier { command ->
+        postgres = PostgreSQLContainer("postgres:18.4").withUsername("postgres").withCreateContainerCmdModifier { command ->
             checkNotNull(command.hostConfig).withPortBindings(PortBinding(Ports.Binding.bindIp("127.0.0.1"), ExposedPort.tcp(5432)))
         }
         postgres.start()
@@ -55,13 +57,22 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
         val invalidScope=scope();apply(invalidScope,attempt(invalidScope));invalidLegacy=snapshot(invalidScope)
         assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.Applied>(PostgresMarketplaceSalesIntelligenceProjection(configuration).materializeIfNewer(record(invalidLegacy)))
         connection().use { c -> execute(c,"UPDATE marketplace_sales_intelligence_projection SET source_evidence_version=999999 WHERE organization_id=? AND marketplace_order_id=?",invalidScope.organizationId.value,invalidScope.orderId.value) }
+        assertIs<EconomicLineagePublicationResult.IntegrityFailure>(PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration).publish(legacy,record(legacy)))
         connection().use { c ->
             c.autoCommit = false
-            try { c.createStatement().use { it.execute(candidate) }; c.commit() }
+            try { c.createStatement().use {
+                it.execute("CREATE ROLE flooow_room_history_owner NOLOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
+                it.execute("CREATE ROLE flooow_room_history_runtime LOGIN PASSWORD '$fixturePassword' NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
+                it.execute("CREATE ROLE room_qualification_outsider LOGIN PASSWORD '$fixturePassword' NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS")
+                it.execute(candidate)
+                it.execute(checkNotNull(javaClass.getResource("/room-lineage/historical_lineage_acl_candidate.sql")).readText())
+            }; c.commit() }
             catch (e: Exception) { c.rollback(); throw e }
         }
+        writerConfiguration = PostgresConfiguration(postgres.jdbcUrl,"flooow_room_history_runtime",fixturePassword)
     }
     @AfterAll fun stop() { if (::postgres.isInitialized) postgres.stop() }
+    private fun runtimeConnection(): Connection = DriverManager.getConnection(writerConfiguration.url,writerConfiguration.user,writerConfiguration.password)
     private fun connection(): Connection = DriverManager.getConnection(configuration.url,configuration.user,configuration.password)
     private fun strings(sql: String): List<String> = connection().use { c -> c.createStatement().use { s -> s.executeQuery(sql).use { r -> buildList { while(r.next()) add(r.getString(1)) } } } }
 
@@ -127,7 +138,7 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
         return subject
     }
     private fun evidence() = PostgresMarketplaceIndependentEconomicEvidenceRepository(configuration)
-    private fun writer() = PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration)
+    private fun writer() = PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration)
     private fun apply(subject: MarketplaceEconomicEvidenceSubject, update: MarketplaceIndependentEconomicEvidenceUpdate) {
         val found = evidence().find(subject)
         val version = (found as? MarketplaceIndependentEconomicEvidenceReadResult.Found)?.versionedEvidence?.version ?: MarketplaceEconomicEvidenceVersion.ZERO
@@ -168,8 +179,8 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
     @Test fun `single connection transaction publishes and manifest round trips without business replay`() {
         val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject)
         val calls=AtomicInteger();val commits=AtomicInteger();val rollbacks=AtomicInteger();val disabled=AtomicInteger()
-        val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{_,_->},{
-            calls.incrementAndGet();val real=connection()
+        val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{_,_->},{
+            calls.incrementAndGet();val real=runtimeConnection()
             Proxy.newProxyInstance(Connection::class.java.classLoader,arrayOf(Connection::class.java)) { _,method,args ->
                 when(method.name) { "commit" ->commits.incrementAndGet();"rollback"->rollbacks.incrementAndGet();"setAutoCommit"->if(args?.first()==false) disabled.incrementAndGet() }
                 try { method.invoke(real,*(args ?: emptyArray())) } catch(e: InvocationTargetException) { throw e.targetException }
@@ -237,7 +248,7 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
         val points=EconomicLineageWriteStage.entries.filter { it!=EconomicLineageWriteStage.AFTER_LOCK }
         points.forEach { point ->
             val (old,candidate)=correctionFixture();val id=publish(old);val before=counts(old.subject);val current=current(old.subject)
-            val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{ stage,c ->
+            val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{ stage,c ->
                 if(stage==point) {
                     if(point==EconomicLineageWriteStage.AFTER_CURRENT_BEFORE_COMMIT)
                         assertEquals(2L,queryLong(c,"SELECT count(*) FROM marketplace_sales_intelligence_revision_publication WHERE organization_id=? AND marketplace_order_id=?",old.subject.organizationId.value,old.subject.orderId.value))
@@ -245,7 +256,7 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
                         c.prepareStatement("UPDATE marketplace_sales_intelligence_projection SET current_revision_id=NULL WHERE organization_id=? AND marketplace_order_id=?").use { q ->bind(q,old.subject.organizationId.value,old.subject.orderId.value);q.executeUpdate() }
                     } else throw IllegalStateException("injected $point")
                 }
-            },{ connection() })
+            },{ runtimeConnection() })
             assertIs<EconomicLineagePublicationResult.IntegrityFailure>(repository.publish(candidate,record(candidate)),point.name)
             assertEquals(before,counts(old.subject),point.name);assertEquals(current,current(old.subject),point.name)
             assertEquals(old.manifestDigest,read(old,id).snapshot.manifestDigest)
@@ -260,8 +271,8 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
             assertEquals(listOf(6L,7L,8L),listOf(base,a,b).map { it.readEvidenceVersion.valueForPersistence() })
             val acquired=CountDownLatch(1);val release=CountDownLatch(1);val started=CountDownLatch(1)
             val firstPid=AtomicInteger();val secondPid=AtomicInteger()
-            val first=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{ stage,c -> if(stage==EconomicLineageWriteStage.AFTER_LOCK) { firstPid.set(queryLong(c,"SELECT pg_backend_pid()").toInt()); acquired.countDown();assertTrue(release.await(20,TimeUnit.SECONDS)) } },{ connection() })
-            val second=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{_,_->},{ connection().also { secondPid.set(queryLong(it,"SELECT pg_backend_pid()").toInt());started.countDown() } })
+            val first=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{ stage,c -> if(stage==EconomicLineageWriteStage.AFTER_LOCK) { firstPid.set(queryLong(c,"SELECT pg_backend_pid()").toInt()); acquired.countDown();assertTrue(release.await(20,TimeUnit.SECONDS)) } },{ runtimeConnection() })
+            val second=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{_,_->},{ runtimeConnection().also { secondPid.set(queryLong(it,"SELECT pg_backend_pid()").toInt());started.countDown() } })
             val pool=Executors.newFixedThreadPool(2)
             try {
                 val f1=pool.submit<EconomicLineagePublicationResult> { val s=if(newerFirst)b else a;first.publish(s,record(s)) }
@@ -303,11 +314,11 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
         val wrongOrder=subject.copy(orderId=MarketplaceOrderId(uuid()),externalOrderId=MarketplaceExternalOrderId("other-order"));val of=fact(wrongOrder);apply(wrongOrder,MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(of))
         listOf(Triple(f.id,2L,"FACT"),Triple(f.id,1L,"ATTEMPT"),Triple(ff.id,1L,"FACT"),Triple(of.id,1L,"FACT")).forEach { (id,version,kind) ->
             val before=counts(subject);var rejected=false
-            val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{stage,c ->if(stage==EconomicLineageWriteStage.AFTER_HEADER) {
+            val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{stage,c ->if(stage==EconomicLineageWriteStage.AFTER_HEADER) {
                 val revision=queryLong(c,"SELECT projection_revision FROM marketplace_sales_intelligence_revision WHERE organization_id=? AND marketplace_order_id=? AND trigger_change_sequence=?",subject.organizationId.value,subject.orderId.value,s.triggerChangeSequence.valueForPersistence())
                 try { execute(c,"INSERT INTO marketplace_sales_intelligence_revision_observation VALUES (?,?,?,?,?,?,?,?,?,?)",subject.organizationId.value,subject.orderId.value,revision,2L,id.valueForPersistence(),version,kind,if(kind=="FACT") "CONSUMED_ACTIVE_FACT" else "ATTEMPT_CONTEXT","MARKETPLACE_ORDER",Timestamp.from(time)) }
                 catch(e: SQLException) { assertEquals("23503",e.sqlState);rejected=true;throw e }
-            } },{connection()})
+            } },{runtimeConnection()})
             assertIs<EconomicLineagePublicationResult.IntegrityFailure>(repository.publish(s,record(s)));assertTrue(rejected);assertEquals(before,counts(subject))
         }
     }
@@ -362,8 +373,8 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
     }
     @Test fun `lost commit acknowledgement returns unknown and reconciles exact stored publication`() {
         val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject)
-        val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{_,_->},{
-            val real=connection()
+        val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{_,_->},{
+            val real=runtimeConnection()
             Proxy.newProxyInstance(Connection::class.java.classLoader,arrayOf(Connection::class.java)) { _,method,args ->
                 try {
                     val result=method.invoke(real,*(args ?: emptyArray()))
@@ -387,10 +398,10 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
                 assertIs<EconomicLineagePublicationResult.IntegrityFailure>(writer().publish(changed,record(changed)))
             } else {
                 var observed=false
-                val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{stage,c ->if(stage==EconomicLineageWriteStage.AFTER_HEADER) {
+                val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{stage,c ->if(stage==EconomicLineageWriteStage.AFTER_HEADER) {
                     try { c.createStatement().use { it.execute("SET CONSTRAINTS ALL IMMEDIATE") } }
                     catch(e: SQLException) { assertTrue(e.message.orEmpty().contains("revision was never published"));observed=true;throw e }
-                } },{connection()})
+                } },{runtimeConnection()})
                 assertIs<EconomicLineagePublicationResult.IntegrityFailure>(repository.publish(next,record(next)));assertTrue(observed)
             }
             assertEquals(before,counts(subject));assertEquals(current,current(subject))
@@ -403,7 +414,7 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
             val foreign=scope();val foreignFact=fact(foreign);apply(foreign,MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(foreignFact))
             val edge=next.members.single { it.contextRole==ConsumedEconomicEvidenceContextRole.CORRECTION_CONTEXT }.observation
             var rejected=false
-            val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(configuration,{stage,c ->
+            val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{stage,c ->
                 if(stage==EconomicLineageWriteStage.DURING_LATER_MEMBER) {
                     val id=queryLong(c,"SELECT projection_revision FROM marketplace_sales_intelligence_revision WHERE organization_id=? AND marketplace_order_id=? AND trigger_change_sequence=?",subject.organizationId.value,subject.orderId.value,next.triggerChangeSequence.valueForPersistence())
                     if(queryLong(c,"SELECT count(*) FROM marketplace_sales_intelligence_revision_observation WHERE projection_revision=?",id)==next.members.size.toLong()) {
@@ -413,7 +424,7 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
                         catch(e: SQLException) { assertTrue(e.sqlState in setOf("23502","23503","23514"),attack);rejected=true;throw e }
                     }
                 }
-            },{connection()})
+            },{runtimeConnection()})
             assertIs<EconomicLineagePublicationResult.IntegrityFailure>(repository.publish(next,record(next)));assertTrue(rejected,attack)
             assertEquals(before,counts(subject));assertEquals(current,current(subject))
         }
@@ -466,6 +477,157 @@ class PostgresMarketplaceSalesIntelligenceLineageTest {
             assertEquals(1,results.count { it is EconomicLineagePublicationResult.IdenticalPublished })
             assertEquals(1L,counts(subject)["revision"]);assertEquals(1L,counts(subject)["revision_publication"])
         } finally { start.countDown();pool.shutdownNow() }
+    }
+
+    private val historyTables = listOf("revision","revision_observation","revision_correction","revision_reason","revision_coverage","revision_publication").map { "marketplace_sales_intelligence_$it" }
+    private val historyFunctions = listOf("reject_marketplace_sales_history_mutation()","reject_marketplace_sales_sealed_detail()","validate_marketplace_sales_publication_insert()","publish_marketplace_sales_revision()","validate_marketplace_sales_revision_boundary(uuid,uuid,bigint)","check_marketplace_sales_revision_boundary()")
+
+    @Test fun `ACL exact catalog ownership attributes public and runtime privilege matrix`() {
+        runtimeConnection().use { c ->
+            c.createStatement().use { q -> q.executeQuery("SELECT session_user,current_user,rolsuper,rolcreatedb,rolcreaterole,rolreplication,rolbypassrls FROM pg_roles WHERE rolname=current_user").use { r ->
+                assertTrue(r.next());assertEquals("flooow_room_history_runtime",r.getString(1));assertEquals(r.getString(1),r.getString(2));(3..7).forEach { assertFalse(r.getBoolean(it)) }
+            } }
+        }
+        connection().use { c ->
+            assertEquals(0L,queryLong(c,"SELECT count(*) FROM pg_auth_members WHERE member IN (SELECT oid FROM pg_roles WHERE rolname IN ('flooow_room_history_runtime','flooow_room_history_owner')) OR roleid=(SELECT oid FROM pg_roles WHERE rolname='flooow_room_history_owner')"))
+            assertEquals(0L,queryLong(c,"SELECT count(*) FROM pg_roles WHERE rolname='flooow_room_history_owner' AND (rolcanlogin OR rolsuper OR rolcreatedb OR rolcreaterole OR rolreplication OR rolbypassrls)"))
+            for(t in historyTables+"marketplace_sales_intelligence_projection") {
+                assertEquals(1L,queryLong(c,"SELECT count(*) FROM pg_class WHERE oid=?::regclass AND relowner=(SELECT oid FROM pg_roles WHERE rolname='flooow_room_history_owner')",t))
+                assertEquals(0L,queryLong(c,"SELECT count(*) FROM pg_class x CROSS JOIN LATERAL aclexplode(coalesce(x.relacl,acldefault('r',x.relowner))) a WHERE x.oid=?::regclass AND a.grantee=0",t))
+                for(priv in listOf("DELETE","TRUNCATE","TRIGGER","REFERENCES")) assertEquals(0L,queryLong(c,"SELECT has_table_privilege('flooow_room_history_runtime',?,?)::int",t,priv))
+                assertEquals(1L,queryLong(c,"SELECT has_table_privilege('flooow_room_history_runtime',?,'SELECT')::int",t))
+                if(t in historyTables) assertEquals(0L,queryLong(c,"SELECT has_table_privilege('flooow_room_history_runtime',?,'UPDATE')::int",t))
+                assertEquals(if(t.endsWith("_publication") || t.endsWith("_revision")) 0L else 1L,queryLong(c,"SELECT has_table_privilege('flooow_room_history_runtime',?,'INSERT')::int",t))
+            }
+            val seq="marketplace_sales_intelligence_revision_projection_revision_seq"
+            assertEquals(1L,queryLong(c,"SELECT count(*) FROM pg_class WHERE oid=?::regclass AND relowner=(SELECT oid FROM pg_roles WHERE rolname='flooow_room_history_owner')",seq))
+            listOf("USAGE","SELECT","UPDATE").forEach { assertEquals(0L,queryLong(c,"SELECT has_sequence_privilege('flooow_room_history_runtime',?,?)::int",seq,it)) }
+            for(f in historyFunctions) {
+                assertEquals(1L,queryLong(c,"SELECT count(*) FROM pg_proc WHERE oid=?::regprocedure AND proowner=(SELECT oid FROM pg_roles WHERE rolname='flooow_room_history_owner') AND proconfig=ARRAY['search_path=pg_catalog, public, pg_temp'] AND prosecdef=?",f,f.startsWith("publish_")))
+                assertEquals(0L,queryLong(c,"SELECT count(*) FROM pg_proc p CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a WHERE p.oid=?::regprocedure AND a.grantee=0",f))
+                assertEquals(if(f.startsWith("validate_marketplace_sales_revision_boundary")) 1L else 0L,queryLong(c,"SELECT has_function_privilege('flooow_room_history_runtime',?,'EXECUTE')::int",f))
+            }
+            assertEquals(0L,queryLong(c,"SELECT has_schema_privilege('flooow_room_history_runtime','public','CREATE')::int"))
+            assertEquals(0L,queryLong(c,"SELECT count(*) FROM pg_namespace n CROSS JOIN LATERAL aclexplode(coalesce(n.nspacl,acldefault('n',n.nspowner))) a WHERE n.nspname='public' AND a.grantee=0 AND a.privilege_type='CREATE'"))
+        }
+    }
+
+    @Test fun `ACL restricted runtime denies DDL escalation mutation receipt and sequence attacks`() {
+        val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject);val id=publish(s)
+        val forbidden=listOf(
+            "DROP TABLE public.marketplace_sales_intelligence_revision",
+            "ALTER TABLE public.marketplace_sales_intelligence_revision ADD COLUMN attacked text",
+            "ALTER TABLE public.marketplace_sales_intelligence_revision DISABLE TRIGGER ALL",
+            "TRUNCATE public.marketplace_sales_intelligence_revision",
+            "DELETE FROM public.marketplace_sales_intelligence_revision WHERE projection_revision=$id",
+            "UPDATE public.marketplace_sales_intelligence_revision SET manifest_digest=repeat('1',64) WHERE projection_revision=$id",
+            "INSERT INTO public.marketplace_sales_intelligence_revision_publication SELECT organization_id,marketplace_order_id,projection_revision,now() FROM public.marketplace_sales_intelligence_revision WHERE projection_revision=$id",
+            "CREATE TABLE public.room_attacked(id int)",
+            "ALTER FUNCTION public.validate_marketplace_sales_revision_boundary(uuid,uuid,bigint) SECURITY DEFINER",
+            "CREATE OR REPLACE FUNCTION public.validate_marketplace_sales_revision_boundary(uuid,uuid,bigint) RETURNS void LANGUAGE plpgsql AS 'BEGIN RETURN; END'",
+            "SET ROLE flooow_room_history_owner",
+            "ALTER TABLE public.marketplace_sales_intelligence_revision OWNER TO flooow_room_history_runtime",
+            "SELECT setval('public.marketplace_sales_intelligence_revision_projection_revision_seq',1,false)",
+            "SELECT setval('public.marketplace_sales_intelligence_revision_projection_revision_seq',999999,true)",
+            "ALTER ROLE flooow_room_history_runtime SUPERUSER",
+            "INSERT INTO public.marketplace_sales_intelligence_revision(projection_revision) OVERRIDING SYSTEM VALUE VALUES (999999)",
+            "CREATE TRIGGER forged_publish AFTER INSERT ON public.marketplace_sales_intelligence_revision FOR EACH ROW EXECUTE FUNCTION public.publish_marketplace_sales_revision()"
+        )
+        forbidden.forEach { sql -> runtimeConnection().use { c ->
+            val e=assertFailsWith<SQLException>(sql) { c.createStatement().use { it.execute(sql) } }; assertEquals("42501",e.sqlState,sql)
+        } }
+        runtimeConnection().use { c -> runCatching { c.createStatement().use { it.execute("GRANT UPDATE ON public.marketplace_sales_intelligence_revision TO flooow_room_history_runtime") } } }
+        connection().use { c ->assertEquals(0L,queryLong(c,"SELECT has_table_privilege('flooow_room_history_runtime','marketplace_sales_intelligence_revision','UPDATE')::int")) }
+        assertEquals(s.manifestDigest,read(s,id).snapshot.manifestDigest)
+    }
+
+    @Test fun `ACL source reads are column bounded and lock grant cannot mutate evidence`() {
+        val subject=scope();apply(subject,MarketplaceIndependentEconomicEvidenceUpdate.ObserveFact(fact(subject)));publish(snapshot(subject))
+        runtimeConnection().use { c ->
+            assertFailsWith<SQLException> { c.createStatement().use { it.executeQuery("SELECT * FROM marketplace_economic_evidence_fact") } }
+            assertFailsWith<SQLException> { c.createStatement().use { it.executeQuery("SELECT * FROM integration_organization") } }
+            assertFailsWith<SQLException> { c.createStatement().use { it.execute("UPDATE marketplace_economic_evidence_subject SET currency='USD'") } }
+            assertFailsWith<SQLException> { c.createStatement().use { it.execute("UPDATE marketplace_economic_evidence_subject SET currency=currency") } }
+            assertFailsWith<SQLException> { c.createStatement().use { it.execute("UPDATE marketplace_economic_evidence_subject SET current_version=current_version+1") } }
+        }
+    }
+
+    @Test fun `ACL unauthorized independent identity has no history inspection or publication`() {
+        DriverManager.getConnection(postgres.jdbcUrl,"room_qualification_outsider",fixturePassword).use { c ->
+            for(t in historyTables) assertEquals("42501",assertFailsWith<SQLException> { c.createStatement().use { it.executeQuery("SELECT * FROM public.$t") } }.sqlState)
+            assertEquals("42501",assertFailsWith<SQLException> { c.createStatement().use { it.execute("SELECT public.validate_marketplace_sales_revision_boundary(NULL,NULL,1)") } }.sqlState)
+            assertFailsWith<SQLException> { c.createStatement().use { it.execute("SET ROLE flooow_room_history_runtime") } }
+        }
+    }
+
+    @Test fun `ACL temporary shadow objects cannot redirect writer reader or definer receipt`() {
+        val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject)
+        fun poisoned(): Connection = runtimeConnection().also { c ->c.createStatement().use { q ->
+            q.execute("CREATE TEMP TABLE marketplace_economic_evidence_subject(attacked int)")
+            q.execute("CREATE TEMP TABLE marketplace_sales_intelligence_revision(attacked int)")
+            q.execute("CREATE TEMP TABLE marketplace_sales_intelligence_revision_publication(attacked int)")
+            q.execute("SET search_path=pg_temp,public,pg_catalog")
+        } }
+        val repository=PostgresMarketplaceSalesIntelligenceLineagePublicationRepository(writerConfiguration,{_,_->},{poisoned()})
+        val id=assertIs<EconomicLineagePublicationResult.Published>(repository.publish(s,record(s))).revisionId
+        assertEquals(s.manifestDigest,assertIs<EconomicLineageReadResult.Found>(repository.findHistoricalRevision(subject.organizationId,subject.orderId,id)).revision.snapshot.manifestDigest)
+        assertEquals(1L,counts(subject)["revision_publication"])
+    }
+
+    @Test fun `CUTOVER legacy drained row is not backfilled and restricted legacy mode is rejected`() {
+        // A genuine new subject is created after schema; legacy adapter must fail even
+        // with the current-row INSERT/UPDATE privileges granted to the new identity.
+        val subject=scope();apply(subject,attempt(subject));val s=snapshot(subject)
+        assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure>(PostgresMarketplaceSalesIntelligenceProjection(writerConfiguration).materializeIfNewer(record(s)))
+        assertNull(current(subject));assertEquals(0L,counts(subject)["revision"])
+        val id=publish(s)
+        assertEquals(id,assertIs<EconomicLineagePublicationResult.IdenticalPublished>(writer().publish(s,record(s))).revisionId)
+        assertEquals(s.manifestDigest,read(s,id).snapshot.manifestDigest)
+        apply(subject,attempt(subject));val next=snapshot(subject)
+        assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure>(PostgresMarketplaceSalesIntelligenceProjection(writerConfiguration).materializeIfNewer(record(next)))
+        val nextId=publish(next);assertEquals(next.manifestDigest,read(next,nextId).snapshot.manifestDigest)
+    }
+
+    @Test fun `ACL source column grants exactly match declared operation contract`() {
+        val grants=checkNotNull(javaClass.getResource("/room-lineage/historical_lineage_acl_candidate.sql")).readText()
+        runtimeConnection().use { c ->
+            assertEquals("P0001",assertFailsWith<SQLException> { c.createStatement().use { it.execute(grants) } }.sqlState)
+        }
+        val sourceGrants=Regex("GRANT SELECT \\(([^)]+)\\)\\s+ON public\\.(marketplace_economic_evidence_[a-z_]+) TO",RegexOption.MULTILINE).findAll(grants).toList()
+        assertEquals(6,sourceGrants.size)
+        connection().use { c ->
+            for(g in sourceGrants) {
+                val expected=g.groupValues[1].split(',').map { it.trim() }.sorted()
+                for(role in listOf("flooow_room_history_runtime","flooow_room_history_owner")) {
+                    c.prepareStatement("SELECT a.attname FROM pg_attribute a WHERE a.attrelid=?::regclass AND a.attnum>0 AND NOT a.attisdropped AND has_column_privilege(?,a.attrelid,a.attnum,'SELECT') ORDER BY a.attname").use { q ->
+                        bind(q,g.groupValues[2],role);q.executeQuery().use { r ->val actual=mutableListOf<String>();while(r.next())actual+=r.getString(1);assertEquals(expected,actual,g.groupValues[2]+role) }
+                    }
+                }
+            }
+            assertEquals(0L,queryLong(c,"SELECT has_column_privilege('flooow_room_history_runtime','marketplace_sales_intelligence_revision','projection_revision','INSERT')::int"))
+            assertEquals(1L,queryLong(c,"SELECT has_column_privilege('flooow_room_history_runtime','marketplace_sales_intelligence_revision','manifest_bytes','INSERT')::int"))
+            assertEquals(0L,queryLong(c,"SELECT has_column_privilege('flooow_room_history_runtime','marketplace_sales_intelligence_projection','organization_id','UPDATE')::int"))
+            assertEquals(1L,queryLong(c,"SELECT has_column_privilege('flooow_room_history_runtime','marketplace_sales_intelligence_projection','current_revision_id','UPDATE')::int"))
+        }
+    }
+
+    @Test fun `CUTOVER retired legacy credential cannot restart an old fleet session`() {
+        val retiredPassword=UUID.randomUUID().toString()
+        connection().use { c ->c.createStatement().use { q ->q.execute("CREATE ROLE room_retired_legacy LOGIN PASSWORD '$retiredPassword' NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS") } }
+        // A separate old process has an existing backend: NOLOGIN alone does not
+        // kill it. Exclusion must fence new logins AND drain/terminate old sessions.
+        val old=DriverManager.getConnection(postgres.jdbcUrl,"room_retired_legacy",retiredPassword)
+        try {
+            val pid=queryLong(old,"SELECT pg_backend_pid()")
+            connection().use { c ->
+                c.createStatement().use { it.execute("ALTER ROLE room_retired_legacy NOLOGIN") }
+                assertEquals(1L,queryLong(c,"SELECT count(*) FROM pg_stat_activity WHERE pid=?",pid))
+                assertEquals(1L,queryLong(c,"SELECT pg_terminate_backend(?,5000)::int",pid.toInt()))
+                assertEquals(0L,queryLong(c,"SELECT count(*) FROM pg_stat_activity WHERE usename='room_retired_legacy' AND pid<>pg_backend_pid()"))
+            }
+            assertFailsWith<SQLException> { DriverManager.getConnection(postgres.jdbcUrl,"room_retired_legacy",retiredPassword).use { } }
+            assertFailsWith<SQLException> { old.createStatement().use { it.executeQuery("SELECT 1") } }
+        } finally { old.close() }
     }
 
 }

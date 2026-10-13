@@ -53,6 +53,7 @@ class PostgresMarketplaceSalesIntelligenceLineagePublicationRepository internal 
         val bytes = snapshot.canonicalManifestForPersistence()
         acquire().use { c ->
             c.autoCommit = false; c.transactionIsolation = Connection.TRANSACTION_READ_COMMITTED
+            c.createStatement().use { it.execute("SET LOCAL search_path=pg_catalog,public,pg_temp") }
             try {
                 c.prepareStatement("SELECT currency,marketplace_key,external_order_id FROM marketplace_economic_evidence_subject WHERE organization_id=? AND marketplace_order_id=? FOR NO KEY UPDATE").use { s ->
                     bind(s, scope.organizationId.value, scope.orderId.value)
@@ -130,6 +131,7 @@ class PostgresMarketplaceSalesIntelligenceLineagePublicationRepository internal 
         require(value > 0)
         acquire().use { c ->
             c.autoCommit=false; c.transactionIsolation=Connection.TRANSACTION_REPEATABLE_READ
+            c.createStatement().use { it.execute("SET LOCAL search_path=pg_catalog,public,pg_temp") }
             try { val revision=readRevision(c,org,order,key,value); c.commit(); if(revision==null) EconomicLineageReadResult.NotFound else EconomicLineageReadResult.Found(revision) }
             catch(e: Exception) { try { c.rollback() } catch(rollback: Exception) { e.addSuppressed(rollback) }; throw e }
         }
