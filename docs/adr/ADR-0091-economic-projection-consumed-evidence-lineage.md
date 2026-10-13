@@ -1,6 +1,6 @@
 # ADR-0091 — Economic projection consumed-evidence lineage
 
-Status: **accepted design; implementation HOLD**. Date: 2026-10-12. Follows [ADR-0090](ADR-0090-governed-raw-evidence-reference.md). No runtime, migration, endpoint or Room authority is granted.
+Status: **accepted design; in-memory foundation implemented; historical persistence HOLD**. Date: 2026-10-12. Follows [ADR-0090](ADR-0090-governed-raw-evidence-reference.md). The in-memory producer foundation is implemented under this contract. No migration, retrieval endpoint or Room execution authority is granted.
 
 ## Decision
 
@@ -28,6 +28,14 @@ One PostgreSQL transaction must insert revision header, all bindings and the cur
 
 ## Implementation gate
 
-`LINEAGE_IMPLEMENTATION_READY=NO` now. The producer read result must retain each observation's persisted version/kind, and the read/compute/write consistency window must be specified under concurrent ingestion. The V018 upsert currently uses a single autocommit statement; a transactionally unified writer, immutable revision schema, migration and failure/concurrency tests must be accepted before code changes. An event with change sequence N may load a later current aggregate; equating N to the observed evidence version would be false. The design must record both and decide how a retry of N compares snapshots.
+The repository now returns exact versioned identifier membership alongside the authoritative aggregate. The producer captures an immutable in-memory consumed boundary and typed outcomes. Historical persistence remains `PERSISTENCE_IMPLEMENTATION_READY=NO`: V043 is already occupied by Package 0090; no new slot is allocated, the normalized historical DDL is not yet finalized, and transaction rollback/idempotency proof is absent. PostgreSQL integration tests compile but cannot execute on this host because Docker is unavailable. See [foundation evidence](../evidence/ROOM-V2-economic-claim-lineage-foundation.md).
+
+### Read and publication decision
+
+Choose intentional **coalescing current reads**. A feed sequence is an invalidation trigger, not a version selector and not evidence causality. V015 `find` already owns a REPEATABLE READ transaction: root and durable replay/identifier tuples belong to one consistent database snapshot. It may read version M after trigger N was fetched, and records both independently. Reject reads below the triggering update version or the previously observed current projection version. No as-of repository port exists; using `findUpdate` alone would not give a complete historical aggregate. Adding pinned aggregate replay would increase the read contract and reconstruction cost without preserving the current producer semantics. Coalescing uses the existing consistent aggregate boundary and avoids pretending N produced M.
+
+Publication must be monotonic in both trigger sequence and read evidence version. V018's guarded upsert now requires a strictly newer trigger AND a non-regressive evidence version. A newer trigger attempting a lower evidence version is an integrity failure and does not advance the checkpoint. A stale/equal trigger remains a current-projection no-op; this is **not** historical manifest verification. The processor checks subject identity before accepting repository data.
+
+Before publication, retry N may capture the newest consistent version and a new materialization time. After publication, N is skipped without a new evidence read or divergent current transition, even if checkpoint advancement previously failed. A race loser can compute an in-memory candidate but cannot label it published history. Snapshot observers run before publication and are internal test instrumentation, not durable sinks. Atomic historical persistence must resolve the published revision before re-reading, retain the original frozen context, and reject divergent submitted duplicates. Existing V018 alone cannot perform that manifest comparison. Policy changes need a new governed reprojection trigger or later explicit revision lifecycle; they cannot bypass the already-applied trigger guard.
 
 Organization scope comes from the existing subject and authenticated read path; no frontend ID or URL is accepted. This lineage explains a derived projection and does not redefine canonical Economic Truth, authorize retrieval, recovery or execution, or equate financial ledger IDs with economic observation IDs.

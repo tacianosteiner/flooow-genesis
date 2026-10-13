@@ -199,6 +199,18 @@ class PostgresMarketplaceSalesIntelligenceProjectionTest {
     }
 
     @Test
+    fun `coalescing writer rejects later trigger with regressive evidence read`() {
+        val organization = createOrganization(44)
+        val order = createSubject(organization, 4401)
+        val first = unresolved(organization, order, 5, baseTime).copy(sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(9))
+        assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.Applied>(projection.materializeIfNewer(first))
+        val stale = first.copy(lastAppliedChangeSequence = ChangeSequenceCheckpoint(6), sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(8))
+        assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure>(projection.materializeIfNewer(stale))
+        assertEquals(first, detail(organization, order))
+        assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.Applied>(projection.materializeIfNewer(stale.copy(sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(9))))
+    }
+
+    @Test
     fun `guarded writes apply only strictly newer sequence`() {
         val organization = createOrganization(4)
         val order = createSubject(organization, 401)

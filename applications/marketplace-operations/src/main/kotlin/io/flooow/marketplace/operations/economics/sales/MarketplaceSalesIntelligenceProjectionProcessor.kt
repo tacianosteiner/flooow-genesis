@@ -45,7 +45,8 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
     private val clock: Clock = Clock.systemUTC(),
     private val calculator: (MarketplaceOrder) -> MarketplaceEconomicTruthCalculationResult = {
         order -> MarketplaceEconomicTruthCalculator.calculate(order)
-    }
+    },
+    internal val snapshotObserver: (ConsumedEconomicEvidenceSnapshot) -> Unit = {}
 ) {
     fun processBatch(
         organizationId: OrganizationId,
@@ -131,6 +132,8 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
                 return MaterializeOutcome.Failure
         }
 
+        if (current != null && (current.organizationId != organizationId || current.marketplaceOrderId != change.subject.orderId))
+            return MaterializeOutcome.Failure
         if (current != null &&
             current.lastAppliedChangeSequence >= change.changeSequence
         ) {
@@ -144,6 +147,12 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
                 return MaterializeOutcome.Failure
         }
 
+        if (versionedEvidence.evidence.subject != change.subject ||
+            versionedEvidence.version < change.evidenceVersion ||
+            (current != null && versionedEvidence.version < current.sourceEvidenceVersion)) return MaterializeOutcome.Failure
+        val snapshotInput = try {
+            ConsumedEconomicEvidenceSnapshot.capture(versionedEvidence, change.changeSequence)
+        } catch (_: IllegalArgumentException) { return MaterializeOutcome.Failure }
         val assembly = MarketplaceEconomicTruthAssembler.assemble(versionedEvidence.evidence)
         val state = when (assembly) {
             is MarketplaceEconomicTruthAssemblyResult.NotReady ->
@@ -171,6 +180,10 @@ class MarketplaceSalesIntelligenceProjectionProcessor(
             projectedAt = clock.instant().truncatedTo(ChronoUnit.MICROS)
         )
 
+        val snapshot = try {
+            snapshotInput.finalize(assembly, state, record.projectedAt)
+        } catch (_: IllegalArgumentException) { return MaterializeOutcome.Failure }
+        snapshotObserver(snapshot)
         return when (projection.materializeIfNewer(record)) {
             MarketplaceSalesIntelligenceProjectionWriteResult.Applied,
             MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent ->

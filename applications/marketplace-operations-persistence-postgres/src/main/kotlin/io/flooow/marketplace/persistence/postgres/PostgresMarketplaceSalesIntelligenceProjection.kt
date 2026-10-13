@@ -96,7 +96,14 @@ class PostgresMarketplaceSalesIntelligenceProjection(
                     if (result.next()) {
                         MarketplaceSalesIntelligenceProjectionWriteResult.Applied
                     } else {
-                        MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent
+                        when (val current = currentBySubject(record.organizationId, record.marketplaceOrderId)) {
+                            is MarketplaceSalesIntelligenceProjectionReadResult.Success ->
+                                if (current.value?.lastAppliedChangeSequence?.let { it >= record.lastAppliedChangeSequence } == true)
+                                    MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent
+                                else MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure
+                            MarketplaceSalesIntelligenceProjectionReadResult.IntegrityFailure ->
+                                MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure
+                        }
                     }
                 }
             }
@@ -522,6 +529,8 @@ class PostgresMarketplaceSalesIntelligenceProjection(
                 "projected_at=EXCLUDED.projected_at " +
                 "WHERE EXCLUDED.last_applied_change_sequence>" +
                 "marketplace_sales_intelligence_projection.last_applied_change_sequence " +
+                "AND EXCLUDED.source_evidence_version>=" +
+                "marketplace_sales_intelligence_projection.source_evidence_version " +
                 "RETURNING last_applied_change_sequence"
     }
 }
