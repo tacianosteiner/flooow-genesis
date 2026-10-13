@@ -70,7 +70,19 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
     @BeforeTest
     fun startPostgres() {
         postgres = PostgreSQLContainer("postgres:18.4")
+            .withCreateContainerCmdModifier { command ->
+                checkNotNull(command.hostConfig).withPortBindings(
+                    com.github.dockerjava.api.model.PortBinding(
+                        com.github.dockerjava.api.model.Ports.Binding.bindIp("127.0.0.1"),
+                        com.github.dockerjava.api.model.ExposedPort.tcp(5432)
+                    )
+                )
+            }
         postgres.start()
+        val bindings = checkNotNull(postgres.containerInfo.networkSettings.ports.bindings[
+            com.github.dockerjava.api.model.ExposedPort.tcp(5432)])
+        assertEquals(1, bindings.size)
+        assertEquals("127.0.0.1", bindings.single().hostIp)
         configuration = PostgresConfiguration(postgres.jdbcUrl, postgres.username, postgres.password)
         Flyway.configure()
             .dataSource(configuration.url, configuration.user, configuration.password)
@@ -108,6 +120,20 @@ class PostgresMarketplaceIndependentEconomicEvidenceRepositoryTest {
         assertEquals(3L, edge.evidenceVersion.valueForPersistence())
         assertEquals(edge.evidenceVersion, members.getValue(corrected.correction.replacement.id).evidenceVersion)
         assertEquals(MarketplaceEconomicObservationIdentifierKind.FACT, members.getValue(corrected.correction.replacement.id).identifierKind)
+        val durableIdentifiers = connection().use { connection ->
+            connection.prepareStatement("SELECT observation_id,evidence_version,identifier_kind FROM marketplace_economic_evidence_identifier WHERE organization_id=? AND marketplace_order_id=?").use { statement ->
+                statement.setObject(1, subject.organizationId.value)
+                statement.setObject(2, subject.orderId.value)
+                statement.executeQuery().use { rows ->
+                    buildMap {
+                        while (rows.next()) put(observationId(rows.getObject("observation_id", UUID::class.java)),
+                            Pair(rows.getLong("evidence_version"), rows.getString("identifier_kind")))
+                    }
+                }
+            }
+        }
+        assertEquals(durableIdentifiers, members.mapValues { (_, member) ->
+            Pair(member.evidenceVersion.valueForPersistence(), member.identifierKind.name) })
         val duplicate = assertIs<MarketplaceIndependentEconomicEvidencePersistResult.Duplicate>(repository.apply(MarketplaceEconomicEvidenceVersion.ZERO, corrected))
         assertEquals(found.observationLineage, duplicate.versionedEvidence.observationLineage)
         assertIs<MarketplaceIndependentEconomicEvidenceReadResult.NotFound>(repository.find(subject.copy(organizationId = OrganizationId(uuid()))))

@@ -379,6 +379,7 @@ class MarketplaceSalesIntelligenceProjectionProcessorTest {
         assertIs<MarketplaceSalesIntelligenceProjectionProcessorResult.IntegrityFailure>(processor(feed, projection, repository).processBatch(organization, 1))
         assertEquals(MarketplaceEconomicEvidenceVersion(7), projection.records.getValue(subject.orderId).sourceEvidenceVersion)
         assertEquals(0, projection.appliedMutations)
+        assertEquals(ChangeSequenceCheckpoint.NONE, feed.checkpoint)
     }
 
     private fun processor(

@@ -51,7 +51,19 @@ class PostgresMarketplaceSalesIntelligenceProjectionTest {
     @BeforeAll
     fun startPostgres() {
         postgres = PostgreSQLContainer("postgres:18.4")
+            .withCreateContainerCmdModifier { command ->
+                checkNotNull(command.hostConfig).withPortBindings(
+                    com.github.dockerjava.api.model.PortBinding(
+                        com.github.dockerjava.api.model.Ports.Binding.bindIp("127.0.0.1"),
+                        com.github.dockerjava.api.model.ExposedPort.tcp(5432)
+                    )
+                )
+            }
         postgres.start()
+        val bindings = checkNotNull(postgres.containerInfo.networkSettings.ports.bindings[
+            com.github.dockerjava.api.model.ExposedPort.tcp(5432)])
+        assertEquals(1, bindings.size)
+        assertEquals("127.0.0.1", bindings.single().hostIp)
         configuration = PostgresConfiguration(
             postgres.jdbcUrl,
             postgres.username,
@@ -208,6 +220,52 @@ class PostgresMarketplaceSalesIntelligenceProjectionTest {
         assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure>(projection.materializeIfNewer(stale))
         assertEquals(first, detail(organization, order))
         assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.Applied>(projection.materializeIfNewer(stale.copy(sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(9))))
+    }
+
+    @Test
+    fun `dual monotonic guard covers all trigger and read version directions`() {
+        val organization = createOrganization(45)
+        val order = createSubject(organization, 4501)
+        val initial = unresolved(organization, order, 9, baseTime)
+            .copy(sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(7))
+        assertIs<MarketplaceSalesIntelligenceProjectionWriteResult.Applied>(projection.materializeIfNewer(initial))
+        val cases = listOf(
+            Triple(10L, 6L, MarketplaceSalesIntelligenceProjectionWriteResult.IntegrityFailure),
+            Triple(8L, 8L, MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent),
+            Triple(9L, 8L, MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent),
+            Triple(9L, 7L, MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent),
+            Triple(10L, 7L, MarketplaceSalesIntelligenceProjectionWriteResult.Applied),
+            Triple(11L, 8L, MarketplaceSalesIntelligenceProjectionWriteResult.Applied)
+        )
+        var expected = initial
+        cases.forEachIndexed { index, (trigger, readVersion, outcome) ->
+            val candidate = initial.copy(lastAppliedChangeSequence = ChangeSequenceCheckpoint(trigger),
+                sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(readVersion),
+                projectedAt = baseTime.plusSeconds(index.toLong() + 1))
+            assertEquals(outcome, projection.materializeIfNewer(candidate))
+            if (outcome == MarketplaceSalesIntelligenceProjectionWriteResult.Applied) expected = candidate
+            assertEquals(expected, detail(organization, order))
+            assertEquals(1, projectionRows(organization, order))
+        }
+    }
+
+    @Test
+    fun `coalescing trigger and evidence namespaces remain separate in both serialized writer orders`() {
+        val organization = createOrganization(46)
+        listOf(false, true).forEachIndexed { index, newerFirst ->
+            val order = createSubject(organization, 4601L + index)
+            val a = unresolved(organization, order, 9, baseTime)
+                .copy(sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(7))
+            val b = a.copy(lastAppliedChangeSequence = ChangeSequenceCheckpoint(10),
+                sourceEvidenceVersion = MarketplaceEconomicEvidenceVersion(8), projectedAt = baseTime.plusSeconds(1))
+            val ordered = if (newerFirst) listOf(b, a) else listOf(a, b)
+            val outcomes = ordered.map { projection.materializeIfNewer(it) }
+            assertEquals(if (newerFirst) listOf(MarketplaceSalesIntelligenceProjectionWriteResult.Applied,
+                MarketplaceSalesIntelligenceProjectionWriteResult.NoOpAlreadyCurrent) else
+                listOf(MarketplaceSalesIntelligenceProjectionWriteResult.Applied,
+                    MarketplaceSalesIntelligenceProjectionWriteResult.Applied), outcomes)
+            assertEquals(b, detail(organization, order))
+        }
     }
 
     @Test
