@@ -35,6 +35,8 @@ def main():
     ap.add_argument('--native-100us', action='store_true')
     ap.add_argument('--concurrent-currentness', action='store_true')
     ap.add_argument('--complete-currentness', action='store_true')
+    ap.add_argument('--t10-expectations', action='store_true')
+    ap.add_argument('--t10-audit-expectations', action='store_true')
     args = ap.parse_args(); sys.path.insert(0, args.parser_path)
     from pglast.parser import parse_sql_json
     folder = Path(args.directory).resolve()
@@ -171,7 +173,15 @@ def main():
         # No policy ACTIVE row is silently provisioned without explicit activation instant/audit.
         case('no_fabricated_READY', sql('SELECT count(*) FROM public.offline_readiness;').stdout.strip() == b'0', 'No health/READY state fabricated', 'FIXTURE')
         record['positive_wrapper_results'] = {'expected': 18, 'proven': 0, 'blocked': 18, 'reason': 'Live ACTIVE binding/readiness/native health/original attestation manifest not proven'}
-        q.require(sum([args.first_positive_preparation, args.authorized_s04, args.native_100us, args.concurrent_currentness, args.complete_currentness]) <= 1, 'One qualification recipe per owned runtime')
+        q.require(sum([args.first_positive_preparation, args.authorized_s04, args.native_100us, args.concurrent_currentness, args.complete_currentness, args.t10_expectations, args.t10_audit_expectations]) <= 1, 'One qualification recipe per owned runtime')
+        if args.t10_audit_expectations:
+            import package_0090_t10_audit_expectations as audit_expectations
+            record['recipe_hashes'][Path(audit_expectations.__file__).name] = q.sha(Path(audit_expectations.__file__).read_bytes())
+            audit_expectations.qualify(sql, run, container, folder, record, fixture, runtime_work=work)
+        if args.t10_expectations:
+            import package_0090_t10_expectations as t10
+            record['recipe_hashes'][Path(t10.__file__).name] = q.sha(Path(t10.__file__).read_bytes())
+            t10.qualify(sql, run, container, folder, record, fixture, runtime_work=work)
         if args.complete_currentness:
             import package_0090_complete_currentness as complete
             record['recipe_hashes'][Path(complete.__file__).name] = q.sha(Path(complete.__file__).read_bytes())
