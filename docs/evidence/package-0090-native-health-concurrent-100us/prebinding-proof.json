@@ -1,0 +1,205 @@
+{
+  "currentness_prebinding_proven": false,
+  "prebound_fields": [
+    "approved_source_expectations (expected constants only)"
+  ],
+  "per_epoch_fields": [
+    "migration_history",
+    "role_OIDs_and_attributes",
+    "role_memberships",
+    "ACL_catalog_expectations",
+    "function_security_context",
+    "dependency_digest",
+    "policy_version_digest_activation",
+    "readiness_dependencies"
+  ],
+  "per_event_fields": [
+    "process_identity",
+    "pidfd_target",
+    "signature_and_functional_result",
+    "counter_nonce_catalog_epoch"
+  ],
+  "incarnation_generation_fields_provisional": [
+    "postgres_system_identity",
+    "participant_generation",
+    "binary_hash",
+    "native_library_hash",
+    "signature_public_key_expectation"
+  ],
+  "gaps": [
+    "Legacy fresh digest omits ACLs that permit history writes",
+    "Legacy fresh digest omits role membership",
+    "Legacy fresh digest omits function owner/security context",
+    "RR consistency permits stale committed history",
+    "No invalidation mechanism spans final DB observation through T10"
+  ],
+  "runs": [
+    {
+      "name": "start-1",
+      "id": "c47c0de9b7f8aad3e1f8900c09d2761bb512f3acec73b160829ee7f6a90fc453",
+      "volume": "flooow-0090-g3f4-19aee1fabee9-data",
+      "cases": [
+        {
+          "name": "fresh_query_detects_role_attribute_change",
+          "passed": true,
+          "evidence": "Current broad query sees committed INHERIT change in fresh statement",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "role_attribute_restored",
+          "passed": true,
+          "evidence": "Restricted original attributes restored",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "legacy_digest_misses_history_write_ACL",
+          "passed": true,
+          "evidence": "Granted UPDATE creates actual migration-history writer; broad query digest unchanged",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "legacy_digest_misses_role_membership",
+          "passed": true,
+          "evidence": "Membership violates zero-membership requirement without changing role attributes/OID",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "legacy_digest_misses_function_owner",
+          "passed": true,
+          "evidence": "S04 SECURITY DEFINER owner changed, broad digest unchanged",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "repeatable_read_coherent_but_stale_history",
+          "passed": true,
+          "evidence": "Committed history mutation invisible to retained RR snapshot but visible to independent fresh session",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "history_restored_exactly",
+          "passed": true,
+          "evidence": "Original checksum and complete legacy digest restored",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "fresh_observation_not_valid_through_T10",
+          "passed": true,
+          "evidence": "Admin commits after guard query; retained query hash alone has no final-consumer invalidation",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "history_SHARE_lock_blocks_concurrent_DML",
+          "passed": true,
+          "evidence": "55P03 under actual lock_timeout; no checksum changed",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "history_lock_does_not_guard_role_catalog",
+          "passed": true,
+          "evidence": "ALTER ROLE commits while history SHARE lock retained",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "all_mutations_reversed",
+          "passed": true,
+          "evidence": "Original role/ACL/membership/history restored; owned target then destroyed",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "no_readiness_header_original",
+          "passed": true,
+          "evidence": "No eligibility material fabricated",
+          "group": "CURRENTNESS"
+        }
+      ],
+      "destroyed": true
+    },
+    {
+      "name": "start-2",
+      "id": "eec8b0c945e51b0e3ddbcd52b1e6104d48d945d3ecf8116bc887513c6fd07dbb",
+      "volume": "flooow-0090-g3f4-7fd693f24079-data",
+      "cases": [
+        {
+          "name": "fresh_query_detects_role_attribute_change",
+          "passed": true,
+          "evidence": "Current broad query sees committed INHERIT change in fresh statement",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "role_attribute_restored",
+          "passed": true,
+          "evidence": "Restricted original attributes restored",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "legacy_digest_misses_history_write_ACL",
+          "passed": true,
+          "evidence": "Granted UPDATE creates actual migration-history writer; broad query digest unchanged",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "legacy_digest_misses_role_membership",
+          "passed": true,
+          "evidence": "Membership violates zero-membership requirement without changing role attributes/OID",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "legacy_digest_misses_function_owner",
+          "passed": true,
+          "evidence": "S04 SECURITY DEFINER owner changed, broad digest unchanged",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "repeatable_read_coherent_but_stale_history",
+          "passed": true,
+          "evidence": "Committed history mutation invisible to retained RR snapshot but visible to independent fresh session",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "history_restored_exactly",
+          "passed": true,
+          "evidence": "Original checksum and complete legacy digest restored",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "fresh_observation_not_valid_through_T10",
+          "passed": true,
+          "evidence": "Admin commits after guard query; retained query hash alone has no final-consumer invalidation",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "history_SHARE_lock_blocks_concurrent_DML",
+          "passed": true,
+          "evidence": "55P03 under actual lock_timeout; no checksum changed",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "history_lock_does_not_guard_role_catalog",
+          "passed": true,
+          "evidence": "ALTER ROLE commits while history SHARE lock retained",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "all_mutations_reversed",
+          "passed": true,
+          "evidence": "Original role/ACL/membership/history restored; owned target then destroyed",
+          "group": "CURRENTNESS"
+        },
+        {
+          "name": "no_readiness_header_original",
+          "passed": true,
+          "evidence": "No eligibility material fabricated",
+          "group": "CURRENTNESS"
+        }
+      ],
+      "destroyed": true
+    }
+  ],
+  "distinct_tests": 12,
+  "case_executions": 24,
+  "foundation_distinct_cases_reused": 93,
+  "runtime_recipe_mode": [
+    "normal",
+    "python -O"
+  ]
+}

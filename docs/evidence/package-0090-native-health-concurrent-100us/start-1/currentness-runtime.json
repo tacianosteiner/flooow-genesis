@@ -1,0 +1,93 @@
+{
+  "cases": [
+    {
+      "name": "fresh_query_detects_role_attribute_change",
+      "passed": true,
+      "evidence": "Current broad query sees committed INHERIT change in fresh statement",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "role_attribute_restored",
+      "passed": true,
+      "evidence": "Restricted original attributes restored",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "legacy_digest_misses_history_write_ACL",
+      "passed": true,
+      "evidence": "Granted UPDATE creates actual migration-history writer; broad query digest unchanged",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "legacy_digest_misses_role_membership",
+      "passed": true,
+      "evidence": "Membership violates zero-membership requirement without changing role attributes/OID",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "legacy_digest_misses_function_owner",
+      "passed": true,
+      "evidence": "S04 SECURITY DEFINER owner changed, broad digest unchanged",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "repeatable_read_coherent_but_stale_history",
+      "passed": true,
+      "evidence": "Committed history mutation invisible to retained RR snapshot but visible to independent fresh session",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "history_restored_exactly",
+      "passed": true,
+      "evidence": "Original checksum and complete legacy digest restored",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "fresh_observation_not_valid_through_T10",
+      "passed": true,
+      "evidence": "Admin commits after guard query; retained query hash alone has no final-consumer invalidation",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "history_SHARE_lock_blocks_concurrent_DML",
+      "passed": true,
+      "evidence": "55P03 under actual lock_timeout; no checksum changed",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "history_lock_does_not_guard_role_catalog",
+      "passed": true,
+      "evidence": "ALTER ROLE commits while history SHARE lock retained",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "all_mutations_reversed",
+      "passed": true,
+      "evidence": "Original role/ACL/membership/history restored; owned target then destroyed",
+      "group": "CURRENTNESS"
+    },
+    {
+      "name": "no_readiness_header_original",
+      "passed": true,
+      "evidence": "No eligibility material fabricated",
+      "group": "CURRENTNESS"
+    }
+  ],
+  "query": "SELECT encode(sha256(convert_to(string_agg(v,E'\n' ORDER BY k),'UTF8')),'hex') FROM (\nSELECT 0 AS k,pg_postmaster_start_time()::text||version() AS v\nUNION ALL SELECT installed_rank,installed_rank::text||version||type||script||checksum::text||success::text FROM public.flyway_schema_history\nUNION ALL SELECT 100000+oid::int,oid::text||rolname||rolsuper::text||rolinherit::text||rolcreaterole::text||rolcreatedb::text||rolcanlogin::text||rolreplication::text||rolbypassrls::text FROM pg_roles WHERE rolname LIKE 'test_0090_%') q",
+  "query_sha256": "ec1ac122bc1b0ac34d0a791187dae945d2ce0ad6503b771a88f659070bca3d8e",
+  "target": {
+    "container": "flooow-0090-g3f4-19aee1fabee9-postgres",
+    "id": "c47c0de9b7f8aad3e1f8900c09d2761bb512f3acec73b160829ee7f6a90fc453",
+    "bindings": [
+      {
+        "HostIp": "127.0.0.1",
+        "HostPort": "58693"
+      }
+    ],
+    "project": "flooow-0090-g3f4-19aee1fabee9",
+    "volume": "flooow-0090-g3f4-19aee1fabee9-data"
+  },
+  "currentness_prebinding_proven": false,
+  "snapshot_current_through_T10": false,
+  "canonical_submitted": false
+}

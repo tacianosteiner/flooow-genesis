@@ -1,0 +1,170 @@
+{
+  "fields": [
+    {
+      "field": "approved_source_expectations",
+      "normative_source": "User concurrent gate phases 1,2,4,14,15; TEST_ONLY authority adopted in ADR/SPEC",
+      "currentness_class": "IMMUTABLE_PER_DEPLOYMENT",
+      "revalidation": "Before bootstrap; compare against frozen Git/source hashes",
+      "why": "Expected bytes are constants; their equality is not a runtime observation",
+      "invalidation": "Different source/fixture/decision bytes",
+      "prebinding_proven": true
+    },
+    {
+      "field": "postgres_system_identity",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "IMMUTABLE_PER_INCARNATION",
+      "revalidation": "Bootstrap plus retained live exact server anchor through T10",
+      "why": "Cluster identity alone does not prove the same current process",
+      "invalidation": "Server restart/replacement/anchor loss/unknown lineage",
+      "prebinding_proven": false
+    },
+    {
+      "field": "migration_history",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Fresh independently observed data; writer invalidation/fence retained through T10",
+      "why": "Observed admin can change history; RR may retain stale rows",
+      "invalidation": "INSERT/UPDATE/DELETE/TRUNCATE or replacement",
+      "prebinding_proven": false
+    },
+    {
+      "field": "role_OIDs_and_attributes",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Fresh catalog plus change detection through T10",
+      "why": "ALTER ROLE remains possible under history lock",
+      "invalidation": "Role replacement or attribute modification",
+      "prebinding_proven": false
+    },
+    {
+      "field": "role_memberships",
+      "normative_source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Fresh full applicable membership reconciliation through T10",
+      "why": "Zero-membership requirement is absent from legacy query",
+      "invalidation": "GRANT/REVOKE role membership",
+      "prebinding_proven": false
+    },
+    {
+      "field": "ACL_catalog_expectations",
+      "normative_source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Applicable schema/table/column/function/type/default privileges and owners through T10",
+      "why": "Actual write ACL changed without altering legacy hash",
+      "invalidation": "GRANT/REVOKE/owner or catalog definition changes",
+      "prebinding_proven": false
+    },
+    {
+      "field": "function_security_context",
+      "normative_source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Owner/definer/strict/volatility/search_path/signatures/dependencies through T10",
+      "why": "S04 owner mutation is invisible to legacy digest",
+      "invalidation": "ALTER/CREATE/DROP function, owner or resolution changes",
+      "prebinding_proven": false
+    },
+    {
+      "field": "participant_generation",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "currentness_class": "IMMUTABLE_PER_GENERATION",
+      "revalidation": "Enrollment publication plus exact current registry at each event and T10",
+      "why": "Generation constant is valid only while enrollment is current",
+      "invalidation": "Replacement/revocation/registry revision/unknown generation",
+      "prebinding_proven": false
+    },
+    {
+      "field": "process_identity",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "CURRENT_PER_PARTICIPANT_EVENT",
+      "revalidation": "Authenticated event and immediately before consumption",
+      "why": "PID alone is insufficient",
+      "invalidation": "Exit/replacement/exec/host or namespace change",
+      "prebinding_proven": false
+    },
+    {
+      "field": "pidfd_target",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "CURRENT_PER_PARTICIPANT_EVENT",
+      "revalidation": "Setup correlation plus retained pidfd live exact target at event and T10",
+      "why": "Retained kernel anchor avoids PID reuse but does not prove functional progress",
+      "invalidation": "Anchor loss/exit/wrong target",
+      "prebinding_proven": false
+    },
+    {
+      "field": "binary_hash",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "IMMUTABLE_PER_GENERATION",
+      "revalidation": "Proven executable/bootstrap binding plus exec/change invalidation",
+      "why": "Frozen file hash does not identify every live executable transition",
+      "invalidation": "Exec or executable/bootstrap binding change",
+      "prebinding_proven": false
+    },
+    {
+      "field": "native_library_hash",
+      "normative_source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "currentness_class": "IMMUTABLE_PER_GENERATION",
+      "revalidation": "Proven loaded module identity plus lifecycle invalidation",
+      "why": "Build hash alone does not prove current loaded module",
+      "invalidation": "Module replacement/reload/new generation",
+      "prebinding_proven": false
+    },
+    {
+      "field": "dependency_digest",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Fresh authoritative dependencies bound to same epoch and retained through T10",
+      "why": "A digest value is not its own currentness proof",
+      "invalidation": "Dependency data/catalog/process/registry revision changes",
+      "prebinding_proven": false
+    },
+    {
+      "field": "policy_version_digest_activation",
+      "normative_source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "Committed exact approved bytes/version/digest/time/audit through T10",
+      "why": "Expected immutable approval does not prevent physical ADMIN row changes",
+      "invalidation": "Policy row/audit/activation change or unknown outcome",
+      "prebinding_proven": false
+    },
+    {
+      "field": "readiness_dependencies",
+      "normative_source": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "currentness_class": "CURRENT_PER_EPOCH",
+      "revalidation": "No eligibility until fresh full health; revalidate exact scope/current dependencies",
+      "why": "No legitimate readiness exists in this campaign",
+      "invalidation": "Health loss/stale proof/policy or incarnation change",
+      "prebinding_proven": false
+    },
+    {
+      "field": "signature_public_key_expectation",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "currentness_class": "IMMUTABLE_PER_GENERATION",
+      "revalidation": "Authenticated enrollment and current publication/key identity each epoch",
+      "why": "Public key may be a fixed expectation; fresh signature result cannot be cached",
+      "invalidation": "Key/publication/enrollment/generation replacement",
+      "prebinding_proven": false
+    },
+    {
+      "field": "signature_and_functional_result",
+      "normative_source": "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-CONTRACT.md:5,7",
+      "currentness_class": "CURRENT_PER_PARTICIPANT_EVENT",
+      "revalidation": "Required actual fresh work/signature and independent observation for exact original epoch",
+      "why": "Heartbeat/existence is not completed work",
+      "invalidation": "Wrong work/signature/nonce/context or stale emission",
+      "prebinding_proven": false
+    },
+    {
+      "field": "counter_nonce_catalog_epoch",
+      "normative_source": "User concurrent gate phases 1,2,4,14,15; TEST_ONLY authority adopted in ADR/SPEC",
+      "currentness_class": "CURRENT_PER_PARTICIPANT_EVENT",
+      "revalidation": "Each message, branch join and authenticated T9/T10 consumer",
+      "why": "All results must bind same exact epoch/context without replay",
+      "invalidation": "Counter reuse/nonce mismatch/torn context/replay",
+      "prebinding_proven": false
+    }
+  ],
+  "numeric_threshold_ns": 100000,
+  "inclusive": true,
+  "original_emission_clock": "CLOCK_BOOTTIME",
+  "expected_constants_are_not_current_truth": true
+}

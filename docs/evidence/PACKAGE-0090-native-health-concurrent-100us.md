@@ -1,0 +1,13 @@
+# Package 0090 concurrent native health 100us gate — currentness subgate
+
+The requested concurrent gate is **incomplete**. Phases 0–2 produced a source freeze, dependency classification and reproducible counterexamples; the concurrent implementation and 1000-epoch-per-topology campaign have not run. No concurrent timing control, native readiness, negative/restart closure, header/original registration or S04 positive is claimed.
+
+Two separately created PostgreSQL 18.4 targets each passed 12 currentness assertions and 93 reused foundation assertions, with no runtime errors. The second ran Python with `-O`; both targets and their private credentials were destroyed. This is 12 distinct new tests, 24 currentness executions, zero new measurement samples and zero benchmark epochs. Successful counterexamples are not native health positives.
+
+The legacy digest misses actual history-write ACL grants, role membership and S04 SECURITY DEFINER owner changes. A repeatable-read observer retained the original history digest while another administrator committed a checksum change visible to a fresh connection. A fresh query also left an unguarded observation-to-consumer interval. An actual SHARE lock denied history UPDATE with 55P03 but permitted ALTER ROLE concurrently. All mutations were reversed before target destruction. These tests establish insufficiency of the tested mechanisms, not impossibility of a valid concurrent design.
+
+Only independently frozen expected source bytes are proven prebound constants. Current runtime identity, generation applicability, loaded binary/module bindings, ACL/catalog/policy dependencies and final-consumer invalidation remain unqualified. Snapshot consistency must not be substituted for currentness. The model classifies all requested dependencies and records their invalidation requirements.
+
+Feasibility remains INCONCLUSIVE. The previous 381.730us result is historical and is not a new concurrent measurement or physical lower bound. No timing amendment is justified: material implementation avenues remain. The 100000ns inclusive bound and original CLOCK_BOOTTIME emission remain unchanged. No READY row or S04 call occurred. The canonical V043 fence and all V001–V042 files and protected refs remain unchanged. Only the separately derived, hash-verified qualification body was used in disposable databases.
+
+The next bounded action is to implement and adversarially test complete catalog/dependency coverage plus writer/revision invalidation through T10, then the concurrent DAG and authenticated handoff before measuring both topologies. This successor action was not executed. The full requested mission remains outstanding.
