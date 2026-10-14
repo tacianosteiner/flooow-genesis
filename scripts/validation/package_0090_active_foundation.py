@@ -32,6 +32,7 @@ def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--parser-path', required=True); ap.add_argument('--directory', required=True)
     ap.add_argument('--first-positive-preparation', action='store_true')
     ap.add_argument('--authorized-s04', action='store_true')
+    ap.add_argument('--native-100us', action='store_true')
     args = ap.parse_args(); sys.path.insert(0, args.parser_path)
     from pglast.parser import parse_sql_json
     folder = Path(args.directory).resolve()
@@ -177,6 +178,11 @@ def main():
             import package_0090_authorized_s04 as authorized
             record['recipe_hashes'][Path(authorized.__file__).name] = q.sha(Path(authorized.__file__).read_bytes())
             authorized.qualify(sql, run, container, folder, record, fixture, runtime_work=work)
+        if args.native_100us:
+            q.require(not args.authorized_s04 and not args.first_positive_preparation, 'Separate qualification recipes')
+            import package_0090_native_100us as measured
+            record['recipe_hashes'][Path(measured.__file__).name] = q.sha(Path(measured.__file__).read_bytes())
+            measured.qualify(sql, run, container, folder, record, fixture, runtime_work=work)
     except Exception as e:
         record['errors'].append(type(e).__name__ + ': ' + str(e))
     finally:

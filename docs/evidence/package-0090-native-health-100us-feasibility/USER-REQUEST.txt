@@ -1,0 +1,906 @@
+FLOOOW — PACKAGE 0090
+NATIVE HEALTH 100µs FEASIBILITY + VALID FRESH CONTROL
+NO TIMING AMENDMENT
+
+Repository:
+tacianosteiner/flooow-genesis
+
+TARGET BRANCH:
+checkpoint/package-0090-cloud-handoff
+
+Expected baseline:
+701b595511dc70f50a38f128b1c6aa411d3259a1
+
+Canonical V043 SHA-256:
+b0ea86b6ba355fdf25fe09836bd4b75e4a4a2ad88ab7ef0e4724ca0d5a013e7d
+
+============================================================
+CURRENT PROVEN STATE
+============================================================
+
+TEST_DECISION_ADOPTED=YES
+
+TEST_ADMIN_AUDIT_CONTRACT_READY=YES
+TEST_ADMIN_AUDIT_TAMPER_EVIDENT=YES
+TEST_POLICY_ACTIVATION_PROVEN=YES
+TEST_ACTIVATION_REPLAY_PROVEN=YES
+
+Seven participant work mechanisms exist.
+
+HEALTH_GUARD is independently implemented.
+HOST_PLATFORM is anchored.
+
+But:
+
+FIRST_PATH_NATIVE_HEALTH_READY=NO
+
+because final observed ages were approximately:
+
+29.143401ms .. 72.883114ms
+
+while unchanged fixture-1 S04 watchdog actual is:
+
+100us = 0.1ms
+
+The approved maximum remains:
+
+200us
+
+DO NOT use the maximum instead of the actual.
+
+No READY/header/S04 execution occurred.
+
+============================================================
+MISSION
+============================================================
+
+Determine whether the exact existing 100us first-path native-health freshness
+contract can be satisfied WITHOUT changing:
+
+- fixture-1 timing values;
+- native health semantics;
+- original emission timestamps;
+- participant requirements;
+- canonical SQL;
+- V043 source;
+- authority boundaries.
+
+If feasible:
+
+produce at least one legitimate FRESH CONTROL where every required first-path
+participant satisfies the exact 100us rule.
+
+Then execute the complete native-health positive/negative gate and continue
+through readiness/header/S04 only if that valid control exists.
+
+If not feasible after bounded engineering optimization:
+
+produce objective latency decomposition and a formal
+100US_FEASIBILITY=NO result.
+
+Do NOT propose or adopt a timing amendment in this tranche.
+
+============================================================
+NON-NEGOTIABLES
+============================================================
+
+FAIL CLOSED.
+
+DO NOT:
+
+- change 100us
+- substitute 200us
+- add grace period
+- truncate age
+- round milliseconds to zero
+- use stale cached observations
+- re-stamp old work as fresh
+- create a later "health timestamp" unrelated to original work emission
+- use guard receipt time instead of original emission time unless current
+  normative contract explicitly defines that as the freshness origin
+- batch old observations behind one new timestamp
+- fabricate READY
+- weaken participant count
+- exempt a participant
+- replace functional work with heartbeat
+- remove authenticated channel
+- remove generation binding
+- remove pidfd/kernel identity checks
+- change V043
+- execute canonical V043
+- contact shared/production DB
+- start S04 unless valid native health exists
+
+============================================================
+PHASE 0 — BASELINE
+============================================================
+
+git fetch origin
+
+Require:
+
+BRANCH=checkpoint/package-0090-cloud-handoff
+HEAD=701b595511dc70f50a38f128b1c6aa411d3259a1
+HEAD == origin/checkpoint/package-0090-cloud-handoff
+WORKTREE CLEAN
+
+Verify protected refs unchanged.
+
+============================================================
+PHASE 1 — FREEZE EXACT FRESHNESS SEMANTICS
+============================================================
+
+Before optimizing anything, identify the precise normative equation.
+
+Read:
+
+ADR-0090
+SPEC-0090
+NATIVE-HEALTH-CONTRACT
+NATIVE-HEALTH-DESIGN
+V043 S04 implementation
+accepted TEST amendment
+
+Return exactly:
+
+FRESHNESS_CLOCK_DOMAIN=
+FRESHNESS_ORIGIN_EVENT=
+FRESHNESS_OBSERVER_EVENT=
+FRESHNESS_COMPARISON=
+FRESHNESS_ACTUAL_US=100
+FRESHNESS_APPROVED_MAX_US=200
+
+Determine whether the 100us comparison is against:
+
+A. original participant functional-work emission
+B. independent guard observation
+C. readiness materialization
+D. wrapper invocation
+E. another exact event
+
+Do not optimize against an assumed interpretation.
+
+============================================================
+PHASE 2 — BUILD CRITICAL-PATH TIMELINE
+============================================================
+
+Instrument the existing harness at nanosecond resolution using an appropriate
+Linux monotonic/boottime clock consistent with the contract.
+
+For each participant capture:
+
+T0 trigger received
+T1 functional work starts
+T2 functional work finishes
+T3 original emission serialized
+T4 authenticated send begins
+T5 kernel delivery observed
+T6 HEALTH_GUARD validates credentials/pidfd/generation
+T7 guard validates functional result
+T8 dependency/catalog check finishes
+T9 observation becomes eligible
+T10 readiness consumer reads it
+
+Calculate separately:
+
+work_us
+serialization_us
+IPC_us
+credential_validation_us
+pidfd_validation_us
+guard_processing_us
+catalog_dependency_us
+queue_wait_us
+scheduler_wait_us
+end_to_end_age_us
+
+Do not hide scheduling latency inside "other".
+
+============================================================
+PHASE 3 — IDENTIFY THE CURRENT 29–73ms SOURCE
+============================================================
+
+Determine why current final observations are tens of milliseconds old.
+
+Possible causes to investigate, not assume:
+
+- all seven work operations happen sequentially;
+- DB catalog operation dominates;
+- process startup occurs inside measured age;
+- participant enrollment occurs inside measured age;
+- guard waits for all participants before validating first emission;
+- evidence JSON/file writes occur before freshness check;
+- Docker exec/process spawn dominates;
+- scheduler sleep/polling;
+- blocking waitpid/pidfd loop;
+- serialized IPC;
+- PostgreSQL round trips;
+- output collection/log flushing.
+
+Produce:
+
+LATENCY_DOMINANT_COMPONENTS=
+
+No optimization before this decomposition exists.
+
+============================================================
+PHASE 4 — SEPARATE SETUP FROM FRESHNESS CRITICAL SECTION
+============================================================
+
+The freshness age must not include work that the contract allows to occur before
+the fresh functional observation.
+
+Pre-establish, where contract permits:
+
+process startup
+HOST_PLATFORM anchor
+pidfd acquisition
+generation allocation
+enrollment
+authenticated channels
+database connection
+prepared statements
+catalog expectation
+binary hash
+dependency identity
+memory allocation
+output buffers
+
+BUT:
+
+do not move required functional work itself outside the freshness semantics.
+
+Document for every moved step why it is legally pre-established.
+
+============================================================
+PHASE 5 — PREWARM WITHOUT CACHING AUTHORITY
+============================================================
+
+Prewarm technical mechanisms only:
+
+PostgreSQL connection
+prepared query plans
+shared libraries
+OpenSSL provider
+Unix sockets
+pidfds
+memory pages
+
+Do NOT reuse prior functional-work truth as the fresh result.
+
+A fresh control must execute the required functional operation again.
+
+============================================================
+PHASE 6 — SYNCHRONIZED FRESH-EPOCH DESIGN
+============================================================
+
+Design one synchronized qualification epoch.
+
+All seven participants are already:
+
+started
+enrolled
+generation-bound
+channel-authenticated
+dependency-bound
+
+before the epoch.
+
+Use a barrier.
+
+At release:
+
+each participant performs its required fresh functional work
+and immediately emits its original result.
+
+HEALTH_GUARD consumes immediately.
+
+Avoid sequential "participant1 then participant2 ... participant7" scheduling
+if the contract permits concurrent work.
+
+Do not alter the requirement that each result has its own original emission.
+
+============================================================
+PHASE 7 — REMOVE NON-SEMANTIC WORK FROM HOT PATH
+============================================================
+
+No evidence file writes, JSON pretty printing, SHA manifest construction,
+stdout logging or Git artifact generation may occur between original emission
+and freshness decision.
+
+Buffer evidence in memory.
+
+Persist evidence only AFTER the freshness decision.
+
+This is an implementation optimization, not semantic weakening.
+
+Prove:
+
+HOT_PATH_EVIDENCE_IO=NONE
+
+============================================================
+PHASE 8 — DATABASE WORK ANALYSIS
+============================================================
+
+Determine whether PostgreSQL catalog/history validation is required:
+
+for every participant's fresh event,
+once per native-health epoch,
+or as a separately established dependency binding.
+
+Use the normative answer only.
+
+If catalog identity can be pre-bound and the fresh operation only proves
+continued functional work against that identity, do that.
+
+If the contract requires a fresh DB round trip inside every 100us age:
+measure it and retain it.
+
+Do not remove required DB work to achieve the number.
+
+============================================================
+PHASE 9 — IPC OPTIMIZATION
+============================================================
+
+Retain actual authenticated kernel-backed channels.
+
+Optimize implementation only:
+
+persistent SOCK_SEQPACKET sockets
+pre-passed pidfds if contract allows
+fixed binary framing
+preallocated buffers
+nonblocking/poll strategy
+epoll where useful
+no process spawn on hot path
+no shell
+no Docker exec on hot path
+no filesystem round trip
+
+No change to authentication semantics.
+
+============================================================
+PHASE 10 — GUARD PROCESSING OPTIMIZATION
+============================================================
+
+HEALTH_GUARD must remain independent.
+
+Optimize:
+
+pre-resolved expected identities
+pre-opened pidfds
+precomputed immutable dependency hashes
+fixed-size lookup tables
+zero dynamic process discovery on hot path where not required
+single-pass validation
+
+But do not precompute the actual fresh work result.
+
+============================================================
+PHASE 11 — CLOCK VALIDITY
+============================================================
+
+Prove both emitter and HEALTH_GUARD timestamps use the exact accepted compatible
+clock domain.
+
+Reject:
+
+CLOCK_REALTIME vs BOOTTIME mixing
+container/host incompatible origin
+floating conversion
+millisecond truncation
+
+Use integer nanoseconds/microseconds.
+
+Add tests around:
+
+99us
+100us
+101us
+
+with exact boundary semantics.
+
+============================================================
+PHASE 12 — MICROBENCH EACH PARTICIPANT
+============================================================
+
+Run at least a meaningful sample size per participant.
+
+Record:
+
+min
+p50
+p90
+p95
+p99
+max
+
+for end-to-end fresh age.
+
+Do not claim feasibility from one lucky sample.
+
+Report:
+
+POSTMASTER
+SUPERVISOR
+RECEIVER
+CENSUS_OBSERVER
+APPROVAL_PRODUCER
+APPROVAL_CONSUMER
+ENFORCEMENT_WORKER
+
+Use warm steady state after legally allowed setup.
+
+============================================================
+PHASE 13 — COMPLETE-SEVEN-PARTICIPANT EPOCH BENCHMARK
+============================================================
+
+Measure the actual complete validity condition:
+
+all seven required observations simultaneously valid under 100us.
+
+For each epoch record:
+
+oldest_age_us
+newest_age_us
+all_under_100us
+
+Run repeated epochs.
+
+Return:
+
+FRESH_EPOCH_ATTEMPTS=
+FRESH_EPOCH_PASS_COUNT=
+FRESH_EPOCH_PASS_RATE=
+
+A valid control requires:
+
+all seven <or <= according to exact contract> 100us simultaneously.
+
+============================================================
+PHASE 14 — NO SCHEDULER CHEATING
+============================================================
+
+Do not elevate to unsafe realtime privileges just to pass unless such scheduling
+is already part of the accepted TEST harness authority and contract.
+
+Record actual:
+
+CPU count
+CPU affinity
+scheduler policy
+container CPU constraints
+load
+
+CPU pinning of disposable test processes is allowed only as deterministic test
+engineering, not as evidence that production naturally has the same property.
+
+If used, report it explicitly.
+
+============================================================
+PHASE 15 — VALID FRESH CONTROL
+============================================================
+
+Only if the full seven-participant epoch satisfies the exact rule:
+
+freeze one valid fresh control.
+
+Record every participant:
+
+generation
+original emission
+guard observation
+age_us
+functional result digest
+dependency/catalog digest
+authenticated-channel proof
+
+Set:
+
+VALID_FRESH_CONTROL=YES
+
+Otherwise:
+
+VALID_FRESH_CONTROL=NO
+
+and do not continue to readiness.
+
+============================================================
+PHASE 16 — FULL FIRST-PATH NATIVE POSITIVE
+============================================================
+
+If VALID_FRESH_CONTROL=YES:
+
+run all first-path health requirements with this valid control.
+
+Prove:
+
+identity
+host/process binding
+generation
+enrollment
+authenticated channel
+freshness
+functional work
+dependency/catalog
+incarnation
+observer independence
+
+Set:
+
+FIRST_PATH_NATIVE_HEALTH_READY=YES
+
+Only if all are complete.
+
+============================================================
+PHASE 17 — VALID-CONTROL NEGATIVE CAMPAIGN
+============================================================
+
+Now run attacks from a genuinely valid starting point:
+
+missing participant
+wrong participant
+wrong generation
+not enrolled
+stale observation
+101us boundary
+future observation
+replay
+wrong binary
+wrong process
+wrong host
+wrong dependency
+wrong catalog
+unauthenticated message
+functional-work failure
+heartbeat-only
+cross-participant evidence
+observer failure
+host-root mismatch
+
+Require expected denial.
+
+Set:
+
+NATIVE_HEALTH_NEGATIVE_CAMPAIGN_PASS=YES
+
+============================================================
+PHASE 18 — RESTART / REPLACEMENT BOUNDED PROOF
+============================================================
+
+For the first-path TEST harness:
+
+replace one participant.
+
+Prove:
+
+old generation no longer eligible
+old observation cannot be replayed
+new process requires new generation/enrollment
+new generation requires fresh functional work
+
+Then restart HEALTH_GUARD where contract permits and prove old untrusted volatile
+state is not silently accepted.
+
+This is bounded first-path lifecycle proof, not global B08 closure.
+
+============================================================
+PHASE 19 — FEASIBILITY DECISION
+============================================================
+
+Set exactly one:
+
+100US_FEASIBILITY=YES
+or
+100US_FEASIBILITY=NO
+or
+100US_FEASIBILITY=INCONCLUSIVE
+
+YES requires repeated complete seven-participant fresh epochs.
+
+NO requires objective evidence that all contract-preserving bounded
+implementations tested still violate the limit, with a clear lower-bound or
+dominant unavoidable operation.
+
+INCONCLUSIVE means more legitimate implementation avenues remain.
+
+Do not equate current implementation failure with inherent impossibility.
+
+============================================================
+PHASE 20 — ONLY IF FEASIBLE: READINESS
+============================================================
+
+Proceed only if:
+
+100US_FEASIBILITY=YES
+VALID_FRESH_CONTROL=YES
+FIRST_PATH_NATIVE_HEALTH_READY=YES
+NATIVE_HEALTH_NEGATIVE_CAMPAIGN_PASS=YES
+
+Then create legitimate readiness using already-proven:
+
+TEST policy activation
+trusted audit
+native health
+history/ACL expectations
+
+Run readiness negative matrix.
+
+============================================================
+PHASE 21 — ONLY IF READINESS PASS: HEADER / SLOT / S04
+============================================================
+
+Then:
+
+register immutable header + original attestation
+bind authentic auditor slot
+require ACTIVE_FIXTURE_PRECHECK=PASS
+
+Execute S04 directly as:
+
+test_0090_audit
+
+Require exact 42-row match.
+
+Then execute:
+
+sibling attacks
+search-path attacks
+S04 runtime semantic binding
+
+Do not skip gates merely because this task reached them.
+
+============================================================
+PHASE 22 — IF 100US NOT FEASIBLE
+============================================================
+
+STOP before readiness.
+
+Do not change timing.
+
+Create a bounded feasibility artifact containing:
+
+exact contract equation
+measured hot-path lower bounds
+participant distributions
+complete-epoch distributions
+dominant latency
+which required operation prevents 100us
+what implementation alternatives were tested
+which legitimate alternatives remain
+
+Set:
+
+TIMING_AMENDMENT_REQUIRED_FOR_FURTHER_PROGRESS=YES|NO
+
+YES only if contract-preserving avenues are exhausted enough to justify a
+separate governance decision.
+
+Do not propose the replacement timing value yet unless evidence directly
+supports a safe bound; first characterize distributions.
+
+============================================================
+PHASE 23 — EVIDENCE
+============================================================
+
+Create:
+
+docs/evidence/
+PACKAGE-0090-native-health-100us-feasibility.md
+
+Machine-readable:
+
+freshness-contract.json
+hot-path-timeline.json
+participant-latency-distributions.json
+complete-epoch-distribution.json
+valid-fresh-control.json
+native-health-positive.json
+native-health-negative.json
+restart-replacement.json
+feasibility-decision.json
+READINESS.json
+SHA256-MANIFEST.json
+
+If S04 becomes reachable, append its normal runtime artifacts rather than
+creating contradictory evidence.
+
+============================================================
+PHASE 24 — TEST COUNTS
+============================================================
+
+Separate:
+
+clock-boundary tests
+participant microbench assertions
+complete epoch assertions
+native positive
+native negative
+restart/replacement
+readiness
+S04
+
+Benchmark samples are NOT all "distinct tests".
+
+Report both:
+
+TEST_CASES
+MEASUREMENT_SAMPLES
+
+============================================================
+PHASE 25 — COMMIT / PUSH
+============================================================
+
+Use narrow commits.
+
+Examples:
+
+test(package0090): qualify 100us native health freshness
+
+or, if blocked:
+
+docs(package0090): record native health 100us feasibility boundary
+
+If S04 passes:
+
+test(package0090): prove first authentic S04 path
+
+Do not claim V043 promotion.
+
+Push and verify clean.
+
+============================================================
+FINAL RETURN
+============================================================
+
+Return exactly:
+
+============================================================
+PACKAGE 0090 — NATIVE HEALTH 100US FEASIBILITY
+============================================================
+
+BASELINE_HEAD=
+FINAL_HEAD=
+REMOTE_HEAD=
+WORKTREE_CLEAN=
+
+------------------------------------------------------------
+FRESHNESS CONTRACT
+------------------------------------------------------------
+
+FRESHNESS_CLOCK_DOMAIN=
+FRESHNESS_ORIGIN_EVENT=
+FRESHNESS_OBSERVER_EVENT=
+FRESHNESS_COMPARISON=
+
+FRESHNESS_ACTUAL_US=100
+FRESHNESS_APPROVED_MAX_US=200
+
+------------------------------------------------------------
+LATENCY
+------------------------------------------------------------
+
+LATENCY_DOMINANT_COMPONENTS=
+
+HOT_PATH_EVIDENCE_IO=
+
+POSTMASTER_US_MIN_P50_P95_P99_MAX=
+SUPERVISOR_US_MIN_P50_P95_P99_MAX=
+RECEIVER_US_MIN_P50_P95_P99_MAX=
+CENSUS_OBSERVER_US_MIN_P50_P95_P99_MAX=
+APPROVAL_PRODUCER_US_MIN_P50_P95_P99_MAX=
+APPROVAL_CONSUMER_US_MIN_P50_P95_P99_MAX=
+ENFORCEMENT_WORKER_US_MIN_P50_P95_P99_MAX=
+
+FRESH_EPOCH_ATTEMPTS=
+FRESH_EPOCH_PASS_COUNT=
+FRESH_EPOCH_PASS_RATE=
+
+------------------------------------------------------------
+FEASIBILITY
+------------------------------------------------------------
+
+100US_FEASIBILITY=
+VALID_FRESH_CONTROL=
+
+FIRST_PATH_NATIVE_HEALTH_READY=
+NATIVE_HEALTH_NEGATIVE_CAMPAIGN_PASS=
+RESTART_REPLACEMENT_FIRST_PATH_PASS=
+
+TIMING_AMENDMENT_REQUIRED_FOR_FURTHER_PROGRESS=
+
+------------------------------------------------------------
+READINESS / S04
+------------------------------------------------------------
+
+READINESS_CREATED=
+READINESS_NEGATIVE_TESTS_PASS=
+
+IMMUTABLE_HEADER_REGISTERED=
+ORIGINAL_ATTESTATION_REGISTERED=
+AUDITOR_SLOT_AUTHENTIC=
+ACTIVE_FIXTURE_PRECHECK=
+
+FIRST_AUTHENTIC_POSITIVE_EXECUTED=
+FIRST_AUTHENTIC_POSITIVE_PASS=
+
+S04_ACTUAL_ROWS=
+S04_EXACT_HISTORY_MATCH=
+
+------------------------------------------------------------
+SEMANTIC PROGRESS
+------------------------------------------------------------
+
+GLOBAL_BOUND_CALL_SHAPES=
+GLOBAL_UNBOUND_CALL_SHAPES=
+
+S04_CONTEXTS_BOUND=
+S04_CONTEXTS_UNBOUND=
+
+------------------------------------------------------------
+TESTING
+------------------------------------------------------------
+
+CLOCK_BOUNDARY_TESTS=
+NATIVE_POSITIVE_TESTS=
+NATIVE_NEGATIVE_TESTS=
+RESTART_REPLACEMENT_TESTS=
+READINESS_TESTS=
+S04_TESTS=
+
+TOTAL_DISTINCT_TESTS=
+MEASUREMENT_SAMPLES=
+FAILURES=
+
+------------------------------------------------------------
+FINDINGS
+------------------------------------------------------------
+
+BLOCKER_COUNT=
+HIGH_COUNT=
+MEDIUM_COUNT=
+LOW_COUNT=
+
+BLOCKERS=
+HIGH=
+MEDIUM=
+LOW=
+
+------------------------------------------------------------
+INTEGRITY
+------------------------------------------------------------
+
+V043_FENCE_PRESENT=YES
+CANONICAL_V043_MUTATED=NO
+CANONICAL_V043_EXECUTED=NO
+V001_V042_CHANGED=NO
+
+MAIN_CHANGED=NO
+ROOM_CHANGED=NO
+GLOBAL_COMMERCE_CHANGED=NO
+
+SHARED_DB_CONTACTED=NO
+PRODUCTION_CONTACTED=NO
+
+PRODUCTION_POLICY_CREATED=NO
+PRODUCTION_KEY_CREATED=NO
+FIELD_AUTHORITY_GRANTED=NO
+
+EXECUTION_AUTHORITY=BLOCKED
+RECOVERY_AUTHORITY=BLOCKED
+ROOM_OPERATIONAL=NO
+
+COMMITS_CREATED=
+FILES_CHANGED=
+
+------------------------------------------------------------
+NEXT
+------------------------------------------------------------
+
+NEXT=
+
+============================================================
+END
+============================================================
+
+Do not execute NEXT.

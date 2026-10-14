@@ -1,0 +1,32 @@
+{
+  "scope": "TEST_ONLY_NO_TIMING_AMENDMENT",
+  "baseline": "701b595511dc70f50a38f128b1c6aa411d3259a1",
+  "request_sha256": "02cdaf8fddf00b8c04f4127478e93ac6caf836c8baeb0dbcbbd8181d3856b40b",
+  "native_rule": {
+    "clock": "CLOCK_BOOTTIME, same Linux boot/PID namespace",
+    "origin": "T3 original serialized participant functional-work result emission, before authenticated send",
+    "observer": "T9 independent HEALTH_GUARD complete identity/generation/functional/dependency validation; recheck at T10 if consumed",
+    "comparison": "for every one of seven participants: 0 <= observer_ns - original_emission_ns <= 100000; integer nanoseconds, no truncation",
+    "actual_us": 100,
+    "maximum_us": 200,
+    "source": "Current explicit user phases1,13,15; Native Health Contract paragraph3 / Design LIVENESS_SOURCE and decision_rule"
+  },
+  "sql_rule": {
+    "clock": "PostgreSQL clock_timestamp timestamptz wall clock",
+    "origin": "offline_readiness.watchdog_checked_at",
+    "observer": "S04 database_now, after bound readiness/policy/slot validation",
+    "comparison": "0 <= EXTRACT(EPOCH FROM(database_now-watchdog_checked_at))*1000000 <= policy_values[23]",
+    "source": "Canonical V043 S04 temporal IF; fixture tag24 actual100us"
+  },
+  "clock_mapping": "Separate equations; no assumption that guard receipt or wall-clock timestamp replaces a native original emission",
+  "participant_names": [
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER"
+  ],
+  "no_alternative_window": true
+}

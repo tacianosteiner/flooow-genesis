@@ -1,0 +1,869 @@
+{
+  "source_raw_cold": "cold/cold-samples.json",
+  "source_raw_warm": [
+    "warm-3/warm-unpinned.json",
+    "warm-3/warm-pin.json"
+  ],
+  "events": {
+    "T0": "trigger received",
+    "T1": "barrier release / functional work starts",
+    "T2": "completed work",
+    "T3": "original emission timestamp serialized",
+    "T4": "authenticated send begins",
+    "T5": "recvmsg returns, kernel delivery observed",
+    "T6": "credentials/pidfd/generation validated",
+    "T7": "functional result validated",
+    "T8": "fresh guard catalog query finishes",
+    "T9": "complete guard decision",
+    "T10": "in-memory qualification consumer reads; not canonical readiness"
+  },
+  "event_order": "T8 may precede T7; preserve real partial ordering, do not force a fictional sequential timeline",
+  "variants": {
+    "unpinned": {
+      "guard_catalog_dependency": {
+        "n": 450,
+        "min_us": 134.618,
+        "p50_us": 327.585,
+        "p90_us": 421.225,
+        "p95_us": 452.224,
+        "p99_us": 526.486,
+        "max_us": 613.425
+      },
+      "guard_fresh_signature_and_first_result_validation": {
+        "n": 450,
+        "min_us": 110.529,
+        "p50_us": 200.618,
+        "p90_us": 230.946,
+        "p95_us": 253.174,
+        "p99_us": 322.563,
+        "max_us": 418.798
+      },
+      "participant_components": {
+        "POSTMASTER": {
+          "work": {
+            "n": 450,
+            "min_us": 149.887,
+            "p50_us": 328.383,
+            "p90_us": 429.752,
+            "p95_us": 486.254,
+            "p99_us": 732.495,
+            "max_us": 1803.88
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.066,
+            "p50_us": 0.135,
+            "p90_us": 0.179,
+            "p95_us": 0.198,
+            "p99_us": 0.267,
+            "max_us": 0.318
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 13.021,
+            "p50_us": 65.728,
+            "p90_us": 90.031,
+            "p95_us": 96.583,
+            "p99_us": 162.55,
+            "max_us": 422.461
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 2.274,
+            "p50_us": 4.862,
+            "p90_us": 6.942,
+            "p95_us": 7.719,
+            "p99_us": 26.326,
+            "max_us": 56.264
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 318.36,
+            "p50_us": 711.95,
+            "p90_us": 911.67,
+            "p95_us": 999.452,
+            "p99_us": 1476.299,
+            "max_us": 2381.493
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 352.051,
+            "p50_us": 784.748,
+            "p90_us": 990.682,
+            "p95_us": 1073.325,
+            "p99_us": 1550.063,
+            "max_us": 2458.647
+          }
+        },
+        "SUPERVISOR": {
+          "work": {
+            "n": 450,
+            "min_us": 7.094,
+            "p50_us": 15.672,
+            "p90_us": 19.602,
+            "p95_us": 21.332,
+            "p99_us": 34.874,
+            "max_us": 65.76
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.066,
+            "p50_us": 0.085,
+            "p90_us": 0.11,
+            "p95_us": 0.117,
+            "p99_us": 0.17,
+            "max_us": 0.22
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 187.411,
+            "p50_us": 380.587,
+            "p90_us": 514.191,
+            "p95_us": 569.516,
+            "p99_us": 892.107,
+            "max_us": 1895.563
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.942,
+            "p50_us": 1.693,
+            "p90_us": 2.32,
+            "p95_us": 2.565,
+            "p99_us": 14.593,
+            "max_us": 31.654
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 315.719,
+            "p50_us": 707.682,
+            "p90_us": 905.078,
+            "p95_us": 994.441,
+            "p99_us": 1468.675,
+            "max_us": 2378.143
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 571.344,
+            "p50_us": 1089.546,
+            "p90_us": 1382.514,
+            "p95_us": 1571.557,
+            "p99_us": 2085.256,
+            "max_us": 2807.585
+          }
+        },
+        "RECEIVER": {
+          "work": {
+            "n": 450,
+            "min_us": 5.622,
+            "p50_us": 14.959,
+            "p90_us": 19.181,
+            "p95_us": 20.568,
+            "p99_us": 36.886,
+            "max_us": 45.833
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.065,
+            "p50_us": 0.086,
+            "p90_us": 0.107,
+            "p95_us": 0.115,
+            "p99_us": 0.145,
+            "max_us": 0.186
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 10.544,
+            "p50_us": 383.861,
+            "p90_us": 512.348,
+            "p95_us": 580.365,
+            "p99_us": 901.954,
+            "max_us": 1903.821
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.851,
+            "p50_us": 1.577,
+            "p90_us": 2.167,
+            "p95_us": 2.332,
+            "p99_us": 14.316,
+            "max_us": 43.136
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 313.598,
+            "p50_us": 704.445,
+            "p90_us": 899.974,
+            "p95_us": 980.249,
+            "p99_us": 1252.893,
+            "max_us": 2375.194
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 571.267,
+            "p50_us": 1087.757,
+            "p90_us": 1371.596,
+            "p95_us": 1540.086,
+            "p99_us": 2041.739,
+            "max_us": 2807.933
+          }
+        },
+        "CENSUS_OBSERVER": {
+          "work": {
+            "n": 450,
+            "min_us": 176.369,
+            "p50_us": 331.098,
+            "p90_us": 424.114,
+            "p95_us": 478.72,
+            "p99_us": 644.181,
+            "max_us": 832.903
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.066,
+            "p50_us": 0.144,
+            "p90_us": 0.185,
+            "p95_us": 0.203,
+            "p99_us": 0.288,
+            "max_us": 0.372
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 4.95,
+            "p50_us": 82.351,
+            "p90_us": 161.395,
+            "p95_us": 237.999,
+            "p99_us": 530.528,
+            "max_us": 1437.363
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.771,
+            "p50_us": 1.454,
+            "p90_us": 3.787,
+            "p95_us": 5.193,
+            "p99_us": 14.222,
+            "max_us": 49.375
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 311.571,
+            "p50_us": 688.094,
+            "p90_us": 857.002,
+            "p95_us": 917.483,
+            "p99_us": 1238.995,
+            "max_us": 2372.903
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 384.844,
+            "p50_us": 771.688,
+            "p90_us": 1002.083,
+            "p95_us": 1126.056,
+            "p99_us": 1633.145,
+            "max_us": 2470.037
+          }
+        },
+        "APPROVAL_PRODUCER": {
+          "work": {
+            "n": 450,
+            "min_us": 59.084,
+            "p50_us": 96.832,
+            "p90_us": 115.309,
+            "p95_us": 122.874,
+            "p99_us": 169.342,
+            "max_us": 449.47
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.063,
+            "p50_us": 0.09,
+            "p90_us": 0.113,
+            "p95_us": 0.138,
+            "p99_us": 0.207,
+            "max_us": 0.302
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 31.099,
+            "p50_us": 317.816,
+            "p90_us": 460.186,
+            "p95_us": 539.148,
+            "p99_us": 806.597,
+            "max_us": 1821.207
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.8,
+            "p50_us": 1.367,
+            "p90_us": 1.841,
+            "p95_us": 2.029,
+            "p99_us": 13.933,
+            "max_us": 41.419
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 309.393,
+            "p50_us": 684.769,
+            "p90_us": 853.306,
+            "p95_us": 910.082,
+            "p99_us": 1226.351,
+            "max_us": 2361.194
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 479.126,
+            "p50_us": 1001.658,
+            "p90_us": 1274.825,
+            "p95_us": 1395.959,
+            "p99_us": 1910.121,
+            "max_us": 2734.54
+          }
+        },
+        "APPROVAL_CONSUMER": {
+          "work": {
+            "n": 450,
+            "min_us": 168.738,
+            "p50_us": 294.032,
+            "p90_us": 372.48,
+            "p95_us": 408.423,
+            "p99_us": 692.664,
+            "max_us": 1083.963
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.063,
+            "p50_us": 0.096,
+            "p90_us": 0.145,
+            "p95_us": 0.178,
+            "p99_us": 0.237,
+            "max_us": 0.269
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 5.622,
+            "p50_us": 121.174,
+            "p90_us": 248.457,
+            "p95_us": 310.042,
+            "p99_us": 556.738,
+            "max_us": 1630.103
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.86,
+            "p50_us": 1.552,
+            "p90_us": 2.174,
+            "p95_us": 6.183,
+            "p99_us": 14.214,
+            "max_us": 94.662
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 307.704,
+            "p50_us": 679.203,
+            "p90_us": 835.916,
+            "p95_us": 881.148,
+            "p99_us": 1012.427,
+            "max_us": 2358.69
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 358.62,
+            "p50_us": 796.563,
+            "p90_us": 1031.992,
+            "p95_us": 1126.476,
+            "p99_us": 1387.277,
+            "max_us": 2537.372
+          }
+        },
+        "ENFORCEMENT_WORKER": {
+          "work": {
+            "n": 450,
+            "min_us": 135.098,
+            "p50_us": 485.043,
+            "p90_us": 674.105,
+            "p95_us": 802.827,
+            "p99_us": 1182.421,
+            "max_us": 2035.644
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.066,
+            "p50_us": 0.153,
+            "p90_us": 0.195,
+            "p95_us": 0.22,
+            "p99_us": 0.249,
+            "max_us": 0.767
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 18.851,
+            "p50_us": 61.369,
+            "p90_us": 79.389,
+            "p95_us": 85.701,
+            "p99_us": 100.639,
+            "max_us": 116.949
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 1.084,
+            "p50_us": 3.665,
+            "p90_us": 5.931,
+            "p95_us": 6.494,
+            "p99_us": 19.869,
+            "max_us": 56.877
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 254.034,
+            "p50_us": 537.309,
+            "p90_us": 670.554,
+            "p95_us": 699.633,
+            "p99_us": 787.373,
+            "max_us": 868.696
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 282.326,
+            "p50_us": 600.806,
+            "p90_us": 745.702,
+            "p95_us": 780.551,
+            "p99_us": 888.568,
+            "max_us": 961.463
+          }
+        }
+      },
+      "hot_path_evidence_IO": "NONE",
+      "scheduler_policy": 0,
+      "available_cpu_count": 16,
+      "affinity_pinned": false
+    },
+    "pin": {
+      "guard_catalog_dependency": {
+        "n": 450,
+        "min_us": 86.931,
+        "p50_us": 101.432,
+        "p90_us": 136.691,
+        "p95_us": 148.981,
+        "p99_us": 222.5,
+        "max_us": 294.827
+      },
+      "guard_fresh_signature_and_first_result_validation": {
+        "n": 450,
+        "min_us": 82.381,
+        "p50_us": 92.361,
+        "p90_us": 114.291,
+        "p95_us": 122.07,
+        "p99_us": 142.019,
+        "max_us": 252.863
+      },
+      "participant_components": {
+        "POSTMASTER": {
+          "work": {
+            "n": 450,
+            "min_us": 92.263,
+            "p50_us": 117.647,
+            "p90_us": 207.3,
+            "p95_us": 228.98,
+            "p99_us": 284.573,
+            "max_us": 336.195
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.047,
+            "p50_us": 0.053,
+            "p90_us": 0.078,
+            "p95_us": 0.134,
+            "p99_us": 0.204,
+            "max_us": 0.261
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 7.227,
+            "p50_us": 19.516,
+            "p90_us": 32.093,
+            "p95_us": 41.177,
+            "p99_us": 57.904,
+            "max_us": 85.915
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 1.045,
+            "p50_us": 1.81,
+            "p90_us": 2.684,
+            "p95_us": 3.487,
+            "p99_us": 11.248,
+            "max_us": 23.625
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 223.257,
+            "p50_us": 351.861,
+            "p90_us": 427.889,
+            "p95_us": 458.129,
+            "p99_us": 590.539,
+            "max_us": 850.185
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 253.401,
+            "p50_us": 377.908,
+            "p90_us": 453.107,
+            "p95_us": 485.362,
+            "p99_us": 616.952,
+            "max_us": 885.788
+          }
+        },
+        "SUPERVISOR": {
+          "work": {
+            "n": 450,
+            "min_us": 2.654,
+            "p50_us": 4.693,
+            "p90_us": 6.111,
+            "p95_us": 7.042,
+            "p99_us": 12.649,
+            "max_us": 21.043
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.048,
+            "p50_us": 0.059,
+            "p90_us": 0.068,
+            "p95_us": 0.075,
+            "p99_us": 0.092,
+            "max_us": 0.17
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 108.591,
+            "p50_us": 138.216,
+            "p90_us": 230.191,
+            "p95_us": 249.829,
+            "p99_us": 330.404,
+            "max_us": 358.376
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.605,
+            "p50_us": 0.738,
+            "p90_us": 0.985,
+            "p95_us": 1.294,
+            "p99_us": 8.442,
+            "max_us": 11.221
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 221.598,
+            "p50_us": 349.98,
+            "p90_us": 424.466,
+            "p95_us": 456.236,
+            "p99_us": 588.785,
+            "max_us": 847.245
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 380.793,
+            "p50_us": 493.904,
+            "p90_us": 607.308,
+            "p95_us": 658.557,
+            "p99_us": 773.938,
+            "max_us": 1029.365
+          }
+        },
+        "RECEIVER": {
+          "work": {
+            "n": 450,
+            "min_us": 3.048,
+            "p50_us": 4.205,
+            "p90_us": 10.842,
+            "p95_us": 13.151,
+            "p99_us": 17.894,
+            "max_us": 74.928
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.047,
+            "p50_us": 0.054,
+            "p90_us": 0.075,
+            "p95_us": 0.086,
+            "p99_us": 0.125,
+            "max_us": 0.191
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 52.81,
+            "p50_us": 138.773,
+            "p90_us": 227.396,
+            "p95_us": 247.99,
+            "p99_us": 326.401,
+            "max_us": 357.675
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.595,
+            "p50_us": 0.688,
+            "p90_us": 0.9,
+            "p95_us": 1.216,
+            "p99_us": 8.49,
+            "max_us": 11.682
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 220.078,
+            "p50_us": 348.212,
+            "p90_us": 421.484,
+            "p95_us": 454.641,
+            "p99_us": 586.958,
+            "max_us": 844.766
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 381.73,
+            "p50_us": 494.115,
+            "p90_us": 605.164,
+            "p95_us": 648.819,
+            "p99_us": 747.22,
+            "max_us": 1024.608
+          }
+        },
+        "CENSUS_OBSERVER": {
+          "work": {
+            "n": 450,
+            "min_us": 92.463,
+            "p50_us": 124.956,
+            "p90_us": 181.132,
+            "p95_us": 214.492,
+            "p99_us": 275.094,
+            "max_us": 333.56
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.048,
+            "p50_us": 0.057,
+            "p90_us": 0.079,
+            "p95_us": 0.118,
+            "p99_us": 0.169,
+            "max_us": 0.223
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 1.454,
+            "p50_us": 19.137,
+            "p90_us": 80.759,
+            "p95_us": 112.703,
+            "p99_us": 139.463,
+            "max_us": 233.405
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.607,
+            "p50_us": 0.776,
+            "p90_us": 1.876,
+            "p95_us": 2.415,
+            "p99_us": 8.441,
+            "max_us": 19.369
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 218.602,
+            "p50_us": 330.948,
+            "p90_us": 406.472,
+            "p95_us": 449.504,
+            "p99_us": 585.286,
+            "max_us": 740.037
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 236.539,
+            "p50_us": 361.682,
+            "p90_us": 438.687,
+            "p95_us": 486.333,
+            "p99_us": 606.574,
+            "max_us": 746.676
+          }
+        },
+        "APPROVAL_PRODUCER": {
+          "work": {
+            "n": 450,
+            "min_us": 35.281,
+            "p50_us": 64.544,
+            "p90_us": 78.931,
+            "p95_us": 84.581,
+            "p99_us": 119.685,
+            "max_us": 145.846
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.049,
+            "p50_us": 0.067,
+            "p90_us": 0.092,
+            "p95_us": 0.113,
+            "p99_us": 0.15,
+            "max_us": 0.18
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 18.358,
+            "p50_us": 89.774,
+            "p90_us": 181.274,
+            "p95_us": 204.446,
+            "p99_us": 258.077,
+            "max_us": 326.099
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.557,
+            "p50_us": 0.688,
+            "p90_us": 0.938,
+            "p95_us": 1.271,
+            "p99_us": 6.803,
+            "max_us": 9.751
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 217.172,
+            "p50_us": 328.71,
+            "p90_us": 399.819,
+            "p95_us": 437.596,
+            "p99_us": 534.232,
+            "max_us": 738.381
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 310.336,
+            "p50_us": 420.048,
+            "p90_us": 523.167,
+            "p95_us": 561.115,
+            "p99_us": 661.175,
+            "max_us": 901.406
+          }
+        },
+        "APPROVAL_CONSUMER": {
+          "work": {
+            "n": 450,
+            "min_us": 91.458,
+            "p50_us": 187.727,
+            "p90_us": 232.381,
+            "p95_us": 250.478,
+            "p99_us": 341.324,
+            "max_us": 398.137
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.047,
+            "p50_us": 0.071,
+            "p90_us": 0.095,
+            "p95_us": 0.104,
+            "p99_us": 0.173,
+            "max_us": 0.254
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 4.782,
+            "p50_us": 34.077,
+            "p90_us": 59.788,
+            "p95_us": 89.201,
+            "p99_us": 120.341,
+            "max_us": 205.811
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.561,
+            "p50_us": 1.007,
+            "p90_us": 1.942,
+            "p95_us": 2.376,
+            "p99_us": 9.697,
+            "max_us": 11.611
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 212.285,
+            "p50_us": 240.979,
+            "p90_us": 319.443,
+            "p95_us": 343.721,
+            "p99_us": 441.953,
+            "max_us": 644.218
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 226.001,
+            "p50_us": 277.59,
+            "p90_us": 365.241,
+            "p95_us": 411.393,
+            "p99_us": 505.878,
+            "max_us": 700.058
+          }
+        },
+        "ENFORCEMENT_WORKER": {
+          "work": {
+            "n": 450,
+            "min_us": 132.657,
+            "p50_us": 247.46,
+            "p90_us": 313.283,
+            "p95_us": 340.103,
+            "p99_us": 423.016,
+            "max_us": 628.395
+          },
+          "serialization_and_send_preparation": {
+            "n": 450,
+            "min_us": 0.047,
+            "p50_us": 0.053,
+            "p90_us": 0.07,
+            "p95_us": 0.078,
+            "p99_us": 0.157,
+            "max_us": 80.106
+          },
+          "IPC_and_queue_and_guard_descheduling_combined": {
+            "n": 450,
+            "min_us": 12.847,
+            "p50_us": 17.281,
+            "p90_us": 23.328,
+            "p95_us": 28.555,
+            "p99_us": 59.244,
+            "max_us": 88.84
+          },
+          "credentials_pidfd_generation_combined": {
+            "n": 450,
+            "min_us": 0.764,
+            "p50_us": 0.922,
+            "p90_us": 1.949,
+            "p95_us": 2.749,
+            "p99_us": 8.785,
+            "max_us": 10.998
+          },
+          "guard_processing_after_identity": {
+            "n": 450,
+            "min_us": 174.235,
+            "p50_us": 198.404,
+            "p90_us": 254.989,
+            "p95_us": 276.604,
+            "p99_us": 324.32,
+            "max_us": 534.85
+          },
+          "end_to_end_age": {
+            "n": 450,
+            "min_us": 190.367,
+            "p50_us": 217.467,
+            "p90_us": 286.143,
+            "p95_us": 306.269,
+            "p99_us": 359.757,
+            "max_us": 610.101
+          }
+        }
+      },
+      "hot_path_evidence_IO": "NONE",
+      "scheduler_policy": 0,
+      "available_cpu_count": 16,
+      "affinity_pinned": true
+    }
+  },
+  "scheduler_wait_us": null,
+  "scheduler_unavailable_reason": "Linux sched_schedstats observed0; retain raw counters but do not interpret zero as zero scheduler wait",
+  "IPC_us": null,
+  "queue_wait_us": null,
+  "credential_validation_us_separate": null,
+  "pidfd_validation_us_separate": null,
+  "measurement_limits": "Transport/queue/descheduling cannot be separately attributed with compatible kernel timestamps in this capture. Credentials and pidfd checks have a measured combined span. These gaps remain explicit, not hidden in other.",
+  "setup_legal_basis": "Current user phases4/5/6/9/10 authorize pre-established processes, connections/plans, providers, pidfds/channels, immutable identity expectations and buffers. Actual SQL queries/signatures/kernel action and validation are rerun each epoch.",
+  "hot_path_evidence_IO": "NONE_OPTIMIZED_BASELINE_PRESENT",
+  "unsafe_realtime_privileges": false
+}
