@@ -1,0 +1,11 @@
+--- a/applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql
++++ b/applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql
+@@ -7206,7 +7206,7 @@
+        OR EXTRACT(EPOCH FROM(database_now-pg_catalog.transaction_timestamp()))*1000000>policy_values[19] THEN
+         RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
+     END IF;
+-    RETURN QUERY SELECT h.installed_rank,h.version,h.type,h.script,h.checksum,h.success
++    RETURN QUERY SELECT h.installed_rank,h.version::pg_catalog.text,h.type::pg_catalog.text,h.script::pg_catalog.text,h.checksum,h.success
+       FROM public.flyway_schema_history h ORDER BY h.installed_rank;
+     IF EXTRACT(EPOCH FROM(pg_catalog.clock_timestamp()-pg_catalog.transaction_timestamp()))*1000000>policy_values[19] THEN
+         RAISE EXCEPTION USING ERRCODE='P0017',MESSAGE='ACCESS_DENIED';
