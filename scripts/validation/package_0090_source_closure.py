@@ -24,7 +24,7 @@ import zlib
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATIONS = ROOT / 'applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration'
 V043 = next(MIGRATIONS.glob('V043__*.sql'))
-SOURCE_HASH = 'b0ea86b6ba355fdf25fe09836bd4b75e4a4a2ad88ab7ef0e4724ca0d5a013e7d'
+SOURCE_HASH = '007ab786c417c41e2b1702ebf3852cb70ff5c142fa3fde195385e04c6dde8b4a'
 IMAGE = 'sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561'
 FROZEN = '19131bb9cd655312252c8c83f0f78e7c0742274f'
 FENCE = b"DO $$\nBEGIN\n    RAISE EXCEPTION USING ERRCODE = '55000',\n        MESSAGE = 'Package 0090 V043 implementation closure is incomplete; execution denied';\nEND;\n$$;"

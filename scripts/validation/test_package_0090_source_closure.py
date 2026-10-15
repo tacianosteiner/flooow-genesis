@@ -21,7 +21,7 @@ class QualificationBoundaryTest(unittest.TestCase):
         self.assertEqual(candidate[:proof['offset']] + q.FENCE + candidate[proof['offset']:], SOURCE)
         self.assertEqual(len(SOURCE) - len(candidate), 159)
         self.assertTrue(proof['ast_equivalence'])
-        self.assertEqual(proof['candidate_sha256'], '6ad78ba61d70e803d2a878034aa7988b69b6374568f96949b2ef6c8defc7a8c7')
+        self.assertEqual(proof['candidate_sha256'], '50620e0a64da25c2c33a1060d5e8b632c34f04fbd67636eebf203f9b859c5d70')
 
     def test_unreviewed_source_change_denied(self):
         with self.assertRaisesRegex(ValueError, 'source hash mismatch'):
