@@ -1,0 +1,827 @@
+{
+  "cases": [
+    {
+      "name": "old_raw_control_reproduces_42804",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": "42804"
+    },
+    {
+      "name": "qualified_candidate_success_00000",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": "00000"
+    },
+    {
+      "name": "qualified_candidate_exact_42_rows_all_six_fields",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": {
+        "rows": 42,
+        "comparison": "Exact independently frozen six-field values"
+      }
+    },
+    {
+      "name": "qualified_candidate_rank_order_1_to_42",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": "WITH ORDINALITY retains actual function delivery order; never sort by installed_rank to establish this assertion"
+    },
+    {
+      "name": "candidate_type_and_binary_content_version",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": {
+        "observed": "t|t",
+        "comparison": "Raw varchar binary send vs text binary send for every source row"
+      }
+    },
+    {
+      "name": "candidate_type_and_binary_content_type",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": {
+        "observed": "t|t",
+        "comparison": "Raw varchar binary send vs text binary send for every source row"
+      }
+    },
+    {
+      "name": "candidate_type_and_binary_content_script",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": {
+        "observed": "t|t",
+        "comparison": "Raw varchar binary send vs text binary send for every source row"
+      }
+    },
+    {
+      "name": "NULL_preserved",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": "No coalesce/default/normalization"
+    },
+    {
+      "name": "expected_database_encoding_UTF8",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": "Compare binary textual contents under approved encoding"
+    },
+    {
+      "name": "qualified_cast_resists_temp_and_public_type_shadow",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": {
+        "unqualified_type_oid": "19640",
+        "qualified_text_oid": "25",
+        "rows": 42,
+        "search_path": "pg_temp,public,pg_catalog",
+        "public_type_removed": true
+      }
+    },
+    {
+      "name": "canonical_and_index_unchanged",
+      "passed": true,
+      "group": "CANDIDATE",
+      "details": {
+        "canonical_sha256": "007ab786c417c41e2b1702ebf3852cb70ff5c142fa3fde195385e04c6dde8b4a",
+        "candidate_executed_only_in_pg_temp": true
+      }
+    }
+  ],
+  "old_raw_sqlstate": "42804",
+  "candidate": {
+    "rows": [
+      {
+        "type": "SQL",
+        "script": "V001__create_inventory_risk_assessment_journal.sql",
+        "success": true,
+        "version": "001",
+        "checksum": -1586741974,
+        "installed_rank": 1
+      },
+      {
+        "type": "SQL",
+        "script": "V002__create_integration_event_outbox.sql",
+        "success": true,
+        "version": "002",
+        "checksum": 126115083,
+        "installed_rank": 2
+      },
+      {
+        "type": "SQL",
+        "script": "V003__create_integration_event_delivery.sql",
+        "success": true,
+        "version": "003",
+        "checksum": -1080502606,
+        "installed_rank": 3
+      },
+      {
+        "type": "SQL",
+        "script": "V004__create_integration_control_plane.sql",
+        "success": true,
+        "version": "004",
+        "checksum": -88250422,
+        "installed_rank": 4
+      },
+      {
+        "type": "SQL",
+        "script": "V005__propagate_organization_context.sql",
+        "success": true,
+        "version": "005",
+        "checksum": -295115246,
+        "installed_rank": 5
+      },
+      {
+        "type": "SQL",
+        "script": "V006__create_inventory_source_ledger.sql",
+        "success": true,
+        "version": "006",
+        "checksum": -160916869,
+        "installed_rank": 6
+      },
+      {
+        "type": "SQL",
+        "script": "V007__create_inventory_identity_mapping.sql",
+        "success": true,
+        "version": "007",
+        "checksum": 1400283408,
+        "installed_rank": 7
+      },
+      {
+        "type": "SQL",
+        "script": "V008__create_canonical_inventory_observation.sql",
+        "success": true,
+        "version": "008",
+        "checksum": -1830861528,
+        "installed_rank": 8
+      },
+      {
+        "type": "SQL",
+        "script": "V009__allow_mapping_across_matching_inventory_evidence.sql",
+        "success": true,
+        "version": "009",
+        "checksum": -168542165,
+        "installed_rank": 9
+      },
+      {
+        "type": "SQL",
+        "script": "V010__create_canonical_inventory_source_acceptance.sql",
+        "success": true,
+        "version": "010",
+        "checksum": -267556503,
+        "installed_rank": 10
+      },
+      {
+        "type": "SQL",
+        "script": "V011__create_canonical_inventory_measure_selection.sql",
+        "success": true,
+        "version": "011",
+        "checksum": 998362485,
+        "installed_rank": 11
+      },
+      {
+        "type": "SQL",
+        "script": "V012__create_canonical_inventory_candidate_snapshot.sql",
+        "success": true,
+        "version": "012",
+        "checksum": 711492973,
+        "installed_rank": 12
+      },
+      {
+        "type": "SQL",
+        "script": "V013__create_canonical_inventory_candidate_adjudication.sql",
+        "success": true,
+        "version": "013",
+        "checksum": -59414358,
+        "installed_rank": 13
+      },
+      {
+        "type": "SQL",
+        "script": "V014__create_marketplace_financial_ledger.sql",
+        "success": true,
+        "version": "014",
+        "checksum": 520974744,
+        "installed_rank": 14
+      },
+      {
+        "type": "SQL",
+        "script": "V015__create_independent_marketplace_economic_evidence.sql",
+        "success": true,
+        "version": "015",
+        "checksum": 1556483168,
+        "installed_rank": 15
+      },
+      {
+        "type": "SQL",
+        "script": "V016__create_marketplace_economic_evidence_projection_checkpoint.sql",
+        "success": true,
+        "version": "016",
+        "checksum": 1462337216,
+        "installed_rank": 16
+      },
+      {
+        "type": "SQL",
+        "script": "V017__add_order_occurrence_to_independent_marketplace_economic_evidence.sql",
+        "success": true,
+        "version": "017",
+        "checksum": 1173709995,
+        "installed_rank": 17
+      },
+      {
+        "type": "SQL",
+        "script": "V018__create_marketplace_sales_intelligence_projection.sql",
+        "success": true,
+        "version": "018",
+        "checksum": 309518371,
+        "installed_rank": 18
+      },
+      {
+        "type": "SQL",
+        "script": "V019__create_omie_product_cost_source_observation.sql",
+        "success": true,
+        "version": "019",
+        "checksum": -792333816,
+        "installed_rank": 19
+      },
+      {
+        "type": "SQL",
+        "script": "V020__create_credential_rotation_execution.sql",
+        "success": true,
+        "version": "020",
+        "checksum": -1694687584,
+        "installed_rank": 20
+      },
+      {
+        "type": "SQL",
+        "script": "V021__create_mercado_livre_order_source_observation.sql",
+        "success": true,
+        "version": "021",
+        "checksum": 993334571,
+        "installed_rank": 21
+      },
+      {
+        "type": "SQL",
+        "script": "V022__create_marketplace_order_identity_and_occurrence_promotion.sql",
+        "success": true,
+        "version": "022",
+        "checksum": -954032763,
+        "installed_rank": 22
+      },
+      {
+        "type": "SQL",
+        "script": "V023__create_marketplace_order_revenue_source_promotion.sql",
+        "success": true,
+        "version": "023",
+        "checksum": 1426238664,
+        "installed_rank": 23
+      },
+      {
+        "type": "SQL",
+        "script": "V024__create_marketplace_reconciliation_case.sql",
+        "success": true,
+        "version": "024",
+        "checksum": -537037466,
+        "installed_rank": 24
+      },
+      {
+        "type": "SQL",
+        "script": "V025__create_marketplace_systemic_divergence_signal.sql",
+        "success": true,
+        "version": "025",
+        "checksum": -178315441,
+        "installed_rank": 25
+      },
+      {
+        "type": "SQL",
+        "script": "V026__create_omie_transaction_evidence.sql",
+        "success": true,
+        "version": "026",
+        "checksum": 1375235353,
+        "installed_rank": 26
+      },
+      {
+        "type": "SQL",
+        "script": "V027__add_mercado_livre_seller_sku_evidence.sql",
+        "success": true,
+        "version": "027",
+        "checksum": -1453432903,
+        "installed_rank": 27
+      },
+      {
+        "type": "SQL",
+        "script": "V028__allow_governed_reacquisition_capabilities.sql",
+        "success": true,
+        "version": "028",
+        "checksum": -414040372,
+        "installed_rank": 28
+      },
+      {
+        "type": "SQL",
+        "script": "V029__create_cross_system_product_identity_decision.sql",
+        "success": true,
+        "version": "029",
+        "checksum": -712778487,
+        "installed_rank": 29
+      },
+      {
+        "type": "SQL",
+        "script": "V030__create_reconciliation_case_revision_assessment_lineage.sql",
+        "success": true,
+        "version": "030",
+        "checksum": -810899834,
+        "installed_rank": 30
+      },
+      {
+        "type": "SQL",
+        "script": "V031__create_financial_reconciliation_policy_authority.sql",
+        "success": true,
+        "version": "031",
+        "checksum": 673194505,
+        "installed_rank": 31
+      },
+      {
+        "type": "SQL",
+        "script": "V032__create_financial_ledger_materialization_lineage.sql",
+        "success": true,
+        "version": "032",
+        "checksum": 1965235234,
+        "installed_rank": 32
+      },
+      {
+        "type": "SQL",
+        "script": "V033__create_omie_transaction_evidence_v3_source_evidence.sql",
+        "success": true,
+        "version": "033",
+        "checksum": -445138512,
+        "installed_rank": 33
+      },
+      {
+        "type": "SQL",
+        "script": "V034__create_command_authorization.sql",
+        "success": true,
+        "version": "034",
+        "checksum": -1770184515,
+        "installed_rank": 34
+      },
+      {
+        "type": "SQL",
+        "script": "V035__create_explicit_transaction_identity.sql",
+        "success": true,
+        "version": "035",
+        "checksum": 1551560369,
+        "installed_rank": 35
+      },
+      {
+        "type": "SQL",
+        "script": "V036__add_transaction_identity_withdrawal.sql",
+        "success": true,
+        "version": "036",
+        "checksum": -1440468462,
+        "installed_rank": 36
+      },
+      {
+        "type": "SQL",
+        "script": "V037__add_controlled_command_authority_provisioning.sql",
+        "success": true,
+        "version": "037",
+        "checksum": -973168858,
+        "installed_rank": 37
+      },
+      {
+        "type": "SQL",
+        "script": "V038__add_revenue_promotion_economic_observation_lineage.sql",
+        "success": true,
+        "version": "038",
+        "checksum": -1432966794,
+        "installed_rank": 38
+      },
+      {
+        "type": "SQL",
+        "script": "V039__restrict_transaction_identity_runtime_privileges.sql",
+        "success": true,
+        "version": "039",
+        "checksum": 677069546,
+        "installed_rank": 39
+      },
+      {
+        "type": "SQL",
+        "script": "V040__create_s2a_approval_governance.sql",
+        "success": true,
+        "version": "040",
+        "checksum": 1009186060,
+        "installed_rank": 40
+      },
+      {
+        "type": "SQL",
+        "script": "V041__create_s2a_accepted_attestation.sql",
+        "success": true,
+        "version": "041",
+        "checksum": 2058571507,
+        "installed_rank": 41
+      },
+      {
+        "type": "SQL",
+        "script": "V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "success": true,
+        "version": "042",
+        "checksum": -1293350141,
+        "installed_rank": 42
+      }
+    ],
+    "sqlstate": "00000",
+    "delivered_ranks": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42
+    ]
+  },
+  "shadow_proof": {
+    "rows": [
+      {
+        "type": "SQL",
+        "script": "V001__create_inventory_risk_assessment_journal.sql",
+        "success": true,
+        "version": "001",
+        "checksum": -1586741974,
+        "installed_rank": 1
+      },
+      {
+        "type": "SQL",
+        "script": "V002__create_integration_event_outbox.sql",
+        "success": true,
+        "version": "002",
+        "checksum": 126115083,
+        "installed_rank": 2
+      },
+      {
+        "type": "SQL",
+        "script": "V003__create_integration_event_delivery.sql",
+        "success": true,
+        "version": "003",
+        "checksum": -1080502606,
+        "installed_rank": 3
+      },
+      {
+        "type": "SQL",
+        "script": "V004__create_integration_control_plane.sql",
+        "success": true,
+        "version": "004",
+        "checksum": -88250422,
+        "installed_rank": 4
+      },
+      {
+        "type": "SQL",
+        "script": "V005__propagate_organization_context.sql",
+        "success": true,
+        "version": "005",
+        "checksum": -295115246,
+        "installed_rank": 5
+      },
+      {
+        "type": "SQL",
+        "script": "V006__create_inventory_source_ledger.sql",
+        "success": true,
+        "version": "006",
+        "checksum": -160916869,
+        "installed_rank": 6
+      },
+      {
+        "type": "SQL",
+        "script": "V007__create_inventory_identity_mapping.sql",
+        "success": true,
+        "version": "007",
+        "checksum": 1400283408,
+        "installed_rank": 7
+      },
+      {
+        "type": "SQL",
+        "script": "V008__create_canonical_inventory_observation.sql",
+        "success": true,
+        "version": "008",
+        "checksum": -1830861528,
+        "installed_rank": 8
+      },
+      {
+        "type": "SQL",
+        "script": "V009__allow_mapping_across_matching_inventory_evidence.sql",
+        "success": true,
+        "version": "009",
+        "checksum": -168542165,
+        "installed_rank": 9
+      },
+      {
+        "type": "SQL",
+        "script": "V010__create_canonical_inventory_source_acceptance.sql",
+        "success": true,
+        "version": "010",
+        "checksum": -267556503,
+        "installed_rank": 10
+      },
+      {
+        "type": "SQL",
+        "script": "V011__create_canonical_inventory_measure_selection.sql",
+        "success": true,
+        "version": "011",
+        "checksum": 998362485,
+        "installed_rank": 11
+      },
+      {
+        "type": "SQL",
+        "script": "V012__create_canonical_inventory_candidate_snapshot.sql",
+        "success": true,
+        "version": "012",
+        "checksum": 711492973,
+        "installed_rank": 12
+      },
+      {
+        "type": "SQL",
+        "script": "V013__create_canonical_inventory_candidate_adjudication.sql",
+        "success": true,
+        "version": "013",
+        "checksum": -59414358,
+        "installed_rank": 13
+      },
+      {
+        "type": "SQL",
+        "script": "V014__create_marketplace_financial_ledger.sql",
+        "success": true,
+        "version": "014",
+        "checksum": 520974744,
+        "installed_rank": 14
+      },
+      {
+        "type": "SQL",
+        "script": "V015__create_independent_marketplace_economic_evidence.sql",
+        "success": true,
+        "version": "015",
+        "checksum": 1556483168,
+        "installed_rank": 15
+      },
+      {
+        "type": "SQL",
+        "script": "V016__create_marketplace_economic_evidence_projection_checkpoint.sql",
+        "success": true,
+        "version": "016",
+        "checksum": 1462337216,
+        "installed_rank": 16
+      },
+      {
+        "type": "SQL",
+        "script": "V017__add_order_occurrence_to_independent_marketplace_economic_evidence.sql",
+        "success": true,
+        "version": "017",
+        "checksum": 1173709995,
+        "installed_rank": 17
+      },
+      {
+        "type": "SQL",
+        "script": "V018__create_marketplace_sales_intelligence_projection.sql",
+        "success": true,
+        "version": "018",
+        "checksum": 309518371,
+        "installed_rank": 18
+      },
+      {
+        "type": "SQL",
+        "script": "V019__create_omie_product_cost_source_observation.sql",
+        "success": true,
+        "version": "019",
+        "checksum": -792333816,
+        "installed_rank": 19
+      },
+      {
+        "type": "SQL",
+        "script": "V020__create_credential_rotation_execution.sql",
+        "success": true,
+        "version": "020",
+        "checksum": -1694687584,
+        "installed_rank": 20
+      },
+      {
+        "type": "SQL",
+        "script": "V021__create_mercado_livre_order_source_observation.sql",
+        "success": true,
+        "version": "021",
+        "checksum": 993334571,
+        "installed_rank": 21
+      },
+      {
+        "type": "SQL",
+        "script": "V022__create_marketplace_order_identity_and_occurrence_promotion.sql",
+        "success": true,
+        "version": "022",
+        "checksum": -954032763,
+        "installed_rank": 22
+      },
+      {
+        "type": "SQL",
+        "script": "V023__create_marketplace_order_revenue_source_promotion.sql",
+        "success": true,
+        "version": "023",
+        "checksum": 1426238664,
+        "installed_rank": 23
+      },
+      {
+        "type": "SQL",
+        "script": "V024__create_marketplace_reconciliation_case.sql",
+        "success": true,
+        "version": "024",
+        "checksum": -537037466,
+        "installed_rank": 24
+      },
+      {
+        "type": "SQL",
+        "script": "V025__create_marketplace_systemic_divergence_signal.sql",
+        "success": true,
+        "version": "025",
+        "checksum": -178315441,
+        "installed_rank": 25
+      },
+      {
+        "type": "SQL",
+        "script": "V026__create_omie_transaction_evidence.sql",
+        "success": true,
+        "version": "026",
+        "checksum": 1375235353,
+        "installed_rank": 26
+      },
+      {
+        "type": "SQL",
+        "script": "V027__add_mercado_livre_seller_sku_evidence.sql",
+        "success": true,
+        "version": "027",
+        "checksum": -1453432903,
+        "installed_rank": 27
+      },
+      {
+        "type": "SQL",
+        "script": "V028__allow_governed_reacquisition_capabilities.sql",
+        "success": true,
+        "version": "028",
+        "checksum": -414040372,
+        "installed_rank": 28
+      },
+      {
+        "type": "SQL",
+        "script": "V029__create_cross_system_product_identity_decision.sql",
+        "success": true,
+        "version": "029",
+        "checksum": -712778487,
+        "installed_rank": 29
+      },
+      {
+        "type": "SQL",
+        "script": "V030__create_reconciliation_case_revision_assessment_lineage.sql",
+        "success": true,
+        "version": "030",
+        "checksum": -810899834,
+        "installed_rank": 30
+      },
+      {
+        "type": "SQL",
+        "script": "V031__create_financial_reconciliation_policy_authority.sql",
+        "success": true,
+        "version": "031",
+        "checksum": 673194505,
+        "installed_rank": 31
+      },
+      {
+        "type": "SQL",
+        "script": "V032__create_financial_ledger_materialization_lineage.sql",
+        "success": true,
+        "version": "032",
+        "checksum": 1965235234,
+        "installed_rank": 32
+      },
+      {
+        "type": "SQL",
+        "script": "V033__create_omie_transaction_evidence_v3_source_evidence.sql",
+        "success": true,
+        "version": "033",
+        "checksum": -445138512,
+        "installed_rank": 33
+      },
+      {
+        "type": "SQL",
+        "script": "V034__create_command_authorization.sql",
+        "success": true,
+        "version": "034",
+        "checksum": -1770184515,
+        "installed_rank": 34
+      },
+      {
+        "type": "SQL",
+        "script": "V035__create_explicit_transaction_identity.sql",
+        "success": true,
+        "version": "035",
+        "checksum": 1551560369,
+        "installed_rank": 35
+      },
+      {
+        "type": "SQL",
+        "script": "V036__add_transaction_identity_withdrawal.sql",
+        "success": true,
+        "version": "036",
+        "checksum": -1440468462,
+        "installed_rank": 36
+      },
+      {
+        "type": "SQL",
+        "script": "V037__add_controlled_command_authority_provisioning.sql",
+        "success": true,
+        "version": "037",
+        "checksum": -973168858,
+        "installed_rank": 37
+      },
+      {
+        "type": "SQL",
+        "script": "V038__add_revenue_promotion_economic_observation_lineage.sql",
+        "success": true,
+        "version": "038",
+        "checksum": -1432966794,
+        "installed_rank": 38
+      },
+      {
+        "type": "SQL",
+        "script": "V039__restrict_transaction_identity_runtime_privileges.sql",
+        "success": true,
+        "version": "039",
+        "checksum": 677069546,
+        "installed_rank": 39
+      },
+      {
+        "type": "SQL",
+        "script": "V040__create_s2a_approval_governance.sql",
+        "success": true,
+        "version": "040",
+        "checksum": 1009186060,
+        "installed_rank": 40
+      },
+      {
+        "type": "SQL",
+        "script": "V041__create_s2a_accepted_attestation.sql",
+        "success": true,
+        "version": "041",
+        "checksum": 2058571507,
+        "installed_rank": 41
+      },
+      {
+        "type": "SQL",
+        "script": "V042__create_s2a_attestation_consumption_and_attested_command_authority.sql",
+        "success": true,
+        "version": "042",
+        "checksum": -1293350141,
+        "installed_rank": 42
+      }
+    ],
+    "all_text": true,
+    "qualified_oid": "25",
+    "unqualified_oid": "19640"
+  },
+  "corrected_types": [
+    "text",
+    "text",
+    "text"
+  ],
+  "canonical_S04_executed": false,
+  "qualified_candidate_helper_sql": "CREATE FUNCTION pg_temp.test_0090_qualified_candidate() RETURNS TABLE(installed_rank pg_catalog.int4,version pg_catalog.text,type pg_catalog.text,script pg_catalog.text,checksum pg_catalog.int4,success pg_catalog.bool) LANGUAGE plpgsql AS $candidate$ BEGIN RETURN QUERY SELECT h.installed_rank,h.version::pg_catalog.text,h.type::pg_catalog.text,h.script::pg_catalog.text,h.checksum,h.success\n      FROM public.flyway_schema_history h ORDER BY h.installed_rank; END $candidate$;"
+}
