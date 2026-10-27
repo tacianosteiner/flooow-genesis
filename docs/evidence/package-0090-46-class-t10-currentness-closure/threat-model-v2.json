@@ -1,0 +1,22 @@
+{
+  "complete": true,
+  "sources": {
+    "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md": "aac76b451adf0c6db0879a4596f2e4ba882b16e9bb2e023f0ee99fdaf62cdb18",
+    "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md": "4663bef07ba7972e3d4bc9a2a8247dd595275de97f9067c7457d8071c9639c26"
+  },
+  "in_scope": [
+    "governed ADMIN transitions, including reviewed direct postgres SQL",
+    "Package owner transitions under actual ownership/capabilities",
+    "TEST audit mutations",
+    "governed native generation/replacement and host file changes",
+    "role/ACL/function/catalog changes",
+    "policy/readiness/binding transitions under existing non-negotiables"
+  ],
+  "outside_operational_attacker_model": [
+    "Hostile database superuser violating governance",
+    "Hostile HOST_PLATFORM root outside the accepted trusted boundary"
+  ],
+  "source_rule": "SPEC0090 line11 explicitly trusts host/database superuser outside operational attacker model; ADR clone-isolation paragraph excludes hostile host/database administrator",
+  "important_distinction": "The positive direct ADMIN/owner/native-root probes here are governed reviewed TEST mutations, not hostile superuser/root attacks. They remain in scope. No complete class is excluded.",
+  "outside_classes": []
+}
