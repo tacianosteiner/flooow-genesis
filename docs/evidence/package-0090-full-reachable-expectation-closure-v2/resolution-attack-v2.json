@@ -1,0 +1,52 @@
+{
+  "tests": [
+    {
+      "id": "pg_temp_function_shadow",
+      "ddl": "CREATE FUNCTION pg_temp.octet_length(bytea) RETURNS int4 LANGUAGE plpgsql AS $x$ BEGIN RAISE EXCEPTION 'resolution lure reached'; END $x$;",
+      "expression": "pg_catalog.octet_length('\\x01'::pg_catalog.bytea)=1"
+    },
+    {
+      "id": "public_overload",
+      "ddl": "CREATE FUNCTION public.octet_length(bytea) RETURNS int4 LANGUAGE plpgsql AS $x$ BEGIN RAISE EXCEPTION 'resolution lure reached'; END $x$;",
+      "expression": "pg_catalog.octet_length('\\x01'::pg_catalog.bytea)=1"
+    },
+    {
+      "id": "operator_overload",
+      "ddl": "CREATE FUNCTION public.probe_0090_add(int4,int4) RETURNS int4 LANGUAGE plpgsql AS $x$ BEGIN RAISE EXCEPTION 'resolution lure reached'; END $x$; CREATE OPERATOR public.+ (LEFTARG=int4,RIGHTARG=int4,FUNCTION=public.probe_0090_add);",
+      "expression": "1+2=3"
+    },
+    {
+      "id": "implicit_cast_lure",
+      "ddl": "CREATE TYPE public.probe_0090_lure AS (value int4); CREATE FUNCTION public.probe_0090_cast(bytea) RETURNS public.probe_0090_lure LANGUAGE SQL AS $x$ SELECT ROW(1)::public.probe_0090_lure $x$; CREATE CAST (bytea AS public.probe_0090_lure) WITH FUNCTION public.probe_0090_cast(bytea) AS IMPLICIT; CREATE FUNCTION public.octet_length(public.probe_0090_lure) RETURNS int4 LANGUAGE plpgsql AS $x$ BEGIN RAISE EXCEPTION 'resolution lure reached'; END $x$;",
+      "expression": "pg_catalog.octet_length('\\x01'::pg_catalog.bytea)=1"
+    },
+    {
+      "id": "unknown_literal_lure",
+      "ddl": "CREATE FUNCTION public.pg_char_to_encoding(text) RETURNS int4 LANGUAGE plpgsql AS $x$ BEGIN RAISE EXCEPTION 'resolution lure reached'; END $x$;",
+      "expression": "pg_catalog.pg_char_to_encoding('UTF8')=6"
+    },
+    {
+      "id": "shadow_type",
+      "ddl": "CREATE TYPE public.text AS (value int4); CREATE TYPE pg_temp.text AS (value int4);",
+      "expression": "pg_catalog.pg_typeof('x'::pg_catalog.text)='pg_catalog.text'::pg_catalog.regtype"
+    },
+    {
+      "id": "altered_caller_search_path",
+      "ddl": "CREATE FUNCTION public.probe_0090_add(int4,int4) RETURNS int4 LANGUAGE plpgsql AS $x$ BEGIN RAISE EXCEPTION 'resolution lure reached'; END $x$; CREATE OPERATOR public.+ (LEFTARG=int4,RIGHTARG=int4,FUNCTION=public.probe_0090_add);",
+      "expression": "1+2=3 AND pg_catalog.current_setting('search_path')='pg_catalog, pg_temp'"
+    }
+  ],
+  "helper_security": {
+    "owner": "flooow_offline_audit_owner",
+    "security_definer": true,
+    "search_path": [
+      "pg_catalog",
+      "pg_temp"
+    ],
+    "invoker": "test_0090_audit"
+  },
+  "expected": "All helper expressions TRUE; attacker lures never reached; canonical S04 never invoked",
+  "scope": "Expected resolution assumptions only; not mutation/TOCTOU or final-consumer currentness invalidation proof",
+  "rollback_required": true,
+  "independent": true
+}

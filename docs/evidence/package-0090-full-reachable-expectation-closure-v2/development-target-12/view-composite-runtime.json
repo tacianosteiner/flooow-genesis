@@ -1,0 +1,798 @@
+{
+  "cases": [
+    {
+      "name": "pg_roles_complete_view_AST",
+      "passed": false,
+      "details": {
+        "expected": {
+          "SelectStmt": {
+            "targetList": [
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolname"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolsuper"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolinherit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreaterole"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreatedb"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcanlogin"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolreplication"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolconnlimit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolpassword",
+                  "val": {
+                    "TypeCast": {
+                      "arg": {
+                        "A_Const": {
+                          "sval": {
+                            "sval": "********"
+                          }
+                        }
+                      },
+                      "typeName": {
+                        "names": [
+                          {
+                            "String": {
+                              "sval": "text"
+                            }
+                          }
+                        ],
+                        "typemod": -1
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolvaliduntil"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolbypassrls"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolconfig",
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "s"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "setconfig"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "oid"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "fromClause": [
+              {
+                "JoinExpr": {
+                  "jointype": "JOIN_LEFT",
+                  "larg": {
+                    "RangeVar": {
+                      "relname": "pg_authid",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "rarg": {
+                    "RangeVar": {
+                      "relname": "pg_db_role_setting",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "alias": {
+                        "aliasname": "s"
+                      },
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "quals": {
+                    "BoolExpr": {
+                      "boolop": "AND_EXPR",
+                      "args": [
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_authid"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "oid"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setrole"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setdatabase"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "A_Const": {
+                                "ival": {}
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "limitOption": "LIMIT_OPTION_DEFAULT",
+            "op": "SETOP_NONE"
+          }
+        },
+        "observed": {
+          "SelectStmt": {
+            "targetList": [
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolname"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolsuper"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolinherit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreaterole"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreatedb"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcanlogin"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolreplication"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolconnlimit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolpassword",
+                  "val": {
+                    "TypeCast": {
+                      "arg": {
+                        "A_Const": {
+                          "sval": {
+                            "sval": "********"
+                          }
+                        }
+                      },
+                      "typeName": {
+                        "names": [
+                          {
+                            "String": {
+                              "sval": "text"
+                            }
+                          }
+                        ],
+                        "typemod": -1
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolvaliduntil"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolbypassrls"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolconfig",
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "s"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "setconfig"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "oid"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "fromClause": [
+              {
+                "JoinExpr": {
+                  "jointype": "JOIN_LEFT",
+                  "larg": {
+                    "RangeVar": {
+                      "relname": "pg_authid",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "rarg": {
+                    "RangeVar": {
+                      "relname": "pg_db_role_setting",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "alias": {
+                        "aliasname": "s"
+                      },
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "quals": {
+                    "BoolExpr": {
+                      "boolop": "AND_EXPR",
+                      "args": [
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_authid"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "oid"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setrole"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setdatabase"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "TypeCast": {
+                                "arg": {
+                                  "A_Const": {
+                                    "ival": {}
+                                  }
+                                },
+                                "typeName": {
+                                  "names": [
+                                    {
+                                      "String": {
+                                        "sval": "oid"
+                                      }
+                                    }
+                                  ],
+                                  "typemod": -1
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "limitOption": "LIMIT_OPTION_DEFAULT",
+            "op": "SETOP_NONE"
+          }
+        }
+      },
+      "group": "RELATION_VIEW"
+    }
+  ],
+  "observed": {
+    "view_SQL": "SELECT pg_authid.rolname,\n    pg_authid.rolsuper,\n    pg_authid.rolinherit,\n    pg_authid.rolcreaterole,\n    pg_authid.rolcreatedb,\n    pg_authid.rolcanlogin,\n    pg_authid.rolreplication,\n    pg_authid.rolconnlimit,\n    '********'::text AS rolpassword,\n    pg_authid.rolvaliduntil,\n    pg_authid.rolbypassrls,\n    s.setconfig AS rolconfig,\n    pg_authid.oid\n   FROM pg_authid\n     LEFT JOIN pg_db_role_setting s ON pg_authid.oid = s.setrole AND s.setdatabase = 0::oid;"
+  }
+}

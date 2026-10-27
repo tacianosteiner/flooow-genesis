@@ -1,0 +1,672 @@
+{
+  "pg_roles_source_SQL": "SELECT rolname,\n        rolsuper,\n        rolinherit,\n        rolcreaterole,\n        rolcreatedb,\n        rolcanlogin,\n        rolreplication,\n        rolconnlimit,\n        '********'::text as rolpassword,\n        rolvaliduntil,\n        rolbypassrls,\n        setconfig as rolconfig,\n        pg_authid.oid\n    FROM pg_authid LEFT JOIN pg_db_role_setting s\n    ON (pg_authid.oid = setrole AND setdatabase = 0)",
+  "expected_view_AST": {
+    "SelectStmt": {
+      "targetList": [
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolname"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolsuper"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolinherit"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolcreaterole"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolcreatedb"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolcanlogin"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolreplication"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolconnlimit"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "name": "rolpassword",
+            "val": {
+              "TypeCast": {
+                "arg": {
+                  "A_Const": {
+                    "sval": {
+                      "sval": "********"
+                    }
+                  }
+                },
+                "typeName": {
+                  "names": [
+                    {
+                      "String": {
+                        "sval": "text"
+                      }
+                    }
+                  ],
+                  "typemod": -1
+                }
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolvaliduntil"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "rolbypassrls"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "name": "rolconfig",
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "s"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "setconfig"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ResTarget": {
+            "val": {
+              "ColumnRef": {
+                "fields": [
+                  {
+                    "String": {
+                      "sval": "pg_authid"
+                    }
+                  },
+                  {
+                    "String": {
+                      "sval": "oid"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "fromClause": [
+        {
+          "JoinExpr": {
+            "jointype": "JOIN_LEFT",
+            "larg": {
+              "RangeVar": {
+                "relname": "pg_authid",
+                "inh": true,
+                "relpersistence": "p",
+                "schemaname": "pg_catalog"
+              }
+            },
+            "rarg": {
+              "RangeVar": {
+                "relname": "pg_db_role_setting",
+                "inh": true,
+                "relpersistence": "p",
+                "alias": {
+                  "aliasname": "s"
+                },
+                "schemaname": "pg_catalog"
+              }
+            },
+            "quals": {
+              "BoolExpr": {
+                "boolop": "AND_EXPR",
+                "args": [
+                  {
+                    "A_Expr": {
+                      "kind": "AEXPR_OP",
+                      "name": [
+                        {
+                          "String": {
+                            "sval": "="
+                          }
+                        }
+                      ],
+                      "lexpr": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "pg_authid"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "oid"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "rexpr": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "s"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "setrole"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "A_Expr": {
+                      "kind": "AEXPR_OP",
+                      "name": [
+                        {
+                          "String": {
+                            "sval": "="
+                          }
+                        }
+                      ],
+                      "lexpr": {
+                        "ColumnRef": {
+                          "fields": [
+                            {
+                              "String": {
+                                "sval": "s"
+                              }
+                            },
+                            {
+                              "String": {
+                                "sval": "setdatabase"
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "rexpr": {
+                        "TypeCast": {
+                          "arg": {
+                            "A_Const": {
+                              "ival": {}
+                            }
+                          },
+                          "typeName": {
+                            "names": [
+                              {
+                                "String": {
+                                  "sval": "oid"
+                                }
+                              }
+                            ],
+                            "typemod": -1
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "limitOption": "LIMIT_OPTION_DEFAULT",
+      "op": "SETOP_NONE"
+    }
+  },
+  "composite_roots": [
+    {
+      "name": "public.offline_admission",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_attempt",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_attempt_pointer",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_binding_header",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_binding_lifecycle",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_ceremony_result",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_deadline_policy",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_delivery",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_diagnostic_evidence",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_execution",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_expected_signed_attestation",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_preflight_key",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_readiness",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_reconciliation",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "public.offline_stage_receipt",
+      "kind": "r",
+      "owner": "flooow_offline_control_owner",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "pg_catalog.pg_auth_members",
+      "kind": "r",
+      "owner": "postgres",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "pg_catalog.pg_authid",
+      "kind": "r",
+      "owner": "postgres",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "pg_catalog.pg_db_role_setting",
+      "kind": "r",
+      "owner": "postgres",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    },
+    {
+      "name": "pg_catalog.pg_roles",
+      "kind": "v",
+      "owner": "postgres",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [
+        "pg_catalog.pg_authid",
+        "pg_catalog.pg_db_role_setting"
+      ],
+      "security_invoker": false
+    },
+    {
+      "name": "public.flyway_schema_history",
+      "kind": "r",
+      "owner": "postgres",
+      "RLS": false,
+      "force_RLS": false,
+      "persistence": "p",
+      "expansion": [],
+      "security_invoker": null
+    }
+  ],
+  "composite_factory": "REL_18_4 heap.c AddNewRelationType/TypeCreate: dynamic rowtype and companion array bind through relation OID; generated names are not predicted OIDs",
+  "expected_composite": {
+    "type_kind": "c",
+    "defined": true,
+    "not_null": false,
+    "base_oid": 0,
+    "typmod": -1,
+    "collation_oid": 0
+  },
+  "array_rule": "Companion array typelem equals relation rowtype and rowtype typarray equals companion; same owner/namespace. Ordered fields independently checked in column-v2.",
+  "independent": true,
+  "composite_profile": {
+    "typlen": -1,
+    "typbyval": false,
+    "typispreferred": false,
+    "typisdefined": true,
+    "typdelim": ",",
+    "typmodin": 0,
+    "typmodout": 0,
+    "typalign": "d",
+    "typstorage": "x",
+    "typnotnull": false,
+    "typbasetype": 0,
+    "typtypmod": -1,
+    "typndims": 0,
+    "typcollation": 0,
+    "typdefault": null,
+    "typdefaultbin": null,
+    "typacl": null,
+    "typtype": "c",
+    "typcategory": "C",
+    "typinput": 2290,
+    "typoutput": 2291,
+    "typreceive": 2402,
+    "typsend": 2403,
+    "typanalyze": 0,
+    "typsubscript": 0
+  },
+  "array_profile": {
+    "typlen": -1,
+    "typbyval": false,
+    "typispreferred": false,
+    "typisdefined": true,
+    "typdelim": ",",
+    "typmodin": 0,
+    "typmodout": 0,
+    "typalign": "d",
+    "typstorage": "x",
+    "typnotnull": false,
+    "typbasetype": 0,
+    "typtypmod": -1,
+    "typndims": 0,
+    "typcollation": 0,
+    "typdefault": null,
+    "typdefaultbin": null,
+    "typacl": null,
+    "typtype": "b",
+    "typcategory": "A",
+    "typinput": 750,
+    "typoutput": 751,
+    "typreceive": 2400,
+    "typsend": 2401,
+    "typanalyze": 3816,
+    "typsubscript": 6179
+  }
+}

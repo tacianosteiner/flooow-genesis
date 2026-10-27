@@ -1,0 +1,889 @@
+{
+  "triggers": [
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "source": {
+        "trigname": "offline_expected_original_input_guard",
+        "relation": {
+          "schemaname": "public",
+          "relname": "offline_expected_signed_attestation",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "funcname": [
+          {
+            "String": {
+              "sval": "public"
+            }
+          },
+          {
+            "String": {
+              "sval": "offline_internal_expected_attestation_guard"
+            }
+          }
+        ],
+        "row": true,
+        "timing": 2,
+        "events": 28
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_reachable": false,
+      "proof": "Read-only S04 path cannot fire DML/TRUNCATE triggers; definitions remain mutable currentness inputs"
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "source": {
+        "trigname": "offline_header_original_input_immutable",
+        "relation": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "funcname": [
+          {
+            "String": {
+              "sval": "public"
+            }
+          },
+          {
+            "String": {
+              "sval": "offline_internal_expected_attestation_guard"
+            }
+          }
+        ],
+        "row": true,
+        "timing": 2,
+        "events": 24
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_reachable": false,
+      "proof": "Read-only S04 path cannot fire DML/TRUNCATE triggers; definitions remain mutable currentness inputs"
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "source": {
+        "trigname": "offline_expected_original_input_no_truncate",
+        "relation": {
+          "schemaname": "public",
+          "relname": "offline_expected_signed_attestation",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "funcname": [
+          {
+            "String": {
+              "sval": "public"
+            }
+          },
+          {
+            "String": {
+              "sval": "offline_internal_expected_attestation_guard"
+            }
+          }
+        ],
+        "timing": 2,
+        "events": 32
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_reachable": false,
+      "proof": "Read-only S04 path cannot fire DML/TRUNCATE triggers; definitions remain mutable currentness inputs"
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "source": {
+        "trigname": "offline_header_original_input_no_truncate",
+        "relation": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "funcname": [
+          {
+            "String": {
+              "sval": "public"
+            }
+          },
+          {
+            "String": {
+              "sval": "offline_internal_expected_attestation_guard"
+            }
+          }
+        ],
+        "timing": 2,
+        "events": 32
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_reachable": false,
+      "proof": "Read-only S04 path cannot fire DML/TRUNCATE triggers; definitions remain mutable currentness inputs"
+    }
+  ],
+  "internal_RI_rule": "Four internal triggers per FK: referencing AFTER ROW INSERT/UPDATE checks; referenced AFTER ROW DELETE/UPDATE NO ACTION checks; OIDs/names bind through pg_constraint, source factory rules determine deferrability",
+  "foreign_keys": [
+    {
+      "relation": "public.offline_binding_header",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_binding_header_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_readiness",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "deployment_incarnation_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "incarnation_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_binding_header_fk2",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_deadline_policy",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "deadline_policy_version"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "policy_version"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_binding_lifecycle",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_binding_lifecycle_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_attempt_pointer",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_attempt_pointer_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_attempt_pointer",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_attempt_pointer_fk2",
+        "deferrable": true,
+        "initdeferred": true,
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_attempt",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "current_attempt_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_attempt",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_attempt_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_execution",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_execution_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_attempt",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_delivery",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_delivery_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_delivery",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_delivery_fk2",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_execution",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "generation"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "generation"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_admission",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_admission_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_execution",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "generation"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "generation"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_stage_receipt",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_stage_receipt_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_execution",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "generation"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "attempt_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "generation"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_reconciliation",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_reconciliation_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_ceremony_result",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_ceremony_result_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_readiness",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_readiness_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_deadline_policy",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "policy_version"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "policy_version"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_readiness",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_readiness_fk2",
+        "deferrable": true,
+        "initdeferred": true,
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_preflight_key",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "incarnation_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "active_key_version"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "incarnation_id"
+            }
+          },
+          {
+            "String": {
+              "sval": "key_version"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_preflight_key",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_preflight_key_fk1",
+        "deferrable": true,
+        "initdeferred": true,
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_readiness",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "incarnation_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "incarnation_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_diagnostic_evidence",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_diagnostic_evidence_fk1",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_binding_header",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a",
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "conname": "offline_expected_signed_attestation_binding_id_fkey"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "source": {
+        "contype": "CONSTR_FOREIGN",
+        "conname": "offline_header_original_input_required",
+        "deferrable": true,
+        "initdeferred": true,
+        "is_enforced": true,
+        "initially_valid": true,
+        "pktable": {
+          "schemaname": "public",
+          "relname": "offline_expected_signed_attestation",
+          "inh": true,
+          "relpersistence": "p"
+        },
+        "fk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "pk_attrs": [
+          {
+            "String": {
+              "sval": "binding_id"
+            }
+          }
+        ],
+        "fk_matchtype": "s",
+        "fk_upd_action": "a",
+        "fk_del_action": "a"
+      },
+      "classification": "CURRENTNESS_INTEGRITY_RELEVANT",
+      "runtime_READ_does_not_fire": true,
+      "analysis": null
+    }
+  ],
+  "independent": true
+}

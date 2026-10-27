@@ -1,0 +1,3209 @@
+{
+  "rules": [
+    {
+      "field": "deployment",
+      "predicate": "Exact owned target deployment ID from trusted bootstrap, not caller input",
+      "expected_authority": "Independent target bootstrap registry",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "incarnation",
+      "predicate": "Exact current deployment incarnation; replacement requires new identity and invalidates old proof",
+      "expected_authority": "Independent target bootstrap registry",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "policy_version",
+      "predicate": "Exact fixture-1 for approved fixture; no alias/version coercion",
+      "expected_authority": "Approved 29-field policy fixture",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "policy_digest",
+      "predicate": "SHA256 exact canonical bytes equals e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d",
+      "expected_authority": "Approved independently encoded policy bytes",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "effective_from",
+      "predicate": "One DB clock_timestamp() capture, timestamptz(6), UTC offset zero, exact integer microsecond encoding; used in immutable PREPARED/COMMITTED binding",
+      "expected_authority": "TEST_ONLY/0090/activation/db-clock-in-transaction/v1",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "activation_decision",
+      "predicate": "Exact independently authorized TEST scope, actor, approval, change and corrected source context; old source approval is historical only",
+      "expected_authority": "External authority record; new corrected-target authorization or explicit governed source-correction composition required",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "trusted_audit_terminal",
+      "predicate": "PREPARED then reconciled COMMITTED in exact same bound context; UNKNOWN/ROLLED_BACK/missing deny",
+      "expected_authority": "Independent TEST audit writer/root",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "history_expectation",
+      "predicate": "All 42 ordered six-field rows exactly match frozen V001-V042 history; projected varchar fields use explicit pg_catalog.text casts",
+      "expected_authority": "Frozen migration Git blobs and Flyway constructor",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "effective_ACL",
+      "predicate": "Every principal/object/privilege/grant-option entry equals independent effective-acl-v6; roles/defaults/ownership agree",
+      "expected_authority": "Canonical SQL plus pinned bootstrap and test recipe",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "currentness_manifest",
+      "predicate": "Exact SHA256 identity of finalized expected-currentness-manifest-v6 and component vector; no substitution with observed baseline",
+      "expected_authority": "Independent manifest release evidence",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "native_health_proof",
+      "predicate": "All seven original emission times, authenticated channel/counter/nonce and functional witnesses match current enrollment, policy/dependency and epoch; no generic ping/self-report",
+      "expected_authority": "native-proof-v6 rules; independently anchored guard",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "guard_proof",
+      "predicate": "Current HEALTH_GUARD itself independently anchored by HOST_PLATFORM; exact decision/proof context and completed validation identities",
+      "expected_authority": "Independent HOST_PLATFORM anchor, never circular self-certification",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "participant_generation_vector",
+      "predicate": "Exact ordered seven slots with incarnation/generation/OS anchor/channel in current external enrollment ledger; all enrolled and live",
+      "expected_authority": "Trusted external supervisor/guard enrollment ledger",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "binding_header",
+      "predicate": "Exact immutable binding_id, deployment/incarnation, manifest/run/plan/organization, original digest/key and auditor LOGIN slot; no header exists in this qualification",
+      "expected_authority": "Governed immutable header registration and source relationship constraints",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "original_attestation",
+      "predicate": "Exact canonical bytes, signature and original key ID; cryptographic verification of full context, no reconstructed/fuzzy identity",
+      "expected_authority": "Original external signed attestation and independently registered verifier key",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "lifecycle_state",
+      "predicate": "Header/lifecycle/original state and policy/readiness invalidation relationships exactly satisfy source; revoked/expired/replaced/quarantined unknown deny",
+      "expected_authority": "Governed database rows plus external authoritative invalidation ledger",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "eligibility",
+      "predicate": "Conjunction of every bound predicate plus live fresh native proof; rule completeness alone is never eligibility",
+      "expected_authority": "SPEC0090/source/S04 gate contract",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    }
+  ],
+  "source_field_rules": [
+    {
+      "FIELD_ID": "policy.registration_identity",
+      "OBJECT_CLASS": "policy",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Exact accepted TEST decision/approval/change/actor, policy bytes/version/digest, target deployment/incarnation, activation recipe and single captured transaction identity; no caller-selected replacement registration",
+      "OBSERVATION_SOURCE": "Authoritative external TEST audit/current committed policy and guard proof",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "policy.trusted_TEST_audit_terminal",
+      "OBJECT_CLASS": "policy",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Current authoritative external chain has PREPARED then reconciled COMMITTED for exact target/context; UNKNOWN/ROLLED_BACK/missing reconciliation deny; validate_audit against independently retained trusted tip",
+      "OBSERVATION_SOURCE": "Authoritative external TEST audit/current committed policy and guard proof",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "policy.trusted_audit_tip",
+      "OBJECT_CLASS": "policy",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted external writer/root retains terminal tip independently of supplied records; reject a replacement self-supplied tip, rehashed chain, altered target or old tip",
+      "OBSERVATION_SOURCE": "Authoritative external TEST audit/current committed policy and guard proof",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "readiness.generation_vector",
+      "OBJECT_CLASS": "readiness",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Exact ordered seven-slot incarnation/generation/anchor/channel bindings from current external enrollment ledger, all enrolled and independently checked; replacement invalidates old vector",
+      "OBSERVATION_SOURCE": "Authoritative external TEST audit/current committed policy and guard proof",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "readiness.health_proof_identity",
+      "OBJECT_CLASS": "readiness",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Exact guard/epoch/context, seven original BOOTTIME T3 values, validation result identities and dependency/policy/audit bindings; no self-reported boolean or historical proof",
+      "OBSERVATION_SOURCE": "Authoritative external TEST audit/current committed policy and guard proof",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    }
+  ],
+  "typed_columns": [
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 1,
+      "name": "binding_schema_version",
+      "type": "int4",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 2,
+      "name": "binding_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 3,
+      "name": "deployment_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 4,
+      "name": "deployment_incarnation_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 5,
+      "name": "run_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 6,
+      "name": "plan_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 7,
+      "name": "execution_plan_version",
+      "type": "int4",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 8,
+      "name": "organization_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 9,
+      "name": "manifest_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 10,
+      "name": "manifest_digest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 11,
+      "name": "canonical_manifest_hash",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 12,
+      "name": "canonical_manifest_encoding_version",
+      "type": "int4",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 13,
+      "name": "mercado_livre_connection_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 14,
+      "name": "omie_connection_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 15,
+      "name": "marketplace_order_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 16,
+      "name": "source_order_reference",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 17,
+      "name": "integration_reference",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 18,
+      "name": "permission",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 19,
+      "name": "reason",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 20,
+      "name": "provenance",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 21,
+      "name": "principal_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 22,
+      "name": "credential_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 23,
+      "name": "grant_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 24,
+      "name": "decision_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 25,
+      "name": "correlation_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 26,
+      "name": "principal_operation_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 27,
+      "name": "credential_operation_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 28,
+      "name": "grant_operation_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 29,
+      "name": "issued_at",
+      "type": "timestamptz",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 30,
+      "name": "valid_from",
+      "type": "timestamptz",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 31,
+      "name": "expires_at",
+      "type": "timestamptz",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 32,
+      "name": "identity_slots",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 33,
+      "name": "offline_surface_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 34,
+      "name": "deadline_policy_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 35,
+      "name": "deadline_policy_digest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 36,
+      "name": "admission_contract_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 37,
+      "name": "delivery_contract_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 38,
+      "name": "reconciliation_contract_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 39,
+      "name": "plan_fingerprint",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "attnum": 40,
+      "name": "canonical_manifest_bytes",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_lifecycle",
+      "attnum": 1,
+      "name": "binding_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_lifecycle",
+      "attnum": 2,
+      "name": "state",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_binding_lifecycle",
+      "attnum": 3,
+      "name": "lock_token",
+      "type": "int8",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "UPDATE",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "UPDATE",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "UPDATE",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "UPDATE",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 1,
+      "name": "deployment_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 2,
+      "name": "incarnation_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 3,
+      "name": "state",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 4,
+      "name": "active_key_version",
+      "type": "int8",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 5,
+      "name": "policy_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 6,
+      "name": "policy_digest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 7,
+      "name": "history_manifest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 8,
+      "name": "acl_manifest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 9,
+      "name": "watchdog_checked_at",
+      "type": "timestamptz",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_readiness",
+      "attnum": 10,
+      "name": "watchdog_healthy",
+      "type": "bool",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_deadline_policy",
+      "attnum": 1,
+      "name": "policy_version",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_deadline_policy",
+      "attnum": 2,
+      "name": "policy_digest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_deadline_policy",
+      "attnum": 3,
+      "name": "canonical_policy",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_deadline_policy",
+      "attnum": 4,
+      "name": "effective_from",
+      "type": "timestamptz",
+      "typmod": 6,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_execution_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_intent_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_issuance_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_principal_lock_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_readiness_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        },
+        {
+          "grantee": "flooow_offline_verification_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 1,
+      "name": "binding_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 2,
+      "name": "manifest_digest",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 3,
+      "name": "algorithm_id",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 4,
+      "name": "signer_key_id",
+      "type": "uuid",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 5,
+      "name": "signer_key_fingerprint",
+      "type": "text",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 100,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 6,
+      "name": "signature_bytes",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 7,
+      "name": "canonical_expected_attestation",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "attnum": 8,
+      "name": "commitment_digest",
+      "type": "bytea",
+      "typmod": -1,
+      "not_null": true,
+      "collation": 0,
+      "generated": "",
+      "identity": "",
+      "dropped": false,
+      "inheritance_count": 0,
+      "is_local": true,
+      "default": null,
+      "column_acl": [
+        {
+          "grantee": "flooow_offline_audit_owner",
+          "privilege": "SELECT",
+          "grantable": false,
+          "grantor": "flooow_offline_control_owner"
+        }
+      ]
+    }
+  ],
+  "policy_fixture_sha256": "e840fcadac2d5198a91cdb7b2345a31d4776cb3ead6e8b697391a4461a1a253d",
+  "rules_complete": true,
+  "live_target_eligible": false,
+  "activation_authorized_by_this_tranche": false,
+  "source": [
+    "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+    "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json"
+  ],
+  "source_sha256": "007ab786c417c41e2b1702ebf3852cb70ff5c142fa3fde195385e04c6dde8b4a"
+}

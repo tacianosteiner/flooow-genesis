@@ -1,0 +1,4412 @@
+{
+  "cases": [
+    {
+      "name": "pg_roles_complete_view_AST",
+      "passed": true,
+      "details": {
+        "expected": {
+          "SelectStmt": {
+            "targetList": [
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolname"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolsuper"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolinherit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreaterole"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreatedb"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcanlogin"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolreplication"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolconnlimit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolpassword",
+                  "val": {
+                    "TypeCast": {
+                      "arg": {
+                        "A_Const": {
+                          "sval": {
+                            "sval": "********"
+                          }
+                        }
+                      },
+                      "typeName": {
+                        "names": [
+                          {
+                            "String": {
+                              "sval": "text"
+                            }
+                          }
+                        ],
+                        "typemod": -1
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolvaliduntil"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolbypassrls"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolconfig",
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "s"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "setconfig"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "oid"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "fromClause": [
+              {
+                "JoinExpr": {
+                  "jointype": "JOIN_LEFT",
+                  "larg": {
+                    "RangeVar": {
+                      "relname": "pg_authid",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "rarg": {
+                    "RangeVar": {
+                      "relname": "pg_db_role_setting",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "alias": {
+                        "aliasname": "s"
+                      },
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "quals": {
+                    "BoolExpr": {
+                      "boolop": "AND_EXPR",
+                      "args": [
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_authid"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "oid"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setrole"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setdatabase"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "TypeCast": {
+                                "arg": {
+                                  "A_Const": {
+                                    "ival": {}
+                                  }
+                                },
+                                "typeName": {
+                                  "names": [
+                                    {
+                                      "String": {
+                                        "sval": "oid"
+                                      }
+                                    }
+                                  ],
+                                  "typemod": -1
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "limitOption": "LIMIT_OPTION_DEFAULT",
+            "op": "SETOP_NONE"
+          }
+        },
+        "observed": {
+          "SelectStmt": {
+            "targetList": [
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolname"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolsuper"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolinherit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreaterole"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcreatedb"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolcanlogin"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolreplication"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolconnlimit"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolpassword",
+                  "val": {
+                    "TypeCast": {
+                      "arg": {
+                        "A_Const": {
+                          "sval": {
+                            "sval": "********"
+                          }
+                        }
+                      },
+                      "typeName": {
+                        "names": [
+                          {
+                            "String": {
+                              "sval": "text"
+                            }
+                          }
+                        ],
+                        "typemod": -1
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolvaliduntil"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "rolbypassrls"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "name": "rolconfig",
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "s"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "setconfig"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "ResTarget": {
+                  "val": {
+                    "ColumnRef": {
+                      "fields": [
+                        {
+                          "String": {
+                            "sval": "pg_authid"
+                          }
+                        },
+                        {
+                          "String": {
+                            "sval": "oid"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "fromClause": [
+              {
+                "JoinExpr": {
+                  "jointype": "JOIN_LEFT",
+                  "larg": {
+                    "RangeVar": {
+                      "relname": "pg_authid",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "rarg": {
+                    "RangeVar": {
+                      "relname": "pg_db_role_setting",
+                      "inh": true,
+                      "relpersistence": "p",
+                      "alias": {
+                        "aliasname": "s"
+                      },
+                      "schemaname": "pg_catalog"
+                    }
+                  },
+                  "quals": {
+                    "BoolExpr": {
+                      "boolop": "AND_EXPR",
+                      "args": [
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "pg_authid"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "oid"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setrole"
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "A_Expr": {
+                            "kind": "AEXPR_OP",
+                            "name": [
+                              {
+                                "String": {
+                                  "sval": "="
+                                }
+                              }
+                            ],
+                            "lexpr": {
+                              "ColumnRef": {
+                                "fields": [
+                                  {
+                                    "String": {
+                                      "sval": "s"
+                                    }
+                                  },
+                                  {
+                                    "String": {
+                                      "sval": "setdatabase"
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            "rexpr": {
+                              "TypeCast": {
+                                "arg": {
+                                  "A_Const": {
+                                    "ival": {}
+                                  }
+                                },
+                                "typeName": {
+                                  "names": [
+                                    {
+                                      "String": {
+                                        "sval": "oid"
+                                      }
+                                    }
+                                  ],
+                                  "typemod": -1
+                                }
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "limitOption": "LIMIT_OPTION_DEFAULT",
+            "op": "SETOP_NONE"
+          }
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_admission",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_admission",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_admission",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_admission",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_admission",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_attempt",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_attempt",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_attempt",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_attempt",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_attempt",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_attempt_pointer",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_attempt_pointer",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_attempt_pointer",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_attempt_pointer",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_attempt_pointer",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_binding_header",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_binding_header",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_binding_header",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_binding_header",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_binding_header",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_binding_lifecycle",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_binding_lifecycle",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_binding_lifecycle",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_binding_lifecycle",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_binding_lifecycle",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_ceremony_result",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_ceremony_result",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_ceremony_result",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_ceremony_result",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_ceremony_result",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_deadline_policy",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_deadline_policy",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_deadline_policy",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_deadline_policy",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_deadline_policy",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_delivery",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_delivery",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_delivery",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_delivery",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_delivery",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_diagnostic_evidence",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_diagnostic_evidence",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_diagnostic_evidence",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_diagnostic_evidence",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_diagnostic_evidence",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_execution",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_execution",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_execution",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_execution",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_execution",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_expected_signed_attestation",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_expected_signed_attestation",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_expected_signed_attestation",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_expected_signed_attestation",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_expected_signed_attestation",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_preflight_key",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_preflight_key",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_preflight_key",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_preflight_key",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_preflight_key",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_readiness",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_readiness",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_readiness",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_readiness",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_readiness",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_reconciliation",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_reconciliation",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_reconciliation",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_reconciliation",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_reconciliation",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.offline_stage_receipt",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "offline_stage_receipt",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "offline_stage_receipt",
+          "owner": "flooow_offline_control_owner",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.offline_stage_receipt",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.offline_stage_receipt",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_pg_catalog.pg_auth_members",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "pg_auth_members",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "pg_auth_members",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_pg_catalog.pg_auth_members",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_pg_catalog.pg_auth_members",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_pg_catalog.pg_authid",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "pg_authid",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "pg_authid",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_pg_catalog.pg_authid",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_pg_catalog.pg_authid",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_pg_catalog.pg_db_role_setting",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "pg_db_role_setting",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "pg_db_role_setting",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_pg_catalog.pg_db_role_setting",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_pg_catalog.pg_db_role_setting",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_pg_catalog.pg_roles",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "pg_roles",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "pg_roles",
+          "owner": "postgres",
+          "schema": "pg_catalog",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_pg_catalog.pg_roles",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_pg_catalog.pg_roles",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "composite_binding_public.flyway_schema_history",
+      "passed": true,
+      "details": {
+        "expected": {
+          "type_kind": "c",
+          "defined": true,
+          "not_null": false,
+          "base_oid": 0,
+          "typmod": -1,
+          "collation_oid": 0,
+          "name": "flyway_schema_history",
+          "owner": "postgres",
+          "schema": "public",
+          "relation_matches": true,
+          "array_exists": true,
+          "array_kind": "b",
+          "array_element_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true
+        },
+        "observed": {
+          "name": "flyway_schema_history",
+          "owner": "postgres",
+          "schema": "public",
+          "typmod": -1,
+          "defined": true,
+          "base_oid": 0,
+          "not_null": false,
+          "type_kind": "c",
+          "array_kind": "b",
+          "array_exists": true,
+          "collation_oid": 0,
+          "relation_matches": true,
+          "array_owner_matches": true,
+          "array_schema_matches": true,
+          "array_element_matches": true
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_composite_public.flyway_schema_history",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "c",
+          "typcategory": "C",
+          "typinput": 2290,
+          "typoutput": 2291,
+          "typreceive": 2402,
+          "typsend": 2403,
+          "typanalyze": 0,
+          "typsubscript": 0
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2403,
+          "typtype": "c",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 2290,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 2291,
+          "typtypmod": -1,
+          "typanalyze": 0,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2402,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "C",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 0,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    },
+    {
+      "name": "generated_type_profile_array_public.flyway_schema_history",
+      "passed": true,
+      "details": {
+        "expected": {
+          "typlen": -1,
+          "typbyval": false,
+          "typispreferred": false,
+          "typisdefined": true,
+          "typdelim": ",",
+          "typmodin": 0,
+          "typmodout": 0,
+          "typalign": "d",
+          "typstorage": "x",
+          "typnotnull": false,
+          "typbasetype": 0,
+          "typtypmod": -1,
+          "typndims": 0,
+          "typcollation": 0,
+          "typdefault": null,
+          "typdefaultbin": null,
+          "typacl": null,
+          "typtype": "b",
+          "typcategory": "A",
+          "typinput": 750,
+          "typoutput": 751,
+          "typreceive": 2400,
+          "typsend": 2401,
+          "typanalyze": 3816,
+          "typsubscript": 6179
+        },
+        "observed": {
+          "typacl": null,
+          "typlen": -1,
+          "typsend": 2401,
+          "typtype": "b",
+          "typalign": "d",
+          "typbyval": false,
+          "typdelim": ",",
+          "typinput": 750,
+          "typmodin": 0,
+          "typndims": 0,
+          "typmodout": 0,
+          "typoutput": 751,
+          "typtypmod": -1,
+          "typanalyze": 3816,
+          "typdefault": null,
+          "typnotnull": false,
+          "typreceive": 2400,
+          "typstorage": "x",
+          "typbasetype": 0,
+          "typcategory": "A",
+          "typcollation": 0,
+          "typisdefined": true,
+          "typsubscript": 6179,
+          "typdefaultbin": null,
+          "typispreferred": false
+        }
+      },
+      "group": "RELATION_VIEW"
+    }
+  ],
+  "observed": {
+    "view_SQL": "SELECT pg_authid.rolname,\n    pg_authid.rolsuper,\n    pg_authid.rolinherit,\n    pg_authid.rolcreaterole,\n    pg_authid.rolcreatedb,\n    pg_authid.rolcanlogin,\n    pg_authid.rolreplication,\n    pg_authid.rolconnlimit,\n    '********'::text AS rolpassword,\n    pg_authid.rolvaliduntil,\n    pg_authid.rolbypassrls,\n    s.setconfig AS rolconfig,\n    pg_authid.oid\n   FROM pg_authid\n     LEFT JOIN pg_db_role_setting s ON pg_authid.oid = s.setrole AND s.setdatabase = 0::oid;",
+    "public.offline_admission": {
+      "name": "offline_admission",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_attempt": {
+      "name": "offline_attempt",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_attempt_pointer": {
+      "name": "offline_attempt_pointer",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_binding_header": {
+      "name": "offline_binding_header",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_binding_lifecycle": {
+      "name": "offline_binding_lifecycle",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_ceremony_result": {
+      "name": "offline_ceremony_result",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_deadline_policy": {
+      "name": "offline_deadline_policy",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_delivery": {
+      "name": "offline_delivery",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_diagnostic_evidence": {
+      "name": "offline_diagnostic_evidence",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_execution": {
+      "name": "offline_execution",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_expected_signed_attestation": {
+      "name": "offline_expected_signed_attestation",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_preflight_key": {
+      "name": "offline_preflight_key",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_readiness": {
+      "name": "offline_readiness",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_reconciliation": {
+      "name": "offline_reconciliation",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.offline_stage_receipt": {
+      "name": "offline_stage_receipt",
+      "owner": "flooow_offline_control_owner",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "pg_catalog.pg_auth_members": {
+      "name": "pg_auth_members",
+      "owner": "postgres",
+      "schema": "pg_catalog",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "pg_catalog.pg_authid": {
+      "name": "pg_authid",
+      "owner": "postgres",
+      "schema": "pg_catalog",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "pg_catalog.pg_db_role_setting": {
+      "name": "pg_db_role_setting",
+      "owner": "postgres",
+      "schema": "pg_catalog",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "pg_catalog.pg_roles": {
+      "name": "pg_roles",
+      "owner": "postgres",
+      "schema": "pg_catalog",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    },
+    "public.flyway_schema_history": {
+      "name": "flyway_schema_history",
+      "owner": "postgres",
+      "schema": "public",
+      "typmod": -1,
+      "defined": true,
+      "base_oid": 0,
+      "not_null": false,
+      "type_kind": "c",
+      "array_kind": "b",
+      "array_exists": true,
+      "collation_oid": 0,
+      "relation_matches": true,
+      "array_owner_matches": true,
+      "array_schema_matches": true,
+      "array_element_matches": true
+    }
+  }
+}

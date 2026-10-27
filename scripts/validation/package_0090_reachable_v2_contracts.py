@@ -1,0 +1,79 @@
+"""Freeze future eligibility rules, never manufacture activation or health proof."""
+import json
+from pathlib import Path
+import package_0090_source_closure as q
+from package_0090_reachable_v2 import OUT,save
+
+SPEC='docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md'
+DESIGN='docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json'
+
+def prepare(r):
+ old=q.ROOT/'docs/evidence/package-0090-effective-expectation-t10-fence'
+ fixture=json.loads((q.ROOT/'docs/evidence/PACKAGE-0090-G3F-3B-FIXTURE-001.json').read_text())
+ fields=json.loads((q.ROOT/'docs/evidence/package-0090-t10-governed-currentness-closure/unresolved-field-resolution.json').read_text())['fields']
+ cols=json.loads((OUT/'column-v2.json').read_text())['columns']
+ def rule(name,predicate,authority):return dict(field=name,predicate=predicate,expected_authority=authority,missing_or_unknown='DENY',mutable=True,invalidation='Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness',future_T10='Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche')
+ rules=[
+ rule('deployment','Exact owned target deployment ID from trusted bootstrap, not caller input','Independent target bootstrap registry'),
+ rule('incarnation','Exact current deployment incarnation; replacement requires new identity and invalidates old proof','Independent target bootstrap registry'),
+ rule('policy_version','Exact fixture-1 for approved fixture; no alias/version coercion','Approved 29-field policy fixture'),
+ rule('policy_digest','SHA256 exact canonical bytes equals '+fixture['canonical_policy_sha256'],'Approved independently encoded policy bytes'),
+ rule('effective_from','One DB clock_timestamp() capture, timestamptz(6), UTC offset zero, exact integer microsecond encoding; used in immutable PREPARED/COMMITTED binding','TEST_ONLY/0090/activation/db-clock-in-transaction/v1'),
+ rule('activation_decision','Exact independently authorized TEST scope, actor, approval, change and corrected source context; old source approval is historical only','External authority record; new corrected-target authorization or explicit governed source-correction composition required'),
+ rule('trusted_audit_terminal','PREPARED then reconciled COMMITTED in exact same bound context; UNKNOWN/ROLLED_BACK/missing deny','Independent TEST audit writer/root'),
+ rule('history_expectation','All 42 ordered six-field rows exactly match frozen V001-V042 history; projected varchar fields use explicit pg_catalog.text casts','Frozen migration Git blobs and Flyway constructor'),
+ rule('effective_ACL','Every principal/object/privilege/grant-option entry equals independent effective-acl-v6; roles/defaults/ownership agree','Canonical SQL plus pinned bootstrap and test recipe'),
+ rule('currentness_manifest','Exact SHA256 identity of finalized expected-currentness-manifest-v6 and component vector; no substitution with observed baseline','Independent manifest release evidence'),
+ rule('native_health_proof','All seven original emission times, authenticated channel/counter/nonce and functional witnesses match current enrollment, policy/dependency and epoch; no generic ping/self-report','native-proof-v6 rules; independently anchored guard'),
+ rule('guard_proof','Current HEALTH_GUARD itself independently anchored by HOST_PLATFORM; exact decision/proof context and completed validation identities','Independent HOST_PLATFORM anchor, never circular self-certification'),
+ rule('participant_generation_vector','Exact ordered seven slots with incarnation/generation/OS anchor/channel in current external enrollment ledger; all enrolled and live','Trusted external supervisor/guard enrollment ledger'),
+ rule('binding_header','Exact immutable binding_id, deployment/incarnation, manifest/run/plan/organization, original digest/key and auditor LOGIN slot; no header exists in this qualification','Governed immutable header registration and source relationship constraints'),
+ rule('original_attestation','Exact canonical bytes, signature and original key ID; cryptographic verification of full context, no reconstructed/fuzzy identity','Original external signed attestation and independently registered verifier key'),
+ rule('lifecycle_state','Header/lifecycle/original state and policy/readiness invalidation relationships exactly satisfy source; revoked/expired/replaced/quarantined unknown deny','Governed database rows plus external authoritative invalidation ledger'),
+ rule('eligibility','Conjunction of every bound predicate plus live fresh native proof; rule completeness alone is never eligibility','SPEC0090/source/S04 gate contract')]
+ save('policy-readiness-v3.json',dict(rules=rules,source_field_rules=[x for x in fields if x['OBJECT_CLASS'] in ['policy','readiness']],typed_columns=[x for x in cols if x['relation'] in ['public.offline_deadline_policy','public.offline_readiness','public.offline_binding_header','public.offline_binding_lifecycle','public.offline_expected_signed_attestation']],policy_fixture_sha256=fixture['canonical_policy_sha256'],rules_complete=True,live_target_eligible=False,activation_authorized_by_this_tranche=False,source=[SPEC,DESIGN],source_sha256=q.SOURCE_HASH))
+ native=json.loads((old/'native-proof-expectation-v4.json').read_text())['rules'];design=json.loads((q.ROOT/DESIGN).read_text())
+ common=[rule(k,p,'Trusted enrollment ledger and independent observer under '+DESIGN) for k,p in [
+ ('generation','Fresh independently allocated per-slot generation bound to incarnation; no generation adoption/reuse'),('enrollment','Atomic publication only after exact process anchor/channel/dependency validation; revocation tombstones retained'),('process_pidfd','Retained pidfd/start/boot/namespace/cgroup anchor; numeric PID equality alone insufficient'),('binary_native_identity','Exact approved executable/module/transitive library/locale bytes and actual loaded mapping bound to enrolled generation; files alone insufficient'),('channel','Authenticated independently provisioned per-generation channel; bind origin and full context'),('counter','Strictly increasing per-generation emission counter; replay/duplicate/rollback deny'),('nonce','Fresh unpredictable guard challenge bound to exact nonce/epoch/work result; old response deny'),('functional_work','Participant-specific independently corroborated completed work, not ping/loop/signal-send ACK'),('dependency_catalog','Exact current expected manifest/history/ACL/policy/audit/enrollment vector and completed consistent query result'),('freshness','For each of seven original BOOTTIME emissions 0 <= T10-T3 <= 100000 ns with same boot/timens; queued receipt timestamp cannot renew'),('epoch','Exact current guard decision epoch/target/generation vector; replacement invalidates prior epoch'),('guard_decision','All required edges live/current with functional progress, monotonic quarantine on uncertainty'),('guard_proof','Full authenticated decision and original emission/work/validation identities bound to independent HOST_PLATFORM guard anchor'),('future_T9_T10','No pause/relabel/clock widening; consumer must prove final invalidation with current exact context, never assume elapsed CPU path')]]
+ save('native-proof-v6.json',dict(participants=native['participants'],nodes=design['nodes'],required_edges=design['required_edges'],rules=common,source_field_rules=native['field_rules'],HOST_PLATFORM=dict(root_assumption=design['root_assumption'],rule='Independently managed host/boot/timens/OS anchor checks guard process, channel, generation, work, trust-root and monotonic invalidation; platform root compromise outside TEST threat model'),HEALTH_GUARD=dict(rule='Independent watcher of all seven; guard must itself be anchored and observed by HOST_PLATFORM; no self health edge substitutes required graph'),rules_complete=True,runtime_verified=False,source=[SPEC,DESIGN],native_provider_component='native-provider-identities.json',benchmark_performed=False,private_keys_included=False))
+ audit_rules=[rule(k,p,'Independent external TEST approval/audit root; exported records are evidence copies') for k,p in [
+ ('decision_id','Exact authorized TEST decision and scope; accepted older decision cannot silently authorize corrected-source target'),('approval_id','Exact approved immutable approval identity'),('change_id','Exact approved immutable change identity'),('actor','Exact independently authenticated approving actor; no operational self approval'),('deployment_incarnation','Exact current owned target IDs, never historical destroyed deployment'),('source_context','Corrected source SHA '+q.SOURCE_HASH+' and governed baseline/correction decision PACKAGE0090/S04/return-tuple-correction/v1; authorization linkage independently recorded before activation'),('policy_version_digest','Exact fixture version/canonical bytes/digest, no rehash of caller substitutions'),('effective_from','Exact single captured activation instant and microsecond representation in all records'),('activation_recipe','Exact TEST_ONLY/0090/activation/db-clock-in-transaction/v1'),('transaction_identity','Server-derived same transaction identity for approved activation, not synthetic/caller numeric ID'),('PREPARED','Sequence1, initial zero previous_hash, immutable full bound context fsynced before transaction decision'),('terminal_outcome','Sequence2 reconciled COMMITTED only after independently confirmed DB outcome; unknown/rolledback/unreconciled deny'),('hash_chain','SHA256 canonical sorted-key compact UTF8 JSON payload excluding record_hash, exact previous_hash/sequence/context'),('trusted_tip','Terminal hash independently retained by trusted external writer/root; caller-supplied replacement tip cannot authorize'),('future_currentness_link','Exact audit tip/revision and target/policy/manifest/guard/generation in future qualification generation and T10; changed tip invalidates')]]
+ save('audit-v6.json',dict(rules=audit_rules,rules_complete=True,historical_fixed_identities=json.loads((old/'audit-expectation-v4.json').read_text())['rules']['expected_fixed_identities'],historical_context_is_current_authority=False,source_correction_decision='PACKAGE0090/S04/return-tuple-correction/v1',current_target_approval_or_chain_created=False,current_target_eligible=False,trust_boundary='Host-root controlled TEST writer/store and independently retained trusted terminal tip; not production WORM/HSM',source=[SPEC,'scripts/validation/package_0090_authorized_s04.py']))
+ contract=q.ROOT/'docs/evidence/package-0090-s04-return-tuple-correction-applied/return-contract.json';data=json.loads(contract.read_text())
+ save('return-consumer-edge.json',dict(decision='PACKAGE0090/S04/return-tuple-correction/v1',source_sha=q.SOURCE_HASH,contract_path=contract.relative_to(q.ROOT).as_posix(),contract_sha256=q.sha(contract.read_bytes()),declared_tuple=['int4','text','text','text','int4','bool'],projected_tuple=['int4','text','text','text','int4','bool'],compatibility='Exact tuple descriptor equality; SQL implicit coercibility is insufficient',expected_rows=data['independent_expected_history'],ordering='installed_rank ASC; helper consumption WITH ORDINALITY must deliver1..42',helper_only=True,canonical_S04_execution=False))
+
+def qualify(sql,run,container,folder,record,fixture,runtime_work):
+ record['recipe_hashes'][Path(__file__).name]=q.sha(Path(__file__).read_bytes());cases=[]
+ def case(name,passed,details):
+  c=dict(name=name,passed=bool(passed),details=details,group='POLICY_NATIVE_AUDIT_EXPECTATION');cases.append(c);record['cases'].append(c);q.require(passed,name)
+ for name,minimum in [('policy-readiness-v3.json',17),('native-proof-v6.json',14),('audit-v6.json',15)]:
+  d=json.loads((OUT/name).read_text());rules=d['rules'];case('complete_rule_schema_'+name,d['rules_complete'] and len(rules)==minimum and len({x['field'] for x in rules})==minimum and all(x['predicate'] and x['expected_authority'] and x['missing_or_unknown']=='DENY' for x in rules),dict(rule_count=len(rules),rules_only=True))
+ native=json.loads((OUT/'native-proof-v6.json').read_text());participants=native['participants'];design=json.loads((q.ROOT/DESIGN).read_text())
+ case('native_full_independent_observer_graph',len(participants)==7 and native['nodes']==design['nodes'] and native['required_edges']==design['required_edges'] and len(native['required_edges'])==8,dict(nodes=native['nodes'],rules_only=True))
+ for p in participants:case('participant_rule_'+p['PARTICIPANT_NAME'],all(p.get(k) for k in ['IDENTITY_SOURCE','IDENTITY_BINDING','GENERATION_SOURCE','GENERATION_BINDING','LIVENESS_SOURCE','PROGRESS_SOURCE','COMPLETED_WORK_WITNESS','INDEPENDENT_OBSERVER','FAIL_CLOSED_ACTION','GENERATION_CREATED_WHEN','GENERATION_INVALIDATED_WHEN','GENERATION_STORED_WHERE','GENERATION_OBSERVED_BY','STALE_GENERATION_DENIAL','RESTART_BEHAVIOR']),dict(rule_only=True,not_a_live_participant=True))
+ # Exercise the existing pure chain parser using retained historical evidence.
+ # This never creates a current approval, chain, policy row or audit writer.
+ import copy
+ import package_0090_authorized_s04 as audit_parser
+ record['recipe_hashes'][Path(audit_parser.__file__).name]=q.sha(Path(audit_parser.__file__).read_bytes())
+ history=json.loads((q.ROOT/'docs/evidence/package-0090-effective-expectation-t10-fence/audit-expectation-v4.json').read_text())['rules'];records=json.loads((q.ROOT/history['runtime_artifact']).read_text())['records'];binding=history['current_target_binding'];tip=history['independently_retained_tip']
+ case('historical_chain_parser_control',audit_parser.validate_audit(records,tip,binding),dict(historical_only=True,not_current_authority=True))
+ for field in ['decision_id','approval_id','change_id','actor','deployment_id','incarnation_id','policy_digest','policy_version','effective_from','activation_recipe','transaction_identity','source_sha256']:
+  candidate=copy.deepcopy(binding);candidate[field]='WRONG';denied=False
+  try:audit_parser.validate_audit(records,tip,candidate)
+  except audit_parser.Denied:denied=True
+  case('audit_exact_context_reject_'+field,denied,dict(pure_parser_test=True,historical_only=True))
+ for label,chain,terminal in [('missing_terminal',records[:1],records[0]['record_hash']),('wrong_tip',records,'0'*64),('wrong_sequence',[dict(records[0],sequence=2),records[1]],tip),('unknown_outcome',[records[0],dict(records[1],status='UNKNOWN')],tip)]:
+  denied=False
+  try:audit_parser.validate_audit(chain,terminal,binding)
+  except audit_parser.Denied:denied=True
+  case('audit_chain_reject_'+label,denied,dict(pure_parser_test=True))
+ case('old_source_approval_not_transferred',binding['source_sha256']!=q.SOURCE_HASH and not json.loads((OUT/'audit-v6.json').read_text())['historical_context_is_current_authority'],dict(current_source=q.SOURCE_HASH,approved_historical_source=binding['source_sha256']))
+ # Absence corroborates ineligible target state; it is not proof of a valid
+ # readiness, native generation or approval. No row is written here.
+ for table in ['offline_readiness','offline_binding_header','offline_expected_signed_attestation','offline_deadline_policy']:
+  count=sql('SELECT count(*) FROM public.'+table+';').stdout.strip();case('no_activation_state_'+table,count==b'0',dict(observed=count.decode(),eligibility=False))
+ import package_0090_s04_applied as applied
+ record['recipe_hashes'][Path(applied.__file__).name]=q.sha(Path(applied.__file__).read_bytes());start=len(record['cases']);applied.qualify(sql,run,container,folder,record,fixture,runtime_work)
+ for row in record['cases'][start:]:row['group']='RETURN_CONSUMER'
+ (folder/'rule-contract-runtime.json').write_text(json.dumps(dict(cases=cases,live_eligibility=False,readiness_created=False),indent=2)+'\n')

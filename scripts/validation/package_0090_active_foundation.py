@@ -41,6 +41,7 @@ def main():
     ap.add_argument('--full-reachable', action='store_true')
     ap.add_argument('--s04-candidate', action='store_true')
     ap.add_argument('--s04-applied', action='store_true')
+    ap.add_argument('--reachable-v2', action='store_true')
     args = ap.parse_args(); sys.path.insert(0, args.parser_path)
     from pglast.parser import parse_sql_json
     folder = Path(args.directory).resolve()
@@ -177,7 +178,10 @@ def main():
         # No policy ACTIVE row is silently provisioned without explicit activation instant/audit.
         case('no_fabricated_READY', sql('SELECT count(*) FROM public.offline_readiness;').stdout.strip() == b'0', 'No health/READY state fabricated', 'FIXTURE')
         record['positive_wrapper_results'] = {'expected': 18, 'proven': 0, 'blocked': 18, 'reason': 'Live ACTIVE binding/readiness/native health/original attestation manifest not proven'}
-        q.require(sum([args.first_positive_preparation, args.authorized_s04, args.native_100us, args.concurrent_currentness, args.complete_currentness, args.t10_expectations, args.t10_audit_expectations, args.reachable_expectations, args.full_reachable, args.s04_candidate, args.s04_applied]) <= 1, 'One qualification recipe per owned runtime')
+        q.require(sum([args.first_positive_preparation, args.authorized_s04, args.native_100us, args.concurrent_currentness, args.complete_currentness, args.t10_expectations, args.t10_audit_expectations, args.reachable_expectations, args.full_reachable, args.s04_candidate, args.s04_applied, args.reachable_v2]) <= 1, 'One qualification recipe per owned runtime')
+        if args.reachable_v2:
+            import package_0090_reachable_v2_runtime as reachable_v2
+            reachable_v2.complete_qualification(sql, run, container, folder, record, fixture, runtime_work=work)
         if args.s04_applied:
             import package_0090_s04_applied as applied
             record['recipe_hashes'][Path(applied.__file__).name] = q.sha(Path(applied.__file__).read_bytes())

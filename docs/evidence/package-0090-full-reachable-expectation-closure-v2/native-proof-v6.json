@@ -1,0 +1,577 @@
+{
+  "participants": [
+    {
+      "PARTICIPANT_NAME": "POSTMASTER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Successful server-derived generation/catalog probe",
+      "COMPLETED_WORK_WITNESS": "Server start identity + fresh consistent catalog snapshot independently queried",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "SUPERVISOR",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed spawn/enrollment/dependency validation",
+      "COMPLETED_WORK_WITNESS": "Observer checks retained child anchor, generation ledger publication and target process identity",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "RECEIVER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed bound enrollment decision",
+      "COMPLETED_WORK_WITNESS": "Observer checks fresh challenged decision transcript and authoritative promotion registry revision; loop tick/ping insufficient",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "CENSUS_OBSERVER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed applicable catalog reconciliation",
+      "COMPLETED_WORK_WITNESS": "Independent query checks snapshot epoch, membership/revision CAS and reconciled identities; pre-query tick insufficient",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "APPROVAL_PRODUCER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Published fully verified immutable approval generation",
+      "COMPLETED_WORK_WITNESS": "Consumer independently verifies exact original signature, full context and committed publication digest",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "APPROVAL_CONSUMER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Successfully consumed current verified approval generation",
+      "COMPLETED_WORK_WITNESS": "External guard cross-checks immutable publication, verification result and current registry decision",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    },
+    {
+      "PARTICIPANT_NAME": "ENFORCEMENT_WORKER",
+      "IDENTITY_SOURCE": "Trusted bootstrap OS process creation + atomic pidfd anchor; server-derived start/database facts for postmaster",
+      "IDENTITY_BINDING": "Exact boot_id, namespace/cgroup/container identity, start identity, pidfd target, deployment/incarnation and participant slot; never caller-supplied PID/OID",
+      "GENERATION_SOURCE": "Trusted bootstrap allocates a fresh independent slot generation on each replacement before admission",
+      "GENERATION_BINDING": "Tuple incarnation+slot+generation+OS anchor+channel; observers compare exact current ledger revision",
+      "LIVENESS_SOURCE": "Independent pidfd existence observation plus authenticated original BOOTTIME emission with boot epoch; stale queued heartbeat never renews",
+      "PROGRESS_SOURCE": "Completed target-bound control action",
+      "COMPLETED_WORK_WITNESS": "External guard verifies retained target anchor and actual observed outcome; signal-send ACK alone insufficient",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD; HOST_PLATFORM independently anchors and monitors the guard",
+      "FAIL_CLOSED_ACTION": "Deny ACCEPT/promotion, monotonic quarantine, retain ownership, mark reconciliation required; owned drain only under separately authorized existing controls",
+      "GENERATION_CREATED_WHEN": "Atomic trusted spawn/enrollment allocation, before publication; no adopted numeric bound",
+      "GENERATION_INVALIDATED_WHEN": "Process death/replacement, namespace or incarnation change, anchor/channel mismatch, revocation or observed generation replacement",
+      "GENERATION_STORED_WHERE": "Authoritative external noncanonical runtime ledger with append-only invalidation/tombstones, not in participant-controlled heartbeat",
+      "GENERATION_OBSERVED_BY": "HEALTH_GUARD; dependent decision consumers require current exact ledger epoch/revision",
+      "STALE_GENERATION_DENIAL": "Deny without modifying newer registration, ownership, quarantine or eligibility",
+      "RESTART_BEHAVIOR": "New anchor and generation; no receipt/approval/enrollment reuse from old generation; cold restart requires new incarnation if prior lineage cannot be established"
+    }
+  ],
+  "nodes": [
+    "HOST_PLATFORM",
+    "HEALTH_GUARD",
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER"
+  ],
+  "required_edges": [
+    [
+      "HOST_PLATFORM",
+      "HEALTH_GUARD"
+    ],
+    [
+      "HEALTH_GUARD",
+      "POSTMASTER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "SUPERVISOR"
+    ],
+    [
+      "HEALTH_GUARD",
+      "RECEIVER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "CENSUS_OBSERVER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "APPROVAL_PRODUCER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "APPROVAL_CONSUMER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "ENFORCEMENT_WORKER"
+    ]
+  ],
+  "rules": [
+    {
+      "field": "generation",
+      "predicate": "Fresh independently allocated per-slot generation bound to incarnation; no generation adoption/reuse",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "enrollment",
+      "predicate": "Atomic publication only after exact process anchor/channel/dependency validation; revocation tombstones retained",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "process_pidfd",
+      "predicate": "Retained pidfd/start/boot/namespace/cgroup anchor; numeric PID equality alone insufficient",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "binary_native_identity",
+      "predicate": "Exact approved executable/module/transitive library/locale bytes and actual loaded mapping bound to enrolled generation; files alone insufficient",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "channel",
+      "predicate": "Authenticated independently provisioned per-generation channel; bind origin and full context",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "counter",
+      "predicate": "Strictly increasing per-generation emission counter; replay/duplicate/rollback deny",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "nonce",
+      "predicate": "Fresh unpredictable guard challenge bound to exact nonce/epoch/work result; old response deny",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "functional_work",
+      "predicate": "Participant-specific independently corroborated completed work, not ping/loop/signal-send ACK",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "dependency_catalog",
+      "predicate": "Exact current expected manifest/history/ACL/policy/audit/enrollment vector and completed consistent query result",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "freshness",
+      "predicate": "For each of seven original BOOTTIME emissions 0 <= T10-T3 <= 100000 ns with same boot/timens; queued receipt timestamp cannot renew",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "epoch",
+      "predicate": "Exact current guard decision epoch/target/generation vector; replacement invalidates prior epoch",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "guard_decision",
+      "predicate": "All required edges live/current with functional progress, monotonic quarantine on uncertainty",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "guard_proof",
+      "predicate": "Full authenticated decision and original emission/work/validation identities bound to independent HOST_PLATFORM guard anchor",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    },
+    {
+      "field": "future_T9_T10",
+      "predicate": "No pause/relabel/clock widening; consumer must prove final invalidation with current exact context, never assume elapsed CPU path",
+      "expected_authority": "Trusted enrollment ledger and independent observer under docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+      "missing_or_unknown": "DENY",
+      "mutable": true,
+      "invalidation": "Any relevant change invalidates outstanding qualification before its final T10 consumer; old proof cannot renew currentness",
+      "future_T10": "Reobserve under governed currentness generation and proven atomic final-consumer invalidation; no implementation/proof in this tranche"
+    }
+  ],
+  "source_field_rules": [
+    {
+      "FIELD_ID": "native.binary_identity",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted build artifact hash frozen before spawn from approved source and pinned builder; actual process executable binding independently checked; exec/replacement invalidates generation",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "GENERATION_IMMUTABLE",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.loaded_library_identity",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Pinned offline_mac32 artifact SHA256 5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5 and actual loaded mapping/bootstrap registration; a file hash alone is insufficient",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "GENERATION_IMMUTABLE",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.participant_generation",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted bootstrap allocates fresh independent generation per slot/incarnation before enrollment, records externally and retains exact anchor/channel identity; old generation cannot revoke a newer enrollment",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "GENERATION_IMMUTABLE",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.process_identity",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted OS-created process bound to boot/namespace/cgroup/container/start/deployment/incarnation/slot/generation and exact retained pidfd; PID/name/existence alone deny",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.pidfd_target",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Atomic trusted pidfd acquisition/SCM_RIGHTS transfer with independently correlated expected process target and live anchor; wrong target or lost/terminated anchor deny",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.enrollment",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "External root/guard authoritative committed enrollment publication precedes eligibility; exact current slot/generation registry, no provisional or copied enrollment",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.authenticated_channel",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Pre-established SOCK_SEQPACKET channel bound to expected incarnation/slot/generation/anchor; SCM_CREDENTIALS exact kernel PID/UID each packet; epoch/nonce/counter validation remains per event",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "GENERATION_IMMUTABLE",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.current_epoch",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Unique TEST epoch issued by trusted guard, exact deployment/incarnation/policy/generation/dependency context across every branch; reject cross-epoch reuse",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.nonce",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Fresh guard-generated 32-byte challenge bound to immutable context; exact independent original nonce used for fresh signing/verification and all participant results; never accept participant-selected nonce",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.counter",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Strictly monotonic per enrolled channel/generation epoch counter retained by trusted consumer; duplicate/lower/cross-generation counter denies without renewing emission",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.functional_result",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Independently observed completed work for each of seven participant contracts in frozen native design; existence/heartbeat/cache is insufficient; original emission age inclusive 0..100000ns",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.guard_identity",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "HOST_PLATFORM root independently binds guard boot/start/pidfd/binary/incarnation/generation/channel and checks liveness/current enrollment; guard self-identity alone deny",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.host_root_identity",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted external OS/service-manager bootstrap root bound to host/boot/namespace/container/incarnation and retained live anchor; supplied labels alone insufficient",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "INCARNATION_IMMUTABLE",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.incarnation_identity",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted deployment bootstrap independently allocates target incarnation, not copied from DB backup/header; cold unknown restart requires new incarnation and enrollment",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "INCARNATION_IMMUTABLE",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.generation_registry_revision",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Authoritative external enrollment publication/replacement revision current for exact vector; no canonical catalog revision inferred from native generation; missing/unknown revision deny",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    },
+    {
+      "FIELD_ID": "native.observer_liveness",
+      "OBJECT_CLASS": "native",
+      "EXPECTED_SOURCE": [
+        "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+        "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json",
+        "Accepted TEST decision TEST_ONLY/0090/activation-and-native-health/s04/v1"
+      ],
+      "EXPECTED_VALUE_OR_RULE": "Trusted root and independent guard anchors/channels live at final consumption; observer loss invalidates proof and denies promotion while retaining ownership/reconciliation",
+      "OBSERVATION_SOURCE": "Independent trusted native enrollment/OS observations",
+      "MUTATOR": "Governed TEST ADMIN/audit writer/native trusted root",
+      "CURRENTNESS_CLASS": "MUST_BE_OBSERVED_AT_T10",
+      "INVALIDATION_RULE": "Any applicable target/identity/generation/state/tip/observation change before T10 must deny; changes after a completed T10 do not retroactively alter that decision",
+      "T10_REQUIREMENT": "Compare exact rule-bound current target observations under proven final-consumer invalidation; UNKNOWN denies",
+      "STATUS": "RULE_SPECIFIED_RUNTIME_PROOF_PENDING"
+    }
+  ],
+  "HOST_PLATFORM": {
+    "root_assumption": "HOST_PLATFORM is an explicit external trusted OS/service-manager authority. Loss/unprovability of this root denies all admission; it is not silently treated healthy.",
+    "rule": "Independently managed host/boot/timens/OS anchor checks guard process, channel, generation, work, trust-root and monotonic invalidation; platform root compromise outside TEST threat model"
+  },
+  "HEALTH_GUARD": {
+    "rule": "Independent watcher of all seven; guard must itself be anchored and observed by HOST_PLATFORM; no self health edge substitutes required graph"
+  },
+  "rules_complete": true,
+  "runtime_verified": false,
+  "source": [
+    "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+    "docs/evidence/package-0090-g3f4-full-domain-fixture-contract/NATIVE-HEALTH-DESIGN.json"
+  ],
+  "native_provider_component": "native-provider-identities.json",
+  "benchmark_performed": false,
+  "private_keys_included": false
+}

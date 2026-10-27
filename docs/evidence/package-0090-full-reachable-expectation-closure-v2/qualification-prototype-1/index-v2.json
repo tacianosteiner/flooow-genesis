@@ -1,0 +1,521 @@
+{
+  "indexes": [
+    {
+      "relation": "public.offline_binding_header",
+      "name": "offline_binding_header_pk",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_binding_header",
+      "name": "offline_binding_header_uq1",
+      "keys": [
+        "deployment_incarnation_id",
+        "plan_id"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_binding_lifecycle",
+      "name": "offline_binding_lifecycle_pk",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_attempt_pointer",
+      "name": "offline_attempt_pointer_pk",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_attempt",
+      "name": "offline_attempt_pk",
+      "keys": [
+        "binding_id",
+        "attempt_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_attempt",
+      "name": "offline_attempt_uq1",
+      "keys": [
+        "binding_id",
+        "generation"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_execution",
+      "name": "offline_execution_pk",
+      "keys": [
+        "binding_id",
+        "attempt_id",
+        "generation"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_execution",
+      "name": "offline_execution_uq1",
+      "keys": [
+        "execution_id"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_execution",
+      "name": "offline_execution_uq2",
+      "keys": [
+        "claim_receipt_id"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_delivery",
+      "name": "offline_delivery_pk",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_admission",
+      "name": "offline_admission_pk",
+      "keys": [
+        "admission_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_admission",
+      "name": "offline_admission_uq1",
+      "keys": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "execution_id",
+        "instance_id",
+        "credential_id",
+        "credential_revision",
+        "grant_id",
+        "grant_revision",
+        "permission"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_stage_receipt",
+      "name": "offline_stage_receipt_pk",
+      "keys": [
+        "binding_id",
+        "attempt_id",
+        "generation",
+        "stage"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_stage_receipt",
+      "name": "offline_stage_receipt_uq1",
+      "keys": [
+        "receipt_id"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_reconciliation",
+      "name": "offline_reconciliation_pk",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_ceremony_result",
+      "name": "offline_ceremony_result_pk",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_readiness",
+      "name": "offline_readiness_pk",
+      "keys": [
+        "incarnation_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_preflight_key",
+      "name": "offline_preflight_key_pk",
+      "keys": [
+        "incarnation_id",
+        "lineage_id",
+        "key_version"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_preflight_key",
+      "name": "offline_preflight_key_uq1",
+      "keys": [
+        "incarnation_id",
+        "key_version"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_deadline_policy",
+      "name": "offline_deadline_policy_pk",
+      "keys": [
+        "policy_version"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_expected_signed_attestation",
+      "name": "offline_expected_signed_attestation_pkey",
+      "keys": [
+        "binding_id"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "SQL constraint index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_readiness",
+      "name": "offline_readiness_ready_deployment_uix",
+      "keys": [
+        "deployment_id"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": {
+        "A_Expr": {
+          "kind": "AEXPR_OP",
+          "name": [
+            {
+              "String": {
+                "sval": "="
+              }
+            }
+          ],
+          "lexpr": {
+            "ColumnRef": {
+              "fields": [
+                {
+                  "String": {
+                    "sval": "state"
+                  }
+                }
+              ]
+            }
+          },
+          "rexpr": {
+            "A_Const": {
+              "sval": {
+                "sval": "READY"
+              }
+            }
+          }
+        }
+      },
+      "source": "Canonical CREATE INDEX",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_preflight_key",
+      "name": "offline_preflight_key_active_incarnation_uix",
+      "keys": [
+        "incarnation_id"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": {
+        "A_Expr": {
+          "kind": "AEXPR_OP",
+          "name": [
+            {
+              "String": {
+                "sval": "="
+              }
+            }
+          ],
+          "lexpr": {
+            "ColumnRef": {
+              "fields": [
+                {
+                  "String": {
+                    "sval": "key_state"
+                  }
+                }
+              ]
+            }
+          },
+          "rexpr": {
+            "A_Const": {
+              "sval": {
+                "sval": "ACTIVE"
+              }
+            }
+          }
+        }
+      },
+      "source": "Canonical CREATE INDEX",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.offline_diagnostic_evidence",
+      "name": "offline_diagnostic_evidence_binding_generation_time_ix",
+      "keys": [
+        "binding_id",
+        "generation",
+        "recorded_at"
+      ],
+      "unique": false,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "Canonical CREATE INDEX",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.flyway_schema_history",
+      "name": "flyway_schema_history_pk",
+      "keys": [
+        "installed_rank"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "Pinned Flyway constructor",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "public.flyway_schema_history",
+      "name": "flyway_schema_history_s_idx",
+      "keys": [
+        "success"
+      ],
+      "unique": false,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "Pinned Flyway constructor",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_db_role_setting",
+      "name": "pg_db_role_setting_databaseid_rol_index",
+      "keys": [
+        "setdatabase",
+        "setrole"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_authid",
+      "name": "pg_authid_rolname_index",
+      "keys": [
+        "rolname"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_authid",
+      "name": "pg_authid_oid_index",
+      "keys": [
+        "oid"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_auth_members",
+      "name": "pg_auth_members_oid_index",
+      "keys": [
+        "oid"
+      ],
+      "unique": true,
+      "primary": true,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_auth_members",
+      "name": "pg_auth_members_role_member_index",
+      "keys": [
+        "roleid",
+        "member",
+        "grantor"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_auth_members",
+      "name": "pg_auth_members_member_role_index",
+      "keys": [
+        "member",
+        "roleid",
+        "grantor"
+      ],
+      "unique": true,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    },
+    {
+      "relation": "pg_catalog.pg_auth_members",
+      "name": "pg_auth_members_grantor_index",
+      "keys": [
+        "grantor"
+      ],
+      "unique": false,
+      "primary": false,
+      "method": "btree",
+      "predicate": null,
+      "source": "BKI declare index",
+      "nulls_not_distinct": false
+    }
+  ],
+  "total": 33,
+  "default_opclass_rule": "Exact PG18 BKI default btree opclass for each source column type; collations follow column component; default ASC NULLS LAST option bits 0; no expressions or INCLUDE attributes in this root set",
+  "independent": true
+}
