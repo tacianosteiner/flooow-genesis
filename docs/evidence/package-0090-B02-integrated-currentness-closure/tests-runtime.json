@@ -1,0 +1,449 @@
+[
+  {
+    "name": "bootstrap_exited_and_secret_files_unlinked",
+    "passed": true,
+    "group": "B01_VECTOR",
+    "details": {
+      "postgres_login": false,
+      "postgres_password_null": true,
+      "superuser_sessions_other_than_last_bootstrap": 0,
+      "owner_logins": 0
+    }
+  },
+  {
+    "name": "fresh_exact_B01_epoch_sealed",
+    "passed": true,
+    "group": "B01_VECTOR",
+    "details": {
+      "eligible": true,
+      "epoch": "dea8d26f-8dab-4427-adde-84036937dbf0",
+      "generation": 1,
+      "pending": null,
+      "pid": 1,
+      "qualification_tuple": {
+        "epoch": "dea8d26f-8dab-4427-adde-84036937dbf0",
+        "generation": 1,
+        "native": {
+          "generation": 1,
+          "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+          "nonce": "73c9778cbdef869a312052104fb7f333bc3a29ba6e058f15dbad770bc5acead1",
+          "pid": 14,
+          "proof": "38e435ae024a25e709417a2e340194b26c76771c32d7a3508f5d53ee0228e45e",
+          "start": "8946620"
+        }
+      },
+      "state": "SEALED",
+      "terminal_tip": "bd67b091f6620b044b4621403705555a7af7785c27ce339049714dbda7ba3ba2"
+    }
+  },
+  {
+    "name": "role_graph_and_effective_privileges_identical_to_B01",
+    "passed": true,
+    "group": "B01_VECTOR",
+    "details": {
+      "memberships": [
+        {
+          "admin_option": false,
+          "inherit_option": true,
+          "member": "pg_monitor",
+          "owner": "pg_read_all_settings",
+          "set_option": true
+        },
+        {
+          "admin_option": false,
+          "inherit_option": true,
+          "member": "pg_monitor",
+          "owner": "pg_read_all_stats",
+          "set_option": true
+        },
+        {
+          "admin_option": false,
+          "inherit_option": true,
+          "member": "pg_monitor",
+          "owner": "pg_stat_scan_tables",
+          "set_option": true
+        },
+        {
+          "admin_option": false,
+          "inherit_option": false,
+          "member": "test_0090_broker",
+          "owner": "flooow_offline_control_owner",
+          "set_option": true
+        },
+        {
+          "admin_option": false,
+          "inherit_option": true,
+          "member": "test_0090_broker",
+          "owner": "pg_read_all_stats",
+          "set_option": false
+        }
+      ],
+      "ordinary_paths": [
+        {
+          "owner_set_paths": [],
+          "protected_dml": [],
+          "role": "test_0090_verification",
+          "source_execute": []
+        },
+        {
+          "owner_set_paths": [],
+          "protected_dml": [],
+          "role": "test_0090_issuance",
+          "source_execute": []
+        },
+        {
+          "owner_set_paths": [],
+          "protected_dml": [],
+          "role": "test_0090_execution",
+          "source_execute": []
+        },
+        {
+          "owner_set_paths": [],
+          "protected_dml": [],
+          "role": "test_0090_audit",
+          "source_execute": []
+        }
+      ]
+    }
+  },
+  {
+    "name": "confinement_mounts_images_and_namespaces_unchanged",
+    "passed": true,
+    "group": "B01_VECTOR",
+    "details": {
+      "postgres": {
+        "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+        "user": "999:999",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/etc/sealed-pg_hba.conf",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/var/lib/postgresql",
+            "type": "volume",
+            "rw": true
+          }
+        ],
+        "tmpfs": {
+          "/tmp": "rw,nosuid,nodev,noexec,mode=1777"
+        },
+        "pid_mode": "",
+        "network_mode_is_owned": true,
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "host_socket_mounted": false
+      },
+      "broker": {
+        "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+        "user": "10001:10001",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/opt/sealed",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/state",
+            "type": "volume",
+            "rw": true
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "tmpfs": {
+          "/private": "rw,nosuid,nodev,noexec,mode=700,uid=10001",
+          "/tmp": "rw,nosuid,nodev,noexec,mode=1777",
+          "/var/lib/postgresql": "ro,nosuid,nodev,noexec,mode=000"
+        },
+        "pid_mode": "",
+        "network_mode_is_owned": true,
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "host_socket_mounted": false
+      },
+      "native": {
+        "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+        "user": "10002:10002",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/opt/sealed",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "tmpfs": {
+          "/private": "rw,nosuid,nodev,noexec,mode=700,uid=10002",
+          "/tmp": "rw,nosuid,nodev,noexec,mode=1777",
+          "/var/lib/postgresql": "ro,nosuid,nodev,noexec,mode=000"
+        },
+        "pid_mode": "",
+        "network_mode_is_owned": true,
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "host_socket_mounted": false
+      },
+      "campaign": {
+        "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+        "user": "10004:10004",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/opt/sealed",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "tmpfs": {
+          "/private": "rw,nosuid,nodev,noexec,mode=700,uid=10004",
+          "/tmp": "rw,nosuid,nodev,noexec,mode=1777",
+          "/var/lib/postgresql": "ro,nosuid,nodev,noexec,mode=000"
+        },
+        "pid_mode": "",
+        "network_mode_is_owned": true,
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "host_socket_mounted": false
+      }
+    }
+  },
+  {
+    "name": "same_single_TEST_native_enrollment_not_seven_canonical_participants",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "scope": "B01 TEST participant only",
+      "native": {
+        "generation": 1,
+        "identity": {
+          "generation": 1,
+          "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+          "nonce": "73c9778cbdef869a312052104fb7f333bc3a29ba6e058f15dbad770bc5acead1",
+          "pid": 14,
+          "proof": "38e435ae024a25e709417a2e340194b26c76771c32d7a3508f5d53ee0228e45e",
+          "start": "8946620"
+        },
+        "pid": 1
+      }
+    }
+  },
+  {
+    "name": "ordinary_SQL_transport_executes_as_exact_caller",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "stdout": "test_0090_audit\n",
+      "exit": 0
+    }
+  },
+  {
+    "name": "frozen_caller_cannot_observe_required_return_history",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "interpretation": "Expected capability denial, not B02 observer success"
+    }
+  },
+  {
+    "name": "frozen_v6_fixture_contradiction_is_preserved_not_normalized",
+    "passed": true,
+    "group": "REPRESENTATIVE_ADEQUACY",
+    "details": {
+      "component": "effective-acl-v6.json",
+      "component_sha256": "ec0b1c98c19b0d2a5947355525a03c5a22d49250e8b528212088a12d4c9ba099",
+      "expected_entry": {
+        "role": "test_0090_audit",
+        "kind": "function",
+        "object": "public.offline_read_history(uuid,bytea,uuid,text)",
+        "privilege": "EXECUTE",
+        "allowed": true,
+        "grantable": false,
+        "column": null,
+        "derivation": "DIRECT + OWNERSHIP + SECURITY_DEFINER_CONTEXT"
+      },
+      "actual_allowed": false,
+      "actual_exit": 0,
+      "expected_memberships": [],
+      "actual_owner_memberships": [
+        {
+          "admin_option": false,
+          "inherit_option": false,
+          "member": "test_0090_broker",
+          "owner": "flooow_offline_control_owner",
+          "set_option": true
+        }
+      ],
+      "full_observer_run": false
+    }
+  },
+  {
+    "name": "unqualified_API_column_mutation_denied",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "request": {
+        "op": "db_column_set_not_null",
+        "fault": "none"
+      },
+      "result": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "epoch_unchanged": true
+    }
+  },
+  {
+    "name": "unqualified_API_native_retarget_denied",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "request": {
+        "op": "native_replace",
+        "fault": "none",
+        "target": "canonical-participant"
+      },
+      "result": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "epoch_unchanged": true
+    }
+  },
+  {
+    "name": "unqualified_API_final_T10_operation_denied",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "request": {
+        "op": "final_t10",
+        "tuple": {
+          "epoch": "dea8d26f-8dab-4427-adde-84036937dbf0",
+          "generation": 1,
+          "native": {
+            "generation": 1,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "73c9778cbdef869a312052104fb7f333bc3a29ba6e058f15dbad770bc5acead1",
+            "pid": 14,
+            "proof": "38e435ae024a25e709417a2e340194b26c76771c32d7a3508f5d53ee0228e45e",
+            "start": "8946620"
+          }
+        }
+      },
+      "result": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "epoch_unchanged": true
+    }
+  },
+  {
+    "name": "only_existing_DB_representative_works_without_expansion",
+    "passed": true,
+    "group": "CLASS_CAPABILITY",
+    "details": {
+      "representative": "header RLS enable/disable",
+      "window_currentness_proven": false
+    }
+  },
+  {
+    "name": "B01_boundary_tuple_is_not_claimed_as_full_B02_T10",
+    "passed": true,
+    "group": "REPRESENTATIVE_ADEQUACY",
+    "details": {
+      "fields": [
+        "epoch",
+        "generation",
+        "native"
+      ],
+      "missing": [
+        "B01_vector_digest",
+        "attempt_identity",
+        "audit_terminal_tip",
+        "decision_result",
+        "decision_timestamp",
+        "deployment",
+        "epoch_id",
+        "expected_manifest_digest",
+        "guard_proof_identity",
+        "history_expectation_identity",
+        "incarnation",
+        "native_epoch",
+        "observed_manifest_digest",
+        "observer_execution_identity",
+        "participant_generations",
+        "policy_identity",
+        "return_consumer_identity",
+        "transition_state"
+      ]
+    }
+  }
+]
