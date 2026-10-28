@@ -1,0 +1,162 @@
+{
+  "postgres": {
+    "id": "a56a42b411f782df2ecb3c8e60575679df0fab2c6a55d7ccd42e42a9910011d3",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "user": "999:999",
+    "readonly": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security": [
+      "no-new-privileges:true"
+    ],
+    "mounts": [
+      {
+        "destination": "/etc/sealed-pg_hba.conf",
+        "type": "bind",
+        "rw": false
+      },
+      {
+        "destination": "/var/lib/postgresql",
+        "type": "volume",
+        "rw": true
+      },
+      {
+        "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+        "type": "bind",
+        "rw": false
+      }
+    ],
+    "env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+      "GOSU_VERSION=1.19",
+      "LANG=en_US.utf8",
+      "PG_MAJOR=18",
+      "PG_VERSION=18.4-1.pgdg13+1",
+      "PGDATA=/var/lib/postgresql/18/docker"
+    ],
+    "ports": {
+      "5432/tcp": null
+    }
+  },
+  "broker": {
+    "id": "4417444c811a5362b0ca90fb1aa3cd903adea6bfdd3d83846aab7e0e3efc67ef",
+    "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+    "user": "10001:10001",
+    "readonly": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security": [
+      "no-new-privileges:true"
+    ],
+    "mounts": [
+      {
+        "destination": "/opt/sealed",
+        "type": "bind",
+        "rw": false
+      },
+      {
+        "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+        "type": "bind",
+        "rw": false
+      },
+      {
+        "destination": "/state",
+        "type": "volume",
+        "rw": true
+      }
+    ],
+    "env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+      "GOSU_VERSION=1.19",
+      "LANG=en_US.utf8",
+      "PG_MAJOR=18",
+      "PG_VERSION=18.4-1.pgdg13+1",
+      "PGDATA=/var/lib/postgresql/18/docker"
+    ],
+    "ports": {
+      "8080/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "55818"
+        }
+      ]
+    }
+  },
+  "native": {
+    "id": "d32477a16fb74b13a408d16aa9d5afb8292d77979ed8748a32cef854eecf5954",
+    "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+    "user": "10002:10002",
+    "readonly": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security": [
+      "no-new-privileges:true"
+    ],
+    "mounts": [
+      {
+        "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+        "type": "bind",
+        "rw": false
+      },
+      {
+        "destination": "/opt/sealed",
+        "type": "bind",
+        "rw": false
+      }
+    ],
+    "env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+      "GOSU_VERSION=1.19",
+      "LANG=en_US.utf8",
+      "PG_MAJOR=18",
+      "PG_VERSION=18.4-1.pgdg13+1",
+      "PGDATA=/var/lib/postgresql/18/docker"
+    ],
+    "ports": {
+      "8080/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "55810"
+        }
+      ]
+    }
+  },
+  "campaign": {
+    "id": "425dddba04deaf98c6bc653df5e9b637f8a7ac810b35e68d9b81b5ef47bf35b7",
+    "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+    "user": "10004:10004",
+    "readonly": true,
+    "cap_drop": [
+      "ALL"
+    ],
+    "security": [
+      "no-new-privileges:true"
+    ],
+    "mounts": [
+      {
+        "destination": "/opt/sealed",
+        "type": "bind",
+        "rw": false
+      },
+      {
+        "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+        "type": "bind",
+        "rw": false
+      }
+    ],
+    "env": [
+      "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+      "GOSU_VERSION=1.19",
+      "LANG=en_US.utf8",
+      "PG_MAJOR=18",
+      "PG_VERSION=18.4-1.pgdg13+1",
+      "PGDATA=/var/lib/postgresql/18/docker"
+    ],
+    "ports": {
+      "5432/tcp": null
+    }
+  }
+}

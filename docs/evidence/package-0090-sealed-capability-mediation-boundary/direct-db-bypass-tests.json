@@ -1,0 +1,2110 @@
+{
+  "targets": {
+    "clean-credential": {
+      "cases": [
+        {
+          "representative": "relation",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_verification",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_issuance",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_execution",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_audit",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        }
+      ],
+      "succeeded": 0
+    },
+    "clean-delete": {
+      "cases": [
+        {
+          "representative": "relation",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_verification",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_issuance",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_execution",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_audit",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        }
+      ],
+      "succeeded": 0
+    },
+    "clean-corrupt": {
+      "cases": [
+        {
+          "representative": "relation",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_verification",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_issuance",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_execution",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_audit",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        }
+      ],
+      "succeeded": 0
+    },
+    "clean-native-loss": {
+      "cases": [
+        {
+          "representative": "relation",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_verification",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_verification",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_issuance",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_issuance",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_execution",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_execution",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "relation",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "source_native_function",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "role",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+          "statement": "ALTER ROLE test_0090_audit INHERIT",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+          "denied": true
+        },
+        {
+          "representative": "role_superuser",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "membership_absence",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+          "denied": true
+        },
+        {
+          "representative": "effective_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "future_default_acl",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+          "denied": true
+        },
+        {
+          "representative": "default_expression",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "index",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "trigger",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "constraint",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        },
+        {
+          "representative": "return_consumer",
+          "role": "test_0090_audit",
+          "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+          "denied": true
+        },
+        {
+          "representative": "column",
+          "role": "test_0090_audit",
+          "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+          "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+          "exit": 3,
+          "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+          "denied": true
+        }
+      ],
+      "succeeded": 0
+    }
+  },
+  "cases_per_target": 52,
+  "total_executions": 208,
+  "distinct_role_operation_cases": 52,
+  "succeeded": 0,
+  "broker_identity": "Private role unavailable to direct callers; private/disabled login and closed API attempts tested separately.",
+  "default_privilege_identity": "Explicit FOR ROLE postgres preserves the old implicit CURRENT_USER target; modifying a caller-owned default is not substituted."
+}

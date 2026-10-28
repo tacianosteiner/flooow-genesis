@@ -1,0 +1,1787 @@
+[
+  {
+    "name": "bootstrap_process_exited_before_seal",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "pid": 275224,
+      "receipt": {
+        "postgres_login": false,
+        "postgres_password_null": true,
+        "superuser_sessions_other_than_last_bootstrap": 0,
+        "owner_logins": 0
+      }
+    }
+  },
+  {
+    "name": "fresh_epoch_sealed_only_after_bootstrap_exit",
+    "passed": true,
+    "group": "MEDIATION_CLOSURE",
+    "details": {
+      "eligible": true,
+      "epoch": "75316e4e-26f1-49e8-bbd1-6b369cbb4919",
+      "generation": 1,
+      "pending": null,
+      "pid": 1,
+      "state": "SEALED",
+      "terminal_tip": "3c1f8ad0a159f895bb25b9154c62dc4501598489f41d6bfc27c979f6688a3ce9"
+    }
+  },
+  {
+    "name": "all_eight_owners_nologin",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": [
+      {
+        "oid": "19039",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_control_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19040",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_verification_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19041",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_issuance_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19042",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_execution_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19043",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_audit_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19044",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_readiness_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19045",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_principal_lock_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19046",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_intent_audit_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      }
+    ]
+  },
+  {
+    "name": "no_active_superuser_sessions",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": 0
+  },
+  {
+    "name": "postgres_nologin_and_credential_destroyed",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "postgres_login": false,
+      "postgres_password_null": true,
+      "superuser_sessions_other_than_last_bootstrap": 0,
+      "owner_logins": 0
+    }
+  },
+  {
+    "name": "no_ordinary_owner_membership",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": []
+  },
+  {
+    "name": "broker_not_superuser_or_role_admin",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "oid": "19625",
+      "rolbypassrls": false,
+      "rolcanlogin": true,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolname": "test_0090_broker",
+      "rolreplication": false,
+      "rolsuper": false
+    }
+  },
+  {
+    "name": "sealed_container_postgres",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "d6549fd18ddf18d071cf1954dc34552894df734bb3eb8f0bc07e91e9bc40174d",
+      "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "user": "999:999",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        },
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/etc/sealed-pg_hba.conf",
+          "type": "bind",
+          "rw": false
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "5432/tcp": null
+      }
+    }
+  },
+  {
+    "name": "sealed_container_broker",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "34741601def3d4e1e538d57abe6f2136c20b073e144b5bd6bba7303561796618",
+      "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+      "user": "10001:10001",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/opt/sealed",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/state",
+          "type": "volume",
+          "rw": true
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "62750"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "sealed_container_native",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "ffa448af23485a45407e1057764b0a5ac66ce2ca195b357bc62460c2578f5dea",
+      "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+      "user": "10002:10002",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/opt/sealed",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "62748"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "sealed_container_campaign",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "4427fb42b1432a61f7e03b7ed6763317f15f9afa7d7e974ea370cfcbd5f24571",
+      "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+      "user": "10004:10004",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/opt/sealed",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "5432/tcp": null
+      }
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_control_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_verification_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_issuance_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_execution_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_readiness_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_principal_lock_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_intent_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_relation",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_source_native_function",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_role",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_role_superuser",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_membership_absence",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_verification",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_effective_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_verification",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_future_default_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_default_expression",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_index",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_trigger",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_constraint",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_return_consumer",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_verification",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_column",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_control_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_verification_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_issuance_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_execution_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_readiness_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_principal_lock_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_intent_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_relation",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_source_native_function",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_role",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_role_superuser",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_membership_absence",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_issuance",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_effective_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_issuance",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_future_default_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_default_expression",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_index",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_trigger",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_constraint",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_return_consumer",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_issuance",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_column",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_control_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_verification_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_issuance_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_execution_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_readiness_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_principal_lock_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_intent_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_relation",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_source_native_function",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_role",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_role_superuser",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_membership_absence",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_execution",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_effective_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_execution",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_future_default_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_default_expression",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_index",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_trigger",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_constraint",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_return_consumer",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_execution",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_column",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_control_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_verification_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_issuance_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_execution_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_readiness_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_principal_lock_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_intent_audit_owner",
+    "passed": false,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 0,
+      "stderr": ""
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_relation",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_source_native_function",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_role",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_role_superuser",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_membership_absence",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_audit",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_effective_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_audit",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_future_default_acl",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_default_expression",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_index",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_trigger",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_constraint",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_return_consumer",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_audit",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_column",
+    "passed": false,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 0,
+      "stderr": "",
+      "denied": false
+    }
+  },
+  {
+    "name": "private_or_disabled_login_postgres",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"postgres\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_control_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_control_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_verification_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_verification_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_issuance_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_issuance_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_execution_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_execution_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_audit_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_readiness_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_readiness_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_principal_lock_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_principal_lock_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_intent_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_intent_audit_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_test_0090_broker",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-ae42328c70d9-postgres\" (172.22.0.2), port 5432 failed: fe_sendauth: no password supplied\n"
+    }
+  },
+  {
+    "name": "native_agent_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "append"
+    }
+  },
+  {
+    "name": "native_agent_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "truncate"
+    }
+  },
+  {
+    "name": "native_agent_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "replace"
+    }
+  },
+  {
+    "name": "native_agent_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "rename_over"
+    }
+  },
+  {
+    "name": "native_agent_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chmod"
+    }
+  },
+  {
+    "name": "native_agent_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chown"
+    }
+  },
+  {
+    "name": "native_agent_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "symlink_substitution"
+    }
+  },
+  {
+    "name": "native_agent_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'",
+      "operation": "loader_path_write"
+    }
+  },
+  {
+    "name": "native_agent_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32.",
+      "operation": "bind_mount"
+    }
+  },
+  {
+    "name": "native_participant_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "append"
+    }
+  },
+  {
+    "name": "native_participant_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "truncate"
+    }
+  },
+  {
+    "name": "native_participant_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "replace"
+    }
+  },
+  {
+    "name": "native_participant_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "rename_over"
+    }
+  },
+  {
+    "name": "native_participant_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chmod"
+    }
+  },
+  {
+    "name": "native_participant_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chown"
+    }
+  },
+  {
+    "name": "native_participant_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "symlink_substitution"
+    }
+  },
+  {
+    "name": "native_participant_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'",
+      "operation": "loader_path_write"
+    }
+  },
+  {
+    "name": "native_participant_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "PermissionError:[Errno 1] Operation not permitted",
+      "operation": "bind_mount"
+    }
+  },
+  {
+    "name": "native_participant_exec_loader_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "operation": "exec_loader_substitution"
+    }
+  },
+  {
+    "name": "native_campaign_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "append",
+      "denied": true,
+      "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "truncate",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "replace",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "rename_over",
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "chmod",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "chown",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "symlink_substitution",
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "loader_path_write",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'"
+    }
+  },
+  {
+    "name": "native_campaign_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "bind_mount",
+      "denied": true,
+      "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32."
+    }
+  }
+]

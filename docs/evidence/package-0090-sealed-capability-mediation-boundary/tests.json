@@ -1,0 +1,4775 @@
+{
+  "distinct_tests": 214,
+  "assertion_executions": 802,
+  "failures": 0,
+  "groups": {
+    "ROLE_ISOLATION": 61,
+    "MEDIATION_CLOSURE": 9,
+    "PREVIOUS_COUNTEREXAMPLE": 14,
+    "DIRECT_DB_BYPASS": 39,
+    "NATIVE_BYPASS": 47,
+    "GENERATION_TAMPER": 15,
+    "BROKER_POSITIVE": 5,
+    "CRASH": 16,
+    "AUDIT_BINDING": 3,
+    "CAPABILITY_INVENTORY": 5
+  },
+  "cases": [
+    {
+      "name": "bootstrap_process_exited_before_seal",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "pid": 251524,
+        "receipt": {
+          "postgres_login": false,
+          "postgres_password_null": true,
+          "superuser_sessions_other_than_last_bootstrap": 0,
+          "owner_logins": 0
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "fresh_epoch_sealed_only_after_bootstrap_exit",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "eligible": true,
+        "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+        "generation": 1,
+        "pending": null,
+        "pid": 1,
+        "qualification_tuple": {
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 1,
+          "native": {
+            "generation": 1,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+            "pid": 14,
+            "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+            "start": "8675624"
+          }
+        },
+        "state": "SEALED",
+        "terminal_tip": "64d2ae28ff8a3ea9d60c00d98ef489e09fcd7b9ea549c4cc5f15d3b07aa16fa7"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "effective_privilege_closure_test_0090_verification",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "owner_set_paths": [],
+        "protected_dml": [],
+        "role": "test_0090_verification",
+        "source_execute": []
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "effective_privilege_closure_test_0090_issuance",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "owner_set_paths": [],
+        "protected_dml": [],
+        "role": "test_0090_issuance",
+        "source_execute": []
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "effective_privilege_closure_test_0090_execution",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "owner_set_paths": [],
+        "protected_dml": [],
+        "role": "test_0090_execution",
+        "source_execute": []
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "effective_privilege_closure_test_0090_audit",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "owner_set_paths": [],
+        "protected_dml": [],
+        "role": "test_0090_audit",
+        "source_execute": []
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "all_eight_owners_nologin",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": [
+        {
+          "oid": "19039",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_control_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19040",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_verification_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19041",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_issuance_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19042",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_execution_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19043",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_audit_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19044",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_readiness_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19045",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_principal_lock_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        },
+        {
+          "oid": "19046",
+          "rolbypassrls": false,
+          "rolcanlogin": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolname": "flooow_offline_intent_audit_owner",
+          "rolreplication": false,
+          "rolsuper": false
+        }
+      ],
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "no_active_superuser_sessions",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": 0,
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "postgres_nologin_and_credential_destroyed",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "postgres_login": false,
+        "postgres_password_null": true,
+        "superuser_sessions_other_than_last_bootstrap": 0,
+        "owner_logins": 0
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "no_ordinary_owner_membership",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": [],
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "broker_not_superuser_or_role_admin",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "oid": "19625",
+        "rolbypassrls": false,
+        "rolcanlogin": true,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "test_0090_broker",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "sealed_container_postgres",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "id": "e7a5f21b90ad0bc9ac90afe960d00d90f287c80140a97097afe346127a5a4ca4",
+        "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+        "user": "999:999",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/var/lib/postgresql",
+            "type": "volume",
+            "rw": true
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/etc/sealed-pg_hba.conf",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "ports": {
+          "5432/tcp": null
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "sealed_container_broker",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "id": "1fc107a790f10032ba0c5fd5de686d6ffa2ebbc9b4413a529a6a1d7bededc88a",
+        "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+        "user": "10001:10001",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/state",
+            "type": "volume",
+            "rw": true
+          },
+          {
+            "destination": "/opt/sealed",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "ports": {
+          "8080/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "55811"
+            }
+          ]
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "sealed_container_native",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "id": "d5cff798eab009c24d34579191fde6924d27818a9618c322fee9b6621cb39313",
+        "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+        "user": "10002:10002",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/opt/sealed",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "ports": {
+          "8080/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "55806"
+            }
+          ]
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "sealed_container_campaign",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "id": "fb55bc820c4124a630605e532424ef82cf16f1fa351e454649bee9d98921ad5d",
+        "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+        "user": "10004:10004",
+        "readonly": true,
+        "cap_drop": [
+          "ALL"
+        ],
+        "security": [
+          "no-new-privileges:true"
+        ],
+        "mounts": [
+          {
+            "destination": "/opt/sealed",
+            "type": "bind",
+            "rw": false
+          },
+          {
+            "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+            "type": "bind",
+            "rw": false
+          }
+        ],
+        "env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+          "GOSU_VERSION=1.19",
+          "LANG=en_US.utf8",
+          "PG_MAJOR=18",
+          "PG_VERSION=18.4-1.pgdg13+1",
+          "PGDATA=/var/lib/postgresql/18/docker"
+        ],
+        "ports": {
+          "5432/tcp": null
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "bootstrap_secret_files_absent",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "files_unlinked": true,
+        "bootstrap_process_exited": true,
+        "no_original_review_mount": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_probe_transport_test_0090_verification",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "stdout": "test_0090_verification\n",
+        "exit": 0
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_control_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_verification_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_issuance_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_execution_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_readiness_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_principal_lock_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_verification_flooow_offline_intent_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_relation",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "relation",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_source_native_function",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "source_native_function",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_role",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "role",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+        "statement": "ALTER ROLE test_0090_audit INHERIT",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_role_superuser",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "role_superuser",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_membership_absence",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "membership_absence",
+        "role": "test_0090_verification",
+        "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_effective_acl",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "effective_acl",
+        "role": "test_0090_verification",
+        "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_future_default_acl",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "future_default_acl",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_default_expression",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "default_expression",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_index",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "index",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_trigger",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "trigger",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_constraint",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "constraint",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_return_consumer",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "return_consumer",
+        "role": "test_0090_verification",
+        "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_verification_column",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "representative": "column",
+        "role": "test_0090_verification",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "original_group": "DIRECT_DB_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_probe_transport_test_0090_issuance",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "stdout": "test_0090_issuance\n",
+        "exit": 0
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_control_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_verification_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_issuance_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_execution_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_readiness_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_principal_lock_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_issuance_flooow_offline_intent_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_relation",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "relation",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_source_native_function",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "source_native_function",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_role",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "role",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+        "statement": "ALTER ROLE test_0090_audit INHERIT",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_role_superuser",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "role_superuser",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_membership_absence",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "membership_absence",
+        "role": "test_0090_issuance",
+        "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_effective_acl",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "effective_acl",
+        "role": "test_0090_issuance",
+        "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_future_default_acl",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "future_default_acl",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_default_expression",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "default_expression",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_index",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "index",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_trigger",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "trigger",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_constraint",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "constraint",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_return_consumer",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "return_consumer",
+        "role": "test_0090_issuance",
+        "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_issuance_column",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "column",
+        "role": "test_0090_issuance",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_probe_transport_test_0090_execution",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "stdout": "test_0090_execution\n",
+        "exit": 0
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_control_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_verification_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_issuance_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_execution_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_readiness_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_principal_lock_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_execution_flooow_offline_intent_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_relation",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "relation",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_source_native_function",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "source_native_function",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_role",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "role",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+        "statement": "ALTER ROLE test_0090_audit INHERIT",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_role_superuser",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "role_superuser",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_membership_absence",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "membership_absence",
+        "role": "test_0090_execution",
+        "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_effective_acl",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "effective_acl",
+        "role": "test_0090_execution",
+        "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_future_default_acl",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "future_default_acl",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_default_expression",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "default_expression",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_index",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "index",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_trigger",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "trigger",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_constraint",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "constraint",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_return_consumer",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "return_consumer",
+        "role": "test_0090_execution",
+        "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_execution_column",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "column",
+        "role": "test_0090_execution",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_probe_transport_test_0090_audit",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "stdout": "test_0090_audit\n",
+        "exit": 0
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_control_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_verification_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_issuance_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_execution_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_readiness_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_principal_lock_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "owner_set_denied_test_0090_audit_flooow_offline_intent_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_relation",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "relation",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_source_native_function",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "source_native_function",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_role",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "role",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+        "statement": "ALTER ROLE test_0090_audit INHERIT",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_role_superuser",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "role_superuser",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_membership_absence",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "membership_absence",
+        "role": "test_0090_audit",
+        "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_effective_acl",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "effective_acl",
+        "role": "test_0090_audit",
+        "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_future_default_acl",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "future_default_acl",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_default_expression",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "default_expression",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_index",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "index",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_trigger",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "trigger",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_constraint",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "constraint",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_return_consumer",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "return_consumer",
+        "role": "test_0090_audit",
+        "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "direct_db_test_0090_audit_column",
+      "passed": true,
+      "group": "DIRECT_DB_BYPASS",
+      "details": {
+        "representative": "column",
+        "role": "test_0090_audit",
+        "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+        "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+        "denied": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_postgres",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"postgres\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_control_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_control_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_verification_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_verification_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_issuance_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_issuance_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_execution_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_execution_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_audit_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_readiness_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_readiness_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_principal_lock_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_principal_lock_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_flooow_offline_intent_audit_owner",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.23.0.5\", user \"flooow_offline_intent_audit_owner\", database \"g3f4\", no encryption\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "private_or_disabled_login_test_0090_broker",
+      "passed": true,
+      "group": "ROLE_ISOLATION",
+      "details": {
+        "exit": 2,
+        "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-25d4d1f53bfb-postgres\" (172.23.0.2), port 5432 failed: fe_sendauth: no password supplied\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_append",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "append"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_truncate",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "truncate"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_replace",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "replace"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_rename_over",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-1' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "rename_over"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_chmod",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "chmod"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_chown",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "chown"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_symlink_substitution",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "symlink_substitution"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_loader_path_write",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'",
+        "operation": "loader_path_write"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_agent_bind_mount",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-1', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32.",
+        "operation": "bind_mount"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_append",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "append"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_truncate",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "truncate"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_replace",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "replace"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_rename_over",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-14' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "rename_over"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_chmod",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "chmod"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_chown",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "chown"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_symlink_substitution",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+        "operation": "symlink_substitution"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_loader_path_write",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'",
+        "operation": "loader_path_write"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_bind_mount",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "error": "PermissionError:[Errno 1] Operation not permitted",
+        "operation": "bind_mount"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_exec_loader_substitution",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "operation": "exec_loader_substitution"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_queued_signal_parent",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "errno": 1,
+        "operation": "queued_signal_parent"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_participant_queued_thread_signal_parent",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "denied": true,
+        "errno": 1,
+        "operation": "queued_thread_signal_parent"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_append",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "append",
+        "denied": true,
+        "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_truncate",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "truncate",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_replace",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "replace",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_rename_over",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "rename_over",
+        "denied": true,
+        "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-606' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_chmod",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "chmod",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_chown",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "chown",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_symlink_substitution",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "symlink_substitution",
+        "denied": true,
+        "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_loader_path_write",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "loader_path_write",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_campaign_bind_mount",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "bind_mount",
+        "denied": true,
+        "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-606', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32."
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_append",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "append",
+        "denied": true,
+        "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_truncate",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "truncate",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_replace",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "replace",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_rename_over",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "rename_over",
+        "denied": true,
+        "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-24' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_chmod",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "chmod",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_chown",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "chown",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_symlink_substitution",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "symlink_substitution",
+        "denied": true,
+        "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_loader_path_write",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "loader_path_write",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_broker_bind_mount",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "bind_mount",
+        "denied": true,
+        "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-24', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32."
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_append",
+      "passed": true,
+      "group": "PREVIOUS_COUNTEREXAMPLE",
+      "details": {
+        "operation": "append",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "original_group": "NATIVE_BYPASS",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_truncate",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "truncate",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_replace",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "replace",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_rename_over",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "rename_over",
+        "denied": true,
+        "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-16' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_chmod",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "chmod",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_chown",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "chown",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_symlink_substitution",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "symlink_substitution",
+        "denied": true,
+        "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_loader_path_write",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "loader_path_write",
+        "denied": true,
+        "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_old_root_representative_bind_mount",
+      "passed": true,
+      "group": "NATIVE_BYPASS",
+      "details": {
+        "operation": "bind_mount",
+        "denied": true,
+        "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-16', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32."
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_native_decrement",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text(str(int(p.read_text())-1))\n                                                                                ~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 548, in read_text\n    return PathBase.read_text(self, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 632, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_native_reuse",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('1')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_native_overwrite",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('9999')\n                                                           ~~~~~~~~~~~~^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_native_truncate",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.open('wb').close()\n                                                           ~~~~~~^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_native_replace",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); Path('/tmp/generation').write_text('0'); Path('/tmp/generation').replace(p)\n                                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 782, in replace\n    os.replace(self, target)\n    ~~~~~~~~~~^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/generation' -> '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_campaign_decrement",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text(str(int(p.read_text())-1))\n                                                                                ~~~~~~~~~~~^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 548, in read_text\n    return PathBase.read_text(self, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 632, in read_text\n    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_campaign_reuse",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('1')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_campaign_overwrite",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('9999')\n                                                           ~~~~~~~~~~~~^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_campaign_truncate",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.open('wb').close()\n                                                           ~~~~~~^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_campaign_replace",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); Path('/tmp/generation').write_text('0'); Path('/tmp/generation').replace(p)\n                                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 782, in replace\n    os.replace(self, target)\n    ~~~~~~~~~~^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/generation' -> '/state/generation'\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_postgres_decrement",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "cat: /state/generation: No such file or directory\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_postgres_reuse",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 2,
+        "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_postgres_overwrite",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 2,
+        "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_postgres_truncate",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 2,
+        "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "generation_postgres_replace",
+      "passed": true,
+      "group": "GENERATION_TAMPER",
+      "details": {
+        "exit": 1,
+        "stderr": "mv: cannot move '/tmp/generation' to '/state/generation': No such file or directory\n"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "closed_api_3228f0124286",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "closed_api_e908b347eb91",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "closed_api_b5745cf7de50",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "closed_api_4c2433f39945",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "error": "RuntimeError:Closed broker API: operation/fields rejected"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "broker_db_True",
+      "passed": true,
+      "group": "BROKER_POSITIVE",
+      "details": {
+        "before": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 1,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 1,
+            "native": {
+              "generation": 1,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+              "pid": 14,
+              "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+              "start": "8675624"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "64d2ae28ff8a3ea9d60c00d98ef489e09fcd7b9ea549c4cc5f15d3b07aa16fa7"
+        },
+        "old_generation_eligible": false,
+        "outcome": {
+          "exit": 0,
+          "mutation_pid": 32,
+          "stderr": "",
+          "stdout": "{\"outcome\": \"COMMITTED\"}\n"
+        },
+        "snapshot": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 3,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 3,
+            "native": {
+              "generation": 1,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+              "pid": 14,
+              "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+              "start": "8675624"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "248e572720ad36649a096f834dec129195b2eff10676d5ff7338789ae4696e92"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "broker_db_False",
+      "passed": true,
+      "group": "BROKER_POSITIVE",
+      "details": {
+        "before": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 3,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 3,
+            "native": {
+              "generation": 1,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+              "pid": 14,
+              "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+              "start": "8675624"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "248e572720ad36649a096f834dec129195b2eff10676d5ff7338789ae4696e92"
+        },
+        "old_generation_eligible": false,
+        "outcome": {
+          "exit": 0,
+          "mutation_pid": 36,
+          "stderr": "",
+          "stdout": "{\"outcome\": \"COMMITTED\"}\n"
+        },
+        "snapshot": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 5,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 5,
+            "native": {
+              "generation": 1,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+              "pid": 14,
+              "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+              "start": "8675624"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "d4130680e9ea2bba6bca56343ecb7f1e2129699f706c6d3f52ef6c52f4cfbe40"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "current_test_boundary_tuple_matches",
+      "passed": true,
+      "group": "BROKER_POSITIVE",
+      "details": {
+        "scope": "TEST boundary only"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_new_identity_and_guard_binding",
+      "passed": true,
+      "group": "BROKER_POSITIVE",
+      "details": {
+        "before": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 5,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 5,
+            "native": {
+              "generation": 1,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+              "pid": 14,
+              "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+              "start": "8675624"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "d4130680e9ea2bba6bca56343ecb7f1e2129699f706c6d3f52ef6c52f4cfbe40"
+        },
+        "old_generation_eligible": false,
+        "outcome": {
+          "delegate_pid": 1,
+          "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+          "new": {
+            "generation": 6,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+            "pid": 53,
+            "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+            "start": "8680227"
+          },
+          "old": {
+            "generation": 1,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+            "pid": 14,
+            "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+            "start": "8675624"
+          },
+          "scope": "TEST process enrollment/file-identity challenge; not canonical native health or 100us proof"
+        },
+        "snapshot": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 7,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 7,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "82430cc96cca2844a4d946fcf69ee75290a7761fa021a3078e1652683f557203"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "old_boundary_tuple_cannot_accept_new_native_identity",
+      "passed": true,
+      "group": "BROKER_POSITIVE",
+      "details": {
+        "old": {
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 5,
+          "native": {
+            "generation": 1,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "f9c1d2d193cf73ad5312f440a2a9c4580a75414fbb4e41c0c42092be4767073a",
+            "pid": 14,
+            "proof": "3009c8c9dccec333b37e08f3d9716f64c17db13c0aeecef7289aeed24135024f",
+            "start": "8675624"
+          }
+        },
+        "new": {
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 7,
+          "native": {
+            "generation": 6,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+            "pid": 53,
+            "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+            "start": "8680227"
+          }
+        },
+        "scope": "Not full operational T10"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "native_delegate_requires_private_broker_binding",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "error": "RuntimeError:Unauthenticated native transition"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "actual_mutator_crash_pre",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "before": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 7,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 7,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "82430cc96cca2844a4d946fcf69ee75290a7761fa021a3078e1652683f557203"
+        },
+        "outcome": {
+          "exit": 77,
+          "mutation_pid": 40,
+          "stderr": "",
+          "stdout": ""
+        },
+        "snapshot": {
+          "eligible": false,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 8,
+          "pending": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "before_start": true,
+            "capability": "SET_ROLE_OWNER",
+            "enabled": true,
+            "generation_after": 8,
+            "generation_before": 7,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "4cdc0583-072a-4afe-9595-828076b9a9be"
+          },
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 8,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "UNKNOWN",
+          "terminal_tip": "eb85e3d7d8a352d83c77b06453088778b429a6d0e87cd5fed640ee0ac0cdb9eb"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "unknown_cannot_direct_seal_pre",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "error": "RuntimeError:Only fresh bootstrap PREPARED can be sealed"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "crash_requires_independent_reconciliation_pre",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "outcome": "NO_MUTATOR_STARTED",
+        "snapshot": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 9,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 9,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "0bab9c0d5df6ce625245923b93244e0884254eaed0aec4479fae43b88cb5a884"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "actual_mutator_crash_post",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "before": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 9,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 9,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "0bab9c0d5df6ce625245923b93244e0884254eaed0aec4479fae43b88cb5a884"
+        },
+        "outcome": {
+          "exit": 78,
+          "mutation_pid": 41,
+          "stderr": "",
+          "stdout": ""
+        },
+        "snapshot": {
+          "eligible": false,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 10,
+          "pending": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "before_start": false,
+            "capability": "SET_ROLE_OWNER",
+            "enabled": true,
+            "generation_after": 10,
+            "generation_before": 9,
+            "mutation_pid": 41,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "51fb64dc-1266-4f37-a1ac-799fa6ccce56",
+            "xid": "917"
+          },
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 10,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "UNKNOWN",
+          "terminal_tip": "753bca2ea5c16cd643037c2772e1aa628775f3b37d509000f576872c731a91ad"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "unknown_cannot_direct_seal_post",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "error": "RuntimeError:Only fresh bootstrap PREPARED can be sealed"
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "crash_requires_independent_reconciliation_post",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "outcome": "committed",
+        "snapshot": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 11,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 11,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "037268ef6291276bdf2e9d2028804bea98c8b22c61359e675fb214990a734175"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "post_transition_role_and_acl_closure",
+      "passed": true,
+      "group": "MEDIATION_CLOSURE",
+      "details": {
+        "no_role_or_acl_widening": true,
+        "no_ready": true,
+        "no_superuser_client_sessions": true
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "all_mutations_have_prior_durable_invalidation",
+      "passed": true,
+      "group": "AUDIT_BINDING",
+      "details": [
+        {
+          "audit_writer_pid": 1,
+          "binding": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "capability": "SET_ROLE_OWNER",
+            "generation_after": 2,
+            "generation_before": 1,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "88d6914d-cd39-4fe6-a13c-40e66091b0a2"
+          },
+          "epoch_id": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "event": "INVALIDATED_BEFORE_MUTATOR",
+          "generation": 2,
+          "monotonic_ns": 86801310461358,
+          "previous_tip": "baa7a775abd7068e6fdc67947022010f8cda883386d7704752aed7d31ccfbd75",
+          "state": "TRANSITIONING",
+          "terminal_tip": "410ef3ccc385a413b23ec59dfcc28acfcd729b5750cf59f93b54cc220b37102e"
+        },
+        {
+          "audit_writer_pid": 1,
+          "binding": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "capability": "SET_ROLE_OWNER",
+            "generation_after": 4,
+            "generation_before": 3,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "1c9faea7-e6ad-4376-902a-80f7724e5814"
+          },
+          "epoch_id": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "event": "INVALIDATED_BEFORE_MUTATOR",
+          "generation": 4,
+          "monotonic_ns": 86801765863583,
+          "previous_tip": "911f726bbfe9abc4d0a1f936c9765e5eb6dab8e76e5804612c94c0c710b57d3c",
+          "state": "TRANSITIONING",
+          "terminal_tip": "11c928fe1ec6d64bd4f8349c3664f5868d83afe820b03b7f7de1e5bbd4e1cebb"
+        },
+        {
+          "audit_writer_pid": 1,
+          "binding": {
+            "CLASS_ID": "0090/CURRENTNESS/native_participant",
+            "actor": "test_0090_broker",
+            "capability": "NATIVE_PROCESS_REPLACER",
+            "generation_after": 6,
+            "generation_before": 5,
+            "target": "sealed-test-participant",
+            "transition_id": "45a425d9-b9f3-42a8-b30a-c0fc19b44d22"
+          },
+          "epoch_id": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "event": "INVALIDATED_BEFORE_MUTATOR",
+          "generation": 6,
+          "monotonic_ns": 86802257966248,
+          "previous_tip": "c168dfd7944c4d1bf968173f8d181de127ae31e317bf12b85d41d99befe0f969",
+          "state": "TRANSITIONING",
+          "terminal_tip": "59f93a92631cfa65f64b953ee0a783a3dbb58f388e81c2de6345493057509268"
+        },
+        {
+          "audit_writer_pid": 1,
+          "binding": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "capability": "SET_ROLE_OWNER",
+            "generation_after": 8,
+            "generation_before": 7,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "4cdc0583-072a-4afe-9595-828076b9a9be"
+          },
+          "epoch_id": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "event": "INVALIDATED_BEFORE_MUTATOR",
+          "generation": 8,
+          "monotonic_ns": 86802500711060,
+          "previous_tip": "e27538a848242c7bc7e378e07054b3b783968b7c11c0795035bc4e82beed860a",
+          "state": "TRANSITIONING",
+          "terminal_tip": "86b9788c5b2b63518ed5c283592e30ee3649b346b4acf32dfe694190ec58bdbc"
+        },
+        {
+          "audit_writer_pid": 1,
+          "binding": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "capability": "SET_ROLE_OWNER",
+            "generation_after": 10,
+            "generation_before": 9,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "51fb64dc-1266-4f37-a1ac-799fa6ccce56"
+          },
+          "epoch_id": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "event": "INVALIDATED_BEFORE_MUTATOR",
+          "generation": 10,
+          "monotonic_ns": 86802675416726,
+          "previous_tip": "7397db53dc25bda2acfbe58304a450a0566eff17d6c3e64c2ece5ec5163360f3",
+          "state": "TRANSITIONING",
+          "terminal_tip": "1931d79691886fc17a48df813b80242c3402ffe32949a0dfe337d0e29e9e15cd"
+        }
+      ],
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "audit_writer_distinct_from_db_mutator",
+      "passed": true,
+      "group": "AUDIT_BINDING",
+      "details": {
+        "writer_pid": 1
+      },
+      "target": "clean-credential",
+      "executions": 4,
+      "targets": [
+        "clean-credential",
+        "clean-delete",
+        "clean-corrupt",
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "credential_loss_denies_without_rollback_assumption",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "before": {
+          "eligible": true,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 11,
+          "pending": null,
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 11,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "SEALED",
+          "terminal_tip": "037268ef6291276bdf2e9d2028804bea98c8b22c61359e675fb214990a734175"
+        },
+        "outcome": {
+          "exit": 78,
+          "mutation_pid": 50,
+          "stderr": "",
+          "stdout": ""
+        },
+        "snapshot": {
+          "eligible": false,
+          "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+          "generation": 12,
+          "pending": {
+            "CLASS_ID": "0090/CURRENTNESS/relation",
+            "actor": "test_0090_broker",
+            "before_start": false,
+            "capability": "SET_ROLE_OWNER",
+            "enabled": false,
+            "generation_after": 12,
+            "generation_before": 11,
+            "mutation_pid": 50,
+            "target": "public.offline_binding_header.relrowsecurity",
+            "transition_id": "81593bd8-4208-47fd-a6bf-1e45d96eb8ce",
+            "xid": "918"
+          },
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "d84bc39b-9744-4727-9477-a8f8fd4c01b7",
+            "generation": 12,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5c996f6e18021dda9af231398c694eba855cb184466dcbd73c7c448eac0b8fae",
+              "pid": 53,
+              "proof": "39d235db27822520e5baefcbd033d1a0abf7c0503dfd91e8abfdb0f04cff33f2",
+              "start": "8680227"
+            }
+          },
+          "state": "UNKNOWN",
+          "terminal_tip": "b64dfaeeb2381e8b2333ddcb6fd1921c63596ddff3893c2a48fde31207002354"
+        }
+      },
+      "target": "clean-credential",
+      "executions": 1,
+      "targets": [
+        "clean-credential"
+      ]
+    },
+    {
+      "name": "credential_loss_cannot_reconcile_without_outcome_evidence",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "error": "RuntimeError:Credential lost; outcome UNKNOWN"
+      },
+      "target": "clean-credential",
+      "executions": 1,
+      "targets": [
+        "clean-credential"
+      ]
+    },
+    {
+      "name": "fence_delete_noneligible",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "eligible": false,
+        "epoch": "69633a29-b140-413c-b9aa-22bb5a3c8c40",
+        "generation": 12,
+        "pending": null,
+        "pid": 1,
+        "qualification_tuple": {
+          "epoch": "69633a29-b140-413c-b9aa-22bb5a3c8c40",
+          "generation": 12,
+          "native": {
+            "generation": 6,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "6d7b9d2ea4b285f93187e9cb0f2dcc5ad22696d98a6d2e30d1cd80b2f92a306c",
+            "pid": 54,
+            "proof": "e02e2d8ba64b87d6f3714d1622cd412bce9021e3a8484bf76ab929aa906b51b6",
+            "start": "8680379"
+          }
+        },
+        "state": "UNKNOWN",
+        "terminal_tip": "78df13ab3419528550662a679d1c810314a6b1f506f291eeefc2bb016310fd77"
+      },
+      "target": "clean-delete",
+      "executions": 1,
+      "targets": [
+        "clean-delete"
+      ]
+    },
+    {
+      "name": "fence_delete_cannot_reinitialize",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "error": "RuntimeError:Only fresh bootstrap PREPARED can be sealed"
+      },
+      "target": "clean-delete",
+      "executions": 1,
+      "targets": [
+        "clean-delete"
+      ]
+    },
+    {
+      "name": "existing_epoch_delete_refuses_fresh_bootstrap",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import sys; sys.path.insert(0,'/opt/sealed'); from package_0090_sealed_service import Broker; Broker({'credential':'INVALID_TEST_VALUE','epoch':'not-a-new-target'})\n                                                                                                  ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sealed/package_0090_sealed_service.py\", line 193, in __init__\n    raise RuntimeError('Existing epoch requires reconciliation, never automatic initialization')\nRuntimeError: Existing epoch requires reconciliation, never automatic initialization\n"
+      },
+      "target": "clean-delete",
+      "executions": 1,
+      "targets": [
+        "clean-delete"
+      ]
+    },
+    {
+      "name": "fence_corrupt_noneligible",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "eligible": false,
+        "epoch": "b2bc1418-31e4-4807-ae6c-59a4dfd350bd",
+        "generation": 12,
+        "pending": null,
+        "pid": 1,
+        "qualification_tuple": {
+          "epoch": "b2bc1418-31e4-4807-ae6c-59a4dfd350bd",
+          "generation": 12,
+          "native": {
+            "generation": 6,
+            "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+            "nonce": "314469a36015024c13092f69c06e177714a8af3670ca20e464919a2d3ceaf7c2",
+            "pid": 53,
+            "proof": "2eabd99809213bd41adbbceebcb33319d44de65ce02667fa99cb0a1c2e6e965f",
+            "start": "8680331"
+          }
+        },
+        "state": "UNKNOWN",
+        "terminal_tip": "4d66e436ba73fa3f60541dad2254a3e42adc814f99ff72736ad624da8e9e1632"
+      },
+      "target": "clean-corrupt",
+      "executions": 1,
+      "targets": [
+        "clean-corrupt"
+      ]
+    },
+    {
+      "name": "fence_corrupt_cannot_reinitialize",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "error": "RuntimeError:Only fresh bootstrap PREPARED can be sealed"
+      },
+      "target": "clean-corrupt",
+      "executions": 1,
+      "targets": [
+        "clean-corrupt"
+      ]
+    },
+    {
+      "name": "existing_epoch_corrupt_refuses_fresh_bootstrap",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "exit": 1,
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import sys; sys.path.insert(0,'/opt/sealed'); from package_0090_sealed_service import Broker; Broker({'credential':'INVALID_TEST_VALUE','epoch':'not-a-new-target'})\n                                                                                                  ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/sealed/package_0090_sealed_service.py\", line 193, in __init__\n    raise RuntimeError('Existing epoch requires reconciliation, never automatic initialization')\nRuntimeError: Existing epoch requires reconciliation, never automatic initialization\n"
+      },
+      "target": "clean-corrupt",
+      "executions": 1,
+      "targets": [
+        "clean-corrupt"
+      ]
+    },
+    {
+      "name": "unknown_native_request_never_means_not_started",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "result": {
+          "error": "URLError:<urlopen error [Errno -2] Name or service not known>"
+        },
+        "snapshot": {
+          "eligible": false,
+          "epoch": "7f63d34c-5ffc-4c95-b451-9ff22d95dcc9",
+          "generation": 12,
+          "pending": {
+            "CLASS_ID": "0090/CURRENTNESS/native_participant",
+            "actor": "test_0090_broker",
+            "before_start": false,
+            "capability": "NATIVE_PROCESS_REPLACER",
+            "enabled": false,
+            "generation_after": 12,
+            "generation_before": 11,
+            "native_request_issued": true,
+            "target": "sealed-test-participant",
+            "transition_id": "4b662cef-a8dd-4185-9b5f-96684a351148"
+          },
+          "pid": 1,
+          "qualification_tuple": {
+            "epoch": "7f63d34c-5ffc-4c95-b451-9ff22d95dcc9",
+            "generation": 12,
+            "native": {
+              "generation": 6,
+              "module": "5aeedcdb693442b7738b6f33604e059094f584af29d1879bf35482ca06ef63b5",
+              "nonce": "5e8ad53c7af2355ce5e375cfd0d22441a0d60688c263421a066ee4b7dd2b85aa",
+              "pid": 55,
+              "proof": "ec18b02f5bcd3e4e4ff997eb5bdcbb3bbac0d2c71bc30e8351f53ba7b2061cc2",
+              "start": "8680152"
+            }
+          },
+          "state": "UNKNOWN",
+          "terminal_tip": "e01e248e37f97db2acf3c58039848ba43c1f84e0285e3c38748beea249f6cea9"
+        }
+      },
+      "target": "clean-native-loss",
+      "executions": 1,
+      "targets": [
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "unknown_native_outcome_cannot_reseal_from_prestart_receipt",
+      "passed": true,
+      "group": "CRASH",
+      "details": {
+        "error": "RuntimeError:Unknown native/DB outcome"
+      },
+      "target": "clean-native-loss",
+      "executions": 1,
+      "targets": [
+        "clean-native-loss"
+      ]
+    },
+    {
+      "name": "frozen_46_class_capability_coverage",
+      "group": "CAPABILITY_INVENTORY",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "denominator_sha256": "b084791486ca22ea788027ae902f37507c3412aec0f94985fa775506a4624051",
+        "classes": 46
+      }
+    },
+    {
+      "name": "independent_durable_audit_ordering_and_hash_validation",
+      "group": "AUDIT_BINDING",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "targets": [
+          "clean-credential",
+          "clean-delete",
+          "clean-corrupt",
+          "clean-native-loss"
+        ],
+        "includes_credential_loss": true,
+        "scoped_boundary_tuple_only": true
+      }
+    },
+    {
+      "name": "every_live_login_principal_is_in_closed_actor_inventory",
+      "group": "CAPABILITY_INVENTORY",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "login_principals": [
+          "test_0090_verification",
+          "test_0090_issuance",
+          "test_0090_execution",
+          "test_0090_audit",
+          "test_0090_broker"
+        ]
+      }
+    },
+    {
+      "name": "closed_actor_mount_capability_graph",
+      "group": "CAPABILITY_INVENTORY",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "targets": [
+          "clean-credential",
+          "clean-delete",
+          "clean-corrupt",
+          "clean-native-loss"
+        ],
+        "only_writable_persistent_mounts": [
+          "PG engine data",
+          "private broker state"
+        ],
+        "no_Docker_socket": true
+      }
+    },
+    {
+      "name": "final_epochs_have_no_anonymous_volume_leak_or_owned_runtime",
+      "group": "MEDIATION_CLOSURE",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "before": 69,
+        "after": 69,
+        "old_unattributed_volumes_preserved": true
+      }
+    },
+    {
+      "name": "broker_minimum_owner_capability_only",
+      "group": "CAPABILITY_INVENTORY",
+      "passed": true,
+      "executions": 1,
+      "details": [
+        {
+          "admin_option": false,
+          "inherit_option": false,
+          "member": "test_0090_broker",
+          "owner": "flooow_offline_control_owner",
+          "set_option": true
+        }
+      ]
+    },
+    {
+      "name": "capability_graph_has_no_unassigned_inventory_edge",
+      "group": "CAPABILITY_INVENTORY",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "active_edges": 17,
+        "lifecycle_edges": 90
+      }
+    },
+    {
+      "name": "boundary_artifacts_do_not_promote_B02_or_readiness",
+      "group": "MEDIATION_CLOSURE",
+      "passed": true,
+      "executions": 1,
+      "details": {
+        "B01": "bounded capability exclusivity",
+        "B02": "not closed",
+        "currentness_proven": 0,
+        "total": 46
+      }
+    }
+  ],
+  "foundation_distinct_checks_not_recounted": 93,
+  "foundation_executions_final_targets": 372,
+  "final_targets": [
+    "clean-credential",
+    "clean-delete",
+    "clean-corrupt",
+    "clean-native-loss"
+  ],
+  "development_attempts": "attempt-01 through attempt-08 retained, excluded from final acceptance denominator; 01 setup error, 02 unsafe census rejection, 03 invalid SQL stdin transport, 04 nested binding journal mismatch; 05-08 broader prototype successes and initial final-*, qualified-* and sealed-* targets are retained but not used to qualify the corrected final vector; native request uncertainty was then hardened and independently exercised."
+}

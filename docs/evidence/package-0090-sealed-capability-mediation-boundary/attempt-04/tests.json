@@ -1,0 +1,2112 @@
+[
+  {
+    "name": "bootstrap_process_exited_before_seal",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "pid": 280864,
+      "receipt": {
+        "postgres_login": false,
+        "postgres_password_null": true,
+        "superuser_sessions_other_than_last_bootstrap": 0,
+        "owner_logins": 0
+      }
+    }
+  },
+  {
+    "name": "fresh_epoch_sealed_only_after_bootstrap_exit",
+    "passed": true,
+    "group": "MEDIATION_CLOSURE",
+    "details": {
+      "eligible": true,
+      "epoch": "81a6e127-784e-4072-a7af-488af35c658e",
+      "generation": 1,
+      "pending": null,
+      "pid": 1,
+      "state": "SEALED",
+      "terminal_tip": "14272a5dbe435daed323e64493d74573e7e2c068badd8247198cbe2833725dca"
+    }
+  },
+  {
+    "name": "all_eight_owners_nologin",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": [
+      {
+        "oid": "19039",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_control_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19040",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_verification_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19041",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_issuance_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19042",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_execution_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19043",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_audit_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19044",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_readiness_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19045",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_principal_lock_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      },
+      {
+        "oid": "19046",
+        "rolbypassrls": false,
+        "rolcanlogin": false,
+        "rolcreatedb": false,
+        "rolcreaterole": false,
+        "rolname": "flooow_offline_intent_audit_owner",
+        "rolreplication": false,
+        "rolsuper": false
+      }
+    ]
+  },
+  {
+    "name": "no_active_superuser_sessions",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": 0
+  },
+  {
+    "name": "postgres_nologin_and_credential_destroyed",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "postgres_login": false,
+      "postgres_password_null": true,
+      "superuser_sessions_other_than_last_bootstrap": 0,
+      "owner_logins": 0
+    }
+  },
+  {
+    "name": "no_ordinary_owner_membership",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": []
+  },
+  {
+    "name": "broker_not_superuser_or_role_admin",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "oid": "19625",
+      "rolbypassrls": false,
+      "rolcanlogin": true,
+      "rolcreatedb": false,
+      "rolcreaterole": false,
+      "rolname": "test_0090_broker",
+      "rolreplication": false,
+      "rolsuper": false
+    }
+  },
+  {
+    "name": "sealed_container_postgres",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "d19b22315a138cf37f51cafd8b18bece0e768d4784a85143ce4c8afed710b822",
+      "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+      "user": "999:999",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/etc/sealed-pg_hba.conf",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "5432/tcp": null
+      }
+    }
+  },
+  {
+    "name": "sealed_container_broker",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "3d905f2fbcf2e0b30f4fc3632d5b26a25ca2a2adbe256a25e603f863f3919df7",
+      "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+      "user": "10001:10001",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/state",
+          "type": "volume",
+          "rw": true
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        },
+        {
+          "destination": "/opt/sealed",
+          "type": "bind",
+          "rw": false
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "63154"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "sealed_container_native",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "879f913f77c17808237958eed1fbf7459bb40d90fba56b22b53254cd96ca2f05",
+      "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+      "user": "10002:10002",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/opt/sealed",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "63152"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "sealed_container_campaign",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "id": "e6cafd779a15c68b807bec8c337834f1e0ce7aee69a9d44b7a11699080c9b653",
+      "image": "sha256:09814deedf2c61aa24b5f523e815c367311b75ba33377aef45c8c5ec3458039c",
+      "user": "10004:10004",
+      "readonly": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security": [
+        "no-new-privileges:true"
+      ],
+      "mounts": [
+        {
+          "destination": "/opt/sealed",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/usr/lib/postgresql/18/lib/flooow_offline_mac32.so",
+          "type": "bind",
+          "rw": false
+        },
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "volume",
+          "rw": true
+        }
+      ],
+      "env": [
+        "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/18/bin",
+        "GOSU_VERSION=1.19",
+        "LANG=en_US.utf8",
+        "PG_MAJOR=18",
+        "PG_VERSION=18.4-1.pgdg13+1",
+        "PGDATA=/var/lib/postgresql/18/docker"
+      ],
+      "ports": {
+        "5432/tcp": null
+      }
+    }
+  },
+  {
+    "name": "direct_probe_transport_test_0090_verification",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "stdout": "test_0090_verification\n",
+      "exit": 0
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_control_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_verification_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_issuance_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_execution_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_readiness_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_principal_lock_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_verification_flooow_offline_intent_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_relation",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_source_native_function",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_role",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_role_superuser",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_membership_absence",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_verification",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_effective_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_verification",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_future_default_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_default_expression",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_index",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_trigger",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_constraint",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_return_consumer",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_verification",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_verification_column",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_verification",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_probe_transport_test_0090_issuance",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "stdout": "test_0090_issuance\n",
+      "exit": 0
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_control_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_verification_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_issuance_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_execution_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_readiness_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_principal_lock_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_issuance_flooow_offline_intent_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_relation",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_source_native_function",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_role",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_role_superuser",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_membership_absence",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_issuance",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_effective_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_issuance",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_future_default_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_default_expression",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_index",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_trigger",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_constraint",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_return_consumer",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_issuance",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_issuance_column",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_issuance",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_probe_transport_test_0090_execution",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "stdout": "test_0090_execution\n",
+      "exit": 0
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_control_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_verification_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_issuance_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_execution_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_readiness_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_principal_lock_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_execution_flooow_offline_intent_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_relation",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_source_native_function",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_role",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_role_superuser",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_membership_absence",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_execution",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_effective_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_execution",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_future_default_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_default_expression",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_index",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_trigger",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_constraint",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_return_consumer",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_execution",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_execution_column",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_execution",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_probe_transport_test_0090_audit",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "stdout": "test_0090_audit\n",
+      "exit": 0
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_control_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_control_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_verification_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_verification_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_issuance_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_issuance_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_execution_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_execution_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_readiness_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_readiness_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_principal_lock_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_principal_lock_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "owner_set_denied_test_0090_audit_flooow_offline_intent_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to set role \"flooow_offline_intent_audit_owner\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_relation",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "relation",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "statement": "ALTER TABLE public.offline_binding_header ENABLE ROW LEVEL SECURITY",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_source_native_function",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "source_native_function",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "statement": "ALTER FUNCTION public.offline_read_history(uuid,bytea,uuid,text) SET work_mem='65kB'",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of function public.offline_read_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_role",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER ROLE test_0090_audit INHERIT",
+      "statement": "ALTER ROLE test_0090_audit INHERIT",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_role_superuser",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "role_superuser",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "statement": "ALTER DATABASE g3f4 OWNER TO flooow_offline_control_owner",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_membership_absence",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "membership_absence",
+      "role": "test_0090_audit",
+      "historical_statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "statement": "GRANT flooow_offline_audit_owner TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to grant role \"flooow_offline_audit_owner\"\nDETAIL:  Only roles with the ADMIN option on role \"flooow_offline_audit_owner\" may grant this role.\nLOCATION:  check_role_membership_authorization, user.c:2158\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_effective_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "effective_acl",
+      "role": "test_0090_audit",
+      "historical_statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "statement": "GRANT SELECT ON public.offline_binding_header TO test_0090_audit",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_future_default_acl",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "future_default_acl",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER DEFAULT PRIVILEGES GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "statement": "ALTER DEFAULT PRIVILEGES FOR ROLE postgres GRANT EXECUTE ON FUNCTIONS TO PUBLIC",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied to change default privileges\nLOCATION:  ExecAlterDefaultPrivilegesStmt, aclchk.c:1091\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_default_expression",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "default_expression",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "statement": "ALTER TABLE public.flyway_schema_history ALTER COLUMN installed_on SET DEFAULT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_index",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "index",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "statement": "ALTER INDEX public.offline_binding_header_pk RENAME TO probe_0090_renamed_index",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of index offline_binding_header_pk\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_trigger",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "trigger",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "statement": "ALTER TABLE public.offline_binding_header DISABLE TRIGGER offline_header_original_input_immutable",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_constraint",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "constraint",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "statement": "ALTER TABLE public.offline_readiness ALTER CONSTRAINT offline_readiness_fk1 DEFERRABLE",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_readiness\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_return_consumer",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "return_consumer",
+      "role": "test_0090_audit",
+      "historical_statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "statement": "UPDATE public.flyway_schema_history SET checksum=checksum+1 WHERE installed_rank=1",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "direct_db_test_0090_audit_column",
+    "passed": true,
+    "group": "DIRECT_DB_BYPASS",
+    "details": {
+      "representative": "column",
+      "role": "test_0090_audit",
+      "historical_statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "statement": "ALTER TABLE public.offline_binding_header ALTER COLUMN deployment_id DROP NOT NULL",
+      "target_preservation": "Historical postgres CURRENT_USER is explicit FOR ROLE postgres for default privileges; object/operation unchanged",
+      "exit": 3,
+      "stderr": "ERROR:  42501: must be owner of table offline_binding_header\nLOCATION:  aclcheck_error, aclchk.c:2931\n",
+      "denied": true
+    }
+  },
+  {
+    "name": "private_or_disabled_login_postgres",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"postgres\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_control_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_control_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_verification_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_verification_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_issuance_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_issuance_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_execution_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_execution_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_audit_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_readiness_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_readiness_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_principal_lock_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_principal_lock_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_flooow_offline_intent_audit_owner",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: FATAL:  pg_hba.conf rejects connection for host \"172.22.0.5\", user \"flooow_offline_intent_audit_owner\", database \"g3f4\", no encryption\n"
+    }
+  },
+  {
+    "name": "private_or_disabled_login_test_0090_broker",
+    "passed": true,
+    "group": "ROLE_ISOLATION",
+    "details": {
+      "exit": 2,
+      "stderr": "psql: error: connection to server at \"flooow-0090-g3f4-6b09fde83015-postgres\" (172.22.0.2), port 5432 failed: fe_sendauth: no password supplied\n"
+    }
+  },
+  {
+    "name": "native_agent_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "append"
+    }
+  },
+  {
+    "name": "native_agent_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "truncate"
+    }
+  },
+  {
+    "name": "native_agent_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "replace"
+    }
+  },
+  {
+    "name": "native_agent_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-1' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "rename_over"
+    }
+  },
+  {
+    "name": "native_agent_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chmod"
+    }
+  },
+  {
+    "name": "native_agent_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chown"
+    }
+  },
+  {
+    "name": "native_agent_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "symlink_substitution"
+    }
+  },
+  {
+    "name": "native_agent_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'",
+      "operation": "loader_path_write"
+    }
+  },
+  {
+    "name": "native_agent_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-1', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32.",
+      "operation": "bind_mount"
+    }
+  },
+  {
+    "name": "native_participant_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "append"
+    }
+  },
+  {
+    "name": "native_participant_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "truncate"
+    }
+  },
+  {
+    "name": "native_participant_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "replace"
+    }
+  },
+  {
+    "name": "native_participant_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-14' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "rename_over"
+    }
+  },
+  {
+    "name": "native_participant_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chmod"
+    }
+  },
+  {
+    "name": "native_participant_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "chown"
+    }
+  },
+  {
+    "name": "native_participant_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'",
+      "operation": "symlink_substitution"
+    }
+  },
+  {
+    "name": "native_participant_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'",
+      "operation": "loader_path_write"
+    }
+  },
+  {
+    "name": "native_participant_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "error": "PermissionError:[Errno 1] Operation not permitted",
+      "operation": "bind_mount"
+    }
+  },
+  {
+    "name": "native_participant_exec_loader_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "denied": true,
+      "operation": "exec_loader_substitution"
+    }
+  },
+  {
+    "name": "native_campaign_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "append",
+      "denied": true,
+      "error": "PermissionError:[Errno 13] Permission denied: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "truncate",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "replace",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "rename_over",
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-600' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "chmod",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "chown",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "symlink_substitution",
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_campaign_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "loader_path_write",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'"
+    }
+  },
+  {
+    "name": "native_campaign_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "bind_mount",
+      "denied": true,
+      "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-600', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32."
+    }
+  },
+  {
+    "name": "native_old_root_representative_append",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "append",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_truncate",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "truncate",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_replace",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "replace",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_rename_over",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "rename_over",
+      "denied": true,
+      "error": "OSError:[Errno 18] Invalid cross-device link: '/tmp/substitute-16' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_chmod",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "chmod",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_chown",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "chown",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_symlink_substitution",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "symlink_substitution",
+      "denied": true,
+      "error": "FileExistsError:[Errno 17] File exists: '/tmp/substitute' -> '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_loader_path_write",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "loader_path_write",
+      "denied": true,
+      "error": "OSError:[Errno 30] Read-only file system: '/usr/lib/postgresql/18/lib/flooow_substitute.so'"
+    }
+  },
+  {
+    "name": "native_old_root_representative_bind_mount",
+    "passed": true,
+    "group": "NATIVE_BYPASS",
+    "details": {
+      "operation": "bind_mount",
+      "denied": true,
+      "error": "CalledProcessError:Command '['mount', '--bind', '/tmp/substitute-16', '/usr/lib/postgresql/18/lib/flooow_offline_mac32.so']' returned non-zero exit status 32."
+    }
+  },
+  {
+    "name": "generation_native_decrement",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_native_reuse",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_native_overwrite",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_native_truncate",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_native_replace",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); Path('/tmp/generation').write_text('0'); Path('/tmp/generation').replace(p)\n                                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 782, in replace\n    os.replace(self, target)\n    ~~~~~~~~~~^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/generation' -> '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_campaign_decrement",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_campaign_reuse",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_campaign_overwrite",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_campaign_truncate",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); p.write_text('0')\n                                                           ~~~~~~~~~~~~^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 557, in write_text\n    return PathBase.write_text(self, data, encoding, errors, newline)\n           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_abc.py\", line 651, in write_text\n    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:\n         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 539, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_campaign_replace",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    from pathlib import Path; p=Path('/state/generation'); Path('/tmp/generation').write_text('0'); Path('/tmp/generation').replace(p)\n                                                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 782, in replace\n    os.replace(self, target)\n    ~~~~~~~~~~^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: '/tmp/generation' -> '/state/generation'\n"
+    }
+  },
+  {
+    "name": "generation_postgres_decrement",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 2,
+      "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+    }
+  },
+  {
+    "name": "generation_postgres_reuse",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 2,
+      "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+    }
+  },
+  {
+    "name": "generation_postgres_overwrite",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 2,
+      "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+    }
+  },
+  {
+    "name": "generation_postgres_truncate",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 2,
+      "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+    }
+  },
+  {
+    "name": "generation_postgres_replace",
+    "passed": true,
+    "group": "GENERATION_TAMPER",
+    "details": {
+      "exit": 2,
+      "stderr": "sh: 1: cannot create /state/generation: Directory nonexistent\n"
+    }
+  },
+  {
+    "name": "closed_api_3228f0124286",
+    "passed": true,
+    "group": "MEDIATION_CLOSURE",
+    "details": {
+      "error": "RuntimeError:Closed broker API: operation/fields rejected"
+    }
+  },
+  {
+    "name": "closed_api_e908b347eb91",
+    "passed": true,
+    "group": "MEDIATION_CLOSURE",
+    "details": {
+      "error": "RuntimeError:Closed broker API: operation/fields rejected"
+    }
+  },
+  {
+    "name": "closed_api_b5745cf7de50",
+    "passed": true,
+    "group": "MEDIATION_CLOSURE",
+    "details": {
+      "error": "RuntimeError:Closed broker API: operation/fields rejected"
+    }
+  },
+  {
+    "name": "closed_api_4c2433f39945",
+    "passed": true,
+    "group": "MEDIATION_CLOSURE",
+    "details": {
+      "error": "RuntimeError:Closed broker API: operation/fields rejected"
+    }
+  },
+  {
+    "name": "broker_db_True",
+    "passed": false,
+    "group": "BROKER_POSITIVE",
+    "details": {
+      "before": {
+        "eligible": true,
+        "epoch": "81a6e127-784e-4072-a7af-488af35c658e",
+        "generation": 1,
+        "pending": null,
+        "pid": 1,
+        "state": "SEALED",
+        "terminal_tip": "14272a5dbe435daed323e64493d74573e7e2c068badd8247198cbe2833725dca"
+      },
+      "old_generation_eligible": false,
+      "outcome": {
+        "exit": 0,
+        "mutation_pid": 16,
+        "stderr": "",
+        "stdout": "{\"outcome\": \"COMMITTED\"}\n"
+      },
+      "snapshot": {
+        "eligible": false,
+        "epoch": "81a6e127-784e-4072-a7af-488af35c658e",
+        "generation": 3,
+        "pending": null,
+        "pid": 1,
+        "state": "UNKNOWN",
+        "terminal_tip": "275dc6019af4f9e5715b581b3afe70eaa2da5d746c69d743408b4fdc043e7a6b"
+      }
+    }
+  }
+]

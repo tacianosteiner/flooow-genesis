@@ -1,0 +1,24 @@
+{
+  "required_order": [
+    "exclusive lease",
+    "eligible SEALED/durable state match",
+    "PREPARED append+fsync",
+    "TRANSITIONING and generation increment",
+    "journal+generation fsync and directory fsync",
+    "start worker/private capability pipe",
+    "bind xid durably before PERMIT",
+    "mutation+COMMIT or native replacement",
+    "independent pg_xact_status/object value or fresh enrollment proof",
+    "RECONCILING record",
+    "generation increment and durable SEALED"
+  ],
+  "sources": [
+    "clean-credential/final-broker-audit.json",
+    "clean-delete/final-broker-audit.json",
+    "clean-corrupt/final-broker-audit.json",
+    "clean-native-loss/final-broker-audit.json"
+  ],
+  "independent_validation": true,
+  "audit_nested_objects_immutable": true,
+  "full_T10_atomic_consumer_proven": false
+}

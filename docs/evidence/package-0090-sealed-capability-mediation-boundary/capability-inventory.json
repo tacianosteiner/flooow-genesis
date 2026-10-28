@@ -1,0 +1,312 @@
+{
+  "scope": "TEST sealed capability boundary, not 46-class currentness proof",
+  "capabilities": [
+    {
+      "id": "DATABASE_SUPERUSER",
+      "definition": "Bypass SQL ownership/ACL/catalog checks; provisioner only, then NOLOGIN/password NULL/HBA reject.",
+      "protected_classes": [
+        "membership_absence",
+        "role",
+        "role_superuser",
+        "catalog_pg_aggregate",
+        "catalog_pg_am",
+        "catalog_pg_amop",
+        "catalog_pg_amproc",
+        "catalog_pg_cast",
+        "catalog_pg_opclass",
+        "catalog_pg_operator",
+        "catalog_pg_opfamily"
+      ]
+    },
+    {
+      "id": "DATABASE_OWNER",
+      "definition": "Alter database and implicit pg_database_owner/public ownership; postgres remains owner, inactive.",
+      "protected_classes": [
+        "database_environment",
+        "effective_acl",
+        "session_environment"
+      ]
+    },
+    {
+      "id": "ROLE_ADMIN",
+      "definition": "Change protected role attributes; no active CREATEROLE/SUPERUSER identity.",
+      "protected_classes": [
+        "future_default_acl",
+        "membership_absence",
+        "role",
+        "role_superuser",
+        "session_environment"
+      ]
+    },
+    {
+      "id": "SET_ROLE_OWNER",
+      "definition": "Enter protected owner; only broker may SET control_owner, without ADMIN or INHERIT.",
+      "protected_classes": []
+    },
+    {
+      "id": "SCHEMA_OWNER",
+      "definition": "Create/replace name-resolution candidates; public implicit database owner is disabled postgres.",
+      "protected_classes": [
+        "candidate_type_metadata",
+        "function_candidate_signature",
+        "inheritance_absence",
+        "relation",
+        "sequence_absence"
+      ]
+    },
+    {
+      "id": "TABLE_OWNER",
+      "definition": "Alter protected relation/columns/constraints/indexes/triggers/row types; control ownership is private to broker.",
+      "protected_classes": [
+        "column",
+        "constraint",
+        "default_expression",
+        "generated_array",
+        "generated_composite",
+        "index",
+        "inheritance_absence",
+        "relation",
+        "sequence_absence",
+        "storage_binding",
+        "toast_factory",
+        "trigger",
+        "view_expansion"
+      ]
+    },
+    {
+      "id": "FUNCTION_OWNER",
+      "definition": "Change function definition/context; each actual owner is enumerated in database-census ownership.",
+      "protected_classes": [
+        "builtin_function",
+        "expression",
+        "function_candidate_signature",
+        "return_consumer",
+        "source_native_function",
+        "trigger"
+      ]
+    },
+    {
+      "id": "TYPE_OWNER",
+      "definition": "Change protected types and generated row/array types; actual owners are enumerated.",
+      "protected_classes": [
+        "builtin_type",
+        "candidate_type_metadata",
+        "expression",
+        "generated_array",
+        "generated_composite"
+      ]
+    },
+    {
+      "id": "ACL_GRANTOR",
+      "definition": "Change effective SQL grants; private owner capability or disabled postgres, no ordinary grant paths.",
+      "protected_classes": [
+        "column",
+        "effective_acl"
+      ]
+    },
+    {
+      "id": "DEFAULT_PRIVILEGE_ADMIN",
+      "definition": "Change defaults for a protected creating role; explicit FOR ROLE retains historical target.",
+      "protected_classes": [
+        "future_default_acl"
+      ]
+    },
+    {
+      "id": "DATABASE_OWNER_CHANGE",
+      "definition": "Transfer database owner; current postgres owner has no active qualification login.",
+      "protected_classes": [
+        "database_environment",
+        "role_superuser"
+      ]
+    },
+    {
+      "id": "ROLE_MEMBERSHIP_ADMIN",
+      "definition": "Add protected membership; no active role ADMIN option/CREATEROLE/SUPERUSER.",
+      "protected_classes": [
+        "effective_acl",
+        "membership_absence"
+      ]
+    },
+    {
+      "id": "POLICY/READINESS_WRITER",
+      "definition": "Write protected policy/binding/READY rows; all ordinary DML and source execution paths revoked.",
+      "protected_classes": [
+        "policy_readiness_binding"
+      ]
+    },
+    {
+      "id": "AUDIT_WRITER",
+      "definition": "Write protected SQL audit rows or external qualification journal; distinct controlled writer/worker processes.",
+      "protected_classes": [
+        "audit_binding",
+        "native_anchor",
+        "policy_readiness_binding"
+      ]
+    },
+    {
+      "id": "NATIVE_FILE_WRITER",
+      "definition": "Append/truncate/replace module and library paths; readonly roots, parents and module mounts.",
+      "protected_classes": [
+        "native_ELF",
+        "native_module",
+        "source_native_function"
+      ]
+    },
+    {
+      "id": "NATIVE_PROCESS_REPLACER",
+      "definition": "Restart enrolled participant; only broker-signed increasing-generation delegate API.",
+      "protected_classes": [
+        "native_anchor",
+        "native_locale",
+        "native_participant"
+      ]
+    },
+    {
+      "id": "NATIVE_BINARY_REPLACER",
+      "definition": "Replace interpreter/PG/native executable or libraries; readonly pinned images and mounts.",
+      "protected_classes": [
+        "native_ELF",
+        "provider_ABI"
+      ]
+    },
+    {
+      "id": "HOST_NAMESPACE_ADMIN",
+      "definition": "Docker daemon, host filesystem, mounts, namespaces or host root; explicitly pre-existing HOST_PLATFORM trust boundary.",
+      "protected_classes": [
+        "expected_release",
+        "provider_ABI",
+        "storage_binding"
+      ]
+    },
+    {
+      "id": "QUALIFICATION_FENCE_WRITER",
+      "definition": "Write durable epoch/journal; private broker volume and immutable closed coordinator API.",
+      "protected_classes": [
+        "audit_binding"
+      ]
+    },
+    {
+      "id": "QUALIFICATION_GENERATION_WRITER",
+      "definition": "Write generation; same private broker volume, no campaign/native mount or reset API.",
+      "protected_classes": [
+        "audit_binding",
+        "native_binding"
+      ]
+    },
+    {
+      "id": "CATALOG_MUTATOR",
+      "definition": "Modify PostgreSQL builtin/operator/cast/access-method catalogs; SQL privilege checks, disabled superuser.",
+      "protected_classes": [
+        "builtin_function",
+        "builtin_type",
+        "candidate_type_metadata",
+        "expression",
+        "function_candidate_signature",
+        "generated_array",
+        "generated_composite",
+        "toast_factory",
+        "catalog_pg_aggregate",
+        "catalog_pg_am",
+        "catalog_pg_amop",
+        "catalog_pg_amproc",
+        "catalog_pg_cast",
+        "catalog_pg_opclass",
+        "catalog_pg_operator",
+        "catalog_pg_opfamily"
+      ]
+    },
+    {
+      "id": "PROVIDER_FILE_WRITER",
+      "definition": "Change ICU/libc/extension/PG providers; readonly source image, protected module, HOST_PLATFORM outside.",
+      "protected_classes": [
+        "builtin_function",
+        "collation",
+        "database_environment",
+        "native_ELF",
+        "native_locale",
+        "native_module",
+        "provider_ABI",
+        "source_native_function",
+        "catalog_pg_aggregate",
+        "catalog_pg_am",
+        "catalog_pg_amop",
+        "catalog_pg_amproc",
+        "catalog_pg_cast",
+        "catalog_pg_opclass",
+        "catalog_pg_operator",
+        "catalog_pg_opfamily"
+      ]
+    },
+    {
+      "id": "RELEASE_INPUT_WRITER",
+      "definition": "Replace source/expected manifest/recipe bytes; trusted release HOST files outside actors, active code mounted readonly.",
+      "protected_classes": [
+        "audit_binding",
+        "expected_release",
+        "return_consumer"
+      ]
+    },
+    {
+      "id": "CONSUMER_SESSION_CONFIG",
+      "definition": "Change another protected consuming backend session; private broker connection, no arbitrary SQL/session API.",
+      "protected_classes": [
+        "return_consumer",
+        "session_environment"
+      ]
+    },
+    {
+      "id": "SOURCE_DML_WRITER",
+      "definition": "Change retained/protected rows or Flyway history; cataloged ownership, no ordinary DML/source-wrapper execution.",
+      "protected_classes": [
+        "policy_readiness_binding",
+        "return_consumer"
+      ]
+    },
+    {
+      "id": "NATIVE_ENROLLMENT_WRITER",
+      "definition": "Change native epoch/identity/nonce/generation proof; immutable delegate plus private broker-authenticated transition.",
+      "protected_classes": [
+        "native_anchor",
+        "native_binding",
+        "native_participant"
+      ]
+    },
+    {
+      "id": "COLLATION_OWNER",
+      "definition": "Change SQL collation definition/version; protected catalog/source owner inactive unless control owner, via broker only.",
+      "protected_classes": [
+        "collation"
+      ]
+    },
+    {
+      "id": "RULE_DEFINITION_WRITER",
+      "definition": "Change expression/view/default dependency definitions; table/function/type/catalog ownership checks.",
+      "protected_classes": [
+        "constraint",
+        "default_expression",
+        "expression",
+        "view_expansion"
+      ]
+    },
+    {
+      "id": "PARTICIPANT_SESSION_CONFIG",
+      "definition": "Change native loader/environment/locale; immutable fixed executable/env, participant exec/fork/signal seccomp denial.",
+      "protected_classes": [
+        "native_locale",
+        "native_participant"
+      ]
+    },
+    {
+      "id": "STORAGE_CATALOG_WRITER",
+      "definition": "Change protected storage, TOAST or index identities; SQL owner checks and trusted immutable PG engine.",
+      "protected_classes": [
+        "index",
+        "relation",
+        "storage_binding",
+        "toast_factory"
+      ]
+    }
+  ],
+  "total": 30,
+  "denominator_classes": 46
+}

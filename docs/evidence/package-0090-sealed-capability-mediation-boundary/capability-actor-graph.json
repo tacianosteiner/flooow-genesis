@@ -1,0 +1,1194 @@
+{
+  "complete": true,
+  "completeness_scope": "Enumerated immutable TEST actors and exact protected roots; not arbitrary hostile host or compromised trusted engine/broker",
+  "actors": [
+    {
+      "id": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "uid": 10001,
+      "credential": "private short-lived non-superuser; memory only",
+      "trust": "immutable closed TEST broker",
+      "lifecycle": "PREPARED/SEALED/TRANSITIONING/RECONCILING/UNKNOWN",
+      "source": "clean-credential/container-census.json and final-broker-audit.json"
+    },
+    {
+      "id": "BROKER_MUTATION_WORKER",
+      "uid": 10001,
+      "credential": "private pipe from coordinator, only during durable invalidated exclusive lease",
+      "trust": "immutable closed TEST broker worker",
+      "lifecycle": "TRANSITIONING only; actual exits 77/78",
+      "source": "pre/post-mutation-crash.json"
+    },
+    {
+      "id": "NATIVE_BROKER_DELEGATE",
+      "uid": 10002,
+      "credential": "private HMAC enrollment capability; no SQL/admin credential",
+      "trust": "immutable closed delegate validates increasing generation/MAC",
+      "lifecycle": "SEALED/TRANSITIONING",
+      "source": "broker-native-positive.json"
+    },
+    {
+      "id": "NATIVE_PARTICIPANT",
+      "uid": 10002,
+      "credential": "none",
+      "trust": "no exec/fork/signal/ptrace/mount/namespace capability; fixed challenge/probe pipe",
+      "lifecycle": "enrollment generation-bound",
+      "source": "native-bypass-tests.json"
+    },
+    {
+      "id": "CAMPAIGN_OS_AUDIT_CONSUMER",
+      "uid": 10004,
+      "credential": "only credentialless ordinary SQL roles allowed by restricted HBA; readonly audit API",
+      "trust": "unprivileged active caller",
+      "lifecycle": "SEALED/TRANSITIONING",
+      "source": "direct-db-bypass-tests.json"
+    },
+    {
+      "id": "test_0090_verification",
+      "sql_role": "test_0090_verification",
+      "credential": "HBA trust limited to this ordinary role, not administrative identity",
+      "trust": "unprivileged active SQL caller",
+      "lifecycle": "SEALED/TRANSITIONING",
+      "source": "database-capability-seal.json"
+    },
+    {
+      "id": "test_0090_issuance",
+      "sql_role": "test_0090_issuance",
+      "credential": "HBA trust limited to this ordinary role, not administrative identity",
+      "trust": "unprivileged active SQL caller",
+      "lifecycle": "SEALED/TRANSITIONING",
+      "source": "database-capability-seal.json"
+    },
+    {
+      "id": "test_0090_execution",
+      "sql_role": "test_0090_execution",
+      "credential": "HBA trust limited to this ordinary role, not administrative identity",
+      "trust": "unprivileged active SQL caller",
+      "lifecycle": "SEALED/TRANSITIONING",
+      "source": "database-capability-seal.json"
+    },
+    {
+      "id": "test_0090_audit",
+      "sql_role": "test_0090_audit",
+      "credential": "HBA trust limited to this ordinary role, not administrative identity",
+      "trust": "unprivileged active SQL caller",
+      "lifecycle": "SEALED/TRANSITIONING",
+      "source": "database-capability-seal.json"
+    },
+    {
+      "id": "POSTGRES_ENGINE",
+      "uid": 999,
+      "credential": "no client superuser credential",
+      "trust": "pinned immutable trusted SQL engine; ownership/ACL enforcement; writable PGDATA is engine storage",
+      "lifecycle": "entire disposable runtime",
+      "source": "clean-credential/container-census.json"
+    },
+    {
+      "id": "OLD_ROOT_ADVERSARIAL_PROBE",
+      "uid": 0,
+      "credential": "none",
+      "trust": "additional adversarial probe, cap-drop ALL and readonly native namespace; never enrolled participant",
+      "lifecycle": "bounded bypass probe only",
+      "source": "native_old_root_representative_* tests"
+    }
+  ],
+  "owner_roles_are_capability_principals_not_login_actors": [
+    "flooow_offline_control_owner",
+    "flooow_offline_verification_owner",
+    "flooow_offline_issuance_owner",
+    "flooow_offline_execution_owner",
+    "flooow_offline_audit_owner",
+    "flooow_offline_readiness_owner",
+    "flooow_offline_principal_lock_owner",
+    "flooow_offline_intent_audit_owner"
+  ],
+  "sealed_edges": [
+    {
+      "CAPABILITY": "DATABASE_SUPERUSER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "ROLE_ADMIN",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "SET_ROLE_OWNER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "SCHEMA_OWNER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "TABLE_OWNER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "FUNCTION_OWNER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "TYPE_OWNER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "ACL_GRANTOR",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "DEFAULT_PRIVILEGE_ADMIN",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER_CHANGE",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "ROLE_MEMBERSHIP_ADMIN",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "POLICY/READINESS_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "AUDIT_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "NATIVE_FILE_WRITER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "NATIVE_PROCESS_REPLACER",
+      "ACTOR": "NATIVE_BROKER_DELEGATE",
+      "SOURCE": "MAC authenticated increasing-generation receipt from immutable broker; no unauthenticated replace path.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "NATIVE_BINARY_REPLACER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "HOST_NAMESPACE_ADMIN",
+      "ACTOR": "HOST_PLATFORM",
+      "SOURCE": "SPEC-0090 and ADR-0090 accepted trusted host/release boundary; never reclassifies a live qualification superuser.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": "HOST_ROOT_CAN_BYPASS_OUTSIDE_OPERATIONAL_MODEL",
+      "EXPECTED_STATUS": "PRE_EXISTING_OUTSIDE_TRUST"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_FENCE_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_GENERATION_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "CATALOG_MUTATOR",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "PROVIDER_FILE_WRITER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "RELEASE_INPUT_WRITER",
+      "ACTOR": "HOST_PLATFORM",
+      "SOURCE": "SPEC-0090 and ADR-0090 accepted trusted host/release boundary; never reclassifies a live qualification superuser.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": "HOST_ROOT_CAN_BYPASS_OUTSIDE_OPERATIONAL_MODEL",
+      "EXPECTED_STATUS": "PRE_EXISTING_OUTSIDE_TRUST"
+    },
+    {
+      "CAPABILITY": "CONSUMER_SESSION_CONFIG",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "SOURCE_DML_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "NATIVE_ENROLLMENT_WRITER",
+      "ACTOR": "NATIVE_BROKER_DELEGATE",
+      "SOURCE": "MAC authenticated increasing-generation receipt from immutable broker; no unauthenticated replace path.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "COLLATION_OWNER",
+      "ACTOR": null,
+      "SOURCE": "No active qualification capability: disabled owner/superuser, no owner membership/admin option, readonly protected bytes, immutable private backend/participant environment. See actual ownership/role/OS graph.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "unavailable or explicit host boundary",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "DB_PROTECTED_OR_UNAVAILABLE"
+    },
+    {
+      "CAPABILITY": "RULE_DEFINITION_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "PARTICIPANT_SESSION_CONFIG",
+      "ACTOR": "NATIVE_BROKER_DELEGATE",
+      "SOURCE": "MAC authenticated increasing-generation receipt from immutable broker; no unauthenticated replace path.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    },
+    {
+      "CAPABILITY": "STORAGE_CATALOG_WRITER",
+      "ACTOR": "BROKER_COORDINATOR_AUDIT_WRITER",
+      "SOURCE": "Private credential / control-owner SET path and closed API; lease and durable invalidation precede worker capability delivery. Other owners remain inactive.",
+      "LIFECYCLE_STAGE": "SEALED",
+      "DIRECT_OR_INHERITED": "controlled owner SET / broker delegate",
+      "CAN_BYPASS_FENCE": false,
+      "EXPECTED_STATUS": "BROKER_MEDIATED"
+    }
+  ],
+  "other_lifecycle_edges": [
+    {
+      "CAPABILITY": "DATABASE_SUPERUSER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_SUPERUSER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_SUPERUSER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ROLE_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ROLE_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ROLE_ADMIN",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SET_ROLE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SET_ROLE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SET_ROLE_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SCHEMA_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SCHEMA_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SCHEMA_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "TABLE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "TABLE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "TABLE_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "FUNCTION_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "FUNCTION_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "FUNCTION_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "TYPE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "TYPE_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "TYPE_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ACL_GRANTOR",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ACL_GRANTOR",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ACL_GRANTOR",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DEFAULT_PRIVILEGE_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DEFAULT_PRIVILEGE_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DEFAULT_PRIVILEGE_ADMIN",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER_CHANGE",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER_CHANGE",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "DATABASE_OWNER_CHANGE",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ROLE_MEMBERSHIP_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ROLE_MEMBERSHIP_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "ROLE_MEMBERSHIP_ADMIN",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "POLICY/READINESS_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "POLICY/READINESS_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "POLICY/READINESS_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "AUDIT_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "AUDIT_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "AUDIT_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_FILE_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_FILE_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_FILE_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_PROCESS_REPLACER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_PROCESS_REPLACER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_PROCESS_REPLACER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_BINARY_REPLACER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_BINARY_REPLACER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_BINARY_REPLACER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "HOST_NAMESPACE_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "HOST_NAMESPACE_ADMIN",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "HOST_NAMESPACE_ADMIN",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_FENCE_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_FENCE_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_FENCE_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_GENERATION_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_GENERATION_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "QUALIFICATION_GENERATION_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "CATALOG_MUTATOR",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "CATALOG_MUTATOR",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "CATALOG_MUTATOR",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "PROVIDER_FILE_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "PROVIDER_FILE_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "PROVIDER_FILE_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "RELEASE_INPUT_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "RELEASE_INPUT_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "RELEASE_INPUT_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "CONSUMER_SESSION_CONFIG",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "CONSUMER_SESSION_CONFIG",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "CONSUMER_SESSION_CONFIG",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SOURCE_DML_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SOURCE_DML_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "SOURCE_DML_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_ENROLLMENT_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_ENROLLMENT_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "NATIVE_ENROLLMENT_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "COLLATION_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "COLLATION_OWNER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "COLLATION_OWNER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "RULE_DEFINITION_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "RULE_DEFINITION_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "RULE_DEFINITION_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "PARTICIPANT_SESSION_CONFIG",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "PARTICIPANT_SESSION_CONFIG",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "PARTICIPANT_SESSION_CONFIG",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "STORAGE_CATALOG_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "BOOTSTRAP",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "STORAGE_CATALOG_WRITER",
+      "ACTOR": "HOST_PROVISIONER",
+      "LIFECYCLE_STAGE": "PRE_SEAL",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    },
+    {
+      "CAPABILITY": "STORAGE_CATALOG_WRITER",
+      "ACTOR": "HOST_TEARDOWN_CONTROLLER",
+      "LIFECYCLE_STAGE": "TEARDOWN",
+      "SOURCE": "Owned disposable host/Docker control; bootstrap child exits before seal; teardown is a distinct trusted host process, not retained bootstrap credential",
+      "DIRECT_OR_INHERITED": "direct provisioning / trusted host",
+      "CAN_BYPASS_FENCE": true,
+      "EXPECTED_STATUS": "NOT_ACTIVE_QUALIFICATION_AUTHORITY"
+    }
+  ],
+  "active_qualification_actors": 11,
+  "active_mutation_capability_edges": 17,
+  "unmediated_active_mutation_edges": 0,
+  "SQL_role_and_OS_principals_counted_separately": true,
+  "broker_worker_only_active_during_invalidated_transition": true,
+  "host_controller": "Pre-existing trusted HOST_PLATFORM/Docker control, not an unprivileged qualification identity; can recreate privileged access and is not claimed contained"
+}
