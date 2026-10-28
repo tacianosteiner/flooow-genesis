@@ -1,0 +1,1346 @@
+{
+  "status": "DESIGNED",
+  "states": [
+    "SEALED",
+    "UNSEAL_REQUESTED",
+    "UNSEALED",
+    "CAPABILITY_ACTIVATING",
+    "ACTIVE",
+    "MUTATION_IN_FLIGHT",
+    "MUTATION_COMMITTED",
+    "MUTATION_UNKNOWN",
+    "RECONCILING",
+    "CAPABILITY_REVOKING",
+    "WORKER_EXTINCTION_PENDING",
+    "RESEAL_PENDING",
+    "SEALED_NEW_EPOCH",
+    "BLOCKED"
+  ],
+  "initial": "SEALED",
+  "transitions": [
+    {
+      "id": "R2/T/0",
+      "from": "SEALED",
+      "to": "UNSEAL_REQUESTED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "exclusive_lease",
+        "authorized_contract",
+        "prepared_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "exclusive_lease",
+        "authorized_contract",
+        "prepared_durable"
+      ],
+      "audit_event": "R2_SEALED_TO_UNSEAL_REQUESTED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/1",
+      "from": "UNSEAL_REQUESTED",
+      "to": "UNSEALED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "invalidation_durable",
+        "all_old_endpoints_fenced",
+        "old_consumers_drained"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "invalidation_durable",
+        "all_old_endpoints_fenced",
+        "old_consumers_drained"
+      ],
+      "audit_event": "R2_UNSEAL_REQUESTED_TO_UNSEALED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/2",
+      "from": "UNSEALED",
+      "to": "CAPABILITY_ACTIVATING",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "generation_advanced",
+        "operation_identity_reserved",
+        "exact_target_precondition"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "generation_advanced",
+        "operation_identity_reserved",
+        "exact_target_precondition"
+      ],
+      "audit_event": "R2_UNSEALED_TO_CAPABILITY_ACTIVATING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/3",
+      "from": "CAPABILITY_ACTIVATING",
+      "to": "ACTIVE",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "fixed_worker_anchored",
+        "credential_scoped",
+        "authority_attested"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "fixed_worker_anchored",
+        "credential_scoped",
+        "authority_attested"
+      ],
+      "audit_event": "R2_CAPABILITY_ACTIVATING_TO_ACTIVE",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/4",
+      "from": "ACTIVE",
+      "to": "MUTATION_IN_FLIGHT",
+      "authority": "FIXED_WORKER",
+      "precondition": [
+        "prepared_durable",
+        "exact_pre_state",
+        "lease_current"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "prepared_durable",
+        "exact_pre_state",
+        "lease_current"
+      ],
+      "audit_event": "R2_ACTIVE_TO_MUTATION_IN_FLIGHT",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/5",
+      "from": "MUTATION_IN_FLIGHT",
+      "to": "MUTATION_COMMITTED",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "commit_receipt",
+        "exact_post_state",
+        "audit_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "commit_receipt",
+        "exact_post_state",
+        "audit_durable"
+      ],
+      "audit_event": "R2_MUTATION_IN_FLIGHT_TO_MUTATION_COMMITTED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/6",
+      "from": "MUTATION_IN_FLIGHT",
+      "to": "MUTATION_UNKNOWN",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "timeout_or_lost_ack_or_crash"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "timeout_or_lost_ack_or_crash"
+      ],
+      "audit_event": "R2_MUTATION_IN_FLIGHT_TO_MUTATION_UNKNOWN",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/7",
+      "from": "MUTATION_UNKNOWN",
+      "to": "RECONCILING",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "independent_transaction_and_state_probe"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "independent_transaction_and_state_probe"
+      ],
+      "audit_event": "R2_MUTATION_UNKNOWN_TO_RECONCILING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/8",
+      "from": "RECONCILING",
+      "to": "MUTATION_COMMITTED",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "commit_receipt",
+        "exact_post_state",
+        "audit_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "commit_receipt",
+        "exact_post_state",
+        "audit_durable"
+      ],
+      "audit_event": "R2_RECONCILING_TO_MUTATION_COMMITTED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/9",
+      "from": "RECONCILING",
+      "to": "CAPABILITY_REVOKING",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "known_no_commit",
+        "exact_pre_state",
+        "audit_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "known_no_commit",
+        "exact_pre_state",
+        "audit_durable"
+      ],
+      "audit_event": "R2_RECONCILING_TO_CAPABILITY_REVOKING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/10",
+      "from": "MUTATION_COMMITTED",
+      "to": "CAPABILITY_REVOKING",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "mutation_outcome_known",
+        "audit_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "mutation_outcome_known",
+        "audit_durable"
+      ],
+      "audit_event": "R2_MUTATION_COMMITTED_TO_CAPABILITY_REVOKING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/11",
+      "from": "CAPABILITY_REVOKING",
+      "to": "WORKER_EXTINCTION_PENDING",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "old_capability_revoked",
+        "credential_revoked",
+        "backend_terminated",
+        "audit_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "old_capability_revoked",
+        "credential_revoked",
+        "backend_terminated",
+        "audit_durable"
+      ],
+      "audit_event": "R2_CAPABILITY_REVOKING_TO_WORKER_EXTINCTION_PENDING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/12",
+      "from": "WORKER_EXTINCTION_PENDING",
+      "to": "RESEAL_PENDING",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "old_worker_extinct",
+        "no_descendants",
+        "no_sessions",
+        "no_prepared_transactions",
+        "mutation_outcome_known",
+        "audit_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "old_worker_extinct",
+        "no_descendants",
+        "no_sessions",
+        "no_prepared_transactions",
+        "mutation_outcome_known",
+        "audit_durable"
+      ],
+      "audit_event": "R2_WORKER_EXTINCTION_PENDING_TO_RESEAL_PENDING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/13",
+      "from": "RESEAL_PENDING",
+      "to": "SEALED_NEW_EPOCH",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "old_capability_revoked",
+        "old_worker_extinct",
+        "mutation_outcome_known",
+        "audit_durable",
+        "generation_advanced",
+        "new_expected_state_bound",
+        "new_observer_contract_bound"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "old_capability_revoked",
+        "old_worker_extinct",
+        "mutation_outcome_known",
+        "audit_durable",
+        "generation_advanced",
+        "new_expected_state_bound",
+        "new_observer_contract_bound"
+      ],
+      "audit_event": "R2_RESEAL_PENDING_TO_SEALED_NEW_EPOCH",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/14",
+      "from": "SEALED_NEW_EPOCH",
+      "to": "UNSEAL_REQUESTED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "exclusive_lease",
+        "authorized_contract",
+        "prepared_durable"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "exclusive_lease",
+        "authorized_contract",
+        "prepared_durable"
+      ],
+      "audit_event": "R2_SEALED_NEW_EPOCH_TO_UNSEAL_REQUESTED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/15",
+      "from": "BLOCKED",
+      "to": "RECONCILING",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "exclusive_recovery_lease",
+        "durable_lineage_available",
+        "all_eligibility_denied"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "exclusive_recovery_lease",
+        "durable_lineage_available",
+        "all_eligibility_denied"
+      ],
+      "audit_event": "R2_BLOCKED_TO_RECONCILING",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/16",
+      "from": "SEALED",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_SEALED_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/17",
+      "from": "UNSEAL_REQUESTED",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_UNSEAL_REQUESTED_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/18",
+      "from": "UNSEALED",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_UNSEALED_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/19",
+      "from": "CAPABILITY_ACTIVATING",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_CAPABILITY_ACTIVATING_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/20",
+      "from": "ACTIVE",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_ACTIVE_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/21",
+      "from": "MUTATION_IN_FLIGHT",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_MUTATION_IN_FLIGHT_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/22",
+      "from": "MUTATION_COMMITTED",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_MUTATION_COMMITTED_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/23",
+      "from": "MUTATION_UNKNOWN",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_MUTATION_UNKNOWN_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/24",
+      "from": "RECONCILING",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_RECONCILING_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/25",
+      "from": "CAPABILITY_REVOKING",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_CAPABILITY_REVOKING_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/26",
+      "from": "WORKER_EXTINCTION_PENDING",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_WORKER_EXTINCTION_PENDING_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/27",
+      "from": "RESEAL_PENDING",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_RESEAL_PENDING_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    },
+    {
+      "id": "R2/T/28",
+      "from": "SEALED_NEW_EPOCH",
+      "to": "BLOCKED",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "durable_evidence": [
+        "compare_and_swap_prior_state_revision",
+        "transition_record",
+        "independent_audit_tip",
+        "any_missing_evidence_or_guard_failure"
+      ],
+      "audit_event": "R2_SEALED_NEW_EPOCH_TO_BLOCKED",
+      "generation": "Monotonic reservation before activation; never decrement/reuse; old tuple always denied after invalidation",
+      "epoch": "Exact transition/lease tuple; replacement creates new epoch, never reactivates old endpoints",
+      "expected_currentness_invalidation": "DENY after UNSEAL_REQUESTED -> UNSEALED; BLOCKED always denies; SEALED states still confer no operational readiness in this tranche",
+      "recovery_behavior": "Restart at last independently durable state; ambiguity -> MUTATION_UNKNOWN or BLOCKED, never assume abort/commit; reconcile before retry"
+    }
+  ],
+  "impossible_transitions": [
+    [
+      "SEALED",
+      "SEALED"
+    ],
+    [
+      "SEALED",
+      "UNSEALED"
+    ],
+    [
+      "SEALED",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "SEALED",
+      "ACTIVE"
+    ],
+    [
+      "SEALED",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "SEALED",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "SEALED",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "SEALED",
+      "RECONCILING"
+    ],
+    [
+      "SEALED",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "SEALED",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "SEALED",
+      "RESEAL_PENDING"
+    ],
+    [
+      "SEALED",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "SEALED"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "ACTIVE"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "RECONCILING"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "RESEAL_PENDING"
+    ],
+    [
+      "UNSEAL_REQUESTED",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "UNSEALED",
+      "SEALED"
+    ],
+    [
+      "UNSEALED",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "UNSEALED",
+      "UNSEALED"
+    ],
+    [
+      "UNSEALED",
+      "ACTIVE"
+    ],
+    [
+      "UNSEALED",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "UNSEALED",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "UNSEALED",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "UNSEALED",
+      "RECONCILING"
+    ],
+    [
+      "UNSEALED",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "UNSEALED",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "UNSEALED",
+      "RESEAL_PENDING"
+    ],
+    [
+      "UNSEALED",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "SEALED"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "UNSEALED"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "RECONCILING"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "RESEAL_PENDING"
+    ],
+    [
+      "CAPABILITY_ACTIVATING",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "ACTIVE",
+      "SEALED"
+    ],
+    [
+      "ACTIVE",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "ACTIVE",
+      "UNSEALED"
+    ],
+    [
+      "ACTIVE",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "ACTIVE",
+      "ACTIVE"
+    ],
+    [
+      "ACTIVE",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "ACTIVE",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "ACTIVE",
+      "RECONCILING"
+    ],
+    [
+      "ACTIVE",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "ACTIVE",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "ACTIVE",
+      "RESEAL_PENDING"
+    ],
+    [
+      "ACTIVE",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "SEALED"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "UNSEALED"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "ACTIVE"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "RECONCILING"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "RESEAL_PENDING"
+    ],
+    [
+      "MUTATION_IN_FLIGHT",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "SEALED"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "UNSEALED"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "ACTIVE"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "RECONCILING"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "RESEAL_PENDING"
+    ],
+    [
+      "MUTATION_COMMITTED",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "SEALED"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "UNSEALED"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "ACTIVE"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "RESEAL_PENDING"
+    ],
+    [
+      "MUTATION_UNKNOWN",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "RECONCILING",
+      "SEALED"
+    ],
+    [
+      "RECONCILING",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "RECONCILING",
+      "UNSEALED"
+    ],
+    [
+      "RECONCILING",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "RECONCILING",
+      "ACTIVE"
+    ],
+    [
+      "RECONCILING",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "RECONCILING",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "RECONCILING",
+      "RECONCILING"
+    ],
+    [
+      "RECONCILING",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "RECONCILING",
+      "RESEAL_PENDING"
+    ],
+    [
+      "RECONCILING",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "SEALED"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "UNSEALED"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "ACTIVE"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "RECONCILING"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "RESEAL_PENDING"
+    ],
+    [
+      "CAPABILITY_REVOKING",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "SEALED"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "UNSEALED"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "ACTIVE"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "RECONCILING"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "WORKER_EXTINCTION_PENDING",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "RESEAL_PENDING",
+      "SEALED"
+    ],
+    [
+      "RESEAL_PENDING",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "RESEAL_PENDING",
+      "UNSEALED"
+    ],
+    [
+      "RESEAL_PENDING",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "RESEAL_PENDING",
+      "ACTIVE"
+    ],
+    [
+      "RESEAL_PENDING",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "RESEAL_PENDING",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "RESEAL_PENDING",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "RESEAL_PENDING",
+      "RECONCILING"
+    ],
+    [
+      "RESEAL_PENDING",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "RESEAL_PENDING",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "RESEAL_PENDING",
+      "RESEAL_PENDING"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "SEALED"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "UNSEALED"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "ACTIVE"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "RECONCILING"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "RESEAL_PENDING"
+    ],
+    [
+      "SEALED_NEW_EPOCH",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "BLOCKED",
+      "SEALED"
+    ],
+    [
+      "BLOCKED",
+      "UNSEAL_REQUESTED"
+    ],
+    [
+      "BLOCKED",
+      "UNSEALED"
+    ],
+    [
+      "BLOCKED",
+      "CAPABILITY_ACTIVATING"
+    ],
+    [
+      "BLOCKED",
+      "ACTIVE"
+    ],
+    [
+      "BLOCKED",
+      "MUTATION_IN_FLIGHT"
+    ],
+    [
+      "BLOCKED",
+      "MUTATION_COMMITTED"
+    ],
+    [
+      "BLOCKED",
+      "MUTATION_UNKNOWN"
+    ],
+    [
+      "BLOCKED",
+      "CAPABILITY_REVOKING"
+    ],
+    [
+      "BLOCKED",
+      "WORKER_EXTINCTION_PENDING"
+    ],
+    [
+      "BLOCKED",
+      "RESEAL_PENDING"
+    ],
+    [
+      "BLOCKED",
+      "SEALED_NEW_EPOCH"
+    ],
+    [
+      "BLOCKED",
+      "BLOCKED"
+    ]
+  ],
+  "guard_evaluation": "All guards must be independently known TRUE. Missing/null/unknown/stale is FALSE.",
+  "revision_serialization": "Durable CAS under exclusive lease; no worker gets mutation credential until invalidation/drain acknowledgements complete.",
+  "no_implicit_resume": true,
+  "runtime_implemented": false
+}

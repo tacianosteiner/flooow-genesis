@@ -1,0 +1,20 @@
+{
+  "status": "DESIGNED",
+  "operation_identity": [
+    "epoch",
+    "generation",
+    "operation_id",
+    "capability_id",
+    "template_digest",
+    "target_digest",
+    "precondition_digest"
+  ],
+  "reservation": "Durable unique operation tuple before worker authority; conflicting digest always deny",
+  "replay": "Known terminal exact tuple returns immutable receipt, never re-executes. No terminal proof -> reconcile; no new id to bypass UNKNOWN.",
+  "crash_before_mutation": "Deny until independent no-commit + exact pre-state proof; then revoke and extinguish",
+  "commit_before_ack": "Independent transaction identity + exact post-state + durable audit reconcile committed; ACK loss never implies rollback",
+  "partial_delta": "BLOCKED; no reversal or reseal without separately exact governed operation",
+  "audit_loss": "BLOCKED even if SQL state appears correct",
+  "UNKNOWN_can_reseal": false,
+  "physical_outcome_reader": "NOT_PROVEN"
+}

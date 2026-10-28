@@ -1,0 +1,48 @@
+{
+  "status": "DESIGNED",
+  "authenticated_identity": "test_0090_audit",
+  "continuity": [
+    "same connection object",
+    "same server PID and backend start identity",
+    "same session incarnation",
+    "same authenticated session_user"
+  ],
+  "identity_source": "Authenticated handshake + independently observed server facts; never adopted helper session or caller-supplied PID",
+  "allowed_settings": {
+    "timezone": [
+      "UTC",
+      "Etc/UTC"
+    ],
+    "effective_role": [
+      "test_0090_audit"
+    ],
+    "client_encoding": [
+      "UTF8"
+    ],
+    "standard_conforming_strings": [
+      "on"
+    ],
+    "search_path": [
+      "pg_catalog, pg_temp"
+    ],
+    "transaction_isolation": [
+      "read committed"
+    ]
+  },
+  "literal_timezone_templates": [
+    "R2/SESSION/TIMEZONE/0",
+    "R2/SESSION/TIMEZONE/1"
+  ],
+  "other_setting_executable_templates": "NOT_PROVEN",
+  "forbidden": [
+    "SET SESSION AUTHORIZATION",
+    "SET ROLE to any other identity",
+    "owner/admin membership",
+    "helper-session substitution"
+  ],
+  "transaction_isolation_rule": "Only before first transactional query; otherwise deny",
+  "reconnect": "Invalidate old session, epoch and generation; discard connection-local handles only, retain durable pending operation and UNKNOWN outcome for independent reconciliation; independently enroll new connection under new tuple only after old outcome reconciles. Never resume old capability.",
+  "epoch_protocol": "Invalidate eligibility before exact session change; changes observed on same authenticated connection. Reconnect drains old backend before replacement admission.",
+  "complete": false,
+  "no_new_live_proof": true
+}

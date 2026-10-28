@@ -1,0 +1,101 @@
+{
+  "status": "STATICALLY_PROVEN",
+  "scope": "Offline contract consistency and abstract model checks; no SQL parsing/execution or privileged runtime qualification",
+  "tests_distinct": 16,
+  "test_failures": 0,
+  "checks": [
+    {
+      "name": "reseal_requires_all_seven_invariants",
+      "passed": true,
+      "evidence": "128 boolean valuations; exactly one admits reseal"
+    },
+    {
+      "name": "unknown_invariant_never_reseals",
+      "passed": true,
+      "evidence": "Each invariant independently replaced by unknown/null"
+    },
+    {
+      "name": "no_unknown_direct_reseal",
+      "passed": true,
+      "evidence": "actual transition relation"
+    },
+    {
+      "name": "no_active_direct_reseal",
+      "passed": true,
+      "evidence": "all 14 source states"
+    },
+    {
+      "name": "all_states_have_fail_closed_transition",
+      "passed": true,
+      "evidence": "actual transition relation"
+    },
+    {
+      "name": "fixed_templates_have_no_runtime_parameters",
+      "passed": true,
+      "evidence": "partial generated literal template subset only"
+    },
+    {
+      "name": "no_role_target_substitution",
+      "passed": true,
+      "evidence": "exact role templates"
+    },
+    {
+      "name": "no_postgres_role_administration",
+      "passed": true,
+      "evidence": "does not prove bootstrap credential containment"
+    },
+    {
+      "name": "constraint_subtypes_remain_distinct",
+      "passed": true,
+      "evidence": "five exact source subtypes; no mechanism equivalence asserted"
+    },
+    {
+      "name": "exact_constraint_targets_resolve",
+      "passed": true,
+      "evidence": "233 source rows"
+    },
+    {
+      "name": "partial_template_principal_outcome_ids_bijective",
+      "passed": true,
+      "evidence": "partial set, not total required capability count"
+    },
+    {
+      "name": "all_46_class_obligations_retained",
+      "passed": true,
+      "evidence": "inventory retained, closure NOT_PROVEN"
+    },
+    {
+      "name": "native_unknowns_preserved",
+      "passed": true,
+      "evidence": "zero generic-process substitutions"
+    },
+    {
+      "name": "manifest_decision_preserved",
+      "passed": true,
+      "evidence": "committed decision"
+    },
+    {
+      "name": "canonical_V043_digest_crc_fence",
+      "passed": true,
+      "evidence": "Git source bytes only; never executed"
+    },
+    {
+      "name": "prior_four_negative_findings_preserved",
+      "passed": true,
+      "evidence": "negative findings remain open"
+    }
+  ],
+  "model_valuation_executions": 135,
+  "static_safety_checks_do_not_prove_physical_executor": true,
+  "independent_review_consistency_assertions": 11,
+  "independent_assertions_added_to_distinct_test_count": false,
+  "independent_adversarial_attack_categories_reviewed": 26,
+  "independent_review_result": "FAIL",
+  "verification_command": "python docs/evidence/package-0090-B01-v2-static-closure-revision-2/verify_evidence.py",
+  "packaging_integrity_correction": {
+    "initial_staged_report_hash_match": false,
+    "cause": "Windows working-tree CRLF versus Git LF report blob",
+    "resolution": "Report hash uses explicit Git LF normalization; directory evidence remains exact-byte hashed",
+    "unpublished_commit_corrected_before_push": true
+  }
+}

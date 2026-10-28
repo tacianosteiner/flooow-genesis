@@ -1,0 +1,266 @@
+{
+  "status": "DESIGNED",
+  "actors": {
+    "V2_COORDINATOR": {
+      "uid": 10001,
+      "SQL": "none",
+      "cannot_attest_own_outcome": true
+    },
+    "TRUSTED_BOOTSTRAP": {
+      "uid": 999,
+      "SQL": "postgres only outside SEALED",
+      "qualification_credentials": "none"
+    },
+    "FIXED_WORKER": {
+      "identity": "per-capability exact binding; OS anchor unresolved",
+      "arbitrary_input": "deny"
+    },
+    "V2_OUTCOME_VERIFIER": {
+      "uid": 10006,
+      "SQL": "read only; exact entitlement NOT_PROVEN",
+      "independent_from_mutator": true
+    }
+  },
+  "transitions": [
+    {
+      "id": "R2/T/0",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "exclusive_lease",
+        "authorized_contract",
+        "prepared_durable"
+      ]
+    },
+    {
+      "id": "R2/T/1",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "invalidation_durable",
+        "all_old_endpoints_fenced",
+        "old_consumers_drained"
+      ]
+    },
+    {
+      "id": "R2/T/2",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "generation_advanced",
+        "operation_identity_reserved",
+        "exact_target_precondition"
+      ]
+    },
+    {
+      "id": "R2/T/3",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "fixed_worker_anchored",
+        "credential_scoped",
+        "authority_attested"
+      ]
+    },
+    {
+      "id": "R2/T/4",
+      "authority": "FIXED_WORKER",
+      "precondition": [
+        "prepared_durable",
+        "exact_pre_state",
+        "lease_current"
+      ]
+    },
+    {
+      "id": "R2/T/5",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "commit_receipt",
+        "exact_post_state",
+        "audit_durable"
+      ]
+    },
+    {
+      "id": "R2/T/6",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "timeout_or_lost_ack_or_crash"
+      ]
+    },
+    {
+      "id": "R2/T/7",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "independent_transaction_and_state_probe"
+      ]
+    },
+    {
+      "id": "R2/T/8",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "commit_receipt",
+        "exact_post_state",
+        "audit_durable"
+      ]
+    },
+    {
+      "id": "R2/T/9",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "known_no_commit",
+        "exact_pre_state",
+        "audit_durable"
+      ]
+    },
+    {
+      "id": "R2/T/10",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "mutation_outcome_known",
+        "audit_durable"
+      ]
+    },
+    {
+      "id": "R2/T/11",
+      "authority": "TRUSTED_BOOTSTRAP",
+      "precondition": [
+        "old_capability_revoked",
+        "credential_revoked",
+        "backend_terminated",
+        "audit_durable"
+      ]
+    },
+    {
+      "id": "R2/T/12",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "old_worker_extinct",
+        "no_descendants",
+        "no_sessions",
+        "no_prepared_transactions",
+        "mutation_outcome_known",
+        "audit_durable"
+      ]
+    },
+    {
+      "id": "R2/T/13",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "old_capability_revoked",
+        "old_worker_extinct",
+        "mutation_outcome_known",
+        "audit_durable",
+        "generation_advanced",
+        "new_expected_state_bound",
+        "new_observer_contract_bound"
+      ]
+    },
+    {
+      "id": "R2/T/14",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "exclusive_lease",
+        "authorized_contract",
+        "prepared_durable"
+      ]
+    },
+    {
+      "id": "R2/T/15",
+      "authority": "V2_OUTCOME_VERIFIER",
+      "precondition": [
+        "exclusive_recovery_lease",
+        "durable_lineage_available",
+        "all_eligibility_denied"
+      ]
+    },
+    {
+      "id": "R2/T/16",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/17",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/18",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/19",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/20",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/21",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/22",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/23",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/24",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/25",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/26",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/27",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    },
+    {
+      "id": "R2/T/28",
+      "authority": "V2_COORDINATOR",
+      "precondition": [
+        "any_missing_evidence_or_guard_failure"
+      ]
+    }
+  ],
+  "authority_is_design_not_installed_permission": true,
+  "complete": false
+}
