@@ -1,0 +1,107 @@
+{
+  "scope": "UNSEALED_OWNED_DISPOSABLE_MINIMUM_CAPABILITY_EXPERIMENT",
+  "cases": [
+    {
+      "name": "CREATEROLE_ADMIN_can_change_fixed_nonsuperuser_target",
+      "passed": true,
+      "details": {
+        "exit": 0,
+        "observed": "t"
+      }
+    },
+    {
+      "name": "CREATEROLE_is_not_target_scoped_and_can_create_unapproved_role",
+      "passed": true,
+      "details": {
+        "exit": 0,
+        "outside_target_created": true,
+        "interpretation": "Counterexample to using CREATEROLE as a bounded live SQL privilege; not a V2 bypass result"
+      }
+    },
+    {
+      "name": "CREATEROLE_cannot_administer_superuser",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the SUPERUSER attribute may alter roles with the SUPERUSER attribute.\nLOCATION:  AlterRole, user.c:757\n"
+      }
+    },
+    {
+      "name": "CREATEROLE_requires_ADMIN_on_existing_target",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n"
+      }
+    },
+    {
+      "name": "ADMIN_option_does_not_supply_SET_when_SET_false",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"test_v2_role_target\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      }
+    },
+    {
+      "name": "ordinary_consumer_cannot_change_session_user",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set session authorization \"test_0090_verification\"\nLOCATION:  call_string_check_hook, guc.c:6936\n",
+        "capability_treatment": "session_user immutable for ordinary authenticated connection; reconnect creates new identified session/epoch, never a helper-session substitute"
+      }
+    },
+    {
+      "name": "session_setting_mutates_exact_same_consumer_connection",
+      "passed": true,
+      "details": [
+        {
+          "phase": "before",
+          "pid": 1030,
+          "session_user": "test_0090_audit",
+          "current_user": "test_0090_audit",
+          "timezone": "Etc/UTC"
+        },
+        {
+          "phase": "after",
+          "pid": 1030,
+          "session_user": "test_0090_audit",
+          "current_user": "test_0090_audit",
+          "timezone": "UTC"
+        }
+      ]
+    },
+    {
+      "name": "normative_fixture_has_auditor_EXECUTE_and_zero_owner_edges",
+      "passed": true,
+      "details": {
+        "audit_execute": true,
+        "owner_memberships": 0,
+        "readiness": 0
+      }
+    },
+    {
+      "name": "wrapper_EXECUTE_does_not_grant_raw_history_SELECT",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n"
+      }
+    },
+    {
+      "name": "role_admin_is_not_database_owner_capability",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n"
+      }
+    },
+    {
+      "name": "experimental_admin_and_targets_removed",
+      "passed": true,
+      "details": {
+        "no_experimental_admin_retained": true
+      }
+    }
+  ]
+}

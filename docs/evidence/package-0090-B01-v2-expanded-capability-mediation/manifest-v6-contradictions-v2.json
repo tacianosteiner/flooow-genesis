@@ -1,0 +1,47 @@
+{
+  "ACL_CONTRADICTION_CLASSIFICATION": "MANIFEST_V6_EXPECTATION_CORRECT",
+  "ROLE_MEMBERSHIP_CONTRADICTION_CLASSIFICATION": "B01_FIXTURE_VIOLATES_CANONICAL_OWNER_POSTURE",
+  "authority": {
+    "ADR": {
+      "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sections": [
+        "Capability and privilege design",
+        "ADMIN identity and attribute contract closure"
+      ]
+    },
+    "SPEC": {
+      "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+      "sections": [
+        "21 S04 AUDITOR wrapper",
+        "24.1 zero incoming/outgoing ADMIN membership",
+        "24.2 closed ownership",
+        "24.4 separate deployment authority",
+        "Expected signed attestation guard narrow supersession"
+      ]
+    },
+    "canonical_V043": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+    "original_qualification": "scripts/validation/package_0090_active_foundation.py explicitly grants each TEST family its assigned source wrappers"
+  },
+  "live_unsealed_confirmation": [
+    {
+      "name": "normative_fixture_has_auditor_EXECUTE_and_zero_owner_edges",
+      "passed": true,
+      "details": {
+        "audit_execute": true,
+        "owner_memberships": 0,
+        "readiness": 0
+      }
+    },
+    {
+      "name": "wrapper_EXECUTE_does_not_grant_raw_history_SELECT",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n"
+      }
+    }
+  ],
+  "scope": "Auditor test login is a qualification stand-in for exact wrapper slot; no operational activation or canonical S04 is authorized. B01 V1 remains valid only as its explicitly different TEST vector.",
+  "v6_modified": false,
+  "ADR_SPEC_modified": false
+}

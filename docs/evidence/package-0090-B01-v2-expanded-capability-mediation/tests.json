@@ -1,0 +1,363 @@
+{
+  "distinct_tests": 27,
+  "assertion_executions": 611,
+  "failures": 0,
+  "groups": {
+    "PARTITION": 4,
+    "CAPABILITY_DERIVATION": 10,
+    "MANIFEST_COMPATIBILITY": 4,
+    "RAW_AUTHORITY": 9
+  },
+  "cases": [
+    {
+      "name": "exact_46_ids_and_required_denominator_content_retained",
+      "passed": true,
+      "group": "PARTITION",
+      "details": {
+        "denominator_sha256": "b084791486ca22ea788027ae902f37507c3412aec0f94985fa775506a4624051"
+      },
+      "executions": 1
+    },
+    {
+      "name": "all_top_level_fields_assigned_without_excluding_objects",
+      "passed": true,
+      "group": "PARTITION",
+      "details": {
+        "top_level_only": true,
+        "complete_mechanism_proof": false
+      },
+      "executions": 1
+    },
+    {
+      "name": "compound_constraint_partition_requires_subtype_refinement",
+      "passed": true,
+      "group": "PARTITION",
+      "details": {
+        "actual_subtypes": {
+          "CONSTR_PRIMARY": 18,
+          "CONSTR_UNIQUE": 10,
+          "CONSTR_CHECK": 37,
+          "CONSTR_FOREIGN": 19,
+          "CONSTR_NOTNULL": 149
+        },
+        "finding": "One opaque source field presently groups CHECK/FK/PK/UNIQUE/NOTNULL; field coverage alone cannot certify same mechanism"
+      },
+      "executions": 1
+    },
+    {
+      "name": "ACL_partition_requires_privilege_source_and_object_kind_refinement",
+      "passed": true,
+      "group": "PARTITION",
+      "details": {
+        "kinds": {
+          "database": 42,
+          "schema": 112,
+          "function": 5754,
+          "table": 4032,
+          "column": 14112,
+          "type": 1414
+        },
+        "finding": "Direct/owner/PUBLIC/default/column/grant-option and absence edges need separate exact physical mutation mappings"
+      },
+      "executions": 1
+    },
+    {
+      "name": "CREATEROLE_ADMIN_can_change_fixed_nonsuperuser_target",
+      "passed": true,
+      "details": {
+        "exit": 0,
+        "observed": "t"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "CREATEROLE_is_not_target_scoped_and_can_create_unapproved_role",
+      "passed": true,
+      "details": {
+        "exit": 0,
+        "outside_target_created": true,
+        "interpretation": "Counterexample to using CREATEROLE as a bounded live SQL privilege; not a V2 bypass result"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "CREATEROLE_cannot_administer_superuser",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the SUPERUSER attribute may alter roles with the SUPERUSER attribute.\nLOCATION:  AlterRole, user.c:757\n"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "CREATEROLE_requires_ADMIN_on_existing_target",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to alter role\nDETAIL:  Only roles with the CREATEROLE attribute and the ADMIN option on role \"test_0090_audit\" may alter this role.\nLOCATION:  AlterRole, user.c:779\n"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "ADMIN_option_does_not_supply_SET_when_SET_false",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set role \"test_v2_role_target\"\nLOCATION:  call_string_check_hook, guc.c:6936\n"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "ordinary_consumer_cannot_change_session_user",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set session authorization \"test_0090_verification\"\nLOCATION:  call_string_check_hook, guc.c:6936\n",
+        "capability_treatment": "session_user immutable for ordinary authenticated connection; reconnect creates new identified session/epoch, never a helper-session substitute"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "session_setting_mutates_exact_same_consumer_connection",
+      "passed": true,
+      "details": [
+        {
+          "phase": "before",
+          "pid": 1030,
+          "session_user": "test_0090_audit",
+          "current_user": "test_0090_audit",
+          "timezone": "Etc/UTC"
+        },
+        {
+          "phase": "after",
+          "pid": 1030,
+          "session_user": "test_0090_audit",
+          "current_user": "test_0090_audit",
+          "timezone": "UTC"
+        }
+      ],
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "normative_fixture_has_auditor_EXECUTE_and_zero_owner_edges",
+      "passed": true,
+      "details": {
+        "audit_execute": true,
+        "owner_memberships": 0,
+        "readiness": 0
+      },
+      "group": "MANIFEST_COMPATIBILITY",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "wrapper_EXECUTE_does_not_grant_raw_history_SELECT",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied for table flyway_schema_history\nLOCATION:  aclcheck_error, aclchk.c:2793\n"
+      },
+      "group": "MANIFEST_COMPATIBILITY",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "role_admin_is_not_database_owner_capability",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: must be owner of database g3f4\nLOCATION:  aclcheck_error, aclchk.c:2931\n"
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "experimental_admin_and_targets_removed",
+      "passed": true,
+      "details": {
+        "no_experimental_admin_retained": true
+      },
+      "group": "CAPABILITY_DERIVATION",
+      "executions": 1,
+      "scope": "Unsealed disposable capability experiment; not V2 boundary qualification"
+    },
+    {
+      "name": "candidate_decoder_accepts_only_catalogued_class_target_pairs",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_only": true,
+        "no_executor_installed": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_arbitrary_SQL_or_command_key",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_arbitrary_operation_enum",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_arbitrary_role_class",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_arbitrary_filesystem_target",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_unapproved_parameter_or_body",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_wrong_precondition_digest",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_schema_rejects_non_string_identifier",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "candidate_schema_only": true
+      },
+      "executions": 74
+    },
+    {
+      "name": "candidate_authority_not_inferred_from_decoder_success",
+      "passed": true,
+      "group": "RAW_AUTHORITY",
+      "details": {
+        "executable_templates_missing": 74
+      },
+      "executions": 1
+    },
+    {
+      "name": "normative_owner_membership_exclusion_is_explicit",
+      "passed": true,
+      "group": "MANIFEST_COMPATIBILITY",
+      "details": {
+        "ADR": {
+          "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+          "sections": [
+            "Capability and privilege design",
+            "ADMIN identity and attribute contract closure"
+          ]
+        },
+        "SPEC": {
+          "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+          "sections": [
+            "21 S04 AUDITOR wrapper",
+            "24.1 zero incoming/outgoing ADMIN membership",
+            "24.2 closed ownership",
+            "24.4 separate deployment authority",
+            "Expected signed attestation guard narrow supersession"
+          ]
+        },
+        "canonical_V043": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "original_qualification": "scripts/validation/package_0090_active_foundation.py explicitly grants each TEST family its assigned source wrappers"
+      },
+      "executions": 1
+    },
+    {
+      "name": "auditor_history_wrapper_not_raw_history_is_normative",
+      "passed": true,
+      "group": "MANIFEST_COMPATIBILITY",
+      "details": {
+        "ADR": {
+          "path": "docs/adr/ADR-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+          "sections": [
+            "Capability and privilege design",
+            "ADMIN identity and attribute contract closure"
+          ]
+        },
+        "SPEC": {
+          "path": "docs/specifications/SPEC-0090-governed-offline-field-proof-exclusive-capability-composition.md",
+          "sections": [
+            "21 S04 AUDITOR wrapper",
+            "24.1 zero incoming/outgoing ADMIN membership",
+            "24.2 closed ownership",
+            "24.4 separate deployment authority",
+            "Expected signed attestation guard narrow supersession"
+          ]
+        },
+        "canonical_V043": "applications/marketplace-operations-persistence-postgres/src/main/resources/db/migration/V043__create_governed_offline_field_proof_capability_composition.sql",
+        "original_qualification": "scripts/validation/package_0090_active_foundation.py explicitly grants each TEST family its assigned source wrappers"
+      },
+      "executions": 1
+    },
+    {
+      "name": "owned_unsealed_experiment_destroyed",
+      "passed": true,
+      "group": "CAPABILITY_DERIVATION",
+      "details": [
+        {
+          "kind": "container",
+          "name": "flooow-0090-g3f4-041de2c5780a-postgres",
+          "removed": true
+        },
+        {
+          "kind": "network",
+          "name": "flooow-0090-g3f4-041de2c5780a",
+          "removed": true
+        },
+        {
+          "kind": "volume",
+          "name": "flooow-0090-g3f4-041de2c5780a-data",
+          "removed": true
+        }
+      ],
+      "executions": 1
+    }
+  ],
+  "candidate_decoder_tests_not_V2_escape_proof": true,
+  "role_experiment_not_sealed_boundary_proof": true,
+  "foundation_distinct_checks_not_recounted": 93,
+  "partition_IDs_not_automatically_tests": true
+}

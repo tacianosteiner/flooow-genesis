@@ -1,0 +1,51 @@
+{
+  "FINAL_CONSUMER_SESSION_CAPABILITY_DEFINED": true,
+  "scope": "Capability contract only, no final observer",
+  "identity": [
+    "authenticated ordinary role",
+    "same backend PID and connection handle",
+    "session incarnation",
+    "epoch/generation"
+  ],
+  "session_user": "Structurally immutable on ordinary authenticated connection. Reconnect is a new actor/epoch identity, not an in-place SET or adopted helper PID.",
+  "fixed_same_connection_settings": [
+    "effective_role: own allowed role only, no owner membership",
+    "client_encoding: frozen enum",
+    "search_path: frozen safe paths",
+    "standard_conforming_strings: fixed boolean enum",
+    "timezone: fixed timezone enum",
+    "transaction_isolation: fixed level before first transaction query, otherwise deny"
+  ],
+  "live_experiment": [
+    {
+      "name": "ordinary_consumer_cannot_change_session_user",
+      "passed": true,
+      "details": {
+        "exit": 3,
+        "stderr": "ERROR:  42501: permission denied to set session authorization \"test_0090_verification\"\nLOCATION:  call_string_check_hook, guc.c:6936\n",
+        "capability_treatment": "session_user immutable for ordinary authenticated connection; reconnect creates new identified session/epoch, never a helper-session substitute"
+      }
+    },
+    {
+      "name": "session_setting_mutates_exact_same_consumer_connection",
+      "passed": true,
+      "details": [
+        {
+          "phase": "before",
+          "pid": 1030,
+          "session_user": "test_0090_audit",
+          "current_user": "test_0090_audit",
+          "timezone": "Etc/UTC"
+        },
+        {
+          "phase": "after",
+          "pid": 1030,
+          "session_user": "test_0090_audit",
+          "current_user": "test_0090_audit",
+          "timezone": "UTC"
+        }
+      ]
+    }
+  ],
+  "T10_tuple_implemented": false
+}
