@@ -1,0 +1,77 @@
+{
+  "status": "NOT_PROVEN",
+  "authority_path_required": [
+    "request",
+    "dispatcher",
+    "capability",
+    "executor",
+    "credential",
+    "principal",
+    "target",
+    "operation",
+    "outcome",
+    "observer",
+    "audit_receipt",
+    "revocation"
+  ],
+  "requirements": {
+    "request": "Exact tagged operation ID and contract digest only; reject unknown/extra fields before dispatch",
+    "dispatcher": "Read-only allowlist binds operation ID to a single installed worker artifact + exact fixed transport",
+    "executor": "Immutable entrypoint and dependency closure; no generic interpreter/psql/shell/identifier/SQL API, no writable import/loader path; no second credential channel",
+    "credential": "One operation and closed epoch only; no broker custody, inherited descriptor, environment disclosure or steady-state superuser connection",
+    "observer": "Separate anchored principal and read entitlement; worker cannot forge outcome/audit/extinction evidence",
+    "revocation": "Destroy capability/credential/session/process/descendants before reseal; old tuple never revived"
+  },
+  "frozen_implementation_satisfying_all_requirements": null,
+  "rejected_raw_candidate_paths": [
+    {
+      "id": "REJECTED-V1-OWNER-CREDENTIAL",
+      "source": {
+        "path": "scripts/validation/package_0090_sealed_boundary.py",
+        "git_blob_oid": "6f6b8d51361a4d6bc748e69b9a258170ad63dc24",
+        "git_sha256": "9ef5af1957cddf9b4cfdbf51362b72a9ec8e0fc4e7e89e46ab035bd16bdc592e",
+        "line": 56,
+        "anchor": "GRANT flooow_offline_control_owner TO test_0090_broker"
+      },
+      "authority": "private control-owner SET membership",
+      "why_rejected": "Violates frozen fixture correction decision and exposes owner authority beyond the fixed RLS operation",
+      "broker_reachability": {
+        "path": "scripts/validation/package_0090_sealed_service.py",
+        "git_blob_oid": "6ea318b79a031dbae366f3f829b59f1d66976f3e",
+        "git_sha256": "67a22540123b70cd2593eb5b1192cd31f58f6ba4fe8690b1a8110d4de5d304f8",
+        "line": 187,
+        "anchor": "self.credential = config.pop"
+      },
+      "R3_adopted": false
+    },
+    {
+      "id": "REJECTED-V2-BOOTSTRAP-LABEL",
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-2/capability-principal-bindings.json",
+        "git_blob_oid": "815c3ea7467bfe6a6c8523564b58088e83549798",
+        "git_sha256": "d26186a373186e3f3f67c6ecead3631b71a1b3116bd1aba06cea794c497ecce1",
+        "pointer": "/bindings/0"
+      },
+      "authority": "postgres credential + numeric UID without immutable executor/process/transport confinement",
+      "why_rejected": "Exact SQL literal/role label cannot narrow superuser credential",
+      "R3_adopted": false
+    },
+    {
+      "id": "REJECTED-BROAD-CREATEROLE",
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-expanded-capability-mediation/role-admin-special-case.json",
+        "git_blob_oid": "f5a592e97a0234e29034df868187e9d24583185a",
+        "git_sha256": "483d6826771c9b0cf000a4a9703517c7c25a50d56eda4d1c3756eeb7d83f8a99",
+        "pointer": "/experiments"
+      },
+      "authority": "CREATEROLE + target ADMIN OPTION",
+      "why_rejected": "Prior experiment created an outside-target role. No new execution or broad role-admin principal is authorized.",
+      "R3_adopted": false
+    }
+  ],
+  "RAW_AUTHORITY_SURFACES": null,
+  "known_rejected_raw_candidate_paths": 3,
+  "known_rejected_paths_are_not_a_complete_denominator": true,
+  "no_broker_arbitrary_superuser_invocation_can_be_hidden_as_trust_boundary": true,
+  "no_new_worker_code_installed_or_authored": true
+}
