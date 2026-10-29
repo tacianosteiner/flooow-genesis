@@ -1,0 +1,326 @@
+{
+  "revision": 4,
+  "scope": "TEST_QUALIFICATION_ONLY",
+  "proof_level": "DESIGNED_NOT_STATICALLY_CLOSED",
+  "implementation_authorized": false,
+  "runtime_authority": false,
+  "stores": {
+    "reservation": {
+      "design_path": "/var/lib/flooow-b01-r4/reservation/ledger",
+      "writer": "TEST/R4/RESERVATION_WRITER",
+      "reader": "TEST/R4/OUTCOME_OBSERVER",
+      "identity": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "store_inode",
+        "mount_namespace",
+        "writer_identity",
+        "previous_tip",
+        "record_digest"
+      ],
+      "write_rule": "Exclusive writer; append length+canonical typed record+digest; fsync record and directory before receipt; conflicting duplicate key denies",
+      "transport": "Dedicated credential-free full-tuple message; writer independently validates predecessor/reservation and required witness signatures",
+      "instantiated": false,
+      "filesystem_authority_and_crash_atomicity": "NOT_PROVEN; path is a proposed design binding, never a live durable identity"
+    },
+    "audit": {
+      "design_path": "/var/lib/flooow-b01-r4/audit/ledger",
+      "writer": "TEST/R4/AUDIT_WRITER",
+      "reader": "EXTERNAL/R4/WITNESS",
+      "identity": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "store_inode",
+        "mount_namespace",
+        "writer_identity",
+        "previous_tip",
+        "record_digest"
+      ],
+      "write_rule": "Exclusive writer; append length+canonical typed record+digest; fsync record and directory before receipt; conflicting duplicate key denies",
+      "transport": "Dedicated credential-free full-tuple message; writer independently validates predecessor/reservation and required witness signatures",
+      "instantiated": false,
+      "filesystem_authority_and_crash_atomicity": "NOT_PROVEN; path is a proposed design binding, never a live durable identity"
+    },
+    "outcome": {
+      "design_path": "/var/lib/flooow-b01-r4/outcome/ledger",
+      "writer": "TEST/R4/OUTCOME_WRITER",
+      "reader": "TEST/R4/OUTCOME_OBSERVER",
+      "identity": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "store_inode",
+        "mount_namespace",
+        "writer_identity",
+        "previous_tip",
+        "record_digest"
+      ],
+      "write_rule": "Exclusive writer; append length+canonical typed record+digest; fsync record and directory before receipt; conflicting duplicate key denies",
+      "transport": "Dedicated credential-free full-tuple message; writer independently validates predecessor/reservation and required witness signatures",
+      "instantiated": false,
+      "filesystem_authority_and_crash_atomicity": "NOT_PROVEN; path is a proposed design binding, never a live durable identity"
+    },
+    "registry": {
+      "design_path": "/var/lib/flooow-b01-r4/registry/ledger",
+      "writer": "TEST/R4/REGISTRY_WRITER",
+      "reader": "TEST/R4/OUTCOME_OBSERVER",
+      "identity": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "store_inode",
+        "mount_namespace",
+        "writer_identity",
+        "previous_tip",
+        "record_digest"
+      ],
+      "write_rule": "Exclusive writer; append length+canonical typed record+digest; fsync record and directory before receipt; conflicting duplicate key denies",
+      "transport": "Dedicated credential-free full-tuple message; writer independently validates predecessor/reservation and required witness signatures",
+      "instantiated": false,
+      "filesystem_authority_and_crash_atomicity": "NOT_PROVEN; path is a proposed design binding, never a live durable identity"
+    }
+  },
+  "bindings": [
+    {
+      "id": "old_capability_revoked",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/registry/ledger",
+      "observer": "TEST/R4/EXTINCTION_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    },
+    {
+      "id": "old_worker_extinct",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/registry/ledger",
+      "observer": "TEST/R4/EXTINCTION_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    },
+    {
+      "id": "mutation_outcome_known",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/outcome/ledger",
+      "observer": "TEST/R4/OUTCOME_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    },
+    {
+      "id": "audit_durable",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/audit/ledger",
+      "observer": "TEST/R4/REGISTRY_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    },
+    {
+      "id": "generation_advanced",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/registry/ledger",
+      "observer": "TEST/R4/REGISTRY_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    },
+    {
+      "id": "new_expected_state_bound",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/registry/ledger",
+      "observer": "TEST/R4/REGISTRY_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    },
+    {
+      "id": "new_observer_contract_bound",
+      "authoritative_source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-physical-bindings-v3.json",
+        "git_blob_oid": "561287d0c202a71bd0b0ed87ac332060a3da10bd",
+        "git_lf_sha256": "4bc65473ee5e08156736a7f7cd4d05a27b2e876760bd869263219522583b421e",
+        "pointer": "/"
+      },
+      "physical_target_design": "TEST/R4/registry/ledger",
+      "observer": "TEST/R4/REGISTRY_OBSERVER",
+      "durable_evidence": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "invariant_id",
+        "observation_revision",
+        "receipt_digest"
+      ],
+      "UNKNOWN": "Any missing/mismatched/stale/non-durable observation is UNKNOWN",
+      "fail_closed": "No RESEAL_PENDING->SEALED_NEW_EPOCH until all seven independently TRUE",
+      "physical_binding_proven": false,
+      "gap": "Exact observer entitlement, endpoint closure and durable write mechanism not statically closed"
+    }
+  ],
+  "RESEAL_INVARIANTS_PHYSICALLY_BOUND": 0
+}

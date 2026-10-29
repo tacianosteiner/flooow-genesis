@@ -1,0 +1,882 @@
+{
+  "revision": 4,
+  "scope": "TEST_QUALIFICATION_ONLY",
+  "proof_level": "DESIGNED_NOT_STATICALLY_CLOSED",
+  "implementation_authorized": false,
+  "runtime_authority": false,
+  "participants": [
+    {
+      "participant": "POSTMASTER",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "postgres",
+      "module_kind": "EXISTING_PRIMITIVE_REQUIRES_INTEGRATION",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "line": 30,
+          "function_or_symbol": "main pg_args/spawn postgres",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 57,
+          "function_or_symbol": "census",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+          "line": 76,
+          "function_or_symbol": "_PG_init retained postmaster",
+          "git_lf_sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb"
+        },
+        {
+          "path": "scripts/validation/package_0090_s04_native_health.c",
+          "line": 32,
+          "function_or_symbol": "probe",
+          "git_lf_sha256": "ed753505e5388222ec223b97f4269a3149447ce83edb264494e88b93a81d4f2e"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TEST/R4/SUPERVISOR",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Execute one bounded query in enrolled final backend and witness its completed result, not nonce signature",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    },
+    {
+      "participant": "SUPERVISOR",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "supervisor.c",
+      "module_kind": "EXISTING_PRIMITIVE_REQUIRES_INTEGRATION",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "line": 10,
+          "function_or_symbol": "spawn CLONE_PIDFD execv",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "line": 14,
+          "function_or_symbol": "main",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "line": 23,
+          "function_or_symbol": "main receiver spawn",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "line": 27,
+          "function_or_symbol": "main observer spawn",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "line": 39,
+          "function_or_symbol": "supervisor_progress tick",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TB/TEST_BOOTSTRAP_CUSTODIAN",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Spawn exact generation, transfer retained anchors and witness receiver/observer enrollment plus child drain",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    },
+    {
+      "participant": "RECEIVER",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "receiver.c",
+      "module_kind": "EXISTING_PRIMITIVE_REQUIRES_INTEGRATION",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 16,
+          "function_or_symbol": "catalog",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 52,
+          "function_or_symbol": "main",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 122,
+          "function_or_symbol": "observation_registered pending",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 131,
+          "function_or_symbol": "registry insertion",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 133,
+          "function_or_symbol": "observation_registered promotion",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 143,
+          "function_or_symbol": "epoch and request-digest ACK",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/quarantine.h",
+          "line": 24,
+          "function_or_symbol": "observation_registered",
+          "git_lf_sha256": "31e23581c78d5d9da3ef111d3e15e07c265f28337e312fe9672f63b45d81b15d"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TEST/R4/SUPERVISOR",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Validate sender/anchor/context, insert exact registry row and independently witness that published row",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    },
+    {
+      "participant": "CENSUS_OBSERVER",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "observer.c",
+      "module_kind": "EXISTING_PRIMITIVE_REQUIRES_INTEGRATION",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 22,
+          "function_or_symbol": "capture_census_context",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 33,
+          "function_or_symbol": "census_applicability",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 57,
+          "function_or_symbol": "census",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 71,
+          "function_or_symbol": "observe",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 97,
+          "function_or_symbol": "phase compare_exchange/registry revision",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 105,
+          "function_or_symbol": "apply_census",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TEST/R4/SUPERVISOR",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Compare complete registry census to retained backend anchors and publish exact discrepancy set",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    },
+    {
+      "participant": "APPROVAL_PRODUCER",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "proposed/approval_producer.c",
+      "module_kind": "PROPOSED_TEST_ONLY",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+          "line": 57,
+          "function_or_symbol": "_observer_once",
+          "git_lf_sha256": "deb84e2f10b523b56d07cd39d49e8738ebd86fd29313dd7d6966cd9fc8e45d00"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+          "line": 69,
+          "function_or_symbol": "actual original material commitment checks",
+          "git_lf_sha256": "deb84e2f10b523b56d07cd39d49e8738ebd86fd29313dd7d6966cd9fc8e45d00"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+          "line": 74,
+          "function_or_symbol": "openssl pkeyutl verify",
+          "git_lf_sha256": "deb84e2f10b523b56d07cd39d49e8738ebd86fd29313dd7d6966cd9fc8e45d00"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+          "line": 85,
+          "function_or_symbol": "root-owned gate publication",
+          "git_lf_sha256": "deb84e2f10b523b56d07cd39d49e8738ebd86fd29313dd7d6966cd9fc8e45d00"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+          "line": 127,
+          "function_or_symbol": "synthetic key/material setup",
+          "git_lf_sha256": "deb84e2f10b523b56d07cd39d49e8738ebd86fd29313dd7d6966cd9fc8e45d00"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_100us_warm.c",
+          "line": 48,
+          "function_or_symbol": "actor index4 nonce signature publication",
+          "git_lf_sha256": "8f7dd318529f1ec7f8d3dc223242fe8bf51a7411846bf46f0c02accecbf3f6f6"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TEST/R4/SUPERVISOR",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Construct full-context challenge approval only from independent census+policy+manifest witnesses",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    },
+    {
+      "participant": "APPROVAL_CONSUMER",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "proposed/approval_consumer.c",
+      "module_kind": "PROPOSED_TEST_ONLY",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "line": 86,
+          "function_or_symbol": "health_gate",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "line": 87,
+          "function_or_symbol": "read_gate",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 16,
+          "function_or_symbol": "catalog gate/header check",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+          "line": 40,
+          "function_or_symbol": "require_enrolled_execution",
+          "git_lf_sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+          "line": 57,
+          "function_or_symbol": "_observer_once",
+          "git_lf_sha256": "deb84e2f10b523b56d07cd39d49e8738ebd86fd29313dd7d6966cd9fc8e45d00"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_100us_warm.c",
+          "line": 49,
+          "function_or_symbol": "actor index5 nonce-signature verify",
+          "git_lf_sha256": "8f7dd318529f1ec7f8d3dc223242fe8bf51a7411846bf46f0c02accecbf3f6f6"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TEST/R4/SUPERVISOR",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Verify original signed full-context approval, compare current registry and publish one-use acceptance receipt",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    },
+    {
+      "participant": "ENFORCEMENT_WORKER",
+      "independent_process_required": true,
+      "threads_are_independence": false,
+      "exact_module_design": "proposed/enforcement_worker.c",
+      "module_kind": "PROPOSED_TEST_ONLY",
+      "source_authority": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 159,
+          "function_or_symbol": "main quarantine retained-anchor enforcement",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 164,
+          "function_or_symbol": "pidfd_send_signal exact retained target",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 169,
+          "function_or_symbol": "dead retained anchors",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 170,
+          "function_or_symbol": "fresh catalog absence query",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+          "line": 172,
+          "function_or_symbol": "confirmed kernel/catalog outcome",
+          "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+          "line": 40,
+          "function_or_symbol": "session_present",
+          "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314"
+        }
+      ],
+      "reused_primitives": [
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+          "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+          "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+          "pointer": "/",
+          "line": 12,
+          "symbol": "SYS_clone3"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 30,
+          "symbol": "SCM_PIDFD"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 55,
+          "symbol": "anchor_equal"
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+          "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+          "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+          "pointer": "/",
+          "line": 49,
+          "symbol": "CLOCK_BOOTTIME"
+        }
+      ],
+      "binary_identity": {
+        "expected_sha256": null,
+        "rule": "Pinned artifact/dependency hashes from future reviewed build, not source hash substituted for binary"
+      },
+      "parent": "TEST/R4/SUPERVISOR",
+      "generation": [
+        "deployment_id",
+        "database_system_identifier",
+        "database_oid",
+        "database_name",
+        "epoch_id",
+        "generation",
+        "policy_digest",
+        "manifest_digest",
+        "audit_tip",
+        "operation_id",
+        "participant_slot",
+        "birth_anchor",
+        "prior_generation_tombstone"
+      ],
+      "enrollment": "Fresh one-use full tuple challenge over inherited sealed context and SO_PEERPIDFD/SCM_PIDFD retained anchors; reject stale or missing peers",
+      "authenticated_channel": "Dedicated inherited AF_UNIX SOCK_SEQPACKET; no pathname re-discovery or numeric PID re-acquisition",
+      "dependency_identity": "Exact executable+ELF/interpreter/library/loader graph; missing build/dependency closure remains unresolved",
+      "registry_identity": "TEST/R4/registry store row keyed by full tuple and participant_slot, monotonic revision",
+      "catalog_identity": "Exact TEST database system_identifier/OID+source-pinned catalog projection digest; no S04 execution",
+      "completed_work_challenge": "Consume one exact retained target anchor and fail-closed command; external observer confirms disposition",
+      "functional_work_evidence": [
+        "input_context_digest",
+        "challenge_id",
+        "prior_registry_revision",
+        "completed_result_digest",
+        "observed_registry_revision"
+      ],
+      "publication_witness": "TEST/R4/REGISTRY_OBSERVER must independently reread exact row and compare current revision before acceptance",
+      "guard_binding": "All seven current full-context receipts conjunctive; any missing/stale/unknown receipt denies",
+      "observer_binding": "TEST/R4/EXTINCTION_OBSERVER plus EXTERNAL/R4/WITNESS, distinct process/credential from subject",
+      "restart": "Invalidate generation; tombstone old enrollment; no replacement until pending UNKNOWN reconciled and old handles extinct",
+      "revocation": "Disable enrollment and channel, drain all descendants, retain target anchors until independent extinction receipts",
+      "extinction": "Observer confirms retained pidfd signalled + wait/reap witness + no live generation descendants/fds/registry eligibility; timeout is UNKNOWN",
+      "UNKNOWN": "Persist pending tuple; deny guard/claim/reseal; no restart-as-success",
+      "unresolved": [
+        "Exact build/dependency/loader identity and confinement absent",
+        "Full-context completed-work/publication/guard integration not source-proven"
+      ],
+      "fully_designed": false,
+      "proof_level": "PARTIAL_DESIGN_WITH_EXACT_EXISTING_ANCHORS"
+    }
+  ],
+  "NATIVE_PARTICIPANTS_REQUIRED": 7,
+  "NATIVE_PARTICIPANTS_FULLY_DESIGNED": 0,
+  "UNRESOLVED_NATIVE_WORK_ANCHORS": 7,
+  "GENERIC_PROCESS_SUBSTITUTIONS": 0,
+  "minimum_new_modules": [
+    "approval_producer.c",
+    "approval_consumer.c",
+    "enforcement_worker.c"
+  ],
+  "gap": "Three purpose-specific proposed TEST modules, never a generic worker; fixed message/authority ABI and dependency closure still require design proof"
+}

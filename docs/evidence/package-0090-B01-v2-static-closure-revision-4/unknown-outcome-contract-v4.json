@@ -1,0 +1,116 @@
+{
+  "revision": 4,
+  "scope": "TEST_QUALIFICATION_ONLY",
+  "proof_level": "DESIGNED_NOT_STATICALLY_CLOSED",
+  "implementation_authorized": false,
+  "runtime_authority": false,
+  "cases": [
+    {
+      "cut": "before_reservation",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "after_reservation_before_mutation",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "after_mutation_before_commit",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "commit_ack_lost",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "after_commit_before_outcome",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "after_outcome_before_audit",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "during_revocation",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "after_revocation_before_extinction",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "during_reseal",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    },
+    {
+      "cut": "after_reseal_before_consumer_ACK",
+      "state": "MUTATION_UNKNOWN",
+      "durable_pending": "Preserve reservation and last independently durable tuple",
+      "continuation": "No replay/new enrollment/reseal until independent outcome+audit+extinction reconciliation",
+      "process_death_means_abort": false,
+      "reconnect_clears_pending": false
+    }
+  ],
+  "source": {
+    "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/unknown-outcome-contract-v3.json",
+    "git_blob_oid": "050850613304360908d93a5a30275aaac2ef7e26",
+    "git_lf_sha256": "02b160c9c9d3746b806f3830787c2d5f4156b7f38e7476350449b21a54061140",
+    "pointer": "/"
+  },
+  "pending_key": [
+    "deployment_id",
+    "database_system_identifier",
+    "database_oid",
+    "database_name",
+    "epoch_id",
+    "generation",
+    "policy_digest",
+    "manifest_digest",
+    "audit_tip",
+    "operation_id",
+    "reservation_digest",
+    "capability_digest",
+    "target_digest",
+    "consumer_enrollment"
+  ],
+  "UNKNOWN_survives_restart": true,
+  "UNKNOWN_survives_reconnect": true,
+  "new_enrollment_allowed_while_UNKNOWN": false,
+  "reconciliation": "Independent observer exact transaction outcome and expected delta, immutable outcome writer receipt, separate audit witness; no caller boolean",
+  "complete": false
+}

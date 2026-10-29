@@ -1,0 +1,69 @@
+{
+  "revision": 4,
+  "scope": "TEST_QUALIFICATION_ONLY",
+  "proof_level": "DESIGNED_NOT_STATICALLY_CLOSED",
+  "implementation_authorized": false,
+  "runtime_authority": false,
+  "store": {
+    "design_path": "/var/lib/flooow-b01-r4/outcome/ledger",
+    "writer": "TEST/R4/OUTCOME_WRITER",
+    "reader": "TEST/R4/OUTCOME_OBSERVER",
+    "identity": [
+      "deployment_id",
+      "database_system_identifier",
+      "database_oid",
+      "database_name",
+      "epoch_id",
+      "generation",
+      "policy_digest",
+      "manifest_digest",
+      "audit_tip",
+      "operation_id",
+      "store_inode",
+      "mount_namespace",
+      "writer_identity",
+      "previous_tip",
+      "record_digest"
+    ],
+    "write_rule": "Exclusive writer; append length+canonical typed record+digest; fsync record and directory before receipt; conflicting duplicate key denies",
+    "transport": "Dedicated credential-free full-tuple message; writer independently validates predecessor/reservation and required witness signatures",
+    "instantiated": false,
+    "filesystem_authority_and_crash_atomicity": "NOT_PROVEN; path is a proposed design binding, never a live durable identity"
+  },
+  "reservation": {
+    "design_path": "/var/lib/flooow-b01-r4/reservation/ledger",
+    "writer": "TEST/R4/RESERVATION_WRITER",
+    "reader": "TEST/R4/OUTCOME_OBSERVER",
+    "identity": [
+      "deployment_id",
+      "database_system_identifier",
+      "database_oid",
+      "database_name",
+      "epoch_id",
+      "generation",
+      "policy_digest",
+      "manifest_digest",
+      "audit_tip",
+      "operation_id",
+      "store_inode",
+      "mount_namespace",
+      "writer_identity",
+      "previous_tip",
+      "record_digest"
+    ],
+    "write_rule": "Exclusive writer; append length+canonical typed record+digest; fsync record and directory before receipt; conflicting duplicate key denies",
+    "transport": "Dedicated credential-free full-tuple message; writer independently validates predecessor/reservation and required witness signatures",
+    "instantiated": false,
+    "filesystem_authority_and_crash_atomicity": "NOT_PROVEN; path is a proposed design binding, never a live durable identity"
+  },
+  "states": [
+    "PENDING",
+    "COMMITTED",
+    "ABORTED_PROVEN",
+    "UNKNOWN"
+  ],
+  "COMMITTED": "Independent transaction identity + exact before/after/dependency delta witness; worker ACK alone insufficient",
+  "ABORTED_PROVEN": "Independent no-effect and transaction resolution; absent row/timeout/dead process alone insufficient",
+  "UNKNOWN": "Durable across reconnect/restart, prohibits second reservation and enrollment; independent reconciliation only",
+  "complete": false
+}
