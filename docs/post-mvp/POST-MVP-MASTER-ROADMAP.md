@@ -82,3 +82,47 @@ Opportunity Foundry remains on `research/opportunity-capital-foundry`; no branch
 Retail preservation on that branch is independently pinned at `df78697`; the exact downloaded retail files are imported here without cherry-picking that branch. No External Intelligence Capability Radar was found in the canonical-main documentation file inventory; its cross-reference is pending exact artifact discovery, not fabricated.
 
 ARKOM is comparative capability research, not implementation authority. ADOPT process-first, baseline-first, small pilot, human ownership, outcome packaging and prepared starting points. ADAPT AI systems into Governed Capabilities, calendar rollout into evidence gates, ROI into reconciled outcome, catalogs into governed registries. REJECT generic AI employees as core primitives, unrestricted one-click production, self-reported ROI as truth and a horizontal agent catalog as the primary moat. Palantir, ServiceNow, Microsoft, UiPath and Salesforce are comparators, without a claim of equivalence.
+
+## Living Economic World Model registration
+
+The FLOOOW Living Economic World Model is preserved as a POST-MVP research program.
+
+Canonical document:
+
+- `FLOOOW-LIVING-ECONOMIC-WORLD-MODEL.md`
+
+It defines a future continuously learning economic-intelligence layer:
+
+- Economic Thought Radar
+- World Signal Radar
+- Competing Hypotheses
+- Possible Worlds / 2050
+- Outcome-Calibrated Learning
+
+Governance boundary:
+
+- `IMPLEMENTATION_AUTHORIZED=NO`
+- `PRODUCTION_INTEGRATION_AUTHORIZED=NO`
+- `ROOM_CRITICAL_PATH_IMPACT=NONE`
+- `MVP_DEPENDENCY=NONE`
+- `CANONICAL_TRUTH_AUTHORITY=NONE`
+
+Economic thinkers, theories, papers, forecasts and scenarios are hypothesis and context inputs only.
+They do not redefine canonical Economic Truth, authority, reconciliation or actual outcomes.
+
+Research sequence:
+
+- LEWM-R0 - Corpus and Provenance
+- LEWM-R1 - Economic Lens Taxonomy
+- LEWM-R2 - Competing Hypothesis Contract
+- LEWM-R3 - Historical Explanation Benchmark
+- LEWM-R4 - Living Thought Radar
+- LEWM-R5 - Possible Worlds / 2050
+- LEWM-R6 - Company / Market Translation
+- LEWM-R7 - Shadow World Model
+- LEWM-R8 - Outcome-Calibrated Lens Memory
+- LEWM-R9 - Decision Room Projection Research
+
+No LEWM capability may enter Room because an explanation is merely plausible, popular or high-confidence.
+Promotion requires governed evidence, benchmarking, adversarial review, shadow operation, outcome calibration and a separate future promotion decision.
+
