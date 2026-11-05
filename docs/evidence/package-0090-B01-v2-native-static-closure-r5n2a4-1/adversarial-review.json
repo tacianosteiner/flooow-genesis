@@ -1,0 +1,208 @@
+{
+  "review_id": "R5N2A4_1_INDEPENDENT_GRAPH_REVIEW",
+  "reviewer": "/root/r5n2a4_1_graph_review",
+  "independent_reviewer_invoked": true,
+  "review_completed": true,
+  "INDEPENDENT_GRAPH_REVIEW": "FAIL",
+  "graph_acceptance": "FAIL",
+  "scope": "N1-CATALOG-EFFECT-GRAPH only; Reader ACL not evaluated",
+  "semantic_gaps_open": 16,
+  "producer_invocation_binding_obligations_unresolved": 16,
+  "actual_invocation_count": "NOT_ESTABLISHED",
+  "callable_bindings_unresolved": 16,
+  "producer_principal_bindings_unresolved": 16,
+  "counting_rule": "16 unresolved semantic obligations, not 16 distinct callables, physical producers or roles; actual cardinalities remain unknown.",
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "BLOCKING",
+      "finding": "No exact conforming plan/step/callable/principal chain recovered. Graph cannot close.",
+      "blocker": "N1-CATALOG-EFFECT-GRAPH"
+    },
+    {
+      "id": "R2",
+      "severity": "EVIDENCE_LIMITATION",
+      "finding": "Candidate list is finite recovery evidence, not formal proof that no conforming source exists anywhere. The safe supported result is no binding recovered, never universal nonexistence."
+    },
+    {
+      "id": "R3",
+      "severity": "EVIDENCE_LIMITATION",
+      "finding": "Rejected candidates use broad display identities (e.g. metadata collection -> callback). They cannot be counted as exact canonical Reader callables, and zero bound steps is not zero required steps."
+    },
+    {
+      "id": "R4",
+      "severity": "EVIDENCE_LIMITATION",
+      "finding": "Per-gap predicate effects remain descriptions tied to frozen ASTs, not source-backed executing evaluator proofs; all six must remain open."
+    }
+  ],
+  "attack_coverage": [
+    {
+      "id": "A01",
+      "attack": "callable exists but is never invoked by fixed plan",
+      "assessment": "No accepted producer step invokes any candidate; no conforming plan ID recovered.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A02",
+      "attack": "callable invoked under different principal",
+      "assessment": "complete_currentness.py:65 binds legacy user postgres, not logical Reader enrollment.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A03",
+      "attack": "owner authority mistaken for caller authority",
+      "assessment": "Owner catalog values are queried, but owner identity never proves the invoking session or current user.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A04",
+      "attack": "SECURITY DEFINER authority expansion",
+      "assessment": "source_closure.py:372 checks definer metadata for wrappers; no exact Reader invocation binds those owners or EXECUTE paths.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A05",
+      "attack": "transitive role authority",
+      "assessment": "Reader policy zero memberships is a desired acceptance restriction, not proof of actual invocation membership/effective principal.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A06",
+      "attack": "generic SQL hidden behind fixed-query abstraction",
+      "assessment": "source_closure.py:149-150 accepts statement and role; reachable_v2_catalog.qualify accepts sql callback.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A07",
+      "attack": "arbitrary identifiers hidden in parameters",
+      "assessment": "reachable_v2_catalog.py:32 composes identifiers and where clauses from model; finite model does not prove approved Reader invocation.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A08",
+      "attack": "transformation outside declared callable",
+      "assessment": "CONFIG_ASSERTIONS_V2 and body hash representation do not identify source adapter invocation.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A09",
+      "attack": "predicate evaluated at a different layer",
+      "assessment": "Six predicate ASTs lack bound executing evaluator and evaluation point.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A10",
+      "attack": "field derived before security predicate",
+      "assessment": "No source plan proves ordering of acquisition, authorization, transform and output.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A11",
+      "attack": "redaction after exposure",
+      "assessment": "complete_currentness projection serializes raw to_jsonb(t), including proconfig/setconfig/body; unsafe substitute for sanitized adapter.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A12",
+      "attack": "NULL interpreted as permission denial without proof",
+      "assessment": "No new NULL-to-denial inference appears, but unknown visibility cannot close effects.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A13",
+      "attack": "credentials passed to an unclassified callable",
+      "assessment": "Legacy currentness reads existing test password path and passes to psycopg.connect; not an approved Reader credential invocation.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A14",
+      "attack": "secret retrieval hidden behind metadata lookup",
+      "assessment": "Raw config and body channels cannot be proved free of secrets by metadata label.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A15",
+      "attack": "mutation side effects",
+      "assessment": "complete_currentness.py writer.execute performs role/function/table changes in legacy experiment; not executed here.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A16",
+      "attack": "temporary object creation",
+      "assessment": "source_closure.py:425 contains CREATE TEMP VIEW resolution experiment; generic helper is not inherently read-only.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A17",
+      "attack": "session-state mutation",
+      "assessment": "currentness source includes transaction, lock and advisory lock/session configuration statements.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A18",
+      "attack": "role-state mutation",
+      "assessment": "currentness source includes ALTER ROLE; source_closure includes SET ROLE negative tests.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A19",
+      "attack": "configuration mutation",
+      "assessment": "currentness source includes SET lock_timeout and function SECURITY mutation experiments.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A20",
+      "attack": "external process invocation",
+      "assessment": "source_closure/g3f4_catalog use subprocess docker/psql; not invoked by review.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A21",
+      "attack": "unbound producer step",
+      "assessment": "producer_steps is empty and cardinality NOT_ESTABLISHED, while all 16 obligations remain open.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A22",
+      "attack": "hash proving bytes but not invocation",
+      "assessment": "Recorded SHA256 pins inspected source only; does not provide call chain or authority.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A23",
+      "attack": "codec proving representation but not producer authority",
+      "assessment": "CONFIG_ASSERTIONS_V2 specifies permitted output and scope; missing callable binding persists.",
+      "result": "CLOSURE_NOT_PROVEN"
+    },
+    {
+      "id": "A24",
+      "attack": "output policy proving desired behavior but not actual effect",
+      "assessment": "R5N1_READ_PROXY policy and future auth contract cannot supply session/effective principal proof.",
+      "result": "CLOSURE_NOT_PROVEN"
+    }
+  ],
+  "source_sha256": {
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/affected-graph-edges.json": "a6aade091f8c64bbdcda45df246f6f871ba881d48fc5b0e84461f4c6f7b3207b",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/baseline-freeze.json": "2cc390c68b9d99363bbc0c7c780299bcc40b724f261dbf5a95ab4d25097bb2d8",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/callable-identity-ledger.json": "52d38461d24f4d3b68c94538074b8161238bf688b5252105d2d5cee1868d0f7d",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/failure-adjudication.json": "d1fb4e1bbc9fec664af62fa3bfa533b049691a12d7712f62fe3a7d0832669e8c",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/global-graph-completeness.json": "04d072721afd0dac2af6883636f7a5c57141323c9d7861211807d581635e629d",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/principal-binding-ledger.json": "ee04a44f840bbec11cd631433708c4e0597fd2e9fe574f5cb3de977cb0e75660",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/producer-invocation-plan-binding.json": "8270a07c3abfb10bea8ce968b1b624fe799b6c6d55525ec695da14515971f75b",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1/semantic-gap-ledger.json": "84ab8bec0b31c7cdc26008deade560a2c27500ce91a024b5cf34cab14e3b3a33",
+    "scripts/validation/package_0090_complete_currentness.py": "72d5a907e4a474cc5926cee8f3c9aa3c40c18fcf250203862d949bf779c11e9c",
+    "scripts/validation/package_0090_source_closure.py": "8cef26dba9481d07f880882c24042ede47f561bcb4f56dd48911319c76b03b7a",
+    "scripts/validation/package_0090_reachable_v2_catalog.py": "e42ada36ebfbaffb9c7defae7c31c1f10972405ec0bd2b9ca794f7c6f6e375a7",
+    "scripts/validation/package_0090_g3f4_catalog.py": "8d0023ccdf57539954345ee9a4b42730a51422361625879bb63a8ef5a8543314",
+    "scripts/validation/package_0090_t10_expectations.py": "f9260f316454c75e2922d4275064dfabfe975fb7b73a3e85ecc04ec4652e695b",
+    "scripts/validation/package_0090_b01_v2/design.py": "fb42380d1b8f4fb2f478d96db770fc259bca15840118a9d0a72059ddc770fe35",
+    "scripts/validation/package_0090_native_health_qualification/qualification.py": "25338508d182b41ec887357c2a996f31b26e6f6d85385d19cdc490c0f2cf0e2a",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2/catalog-codec-type-table.json": "e452b69168619f0cf0608efc6a60d5a4070f5fdf44a505e5ce9e79bc8c880fca",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/reader-identity-manifest.json": "ab94e1122064f9bbd1aefe1fa894c4ce41f10d16e10927004a3d11695c2d4f58"
+  },
+  "reader_acl_executed": false,
+  "no_source_or_runtime_execution": true,
+  "closed_contracts_reopened": 0,
+  "contradictions_discovered": 0,
+  "decision": "Maintain graph OPEN. Preserve all predecessor graph edges. Do not execute Reader ACL or reinterpret 17 closure failures as passes."
+}

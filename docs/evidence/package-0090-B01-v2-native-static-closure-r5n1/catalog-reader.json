@@ -1,0 +1,268 @@
+{
+  "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "principal": "Dedicated READ_PROXY OS process and R5N1_read_proxy LOGIN role; not any of the seven participant identities",
+  "endpoint": "Only fixed native observation request on authenticated peer channel; participants hold no raw SQL socket/password/role token",
+  "projected_source_objects": [
+    {
+      "source": "pg_catalog.pg_roles",
+      "fields": [
+        "oid",
+        "rolname",
+        "rolcanlogin",
+        "rolinherit",
+        "rolsuper",
+        "rolcreaterole",
+        "rolcreatedb",
+        "rolreplication",
+        "rolbypassrls"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_auth_members",
+      "fields": [
+        "oid",
+        "roleid",
+        "member",
+        "grantor",
+        "admin_option",
+        "inherit_option",
+        "set_option"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_database",
+      "fields": [
+        "oid",
+        "datname",
+        "datdba",
+        "datallowconn",
+        "datconnlimit",
+        "encoding",
+        "datacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_namespace",
+      "fields": [
+        "oid",
+        "nspname",
+        "nspowner",
+        "nspacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_class",
+      "fields": [
+        "oid",
+        "relname",
+        "relnamespace",
+        "relowner",
+        "relkind",
+        "relrowsecurity",
+        "relforcerowsecurity",
+        "relacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_attribute",
+      "fields": [
+        "attrelid",
+        "attnum",
+        "attname",
+        "atttypid",
+        "attnotnull",
+        "attisdropped",
+        "attacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_proc",
+      "fields": [
+        "oid",
+        "proname",
+        "pronamespace",
+        "proowner",
+        "prolang",
+        "prokind",
+        "prosecdef",
+        "proisstrict",
+        "proretset",
+        "provolatile",
+        "proparallel",
+        "pronargs",
+        "pronargdefaults",
+        "prorettype",
+        "proargtypes",
+        "proallargtypes",
+        "proargmodes",
+        "proargnames",
+        "proconfig",
+        "proacl",
+        "prosrc",
+        "probin",
+        "prosqlbody"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_type",
+      "fields": [
+        "oid",
+        "typname",
+        "typnamespace",
+        "typowner",
+        "typtype",
+        "typrelid",
+        "typelem",
+        "typarray",
+        "typbasetype",
+        "typacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_language",
+      "fields": [
+        "oid",
+        "lanname",
+        "lanowner",
+        "lanpltrusted",
+        "lanplcallfoid",
+        "laninline",
+        "lanvalidator",
+        "lanacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_depend",
+      "fields": [
+        "classid",
+        "objid",
+        "objsubid",
+        "refclassid",
+        "refobjid",
+        "refobjsubid",
+        "deptype"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_shdepend",
+      "fields": [
+        "dbid",
+        "classid",
+        "objid",
+        "objsubid",
+        "refclassid",
+        "refobjid",
+        "deptype"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_default_acl",
+      "fields": [
+        "oid",
+        "defaclrole",
+        "defaclnamespace",
+        "defaclobjtype",
+        "defaclacl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_db_role_setting",
+      "fields": [
+        "setdatabase",
+        "setrole",
+        "setconfig"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_parameter_acl",
+      "fields": [
+        "oid",
+        "parname",
+        "paracl"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_policy",
+      "fields": [
+        "oid",
+        "polname",
+        "polrelid",
+        "polcmd",
+        "polpermissive",
+        "polroles",
+        "polqual",
+        "polwithcheck"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_trigger",
+      "fields": [
+        "oid",
+        "tgrelid",
+        "tgparentid",
+        "tgname",
+        "tgfoid",
+        "tgtype",
+        "tgenabled",
+        "tgisinternal",
+        "tgconstraint",
+        "tgqual"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_rewrite",
+      "fields": [
+        "oid",
+        "rulename",
+        "ev_class",
+        "ev_type",
+        "ev_enabled",
+        "is_instead",
+        "ev_qual",
+        "ev_action"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_extension",
+      "fields": [
+        "oid",
+        "extname",
+        "extowner",
+        "extnamespace",
+        "extrelocatable",
+        "extversion"
+      ]
+    },
+    {
+      "source": "pg_catalog.pg_stat_activity",
+      "fields": [
+        "datid",
+        "pid",
+        "usesysid",
+        "usename",
+        "backend_start",
+        "backend_type"
+      ]
+    }
+  ],
+  "MUTATION_AUTHORITY": "NONE",
+  "CREATEROLE": "NO",
+  "SUPERUSER": "NO",
+  "BYPASSRLS": "NO",
+  "GENERIC_SQL_AUTHORITY": "NO_EXTERNALLY_EXPOSED_API",
+  "ARBITRARY_OBJECT_AUTHORITY": "NO",
+  "CREDENTIAL_SECRET_READ": "NO",
+  "grants": "Exact SELECT non-secret metadata columns/fixed read-only projections only; LOGIN+CONNECT+minimum schema USAGE. No memberships/SET ROLE/ADMIN/grant options/ownership/default privileges/host key paths",
+  "SQL_transport": "Proxy alone holds preauthenticated fixed-role SQL descriptor; immutable frontend builder emits only approved BEGIN READ ONLY REPEATABLE READ, fixed projection statements, COMMIT/ROLLBACK. Request carries no SQL/object/path/role selector. No module/recipient may obtain descriptor or credential",
+  "SECURITY_DEFINER": "Not used to bypass source visibility. A superuser definer or pg_read_all_stats membership is NOT silently adopted; if ordinary reader cannot read required facts, gate remains BLOCKED until exact weaker authority contract proven",
+  "stronger_reader_exception": "NONE approved in this gate",
+  "role_query_gate_source": {
+    "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+    "sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+    "pointer": "/"
+  },
+  "atomic_static_gap": "Frozen ExecutorStart/ProcessUtility hooks run after some parsing/planning work. Exact earliest pre-parse/frontend fixed-statement enforcement hook and effect-free query construction proof are not pinned; arbitrary-SQL transport confinement is not proved merely by naming a proxy",
+  "source_visibility_gap": "Frozen system_views.sql and pg_proc.dat name pg_stat_get_activity but do not include its native body/visibility checks. No non-superuser cross-role backend_start completeness proof from these files alone"
+}

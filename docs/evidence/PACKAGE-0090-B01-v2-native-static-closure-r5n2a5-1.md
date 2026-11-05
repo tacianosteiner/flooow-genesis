@@ -1,0 +1,13 @@
+# Package 0090 R5N.2A5.1 - parent_identity adjudication
+
+FAIL-CLOSED at the explicit section4 stop condition. S1 remains invalid for a fresh single SUPERVISOR with six unchanged child tuples. S2 is not admissible under the frozen process/enrollment and restart/custody contract. No semantics is selected and no witness, matrix or final V2-native recomputation is executed. Phase A remains CLOSED.
+
+The exact parent tuple is boot/namespaces/cgroup/retained pidfd/kernel-start/approved-binary identity, independently captured by HOST_PLATFORM before child enrollment. It is referential lineage AND an explicit component of canonical process_instance_identity, which enrollment binds. It is not a role grant, source of inherited authority, private-key derivation or custody ownership. These are distinct claims; parent mismatch still invalidates qualification.
+
+A new SUPERVISOR birth is not an alias of the old retained parent. Updating a hash cannot rewrite the existing child birth/descriptor provenance. The frozen lifecycle authorizes no in-place parent retarget and requires drain, fresh bootstrap/new generation and new key on child restart. That permitted route replaces non-referential child process/enrollment/credential identity, violating S2 preservation. A repeated numerical UID or identical allowed capability set would not preserve the old qualified authority identity.
+
+The identity decomposition exposes existing role/own-birth/lineage/authority/context/generation/custody/revocation fields without defining a new parent-free identity codec. Every case-insensitive literal substring occurrence of parent_identity across the frozen checkout (including compound names) is inventoried with file hash, byte offset and line; canonical semantic evidence is selected explicitly, not inferred from occurrence count.
+
+This is one conflict between candidate S2 and the accepted contract, under the existing N1-SUBSTITUTION-STATIC-WITNESSES blocker. No source-internal inconsistency, authority collapse, shared secret, extra top-level blocker or reopening of closed contracts is inferred. A new identity/lifecycle amendment would need separate authority; none is performed here.
+
+All 28 predecessor failures are individually adjudicated and retained as not recomputed, not passing. The section4 stop takes precedence over producing successful downstream witnesses. See stop-frontier.json for unexecuted stages and gate.json for final accounting. All implementation/build/runtime/SQL/DB/V043/B02/key/credential/signature/role/grant/staging/commit/push actions remain unperformed. NEXT_EXECUTED=false.

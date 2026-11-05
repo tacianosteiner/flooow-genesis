@@ -1,0 +1,1854 @@
+{
+  "revision": 5,
+  "scope": "TEST_ONLY_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "physical_instantiation_performed": false,
+  "runtime_proven": false,
+  "encoding": {
+    "frame": "ASCII FLOOOWR5 (8 bytes) || version u16be=1 || message_type u16be || sender u16be || recipient u16be || payload_size u32be || payload || signature64",
+    "payload": "u16be field count; fields in declared order, tag u16be (1-based), length u32be, payload; null payload=00; present=01||typed value",
+    "integers": "fixed-width big-endian; unsigned u16/u32/u64; i64 two-complement; checked range, overflow rejects",
+    "uuid": "16 network-order bytes, non-nil",
+    "bytes32": "exact 32 raw bytes",
+    "bytes64": "exact 64 raw bytes",
+    "bool": "one byte 00 or 01",
+    "utf8_nfc": "strict UTF8 already NFC; no normalization; reject NUL/control, empty identity or >4096 bytes",
+    "array": "u32be count, then u32be byte length + canonical typed element; ordered input preserves order; set sorted unsigned bytes and duplicates reject",
+    "bounds": "frame <=1048576 bytes; array count<=4096; lengths checked before allocating; policy-specific smaller limits also mandatory",
+    "invalid": "Unknown/reordered/duplicate/missing tags, unexpected NULL, noncanonical bytes, truncated/trailing bytes, unknown versions/types reject before effect",
+    "signature": "Ed25519 over complete frame excluding signature64; statically assigned sender public key from enrolled credential manifest; no algorithm/key selector",
+    "domain": "FLOOOW/B01/R5/TEST; signatures also bind message type, sender, recipient and qualification tuple; never canonical attestation authority"
+  },
+  "actor_enum": {
+    "POSTMASTER": 1,
+    "SUPERVISOR": 2,
+    "RECEIVER": 3,
+    "CENSUS_OBSERVER": 4,
+    "APPROVAL_PRODUCER": 5,
+    "APPROVAL_CONSUMER": 6,
+    "ENFORCEMENT_WORKER": 7,
+    "REGISTRY_WRITER": 8,
+    "REGISTRY_OBSERVER": 9,
+    "RESERVATION_WRITER": 10,
+    "STATE_WRITER": 11,
+    "OUTCOME_WRITER": 12,
+    "OUTCOME_OBSERVER": 13,
+    "AUDIT_WRITER": 14,
+    "AUDIT_OBSERVER": 15,
+    "GENERATION_WRITER": 16,
+    "EXTINCTION_OBSERVER": 17,
+    "EXTINCTION_WRITER": 18,
+    "FINAL_CONSUMER": 19,
+    "CONSUMER_OBSERVER": 20,
+    "POLICY_CUSTODIAN": 21,
+    "TRANSITION_WORKER": 22,
+    "CATALOG_OBSERVER": 23
+  },
+  "frames": [
+    {
+      "id": "R5/POSTMASTER/challenge",
+      "message_type": 101,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/POSTMASTER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "request_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "catalog_revision",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/POSTMASTER/response",
+      "message_type": 201,
+      "sender": "TEST/R5/POSTMASTER",
+      "recipient": "TEST/R5/CATALOG_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "backend_query_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "catalog_snapshot_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "completed_queries",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/POSTMASTER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/SUPERVISOR/challenge",
+      "message_type": 102,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/SUPERVISOR",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "spawn_plan_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "expected_child_slots",
+          "type": "u16_array",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/SUPERVISOR/response",
+      "message_type": 202,
+      "sender": "TEST/R5/SUPERVISOR",
+      "recipient": "TEST/R5/REGISTRY_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "child_anchor_set_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_receipt_set_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "completed_spawns",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/SUPERVISOR/SIGNING_KEY"
+    },
+    {
+      "id": "R5/RECEIVER/challenge",
+      "message_type": 103,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/RECEIVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "candidate_enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "expected_registry_revision",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/RECEIVER/response",
+      "message_type": 203,
+      "sender": "TEST/R5/RECEIVER",
+      "recipient": "TEST/R5/REGISTRY_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "validated_context_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "registry_commit_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "completed_enrollments",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/RECEIVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/CENSUS_OBSERVER/challenge",
+      "message_type": 104,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/CENSUS_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "anchor_set_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "snapshot_registry_revision",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/CENSUS_OBSERVER/response",
+      "message_type": 204,
+      "sender": "TEST/R5/CENSUS_OBSERVER",
+      "recipient": "TEST/R5/REGISTRY_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "census_set_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "discrepancy_set_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "completed_censuses",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/CENSUS_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/APPROVAL_PRODUCER/challenge",
+      "message_type": 105,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/APPROVAL_PRODUCER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "census_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "policy_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "expected_registry_revision",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/APPROVAL_PRODUCER/response",
+      "message_type": 205,
+      "sender": "TEST/R5/APPROVAL_PRODUCER",
+      "recipient": "TEST/R5/REGISTRY_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "approval_body_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "approval_signature",
+          "type": "bytes64",
+          "nullable": false
+        },
+        {
+          "name": "completed_approvals",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/APPROVAL_PRODUCER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/APPROVAL_CONSUMER/challenge",
+      "message_type": 106,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/APPROVAL_CONSUMER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "approval_body_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "approval_signature",
+          "type": "bytes64",
+          "nullable": false
+        },
+        {
+          "name": "expected_registry_revision",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/APPROVAL_CONSUMER/response",
+      "message_type": 206,
+      "sender": "TEST/R5/APPROVAL_CONSUMER",
+      "recipient": "TEST/R5/REGISTRY_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "one_use_publication_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "new_registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "completed_consumptions",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/APPROVAL_CONSUMER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/ENFORCEMENT_WORKER/challenge",
+      "message_type": 107,
+      "sender": "TEST/R5/REGISTRY_OBSERVER",
+      "recipient": "TEST/R5/ENFORCEMENT_WORKER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "retained_target_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "revocation_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "disposition",
+          "type": "u16",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/REGISTRY_OBSERVER/SIGNING_KEY"
+    },
+    {
+      "id": "R5/ENFORCEMENT_WORKER/response",
+      "message_type": 207,
+      "sender": "TEST/R5/ENFORCEMENT_WORKER",
+      "recipient": "TEST/R5/EXTINCTION_OBSERVER",
+      "fields": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "nullable": false
+        },
+        {
+          "name": "database_name",
+          "type": "utf8_nfc",
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "manifest_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "enrollment_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "actor_id",
+          "type": "u16",
+          "nullable": false
+        },
+        {
+          "name": "process_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "parent_identity_digest",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "backend_pid",
+          "type": "u32",
+          "nullable": true
+        },
+        {
+          "name": "backend_start_epoch_us",
+          "type": "i64",
+          "nullable": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "registry_revision",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "original_emitted_boottime_us",
+          "type": "u64",
+          "nullable": false
+        },
+        {
+          "name": "attempt_receipt",
+          "type": "bytes32",
+          "nullable": false
+        },
+        {
+          "name": "syscall_result",
+          "type": "i64",
+          "nullable": false
+        },
+        {
+          "name": "completed_attempts",
+          "type": "u64",
+          "nullable": false
+        }
+      ],
+      "nullable_fields": [
+        "backend_pid",
+        "backend_start_epoch_us"
+      ],
+      "allowed_ancillary": "Exactly one kernel SCM_PIDFD matching pre-enrolled sender; no SCM_RIGHTS after bootstrap; any extra ancillary/MSG_TRUNC/MSG_CTRUNC rejects and closes received extraneous descriptors",
+      "replay": "Strictly greater sequence, unused challenge, same current epoch/generation/registry revision; identical terminal duplicate returns retained receipt only, no new work",
+      "credential": "TEST/R5/ENFORCEMENT_WORKER/SIGNING_KEY"
+    }
+  ],
+  "no_caller_selected_operation_or_target": true,
+  "nullable_pair_rule": "backend PID/start either both present for backend-bound proof or both absent for native-only proof; absence never matches a backend",
+  "policy_freshness": "Immutable approved TEST policy contains positive finite max age and work deadline per slot; original BOOTTIME emission age and sequence checked before accept and before publish; no hard-coded time threshold from experimental heartbeat.h",
+  "signature_not_work_proof": true,
+  "complete_work_requires_independent_observation": true
+}

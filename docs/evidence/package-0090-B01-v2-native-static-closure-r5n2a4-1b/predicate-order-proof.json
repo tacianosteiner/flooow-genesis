@@ -1,0 +1,324 @@
+{
+  "predicates": [
+    {
+      "GAP_ID": "PREDICATE-01",
+      "PREDICATE_ID": "FUNCTION_CONFIG_SAFE",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_depend",
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.proconfig",
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_depend.objid",
+        "pg_catalog.pg_depend.refobjid"
+      ],
+      "PRODUCER_STEP_ID": "S07",
+      "CALLABLE_ID": "DESIGN/PURE_CONFIG_PREDICATE",
+      "CALLER_PRINCIPAL": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+      "EFFECTIVE_PRINCIPAL": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+      "AUTHORITY_SOURCE": "LOCAL_BOUNDED_FRAME_HANDOFF_NO_DATABASE_CAPABILITY",
+      "EVALUATION_LAYER": "LOCAL_PURE_TYPED_FRAME",
+      "EVALUATION_ORDER": 7,
+      "expression": {
+        "op": "AND",
+        "args": [
+          {
+            "op": "EXACT_APPROVED_PROCONFIG",
+            "args": [
+              "function"
+            ]
+          },
+          {
+            "op": "QUALIFIED_STATIC_DEPENDENCIES_ONLY",
+            "args": [
+              "function"
+            ]
+          },
+          {
+            "op": "NO_UNAPPROVED_SD_OR_OWNER_PATH",
+            "args": [
+              "function"
+            ]
+          }
+        ]
+      },
+      "TRUE_EFFECT": "Emit canonical TRUE with witness edges/conjuncts; no grant/execution/qualification authorization inferred",
+      "FALSE_EFFECT": "Emit canonical FALSE only after complete accepted input closure; no authority granted",
+      "NULL_EFFECT": "UNKNOWN rejects qualified receipt; no false/zero inference",
+      "REDACTION_EFFECT": "Raw metadata already confined/sanitized at S04/S05; missing predicate evidence is UNKNOWN. Stats NOT_ACQUIRED provenance separate from observed NULL.",
+      "OUTPUT_EFFECT": "Typed predicate observation; final qualification-input resolution remains a later gate",
+      "FAIL_CLOSED_BEHAVIOR": {
+        "failure": "Any input/session/source identity, cardinality, authorization, unsupported operation or provenance mismatch aborts entire snapshot before authority result. No fallback to broader role/query.",
+        "unknown": "Reject qualification; preserve uncertainty and NULL, never false/zero inferred",
+        "call_conditions": [
+          "unexpected opcode/field/type/relation",
+          "unbounded or malformed frame",
+          "credential/context/generation mismatch",
+          "unclassified implicit callback",
+          "missing effect evidence",
+          "unexpected source identity or source mutation",
+          "NULL essential identity",
+          "overflow/truncation",
+          "source privilege fallback required"
+        ]
+      },
+      "publication_proof": "Source gates run before exact source read; S04/S05 sanitize/hash before anything leaves trusted acquisition membrane. S06 frame stays internal pending S07/S08. S07/S08 consume no raw protected bytes; no predicate truth permits raw release. UNKNOWN never yields qualified receipt. This is approved contract order, not a runtime claim."
+    },
+    {
+      "GAP_ID": "PREDICATE-02",
+      "PREDICATE_ID": "HAS_BOOTSTRAP_AUTHORITY_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_proc",
+        "pg_catalog.pg_roles"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_roles.rolcreaterole",
+        "pg_catalog.pg_roles.rolsuper",
+        "pg_catalog.pg_proc.prosrc"
+      ],
+      "PRODUCER_STEP_ID": "S08",
+      "CALLABLE_ID": "DESIGN/PURE_EFFECT_PREDICATES",
+      "CALLER_PRINCIPAL": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+      "EFFECTIVE_PRINCIPAL": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+      "AUTHORITY_SOURCE": "LOCAL_BOUNDED_FRAME_HANDOFF_NO_DATABASE_CAPABILITY",
+      "EVALUATION_LAYER": "LOCAL_PURE_TYPED_FRAME",
+      "EVALUATION_ORDER": 8,
+      "expression": {
+        "op": "EXISTS_CALLABLE_EDGE_TO",
+        "args": [
+          "HOST_ROOT_OR_DEPLOYMENT_OR_CREATEROLE_OR_SUPERUSER"
+        ]
+      },
+      "TRUE_EFFECT": "Emit canonical TRUE with witness edges/conjuncts; no grant/execution/qualification authorization inferred",
+      "FALSE_EFFECT": "Emit canonical FALSE only after complete accepted input closure; no authority granted",
+      "NULL_EFFECT": "UNKNOWN rejects qualified receipt; no false/zero inference",
+      "REDACTION_EFFECT": "Raw metadata already confined/sanitized at S04/S05; missing predicate evidence is UNKNOWN. Stats NOT_ACQUIRED provenance separate from observed NULL.",
+      "OUTPUT_EFFECT": "Typed predicate observation; final qualification-input resolution remains a later gate",
+      "FAIL_CLOSED_BEHAVIOR": {
+        "failure": "Any input/session/source identity, cardinality, authorization, unsupported operation or provenance mismatch aborts entire snapshot before authority result. No fallback to broader role/query.",
+        "unknown": "Reject qualification; preserve uncertainty and NULL, never false/zero inferred",
+        "call_conditions": [
+          "unexpected opcode/field/type/relation",
+          "unbounded or malformed frame",
+          "credential/context/generation mismatch",
+          "unclassified implicit callback",
+          "missing effect evidence",
+          "unexpected source identity or source mutation",
+          "NULL essential identity",
+          "overflow/truncation",
+          "source privilege fallback required"
+        ]
+      },
+      "publication_proof": "Source gates run before exact source read; S04/S05 sanitize/hash before anything leaves trusted acquisition membrane. S06 frame stays internal pending S07/S08. S07/S08 consume no raw protected bytes; no predicate truth permits raw release. UNKNOWN never yields qualified receipt. This is approved contract order, not a runtime claim."
+    },
+    {
+      "GAP_ID": "PREDICATE-03",
+      "PREDICATE_ID": "HAS_SECURITY_DEFINER_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.prosecdef",
+        "pg_catalog.pg_proc.proowner",
+        "pg_catalog.pg_proc.proacl",
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_proc.proconfig"
+      ],
+      "PRODUCER_STEP_ID": "S08",
+      "CALLABLE_ID": "DESIGN/PURE_EFFECT_PREDICATES",
+      "CALLER_PRINCIPAL": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+      "EFFECTIVE_PRINCIPAL": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+      "AUTHORITY_SOURCE": "LOCAL_BOUNDED_FRAME_HANDOFF_NO_DATABASE_CAPABILITY",
+      "EVALUATION_LAYER": "LOCAL_PURE_TYPED_FRAME",
+      "EVALUATION_ORDER": 8,
+      "expression": {
+        "op": "EXISTS_REACHABLE_FUNCTION",
+        "args": [
+          "function.prosecdef=true",
+          "caller_execute_and_schema_usage",
+          "owner_role",
+          "verified_body_effect_graph"
+        ]
+      },
+      "TRUE_EFFECT": "Emit canonical TRUE with witness edges/conjuncts; no grant/execution/qualification authorization inferred",
+      "FALSE_EFFECT": "Emit canonical FALSE only after complete accepted input closure; no authority granted",
+      "NULL_EFFECT": "UNKNOWN rejects qualified receipt; no false/zero inference",
+      "REDACTION_EFFECT": "Raw metadata already confined/sanitized at S04/S05; missing predicate evidence is UNKNOWN. Stats NOT_ACQUIRED provenance separate from observed NULL.",
+      "OUTPUT_EFFECT": "Typed predicate observation; final qualification-input resolution remains a later gate",
+      "FAIL_CLOSED_BEHAVIOR": {
+        "failure": "Any input/session/source identity, cardinality, authorization, unsupported operation or provenance mismatch aborts entire snapshot before authority result. No fallback to broader role/query.",
+        "unknown": "Reject qualification; preserve uncertainty and NULL, never false/zero inferred",
+        "call_conditions": [
+          "unexpected opcode/field/type/relation",
+          "unbounded or malformed frame",
+          "credential/context/generation mismatch",
+          "unclassified implicit callback",
+          "missing effect evidence",
+          "unexpected source identity or source mutation",
+          "NULL essential identity",
+          "overflow/truncation",
+          "source privilege fallback required"
+        ]
+      },
+      "publication_proof": "Source gates run before exact source read; S04/S05 sanitize/hash before anything leaves trusted acquisition membrane. S06 frame stays internal pending S07/S08. S07/S08 consume no raw protected bytes; no predicate truth permits raw release. UNKNOWN never yields qualified receipt. This is approved contract order, not a runtime claim."
+    },
+    {
+      "GAP_ID": "PREDICATE-04",
+      "PREDICATE_ID": "HAS_UNEXPECTED_CREDENTIAL_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_db_role_setting",
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_proc.proconfig",
+        "pg_catalog.pg_db_role_setting.setconfig"
+      ],
+      "PRODUCER_STEP_ID": "S08",
+      "CALLABLE_ID": "DESIGN/PURE_EFFECT_PREDICATES",
+      "CALLER_PRINCIPAL": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+      "EFFECTIVE_PRINCIPAL": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+      "AUTHORITY_SOURCE": "LOCAL_BOUNDED_FRAME_HANDOFF_NO_DATABASE_CAPABILITY",
+      "EVALUATION_LAYER": "LOCAL_PURE_TYPED_FRAME",
+      "EVALUATION_ORDER": 8,
+      "expression": {
+        "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+        "args": [
+          "READ_TRANSFER_DUPLICATE_PRIVATE_KEY_OR_DB_CHANNEL"
+        ]
+      },
+      "TRUE_EFFECT": "Emit canonical TRUE with witness edges/conjuncts; no grant/execution/qualification authorization inferred",
+      "FALSE_EFFECT": "Emit canonical FALSE only after complete accepted input closure; no authority granted",
+      "NULL_EFFECT": "UNKNOWN rejects qualified receipt; no false/zero inference",
+      "REDACTION_EFFECT": "Raw metadata already confined/sanitized at S04/S05; missing predicate evidence is UNKNOWN. Stats NOT_ACQUIRED provenance separate from observed NULL.",
+      "OUTPUT_EFFECT": "Typed predicate observation; final qualification-input resolution remains a later gate",
+      "FAIL_CLOSED_BEHAVIOR": {
+        "failure": "Any input/session/source identity, cardinality, authorization, unsupported operation or provenance mismatch aborts entire snapshot before authority result. No fallback to broader role/query.",
+        "unknown": "Reject qualification; preserve uncertainty and NULL, never false/zero inferred",
+        "call_conditions": [
+          "unexpected opcode/field/type/relation",
+          "unbounded or malformed frame",
+          "credential/context/generation mismatch",
+          "unclassified implicit callback",
+          "missing effect evidence",
+          "unexpected source identity or source mutation",
+          "NULL essential identity",
+          "overflow/truncation",
+          "source privilege fallback required"
+        ]
+      },
+      "publication_proof": "Source gates run before exact source read; S04/S05 sanitize/hash before anything leaves trusted acquisition membrane. S06 frame stays internal pending S07/S08. S07/S08 consume no raw protected bytes; no predicate truth permits raw release. UNKNOWN never yields qualified receipt. This is approved contract order, not a runtime claim."
+    },
+    {
+      "GAP_ID": "PREDICATE-05",
+      "PREDICATE_ID": "HAS_UNEXPECTED_OBSERVATION_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_db_role_setting",
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.proconfig",
+        "pg_catalog.pg_db_role_setting.setconfig",
+        "pg_catalog.pg_proc.prosrc"
+      ],
+      "PRODUCER_STEP_ID": "S08",
+      "CALLABLE_ID": "DESIGN/PURE_EFFECT_PREDICATES",
+      "CALLER_PRINCIPAL": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+      "EFFECTIVE_PRINCIPAL": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+      "AUTHORITY_SOURCE": "LOCAL_BOUNDED_FRAME_HANDOFF_NO_DATABASE_CAPABILITY",
+      "EVALUATION_LAYER": "LOCAL_PURE_TYPED_FRAME",
+      "EVALUATION_ORDER": 8,
+      "expression": {
+        "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+        "args": [
+          "READ_OTHER_SLOT_SECRET_OR_UNAPPROVED_METADATA"
+        ]
+      },
+      "TRUE_EFFECT": "Emit canonical TRUE with witness edges/conjuncts; no grant/execution/qualification authorization inferred",
+      "FALSE_EFFECT": "Emit canonical FALSE only after complete accepted input closure; no authority granted",
+      "NULL_EFFECT": "UNKNOWN rejects qualified receipt; no false/zero inference",
+      "REDACTION_EFFECT": "Raw metadata already confined/sanitized at S04/S05; missing predicate evidence is UNKNOWN. Stats NOT_ACQUIRED provenance separate from observed NULL.",
+      "OUTPUT_EFFECT": "Typed predicate observation; final qualification-input resolution remains a later gate",
+      "FAIL_CLOSED_BEHAVIOR": {
+        "failure": "Any input/session/source identity, cardinality, authorization, unsupported operation or provenance mismatch aborts entire snapshot before authority result. No fallback to broader role/query.",
+        "unknown": "Reject qualification; preserve uncertainty and NULL, never false/zero inferred",
+        "call_conditions": [
+          "unexpected opcode/field/type/relation",
+          "unbounded or malformed frame",
+          "credential/context/generation mismatch",
+          "unclassified implicit callback",
+          "missing effect evidence",
+          "unexpected source identity or source mutation",
+          "NULL essential identity",
+          "overflow/truncation",
+          "source privilege fallback required"
+        ]
+      },
+      "publication_proof": "Source gates run before exact source read; S04/S05 sanitize/hash before anything leaves trusted acquisition membrane. S06 frame stays internal pending S07/S08. S07/S08 consume no raw protected bytes; no predicate truth permits raw release. UNKNOWN never yields qualified receipt. This is approved contract order, not a runtime claim."
+    },
+    {
+      "GAP_ID": "PREDICATE-06",
+      "PREDICATE_ID": "HAS_UNEXPECTED_WRITE_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_policy",
+        "pg_catalog.pg_proc",
+        "pg_catalog.pg_rewrite",
+        "pg_catalog.pg_trigger"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_proc.prosecdef",
+        "pg_catalog.pg_policy.polqual",
+        "pg_catalog.pg_trigger.tgqual",
+        "pg_catalog.pg_rewrite.ev_action"
+      ],
+      "PRODUCER_STEP_ID": "S08",
+      "CALLABLE_ID": "DESIGN/PURE_EFFECT_PREDICATES",
+      "CALLER_PRINCIPAL": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+      "EFFECTIVE_PRINCIPAL": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+      "AUTHORITY_SOURCE": "LOCAL_BOUNDED_FRAME_HANDOFF_NO_DATABASE_CAPABILITY",
+      "EVALUATION_LAYER": "LOCAL_PURE_TYPED_FRAME",
+      "EVALUATION_ORDER": 8,
+      "expression": {
+        "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+        "args": [
+          "WRITE_OR_ROLE_GRANT_OR_CREATE_OR_SIGNAL"
+        ]
+      },
+      "TRUE_EFFECT": "Emit canonical TRUE with witness edges/conjuncts; no grant/execution/qualification authorization inferred",
+      "FALSE_EFFECT": "Emit canonical FALSE only after complete accepted input closure; no authority granted",
+      "NULL_EFFECT": "UNKNOWN rejects qualified receipt; no false/zero inference",
+      "REDACTION_EFFECT": "Raw metadata already confined/sanitized at S04/S05; missing predicate evidence is UNKNOWN. Stats NOT_ACQUIRED provenance separate from observed NULL.",
+      "OUTPUT_EFFECT": "Typed predicate observation; final qualification-input resolution remains a later gate",
+      "FAIL_CLOSED_BEHAVIOR": {
+        "failure": "Any input/session/source identity, cardinality, authorization, unsupported operation or provenance mismatch aborts entire snapshot before authority result. No fallback to broader role/query.",
+        "unknown": "Reject qualification; preserve uncertainty and NULL, never false/zero inferred",
+        "call_conditions": [
+          "unexpected opcode/field/type/relation",
+          "unbounded or malformed frame",
+          "credential/context/generation mismatch",
+          "unclassified implicit callback",
+          "missing effect evidence",
+          "unexpected source identity or source mutation",
+          "NULL essential identity",
+          "overflow/truncation",
+          "source privilege fallback required"
+        ]
+      },
+      "publication_proof": "Source gates run before exact source read; S04/S05 sanitize/hash before anything leaves trusted acquisition membrane. S06 frame stays internal pending S07/S08. S07/S08 consume no raw protected bytes; no predicate truth permits raw release. UNKNOWN never yields qualified receipt. This is approved contract order, not a runtime claim."
+    }
+  ],
+  "complete_order": [
+    "S01",
+    "S02",
+    "S03",
+    "S04",
+    "S05",
+    "S06",
+    "S07",
+    "S08"
+  ],
+  "no_raw_protected_release_in_any_truth_branch": true,
+  "qualification_polarity_not_invented": true
+}

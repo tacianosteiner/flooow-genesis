@@ -1,0 +1,4330 @@
+{
+  "participants": [
+    {
+      "PARTICIPANT": "POSTMASTER",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 1,
+        "class": "PRIVATE_TEST_ENGINE_OS_UID",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "POSTMASTER",
+          "PRINCIPAL_CLASS": "PRIVATE_TEST_ENGINE_OS_UID",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "private TEST engine housekeeping only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "SUPERVISOR",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "HOST-held expected server endpoint manifest; no fabricated native POSTMASTER signing key",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "POSTMASTER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "POSTMASTER",
+        "CUSTODIAN": "HOST-held expected server endpoint authentication manifest, no fabricated POSTMASTER message key",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/0",
+          "canonical_fact_sha256": "73dd266df75e6c12a13ac8ff2a5e39ae9c90445a486433b147b1a533689cf6de",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/0",
+          "canonical_fact_sha256": "e115f2b9dee549a397092a04c52823211ebd558baa6b3aa4110194b95a13d742",
+          "fact": {
+            "PARTICIPANT_ID": "POSTMASTER",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": true,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "A database engine must manage its own private storage/children to perform source-mandated catalog probes; read-only OS process cannot start it. This grants no SQL superuser/login credential or arbitrary command to a native participant caller"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/0",
+          "canonical_fact_sha256": "186a725bd8e2e6def53abbc420d2ae3e5bab80fa5bced1d00cecfd2cae556ff8",
+          "fact": {
+            "PARTICIPANT_ID": "POSTMASTER",
+            "PRINCIPAL_CLASS": "PRIVATE_TEST_ENGINE_OS_UID",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "private TEST engine housekeeping only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/0",
+          "canonical_fact_sha256": "37f1fbb89e3eed97c8898536aa4085325cfacee6436dd7f4c5a91215ea888d06",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "POSTMASTER/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "POSTMASTER",
+            "CUSTODIAN": "HOST-held expected server endpoint authentication manifest, no fabricated POSTMASTER message key",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    },
+    {
+      "PARTICIPANT": "SUPERVISOR",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 2,
+        "class": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "SUPERVISOR",
+          "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "HOST_PLATFORM",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "Private slot/purpose/generation native transport key plus distinct one-use work authorization",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "SUPERVISOR/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "SUPERVISOR",
+        "CUSTODIAN": "SUPERVISOR",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "HOST_PLATFORM bootstrap retained parent",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/1",
+          "canonical_fact_sha256": "9fd686c389be0632acecf0801366a426708577803266b7db5e0f273a97215535",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/1",
+          "canonical_fact_sha256": "f5400c9aede43884eb8748c24d9b486b82657e68ed58d82a87426fa249236154",
+          "fact": {
+            "PARTICIPANT_ID": "SUPERVISOR",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "HOST_PLATFORM",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": true,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "NO_ENGINE_EXCEPTION"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/1",
+          "canonical_fact_sha256": "a67ce18a49956026f8173aad88bdff97aa46e3ba5296cd60f4f704a9e9473d0d",
+          "fact": {
+            "PARTICIPANT_ID": "SUPERVISOR",
+            "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/1",
+          "canonical_fact_sha256": "eccf4d8ec3cfe4fc2b7a345a10aff5cf30860e4ce523ac4238da9916e919ebee",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "SUPERVISOR/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "SUPERVISOR",
+            "CUSTODIAN": "SUPERVISOR",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    },
+    {
+      "PARTICIPANT": "RECEIVER",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 3,
+        "class": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "RECEIVER",
+          "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "SUPERVISOR",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "Private slot/purpose/generation native transport key plus distinct one-use work authorization",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "RECEIVER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "RECEIVER",
+        "CUSTODIAN": "RECEIVER",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/2",
+          "canonical_fact_sha256": "2679070ecefa40deccdc44f4def6744052cda83be19a5febf34b66f7638b5fd0",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/2",
+          "canonical_fact_sha256": "cb8f35ba73a72b7279e1ab4d1d303c5f194dadb4e98f82ec5f2975efd78eb493",
+          "fact": {
+            "PARTICIPANT_ID": "RECEIVER",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": false,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "NO_ENGINE_EXCEPTION"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/2",
+          "canonical_fact_sha256": "bdbf84905e57767886dfc2e820fdc4e66b884b52308b7f2099e61ba1a398ebd4",
+          "fact": {
+            "PARTICIPANT_ID": "RECEIVER",
+            "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/2",
+          "canonical_fact_sha256": "f327b862e26576b9720bb14ea641e15ebbf0242f2c7b8074208a995069967265",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "RECEIVER/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "RECEIVER",
+            "CUSTODIAN": "RECEIVER",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    },
+    {
+      "PARTICIPANT": "CENSUS_OBSERVER",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 4,
+        "class": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "CENSUS_OBSERVER",
+          "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "SUPERVISOR",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "Private slot/purpose/generation native transport key plus distinct one-use work authorization",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "CENSUS_OBSERVER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "CENSUS_OBSERVER",
+        "CUSTODIAN": "CENSUS_OBSERVER",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/3",
+          "canonical_fact_sha256": "5e5718c8b3fffb76aa45f2389e70da9ec8d071e9a260d0e6a4f4649ba386cd3f",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/3",
+          "canonical_fact_sha256": "c44e3927044c09cc7d1e4378b98c683cd2ed606b8d4fd5c4ec5575255eb26252",
+          "fact": {
+            "PARTICIPANT_ID": "CENSUS_OBSERVER",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": false,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16,
+                6
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "NO_ENGINE_EXCEPTION"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/3",
+          "canonical_fact_sha256": "33450fa94e9b8e8e66d86f9a7620226bca17d812d3b17a4641fac0f2dfbe38b0",
+          "fact": {
+            "PARTICIPANT_ID": "CENSUS_OBSERVER",
+            "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/3",
+          "canonical_fact_sha256": "5ded24dbd6904e0af6a1c2c8691693b31adebd3cfd276dba7ae110cf8aacca00",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "CENSUS_OBSERVER/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "CENSUS_OBSERVER",
+            "CUSTODIAN": "CENSUS_OBSERVER",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    },
+    {
+      "PARTICIPANT": "APPROVAL_PRODUCER",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 5,
+        "class": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "APPROVAL_PRODUCER",
+          "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "SUPERVISOR",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "Private slot/purpose/generation native transport key plus distinct one-use work authorization",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "APPROVAL_PRODUCER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "APPROVAL_PRODUCER",
+        "CUSTODIAN": "APPROVAL_PRODUCER",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/4",
+          "canonical_fact_sha256": "948283728385e2da4a0124a10ad1ac9c6c0c4132b63c18c3bd5d3e855fe4f021",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/4",
+          "canonical_fact_sha256": "31997d966b65f3114c5bc22ac0b08c120cd9f0f88c45ec78600192e9e4c625e3",
+          "fact": {
+            "PARTICIPANT_ID": "APPROVAL_PRODUCER",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": false,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "NO_ENGINE_EXCEPTION"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/4",
+          "canonical_fact_sha256": "e568aa826c832acd190af8527ecdfab42f39aa2694517f4c9942d62dec0ab7db",
+          "fact": {
+            "PARTICIPANT_ID": "APPROVAL_PRODUCER",
+            "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/4",
+          "canonical_fact_sha256": "1aa10a968c492271d35a79109945c006507654897dc6a369aeddc97503ddc224",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "APPROVAL_PRODUCER/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "APPROVAL_PRODUCER",
+            "CUSTODIAN": "APPROVAL_PRODUCER",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    },
+    {
+      "PARTICIPANT": "APPROVAL_CONSUMER",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 6,
+        "class": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "APPROVAL_CONSUMER",
+          "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "SUPERVISOR",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "Private slot/purpose/generation native transport key plus distinct one-use work authorization",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "APPROVAL_CONSUMER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "APPROVAL_CONSUMER",
+        "CUSTODIAN": "APPROVAL_CONSUMER",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/5",
+          "canonical_fact_sha256": "ec813a252cf5b42795b3e49406a5bbd7379fe0f9672fc28f67c2a3b8061dfbac",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/5",
+          "canonical_fact_sha256": "1c063b0bcd99e93bba7b8423e44d8e282bf50a28dc8bac3d76eec0ceffcaf30e",
+          "fact": {
+            "PARTICIPANT_ID": "APPROVAL_CONSUMER",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": false,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16,
+                7,
+                8,
+                9,
+                10,
+                11
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "NO_ENGINE_EXCEPTION"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/5",
+          "canonical_fact_sha256": "af38a4e15dbe44d6fc22034a2648cbe53b598e101d82a8ab889cb0ae7d89e25a",
+          "fact": {
+            "PARTICIPANT_ID": "APPROVAL_CONSUMER",
+            "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/5",
+          "canonical_fact_sha256": "06dc8663e2f1f96eaf06e60ec2adee1a982e7f29193198b15a7f1084de9fc89b",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "APPROVAL_CONSUMER/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "APPROVAL_CONSUMER",
+            "CUSTODIAN": "APPROVAL_CONSUMER",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    },
+    {
+      "PARTICIPANT": "ENFORCEMENT_WORKER",
+      "PRINCIPAL_IDENTITY": {
+        "logical_slot": 7,
+        "class": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+        "physical_numeric_UID": "FUTURE_ALLOCATION; distinct concurrent slots, no requirement same or new number across generations"
+      },
+      "AUTHORITY_IDENTITY": {
+        "stable_role_scope": {
+          "PARTICIPANT_ID": "ENFORCEMENT_WORKER",
+          "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+          "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+          "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+          "SET_ROLE_POLICY": "DENY",
+          "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+          "ADMIN_OPTION_POLICY": "DENY",
+          "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+          "CREATEROLE_POLICY": "DENY",
+          "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+          "BYPASSRLS_POLICY": "DENY",
+          "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+          "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+          "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+          "ALLOWED_CAPABILITY_CLASSES": [
+            "exact native message/work type",
+            "read fixed sealed/public inputs",
+            "role-specific isolated operation"
+          ],
+          "FORBIDDEN_CAPABILITY_CLASSES": [
+            "arbitrary SQL",
+            "shell",
+            "arbitrary path/module/target",
+            "host/admin/shared Package privilege",
+            "generic native worker"
+          ],
+          "MUTATION_AUTHORITY": "fixed one-target native enforcement only",
+          "READ_AUTHORITY": "Only exact approved role resources",
+          "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+          "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+          "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+        },
+        "generation_bound_subject": "process/enrollment and exact current label subject/generation bindings, renewed on fresh spawn"
+      },
+      "PROCESS_IDENTITY": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "GENERATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "INCARNATION_IDENTITY": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        }
+      ],
+      "PARENT_IDENTITY": {
+        "expected_class": "SUPERVISOR",
+        "schema": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "not_live_lookup": true
+      },
+      "CREDENTIAL_IDENTITY": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "KEY_IDENTITY": {
+        "kind": "Private slot/purpose/generation native transport key plus distinct one-use work authorization",
+        "actual_material": "NOT_CREATED"
+      },
+      "CUSTODY_IDENTITY": {
+        "CREDENTIAL_ID_CLASS": "ENFORCEMENT_WORKER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "ENFORCEMENT_WORKER",
+        "CUSTODIAN": "ENFORCEMENT_WORKER",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "REVOCATION_IDENTITY": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "QUALIFICATION_IDENTITY": [
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "source_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "build_recipe_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binary_module_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "dependency_set_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "loader_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "RESTART_DEPENDENCIES": {
+        "parent": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase",
+        "restart": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "spawn": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+      },
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+          "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+          "pointer": "/participants/6",
+          "canonical_fact_sha256": "4ef1068751e58b4310cb508f764e5fa1b60e36f9f1c6f004e708d293a1a2ee22",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 24
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+          "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+          "pointer": "/profiles/6",
+          "canonical_fact_sha256": "4ab0bab1daa1d83b9e5a5e4ca87b8352c2af7ddcc848721adf9c5c68f9816e53",
+          "fact": {
+            "PARTICIPANT_ID": "ENFORCEMENT_WORKER",
+            "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+            "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+            "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+            "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+            "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+            "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+            "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+            "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+            "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+            "CHILD_CREATION_ALLOWED": false,
+            "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+            "SIBLING_COMMUNICATION_ALLOWED": false,
+            "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+            "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+            "INHERITED_DESCRIPTOR_POLICY": {
+              "protected_fd_numbers": [
+                3,
+                5,
+                16,
+                6
+              ],
+              "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+              "temporary_fds": "fstat/close only, never replace protected fd or label"
+            },
+            "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+            "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+            "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+            "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+            "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+            "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+            "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+            "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+            "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+            "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+            "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+            "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+            "forbidden_syscalls": [
+              "execve",
+              "execveat",
+              "ptrace",
+              "process_vm_writev",
+              "process_vm_readv",
+              "pidfd_open",
+              "pidfd_getfd",
+              "kill",
+              "tkill",
+              "tgkill",
+              "bpf",
+              "perf_event_open",
+              "mount",
+              "umount2",
+              "pivot_root",
+              "chroot",
+              "setns",
+              "unshare",
+              "io_uring_setup",
+              "io_uring_enter",
+              "io_uring_register",
+              "keyctl",
+              "add_key",
+              "request_key",
+              "open_by_handle_at",
+              "init_module",
+              "finit_module",
+              "delete_module",
+              "reboot",
+              "kexec_load",
+              "setuid",
+              "setgid",
+              "setresuid",
+              "setresgid",
+              "capset"
+            ],
+            "postmaster_exception_necessity": "NO_ENGINE_EXCEPTION"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+          "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+          "pointer": "/profiles/6",
+          "canonical_fact_sha256": "8e3fa65640726182fa0c672857f0cf13e06153813ffcb5619e39dc6f63714b7b",
+          "fact": {
+            "PARTICIPANT_ID": "ENFORCEMENT_WORKER",
+            "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+            "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+            "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+            "SET_ROLE_POLICY": "DENY",
+            "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+            "ADMIN_OPTION_POLICY": "DENY",
+            "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+            "CREATEROLE_POLICY": "DENY",
+            "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+            "BYPASSRLS_POLICY": "DENY",
+            "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+            "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+            "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+            "ALLOWED_CAPABILITY_CLASSES": [
+              "exact native message/work type",
+              "read fixed sealed/public inputs",
+              "role-specific isolated operation"
+            ],
+            "FORBIDDEN_CAPABILITY_CLASSES": [
+              "arbitrary SQL",
+              "shell",
+              "arbitrary path/module/target",
+              "host/admin/shared Package privilege",
+              "generic native worker"
+            ],
+            "MUTATION_AUTHORITY": "fixed one-target native enforcement only",
+            "READ_AUTHORITY": "Only exact approved role resources",
+            "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+            "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+            "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/6",
+          "canonical_fact_sha256": "d43c84a7dbd87011928465b348fbd9781cc21dfb099fdf4c9daf3754084b37fb",
+          "fact": {
+            "CREDENTIAL_ID_CLASS": "ENFORCEMENT_WORKER/TEST_GENERATION_TRANSPORT",
+            "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+            "RECIPIENT_PARTICIPANT": "ENFORCEMENT_WORKER",
+            "CUSTODIAN": "ENFORCEMENT_WORKER",
+            "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+            "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+            "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+            "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+            "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+            "TRANSFER_ALLOWED": false,
+            "TRANSFER_TARGETS": [],
+            "DUPLICATION_ALLOWED": false,
+            "INHERITANCE_ALLOWED": false,
+            "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+            "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+            "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+            "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+            "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+            "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+            "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+            "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+            "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+            "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+            "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+            "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+            "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+            "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+          }
+        }
+      ]
+    }
+  ],
+  "reader": "AUXILIARY_READ_PROXY_NOT_ONE_OF_SEVEN_NATIVE_PARTICIPANTS",
+  "scope": "Slot/role identities, qualified instance identities, concurrent distinction and lifecycle preservation are different dimensions."
+}

@@ -1,0 +1,11 @@
+# Package0090 R5N.2A5.3 - canonical negative attack witnesses
+
+Primary evaluation materializes every frozen case separately against the accepted symbolic contract model. No production code, physical identity, key, credential or signature is created. Typed expected/observed variables are universally quantified placeholders tied to independently approved source fields, not fabricated measured values. Each attack carries its own participant, actual emitter, target, baseline, exact mutation, source predicates and computed trace. No representative case is extrapolated to six other participants or to real generations.
+
+The350IDs and the133/217input partition are frozen. Original structured candidates are retained and independently checked, with supplemental exact mutations and non-equality currentness/one-use/peer constraints recorded. Missing witnesses are not labeled attack failures. A calculated missing-required-input denial is distinct from missing canonical proof. Invalid and duplicate removals require explicit records; no cases are silently removed.
+
+Replay attempts target new work/clock/authority, not permitted identical terminal receipt reads. Search-path attempts target redirection, not denial of a harmless fixed qualified operation. POSTMASTER is a subject with endpoint identity and CENSUS-emitted observation, never a fabricated POSTMASTER signing key. Raw protected stats NULLs remain distinct from separately bound bridge-selected facts.
+
+S1/S2remainNO and OutcomeB remains frozen. Valid ACTIVE restart still requires full7drain/fresh generations, six private transport keys plus renewed POSTMASTER endpoint identity, and all70input requalification. Dependent restart is not authority collapse. All implementation/build/runtime/physical-privilege proofs remain future.
+
+Primary classifications are subject to independent witness/attack/accounting review. N1 and root-cause decisions are computed only afterward; nothing in this report alone promotes native design status. See evidence-index.json, typed-baselines.json, canonical-predicate-bindings.json, both materialization/revalidation ledgers and attack-evaluation-ledger.json for complete source-backed calculations. No tracked or prior evidence mutation, SQL/DB/native execution, V043/B02, key/signature creation, staging, commit or push. NEXT_EXECUTED=false.

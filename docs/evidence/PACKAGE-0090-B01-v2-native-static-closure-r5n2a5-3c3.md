@@ -1,0 +1,33 @@
+# Package0090 A5.3C.3 — canonical internal obligation universe constitution
+
+SELECTED_OUTCOME=B — CANONICAL_UNIVERSE_NOT_ESTABLISHED. STOP. Normative source statements were extracted independently of the three candidate dimensions and historical15. The obstacle is material case-membership and completeness ambiguity, not absence of all native security rules and not an invented authority conflict.
+
+## Authority first
+
+source-authority-ladder.json separates adopted ADR/SPEC TEST authorization, evidence of already accepted native contract facts, and diagnostic/descriptive records. Evidence files do not acquire authority to create new obligations or original-case attribution. Their recorded accepted constraints retain only their actual subject/object/scope. No date, greater detail or file label is treated as supersession authority. All inspected source bytes remain frozen. Generic delivery/private-material wording does not assert a POSTMASTER native signing key; specialized endpoint/observer semantics and trusted bootstrap exceptions retain their approved scope. A5.2 explicitly invalidated old strict restart-preservation expectations, while concurrent principal independence remains. No materially conflicting precedence or positive frozen-requirement contradiction was found in the extracted source set.
+
+## Independent normative extraction
+
+The exact field statements of POSTMASTER custody, class3 endpoint, authority and execution contracts are extracted alongside the ADR/SPEC TEST envelope, original required negative case and original pairwise principal relation. Typed issuer/recipient/class/role declarations retain their possible binding/contextual constraint force; no standalone atomic duty is inferred from them. Boolean prohibitions and accepted constraint fields retain their actual strength; a source-field candidate is not automatically a minimal atomic canonical obligation. Preconditions, scopes, exceptions and fail-closed context are retained without selecting a concrete inherited object or transition. Compound fields are marked rather than split to fit any target N.
+
+obligation-membership-classification.json assigns each candidate once. Only the two TEST authority-envelope records and full I13 have certified external classification in this candidate set. Full I13 is EXTERNAL_CROSS_CUTTING as independently reconstructed and preserved by authoritative C.1. Other typed context, identity, custody, authority, execution and lifecycle source fields plus the original required case remain AMBIGUOUS for exclusive original-case membership. A rule applying more broadly than succession does not prove absence of an internal projection. No property is waived. Source semantics, not the presence of a word, drive that result. Q1/Q2 preserve uncertainty where answering would require choosing the original case's extensional object/transition. No rejected claim becomes effective authority or surviving validity.
+
+N1/new_cases/2 has a generic required predicate; N2/cases170 still leaves exact mapping pending; A3's referent adjudication identifies a policy requirement, not an actual credential instance. These diagnostic facts reveal missing attribution but create no new duty. General class3 rules prohibit operational credential inheritance with pre-enrollment inventory exception, yet do not independently delimit all atomic internal obligations of this original POSTMASTER case. Public expected manifest remains distinct from private descriptor/material; credential-bearing semantics cannot be inferred by label.
+
+## Constitution fails closed
+
+The first primary taxonomy was rejected by independent review: issuer/recipient declarations were too readily treated as merely descriptive, and broad rules were assigned exclusively external/neighboring membership without sufficient proof. Its77external/10descriptive/7neighbor/14ambiguous counts are withdrawn and archived under primary-rejected with the two FAIL reviews. Corrected active records preserve contextual normativity and unresolved membership; no downstream validation resumes.
+
+No stable canonical internal N is asserted, including zero or15. Membership ambiguity prevents a certified internal atomic set. Atomicity/equivalence, numeric denominator stability, leave-one-out/pairwise minimality and sufficiency cannot receive PASS values. The negative-space rescan covers prohibitions, failures, substitution/concurrency, birth/identity, authority/custody/binding, lifecycle/conditions, revocation/replacement/parent-child/independence and closed-source diagnostic findings; material unresolved candidates remain. No source occurrence is deduplicated into a weaker norm, no conjunction is invented and no requirement is added.
+
+Only after independent extraction/classification and failed constitution is the historical15 opened for comparison/provenance. Its exact/partial/unsupported counts are NOT_ESTABLISHED because there is no certified canonical universe to compare. General relevance is not an exact match and missing internal attribution is not a demonstrated absence of canonical constraints. Historical counts are not rewritten.
+
+The required future semantic questions are recorded verbatim in canonical-obligation-universe.json: exact independently established inherited object; exact source/successor and transition/phase; object-transition-to-POSTMASTER context binding; internal-versus-external/neighboring scope including exceptions; and authoritative exhaustive atomic boundary. No answer, normative repair, new class/authority, fourth dimension or decomposition validation is supplied here.
+
+## Frozen accounting and independent review
+
+I13 remains integral, mandatory, external and not an internal credential-family obligation; no contradiction with C.1. N1 qualification CLOSED/substitution OPEN;12decisions=11closed+1open. V2 static proof FAIL/status BLOCKED. Obligation N is NOT_ESTABLISHED and distinct from350frozen attack IDs. Zero attacks materialized/evaluated,398prior checks separate. No root-cause promotion.
+
+Independent14reviews concern whether this fail-closed conclusion and blocked-test handling are correct, not whether unperformed stability/minimality/sufficiency tests passed. All8966pre-existing files, including484previously authorized untracked paths, remain hash-preserved. Only new gate evidence is created; staging/tracked clean. No implementation/build/native runtime/SQL/database/shared/production/V043/B02/migration/physical identities/principals/credentials/secrets/keys/signatures/roles/privileges/gitadd/commit/push or canonical contract change.
+
+NEXT_GATE=EXPLICIT_ARCHITECTURAL_DECISION_ON_ORIGINAL_CASE_OBJECT_TRANSITION_AND_INTERNAL_OBLIGATION_SCOPE. NEXT_EXECUTED=false. STOP.

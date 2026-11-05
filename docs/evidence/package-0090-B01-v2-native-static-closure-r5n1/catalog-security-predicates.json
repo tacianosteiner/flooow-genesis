@@ -1,0 +1,643 @@
+{
+  "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "predicates": [
+    {
+      "id": "IS_EXPECTED_ROLE",
+      "expression": {
+        "op": "AND",
+        "args": [
+          {
+            "op": "EQ",
+            "args": [
+              "role.oid",
+              "expected.oid"
+            ]
+          },
+          {
+            "op": "EQ",
+            "args": [
+              "role.rolname",
+              "expected.name"
+            ]
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_LOGIN",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "role.rolcanlogin",
+          true
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "IS_SUPERUSER",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "role.rolsuper",
+          true
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_CREATEROLE",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "role.rolcreaterole",
+          true
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_BYPASSRLS",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "role.rolbypassrls",
+          true
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "CAN_INHERIT_ROLE",
+      "expression": {
+        "op": "OR",
+        "args": [
+          {
+            "op": "EQ",
+            "args": [
+              "member",
+              "target"
+            ]
+          },
+          {
+            "op": "IS_SUPERUSER",
+            "args": [
+              "member"
+            ]
+          },
+          {
+            "op": "REACHABLE",
+            "args": [
+              "INHERIT",
+              "member",
+              "target"
+            ]
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "CAN_SET_ROLE",
+      "expression": {
+        "op": "OR",
+        "args": [
+          {
+            "op": "EQ",
+            "args": [
+              "member",
+              "target"
+            ]
+          },
+          {
+            "op": "IS_SUPERUSER",
+            "args": [
+              "member"
+            ]
+          },
+          {
+            "op": "REACHABLE",
+            "args": [
+              "SET",
+              "member",
+              "target"
+            ]
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_ADMIN_OPTION",
+      "expression": {
+        "op": "AND",
+        "args": [
+          {
+            "op": "NE",
+            "args": [
+              "member",
+              "target"
+            ]
+          },
+          {
+            "op": "OR",
+            "args": [
+              {
+                "op": "IS_SUPERUSER",
+                "args": [
+                  "member"
+                ]
+              },
+              {
+                "op": "EXISTS_EDGE_FROM_REACHABLE_MEMBERS",
+                "args": [
+                  "member",
+                  "target",
+                  "admin_option=true"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "IS_OBJECT_OWNER",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "object.owner_oid",
+          "role.oid"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "IS_SCHEMA_OWNER",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "schema.nspowner",
+          "role.oid"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "IS_FUNCTION_OWNER",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "function.proowner",
+          "role.oid"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_DIRECT_PRIVILEGE",
+      "expression": {
+        "op": "EXISTS_EXPLICIT_ACL",
+        "args": [
+          "object",
+          "role.oid",
+          "privilege"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_GRANT_OPTION",
+      "expression": {
+        "op": "OR",
+        "args": [
+          {
+            "op": "IS_OBJECT_OWNER",
+            "args": [
+              "role",
+              "object"
+            ]
+          },
+          {
+            "op": "EXISTS_EFFECTIVE_GRANT_OPTION",
+            "args": [
+              "object",
+              "role",
+              "privilege"
+            ]
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_PUBLIC_PRIVILEGE",
+      "expression": {
+        "op": "EXISTS_ACL",
+        "args": [
+          "object",
+          0,
+          "privilege"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_DEFAULT_PRIVILEGE_PATH",
+      "expression": {
+        "op": "EXISTS_EFFECTIVE_CREATOR_DEFAULT",
+        "args": [
+          "actual_creator",
+          "schema",
+          "kind",
+          "grantee",
+          "privilege"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_SECURITY_DEFINER_PATH",
+      "expression": {
+        "op": "EXISTS_REACHABLE_FUNCTION",
+        "args": [
+          "function.prosecdef=true",
+          "caller_execute_and_schema_usage",
+          "owner_role",
+          "verified_body_effect_graph"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_TRANSITIVE_MEMBERSHIP_PATH",
+      "expression": {
+        "op": "REACHABLE",
+        "args": [
+          "MEMBER",
+          "member",
+          "target"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_BOOTSTRAP_AUTHORITY_PATH",
+      "expression": {
+        "op": "EXISTS_CALLABLE_EDGE_TO",
+        "args": [
+          "HOST_ROOT_OR_DEPLOYMENT_OR_CREATEROLE_OR_SUPERUSER"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_UNEXPECTED_WRITE_PATH",
+      "expression": {
+        "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+        "args": [
+          "WRITE_OR_ROLE_GRANT_OR_CREATE_OR_SIGNAL"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_UNEXPECTED_OBSERVATION_PATH",
+      "expression": {
+        "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+        "args": [
+          "READ_OTHER_SLOT_SECRET_OR_UNAPPROVED_METADATA"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "HAS_UNEXPECTED_CREDENTIAL_PATH",
+      "expression": {
+        "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+        "args": [
+          "READ_TRANSFER_DUPLICATE_PRIVATE_KEY_OR_DB_CHANNEL"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "ROLE_ROSTER_EXACT",
+      "expression": {
+        "op": "BIJECTION",
+        "args": [
+          "observed_protected_roles",
+          "independently_expected_OID_name_role_roster"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "BACKEND_CENSUS_EXACT",
+      "expression": {
+        "op": "AND",
+        "args": [
+          {
+            "op": "BIJECTION",
+            "args": [
+              "catalog.pid_start_role_db_set",
+              "registry.enrolled_backend_set"
+            ]
+          },
+          {
+            "op": "EQ",
+            "args": [
+              "kernel.birth_anchor_set",
+              "registry.retained_anchor_set"
+            ]
+          },
+          {
+            "op": "NO_STATS_FIELD_REDACTION_OR_UNKNOWN",
+            "args": []
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "FUNCTION_CONFIG_SAFE",
+      "expression": {
+        "op": "AND",
+        "args": [
+          {
+            "op": "EXACT_APPROVED_PROCONFIG",
+            "args": [
+              "function"
+            ]
+          },
+          {
+            "op": "QUALIFIED_STATIC_DEPENDENCIES_ONLY",
+            "args": [
+              "function"
+            ]
+          },
+          {
+            "op": "NO_UNAPPROVED_SD_OR_OWNER_PATH",
+            "args": [
+              "function"
+            ]
+          }
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "SNAPSHOT_COHERENT",
+      "expression": {
+        "op": "AND",
+        "args": [
+          "all_sources_complete",
+          "same_MVCC_snapshot",
+          "same_reader_backend_start",
+          "same_native_generation_barrier",
+          "no_volatile_census_drift"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    },
+    {
+      "id": "NATIVE_QUALIFIED",
+      "expression": {
+        "op": "ALL_KNOWN_TRUE",
+        "args": [
+          "identity",
+          "ABI",
+          "isolation",
+          "custody",
+          "authority",
+          "registry",
+          "generation",
+          "catalog",
+          "completed_work",
+          "independent_observer",
+          "one_use_current_publication"
+        ]
+      },
+      "truth_domain": [
+        "TRUE",
+        "FALSE",
+        "UNKNOWN"
+      ],
+      "UNKNOWN": "Not qualified; no false/zero inference",
+      "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+    }
+  ],
+  "edge_types": [
+    "MEMBER",
+    "INHERIT",
+    "SET",
+    "ADMIN",
+    "IMPLICIT_DATABASE_OWNER",
+    "OWNER",
+    "DIRECT_ACL",
+    "GRANT_OPTION",
+    "PUBLIC_ACL",
+    "GLOBAL_DEFAULT",
+    "SCHEMA_DEFAULT",
+    "CREATOR",
+    "SCHEMA_USAGE",
+    "FUNCTION_EXECUTE",
+    "SECURITY_DEFINER",
+    "DEPENDENCY",
+    "BOOTSTRAP",
+    "READ_RESOURCE",
+    "WRITE_RESOURCE",
+    "CREDENTIAL_CUSTODY",
+    "OBSERVER_RECEIPT"
+  ],
+  "nodes": "Typed role OID/name; object address(classid,objid,objsubid); schema/database; function signature/owner/body; external actor/key/endpoint/work/receipt",
+  "role_edge_rules": {
+    "MEMBER": "member->roleid for every pg_auth_members row, all options preserved",
+    "INHERIT": "member->roleid only inherit_option=true; rolinherit is grant-default attribute, not a retroactive substitute for current edge option",
+    "SET": "member->roleid only set_option=true, independent of inherit_option",
+    "ADMIN": "admin_option=true on edge reached via MEMBER recursion; is_admin_of_role special case member==target false, superuser true otherwise, per frozen acl.c",
+    "IMPLICIT_DATABASE_OWNER": "current pg_database.datdba -> pg_database_owner as provider roles_is_member_of adds, even absent explicit membership"
+  },
+  "traversal": "BFS/least fixed point per typed edge class, initial role itself where provider permits; visited set, no arbitrary depth cap; finite nodes are complete snapshot. Cycle detected/preserved then visited suppresses iteration only, never drops authority. Missing endpoint/type/effect proof => UNKNOWN",
+  "privilege_rules": "Grantors retained separately. Owner implicit rights, direct ACL/PUBLIC, inherited roles, SET-reachable owners, defaults for future creation and SECURITY DEFINER effects are distinct edges; no effective-boolean equivalence collapse",
+  "source_authority": [
+    {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/acl.c",
+      "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+      "pointer": "/"
+    },
+    {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/aclchk.c",
+      "sha256": "9700258318959b47c42edb423418fb511dd3a008023e732f601eecf4c80868f8",
+      "pointer": "/"
+    },
+    {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/system_views.sql",
+      "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+      "pointer": "/"
+    },
+    {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/pg_auth_members.h",
+      "sha256": "8d4bf9af87e03adc76903647daf54593be0f60ac4c8116ca888693b1dbf8b346",
+      "pointer": "/"
+    }
+  ],
+  "unresolved_predicates": [
+    "BACKEND_CENSUS_EXACT non-superuser field visibility and row completeness from pg_stat_get_activity native implementation",
+    "HAS_UNEXPECTED_WRITE_PATH exact body effect closure for future private reader query/engine authority if generic SQL gate absent"
+  ]
+}

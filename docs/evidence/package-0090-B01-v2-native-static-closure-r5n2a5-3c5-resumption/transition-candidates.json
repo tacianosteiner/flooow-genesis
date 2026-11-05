@@ -1,0 +1,251 @@
+{
+  "candidates": [
+    {
+      "TRANSITION_ID": "T1",
+      "TRANSITION_NAME": "ACTIVE_NATIVE_SLOT_REPLACEMENT_WORKFLOW",
+      "source_refs": [
+        "S13",
+        "S14",
+        "S10"
+      ],
+      "PRE_STATE": "Old qualified ACTIVE/sealed logical slot/cohort",
+      "EVENT": "Qualified replacement of already ACTIVE POSTMASTER/native slot",
+      "POST_STATE": "Fresh qualified instance(s) for same frozen roles",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": true
+    },
+    {
+      "TRANSITION_ID": "T2",
+      "TRANSITION_NAME": "PARTICIPANT_REGISTRY_ENROLMENT",
+      "source_refs": [
+        "S6",
+        "S12",
+        "S9"
+      ],
+      "PRE_STATE": "PARTICIPANT_REGISTRY.PROVISIONAL",
+      "EVENT": "Registry PROVISIONAL -> ENROLLED",
+      "POST_STATE": "PARTICIPANT_REGISTRY.ENROLLED",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T3",
+      "TRANSITION_NAME": "EXECUTION_ACTIVE_ADMISSION",
+      "source_refs": [
+        "S3",
+        "S4"
+      ],
+      "PRE_STATE": "CONFINED_PRE_ENROLLMENT",
+      "EVENT": "Execution CONFINED_PRE_ENROLLMENT -> ACTIVE",
+      "POST_STATE": "ACTIVE",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T4",
+      "TRANSITION_NAME": "EXECUTION_DEACTIVATION_REVOCATION",
+      "source_refs": [
+        "S3",
+        "S5"
+      ],
+      "PRE_STATE": "ACTIVE",
+      "EVENT": "Execution ACTIVE -> REVOKED",
+      "POST_STATE": "REVOKED",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T5",
+      "TRANSITION_NAME": "PARTICIPANT_REGISTRY_REVOCATION",
+      "source_refs": [
+        "S6",
+        "S10"
+      ],
+      "PRE_STATE": "PARTICIPANT_REGISTRY.ENROLLED",
+      "EVENT": "Registry ENROLLED -> REVOKED",
+      "POST_STATE": "PARTICIPANT_REGISTRY.REVOKED",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T6",
+      "TRANSITION_NAME": "GENERATION_ELIGIBILITY_REVOCATION",
+      "source_refs": [
+        "S6",
+        "S10",
+        "S11"
+      ],
+      "PRE_STATE": "GENERATION_LEDGER.CURRENT",
+      "EVENT": "Generation CURRENT -> REVOKED",
+      "POST_STATE": "GENERATION_LEDGER.REVOKED",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T7",
+      "TRANSITION_NAME": "GENERATION_TOMBSTONING",
+      "source_refs": [
+        "S6",
+        "S10"
+      ],
+      "PRE_STATE": "GENERATION_LEDGER.REVOKED",
+      "EVENT": "Generation REVOKED -> TOMBSTONED",
+      "POST_STATE": "GENERATION_LEDGER.TOMBSTONED",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T8",
+      "TRANSITION_NAME": "FRESH_GENERATION_LEDGER_SUCCESSION",
+      "source_refs": [
+        "S6",
+        "S10",
+        "S13"
+      ],
+      "PRE_STATE": "GENERATION_LEDGER.TOMBSTONED",
+      "EVENT": "Generation TOMBSTONED -> NEW_GENERATION",
+      "POST_STATE": "GENERATION_LEDGER.NEW_GENERATION",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T9",
+      "TRANSITION_NAME": "PARTICIPANT_EXTINCTION_RECOGNITION",
+      "source_refs": [
+        "S6",
+        "S10"
+      ],
+      "PRE_STATE": "PARTICIPANT_REGISTRY.REVOKED",
+      "EVENT": "Registry REVOKED -> EXTINCT",
+      "POST_STATE": "PARTICIPANT_REGISTRY.EXTINCT",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T10",
+      "TRANSITION_NAME": "GENERATION_EXTINCTION_PROOF_COMPLETION",
+      "source_refs": [
+        "S6",
+        "S10"
+      ],
+      "PRE_STATE": "GENERATION_TOMBSTONE.REVOKED_PENDING_EXTINCTION",
+      "EVENT": "Tombstone REVOKED_PENDING_EXTINCTION -> EXTINCT_PROVEN",
+      "POST_STATE": "GENERATION_TOMBSTONE.EXTINCT_PROVEN",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T11",
+      "TRANSITION_NAME": "TRUSTED_BOOTSTRAP_CONFINEMENT",
+      "source_refs": [
+        "S3",
+        "S4",
+        "S5"
+      ],
+      "PRE_STATE": "TRUSTED_BOOTSTRAP",
+      "EVENT": "Execution TRUSTED_BOOTSTRAP -> CONFINED_PRE_ENROLLMENT",
+      "POST_STATE": "CONFINED_PRE_ENROLLMENT",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T12",
+      "TRANSITION_NAME": "AUTHORIZED_PRE_ENROLMENT_DELIVERY",
+      "source_refs": [
+        "S11",
+        "S10"
+      ],
+      "PRE_STATE": "Before explicit trusted bootstrap delivery/assignment",
+      "EVENT": "Source-defined protected trusted bootstrap delivery",
+      "POST_STATE": "After explicit trusted bootstrap delivery before eligibility",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T13",
+      "TRANSITION_NAME": "FRESH_NATIVE_PROCESS_BIRTH",
+      "source_refs": [
+        "S5",
+        "S12",
+        "S13"
+      ],
+      "PRE_STATE": "Before birth of fresh native process subject",
+      "EVENT": "Fixed approved native roster spawn in trusted pre-enrolment plan",
+      "POST_STATE": "Fresh retained process-birth identity exists",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    },
+    {
+      "TRANSITION_ID": "T14",
+      "TRANSITION_NAME": "PENDING_OUTCOME_RECONCILIATION",
+      "source_refs": [
+        "S7",
+        "S6",
+        "S10"
+      ],
+      "PRE_STATE": "COMPLETED_WORK_PUBLICATION.UNKNOWN",
+      "EVENT": "UNKNOWN -> OBSERVED_PROVEN by exact independent evidence",
+      "POST_STATE": "COMPLETED_WORK_PUBLICATION.OBSERVED_PROVEN",
+      "source_event_exists": true,
+      "O8_case_designation": "NOT_ESTABLISHED",
+      "scope": "Candidate source boundary, not a selected target transition",
+      "workflow_not_atomic": false
+    }
+  ],
+  "total": 14,
+  "search_terms": {
+    "substitution": "Umbrella original witness family; not equivalent to one recovered event by name",
+    "participant substitution": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "participant replacement": "T1 explicitly qualified ACTIVE-slot replacement workflow",
+    "principal replacement": "Qualified-instance renewal in T1; numeric UID reallocation is FUTURE, no separate canonical event inferred",
+    "credential replacement": "Fresh-instance/endpoint consequence in approved T1/T8 or explicit T12 assignment; no independent same-generation rotation event established",
+    "revocation": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "reallocation": "No physical UID/material allocation event invented; generation-ledger boundary T8 and trusted assignment T12 recorded separately",
+    "successor creation": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "successor activation": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "predecessor deactivation": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "parent/child replacement": "Dependency reason for T1/T13, not a free ACTIVE parent-spawn event",
+    "role reassignment": "Fixed logical roles preserved by T1; no new native role reassignment event asserted",
+    "credential rotation": "Exact standalone same-generation rotation not established; do not equate it with T1 or T8 by terminology",
+    "participant-slot replacement": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "lifecycle transition": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN",
+    "generation transition": "Recorded through exact source event/state change, not one new candidate per wording; standalone original-case equivalence UNKNOWN"
+  },
+  "source_domains_inspected": [
+    "Execution phase edges",
+    "Participant registry",
+    "Generation ledger",
+    "Tombstone evidence",
+    "Custody/delivery/currentness/reconnect policies",
+    "Closed qualified replacement/parent dependency",
+    "Original generic case and prospective O8 designation"
+  ],
+  "other_publication_edges": "Inspected in state_edges; not promoted to O8 transition candidates solely because work receipts exist. T14 has explicit custody/reconnect no-adoption-while-UNKNOWN linkage; relevance still conditional.",
+  "no_proven_target_family_or_event_set": true
+}

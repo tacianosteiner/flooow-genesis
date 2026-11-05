@@ -1,0 +1,615 @@
+{
+  "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "pairs": [
+    {
+      "pair": [
+        "POSTMASTER",
+        "SUPERVISOR"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": false,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "RECEIVER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "CENSUS_OBSERVER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "APPROVAL_PRODUCER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "APPROVAL_CONSUMER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "RECEIVER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": false,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "CENSUS_OBSERVER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": false,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "APPROVAL_PRODUCER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": false,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "APPROVAL_CONSUMER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": false,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "ENFORCEMENT_WORKER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": false,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "CENSUS_OBSERVER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "APPROVAL_PRODUCER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "APPROVAL_CONSUMER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "APPROVAL_PRODUCER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "APPROVAL_CONSUMER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "APPROVAL_PRODUCER",
+        "APPROVAL_CONSUMER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "APPROVAL_PRODUCER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    },
+    {
+      "pair": [
+        "APPROVAL_CONSUMER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "MUST_BE_DISTINCT": true,
+      "MAY_SHARE_BOUNDARY": true,
+      "MAY_SHARE_PARENT": true,
+      "MAY_SHARE_READ_AUTHORITY": true,
+      "MAY_SHARE_CREDENTIAL_CLASS": true,
+      "MUST_NOT_SHARE_CREDENTIAL": true,
+      "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+      "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+      "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+      "MAY_justifications": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "MUST_NOT_enforcement": [
+        "different retained birth anchors and slot UIDs",
+        "private memfd/LSM labels",
+        "no process memory/ptrace/descriptor transfer",
+        "exact sender role/purpose keys and channel peer matching",
+        "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+      ]
+    }
+  ],
+  "relations_total": 21,
+  "auxiliary_required_separations": [
+    [
+      "NATIVE_REGISTRY_WRITER",
+      "HEALTH_GUARD"
+    ],
+    [
+      "HEALTH_GUARD",
+      "HOST_PLATFORM"
+    ],
+    [
+      "READ_PROXY",
+      "each native participant"
+    ],
+    [
+      "outcome claimant",
+      "CENSUS_OBSERVER/HEALTH_GUARD"
+    ]
+  ],
+  "no_claimant_self_witness": true
+}

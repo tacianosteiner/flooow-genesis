@@ -1,0 +1,239 @@
+{
+  "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "profiles": [
+    {
+      "PARTICIPANT_ID": "POSTMASTER",
+      "PRINCIPAL_CLASS": "PRIVATE_TEST_ENGINE_OS_UID",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "private TEST engine housekeeping only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    },
+    {
+      "PARTICIPANT_ID": "SUPERVISOR",
+      "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    },
+    {
+      "PARTICIPANT_ID": "RECEIVER",
+      "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    },
+    {
+      "PARTICIPANT_ID": "CENSUS_OBSERVER",
+      "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    },
+    {
+      "PARTICIPANT_ID": "APPROVAL_PRODUCER",
+      "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    },
+    {
+      "PARTICIPANT_ID": "APPROVAL_CONSUMER",
+      "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "NONE on inspected data; signed native proposals only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    },
+    {
+      "PARTICIPANT_ID": "ENFORCEMENT_WORKER",
+      "PRINCIPAL_CLASS": "UNIQUE_NATIVE_SLOT_OS_UID_WITHOUT_SQL_ROLE",
+      "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+      "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+      "SET_ROLE_POLICY": "DENY",
+      "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+      "ADMIN_OPTION_POLICY": "DENY",
+      "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+      "CREATEROLE_POLICY": "DENY",
+      "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+      "BYPASSRLS_POLICY": "DENY",
+      "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+      "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+      "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+      "ALLOWED_CAPABILITY_CLASSES": [
+        "exact native message/work type",
+        "read fixed sealed/public inputs",
+        "role-specific isolated operation"
+      ],
+      "FORBIDDEN_CAPABILITY_CLASSES": [
+        "arbitrary SQL",
+        "shell",
+        "arbitrary path/module/target",
+        "host/admin/shared Package privilege",
+        "generic native worker"
+      ],
+      "MUTATION_AUTHORITY": "fixed one-target native enforcement only",
+      "READ_AUTHORITY": "Only exact approved role resources",
+      "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+      "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+      "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+    }
+  ],
+  "bootstrap_is_not_operational_capability": true
+}

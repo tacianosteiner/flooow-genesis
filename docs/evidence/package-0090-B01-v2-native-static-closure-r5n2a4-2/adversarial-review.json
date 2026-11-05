@@ -1,0 +1,260 @@
+{
+  "review_id": "R5N.2A4.2_INDEPENDENT_READER_ACL_ADVERSARIAL_REVIEW",
+  "reviewer": "/root/r5n2a4_2_acl_review",
+  "independent_reviewer_invoked": true,
+  "scope": "ACCEPTED_STATIC_CONTRACT_DERIVATION_ONLY_NOT_INSTALLED_ACL_OR_RUNTIME",
+  "READER_ACL_ADVERSARIAL_FINDINGS_OPEN": 0,
+  "attack_coverage": [
+    {
+      "id": "A01",
+      "attack": "hidden mutation through read-only callable",
+      "analysis": "All8 fixed callable effect flags false; admitted transition closure contains no mutation edge. Actual machine effect acceptance remains future.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A02",
+      "attack": "role membership transitivity",
+      "analysis": "Reader zero-membership invariant and typed constructor observation cannot create INHERIT/SET/ADMIN transition.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A03",
+      "attack": "owner privilege leakage",
+      "analysis": "Owner fields/constructors are observed metadata; no Reader-to-owner capability transition.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A04",
+      "attack": "SECURITY DEFINER",
+      "analysis": "No accepted producer invocation changes role; potential SD constructor remains rule data only.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A05",
+      "attack": "search_path attack",
+      "analysis": "Accepted source identity/primitive resolution forbids ambient namespace, temporary resolution and user-defined callback dispatch.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A06",
+      "attack": "generic SQL hidden in parameters",
+      "analysis": "Every8 callables rejects SQL text; custody compartment cannot expose prepare/execute/protocol channel.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A07",
+      "attack": "arbitrary identifier hidden in parameter class",
+      "analysis": "Identifier/object name parameter booleans all false; enrolled context is not an object selector.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A08",
+      "attack": "credential secret hidden as metadata",
+      "analysis": "8 explicit metadata entries expose graph symbol/class/context placeholders only;2 opaque session uses do not dereference material; foreign custody remains unreachable.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A09",
+      "attack": "protected field exposure before predicate",
+      "analysis": "Raw config/body remains inside trusted membrane and produces only approved assertions/digests; S07/S08 act on bounded immutable projected frame, never raw protected material.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A10",
+      "attack": "NULL/redaction mistaken for denial",
+      "analysis": "Protected stats POLICY_NOT_ACQUIRED distinct from observed NULL; REDACTED and CONDITIONALLY_VISIBLE separate from DENY.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A11",
+      "attack": "configuration-derived authority",
+      "analysis": "Config assertions are data, not SET commands/role authority; no session/config mutation permitted.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A12",
+      "attack": "callable chaining",
+      "analysis": "8-stage dependency fixed point plus capability-state BFS preserves pure/source/receipt modes and cannot mint new source handle.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A13",
+      "attack": "schema CREATE authority",
+      "analysis": "No owner/CREATE/grant option path admitted; exact future namespace USAGE/EXECUTE audit required.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A14",
+      "attack": "TEMP authority",
+      "analysis": "No template permits temp objects; installed PUBLIC TEMP rights not falsely claimed revoked; fixed ingress must make forbidden paths unavailable.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A15",
+      "attack": "implicit function EXECUTE breadth",
+      "analysis": "G2 finite admitted effect universe requires rejecting unclassified implicit callbacks before source effects/publication; actual machine expansion not claimed performed.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A16",
+      "attack": "public EXECUTE assumptions",
+      "analysis": "PUBLIC/ACL rules are observations, not grants inferred for Reader; enforced fixed transport prevents arbitrary function submission under static contract.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A17",
+      "attack": "indirect filesystem/process access",
+      "analysis": "Source/pure contracts forbid process/filesystem effects and unclassified calls; pure frames carry no process/file/network capability.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A18",
+      "attack": "Reader accidentally one of seven participants",
+      "analysis": "7 native principal authorization edges are NOT_REACHABLE; Reader retains auxiliary logical identity.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    },
+    {
+      "id": "A19",
+      "attack": "physical authentication assumption used as static proof",
+      "analysis": "No auth mechanism selected;2 opaque-use entries explicitly FUTURE_IMPLEMENTATION_BOUNDARY. Static restrictions reject broader implementation; no runtime proof claimed.",
+      "result": "NO_OPEN_STATIC_CONTRACT_FINDING"
+    }
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "issue": "Prefix-only AUTHORITY interpretation could demote an actual owner/grant transition to observed metadata.",
+      "status": "RESOLVED",
+      "resolution": "Interpreter now requires approved authority type and exact symbolic constructor or PUBLIC-to-frozen-catalog pattern. Independent mutation checks rejected actual-owner and unknown-authority edges as critical UNKNOWN."
+    },
+    {
+      "id": "R2",
+      "issue": "Credential custody/use entries alone did not explicitly dispose metadata access separately.",
+      "status": "RESOLVED",
+      "resolution": "8 graph-backed metadata entries now expose symbols/classes/context placeholders only; no foreign custody/material access follows."
+    },
+    {
+      "id": "R3",
+      "issue": "Ordinary OID keys carried by sanitizer/digest operation should not be classified as redacted sensitive fields.",
+      "status": "RESOLVED",
+      "resolution": "REDACTED now limited to exact sensitive output fields or explicit graph REDACT effect; source OID keys remain normal typed metadata."
+    }
+  ],
+  "independent_checks": [
+    {
+      "name": "closed_graph_390",
+      "passed": true
+    },
+    {
+      "name": "all_graph_edges_unique_disposition",
+      "passed": true
+    },
+    {
+      "name": "every_graph_edge_has_ACL_entry",
+      "passed": true
+    },
+    {
+      "name": "377_typed_reachable_edges",
+      "passed": true
+    },
+    {
+      "name": "420_graph_nodes_reachable_in_typed_facets",
+      "passed": true
+    },
+    {
+      "name": "all8_stages_fixed_point",
+      "passed": true
+    },
+    {
+      "name": "fixed_point_dependency_order",
+      "passed": true
+    },
+    {
+      "name": "all8_callables_effect_flags_false",
+      "passed": true
+    },
+    {
+      "name": "all8_callables_no_identifier_SQL_parameters",
+      "passed": true
+    },
+    {
+      "name": "pure_steps_no_DB_session_or_descriptor",
+      "passed": true
+    },
+    {
+      "name": "bridge_principal_preserved",
+      "passed": true
+    },
+    {
+      "name": "31_authority_templates_are_frozen_observation_rules",
+      "passed": true
+    },
+    {
+      "name": "13_foreign_principal_custody_effects_not_reachable",
+      "passed": true
+    },
+    {
+      "name": "8_credential_metadata_entries_no_material",
+      "passed": true
+    },
+    {
+      "name": "2_opaque_session_uses_future_mechanism",
+      "passed": true
+    },
+    {
+      "name": "5_forbidden_categories_explicit",
+      "passed": true
+    },
+    {
+      "name": "5_invariants_static_TRUE",
+      "passed": true
+    },
+    {
+      "name": "no_transitive_forbidden_or_unknown",
+      "passed": true
+    },
+    {
+      "name": "429_entries_unique",
+      "passed": true
+    },
+    {
+      "name": "zero_authority_critical_unknown",
+      "passed": true
+    },
+    {
+      "name": "six_allowed_semantic_result_types",
+      "passed": true
+    },
+    {
+      "name": "source_universe_preserved",
+      "passed": true
+    },
+    {
+      "name": "sensitive_redaction_not_denial",
+      "passed": true
+    },
+    {
+      "name": "physical_and_runtime_proof_future",
+      "passed": true
+    }
+  ],
+  "source_sha256": {
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/derive.py": "e792e54320aa30fc68a79238c6efdf033ac4e97c64c127370337b0d56c12650a",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/reader-graph-reachability.json": "ef7dfe9eb03b0747ffd4477524cd3cd58f10153029ee21c89006888a6cfeef63",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/transitive-authority-proof.json": "46ca787afa50f697d0e5864a0a3744fd6cfcb950c75412a7ba8918f25500fee9",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/five-invariant-proofs.json": "7878f239c54748659de69cdf88404dbeed910c0f63ac0a9786bcd715af2bd11d",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/future-implementation-boundary.json": "48d292184575c57d1b1dcbcca4f0f2864110cedfac42f8345eb99ee31a39c51f",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/acl-completeness.json": "a528588e05294c29362fc3b3acca724052824db40560924f28767f15efbe35a9",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1b/catalog-effect-graph.json": "80e4c4f45ac78c71a29f28a2ccd8a824e4350eecd5a6dd6fe3cca54481ad4a52",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1d/G1-producer-execution-plan.json": "7d106317c863713f925e199f7f6582222e5945b787d44a6b39bc3d8821fc864f",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1d/G2-callable-effect-universe.json": "3391c27595ab9cd2f2aebe10dc5b4f619dfcfc4c671f8f4b17624a3cfe309fbc",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1d/source-capability-contract.json": "67adcba44c4ffe837722b10590f9161ebefee17668ac02821d8d39fa7e026a1d",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-1d/principal-authority-decisions.json": "a551cbad4a0f0f2c83acf14322d42aebc2f7fa8636d221002ced5a63c970b15b",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/reader-identity-manifest.json": "ab94e1122064f9bbd1aefe1fa894c4ce41f10d16e10927004a3d11695c2d4f58"
+  },
+  "no_database_or_native_execution": true,
+  "closed_contracts_reopened": 0,
+  "contradictions_discovered": 0
+}

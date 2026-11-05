@@ -1,0 +1,25 @@
+{
+  "version": "R5N.2A4.1D/1",
+  "status": "NORMATIVE_DESIGN_NOT_IMPLEMENTED",
+  "authorization_origin": "This design explicitly authorizes only the abstract per-operation source capability described here. Names/hashes do not confer authority. Actual executable, source binding and object ACL require later independent acceptance.",
+  "reader": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+  "scope": "Existing isolated qualification database/context only; complete rows in each frozen source scope, never caller-selected tenant/object filters",
+  "source_capability": "Nondelegable fixed catalog projection membrane, callable only in enrolled Reader session/context/generation. It exposes only typed projected values. No underlying raw column/table grant to Reader.",
+  "execution_semantics": "INVOKER identity preserved. No owner-role switch, no membership-derived access, no superuser, no BYPASSRLS. Source capability is an explicit narrow trusted source operation, not an assertion that INVOKER SQL bypasses PostgreSQL ACL.",
+  "implementation_constraint": "An ordinary INVOKER SQL function requiring raw SELECT would not implement this capability. Backend source primitive or equivalent trusted fixed catalog projection is admissible only if its internal source-read authorization is explicitly restricted to this operation, gates caller before access and proves no SQL/RLS bypass beyond exact system-catalog scope. SQL view/SECURITY DEFINER/raw grants are not fallbacks.",
+  "sensitive_boundary": "Raw catalog config/body bytes remain solely inside trusted source membrane; they must never enter Reader memory, transport, logs, error text, tracing or hashes other than the eight expressly approved body digests. Internal processing of potentially sensitive metadata is disclosed, not treated as public. No credential/key-store access, raw secret output or unknown config value hashing.",
+  "catalog_exclusions": [
+    "pg_authid.rolpassword",
+    "pg_shadow.passwd",
+    "private key tables",
+    "pg_stat_activity.query/query_id/client_addr/client_hostname",
+    "user table data",
+    "arbitrary relation/type/operator/function identifiers"
+  ],
+  "search_path": "No unqualified name lookup. Resolve exact frozen catalog identities; no ambient search_path, temp namespace or replacement callbacks.",
+  "installation": "Future DEPLOYMENT installs/seals implementation; Reader cannot own/replace it, CREATE in its schema, grant/revoke it, or choose source identifiers. No installation or role creation in this gate.",
+  "security_definer_required": false,
+  "session_transport_confinement": "Custodied Reader session endpoint is reachable only through enforced fixed-operation ingress, not a convention in a generic SQL builder. Caller cannot obtain raw connection descriptor, statement submission, prepare/execute protocol, function name, parameter type/OID or arbitrary query channel. Any physical design exposing these is rejected even if its SQL role has narrow table grants. The custody compartment remains inside accepted auxiliary READ_PROXY; no new native participant. Existing unavoidable PUBLIC role capabilities are evaluated later by ACL gate; they are not assumed absent here.",
+  "transport_acceptance": "Binding must enumerate all reachable transport send/prepare/execute APIs and prove acquisition compartment alone owns the protocol handle. Every path accepting caller text, identifiers, protocol frames or arbitrary PUBLIC-executable PostgreSQL functions rejects. Fixed opcode API alone does not establish lack of role/PUBLIC SQL authority; later Reader ACL audit remains mandatory.",
+  "manifest_trust": "Source-expanded expected effect manifests are authenticated fixed deployment inputs under existing protected enrollment/registry authority, never supplied or edited by Reader. Complete dependency/default/type/operator/language closure must be source-proved before admission. Unknown or missing entry rejects; a file/hash alone never authorizes effect."
+}

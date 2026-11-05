@@ -1,0 +1,30 @@
+{
+  "scope": "R5N2A_FOUNDATION_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "IS_PHYSICAL_EXCLUSION_TOKEN_REQUIRED_BY_SOURCE": "NO_EXACT_TOKEN_REQUIRED; prior draft proposed exclusion but no selected physical mechanism",
+  "source": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+    "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+    "pointer": "/"
+  },
+  "BARRIER_ID": "FLOOOW/NATIVE/CATALOG/OBSERVATION/v1",
+  "ACQUISITION_AUTHORITY": "HEALTH_GUARD initiates signed observation challenge; dedicated READ_PROXY owns read-only REPEATABLE READ transaction",
+  "ACQUISITION_PRECONDITION": "Exact qualified reader/codec/source identity, current generation/registry and mutation-observer continuity; no pending authority transition",
+  "SNAPSHOT_BINDING": "Canonical snapshot digest + session birth + transaction snapshot identity + guard challenge + start/end mutation revision + exact source/schema/projection/codec/generation/context",
+  "MUTATION_EPOCH_OR_EQUIVALENT": "Monotonic independently observed native-relevant authority mutation sequence; complete coverage of DDL/roles/ACL/defaults/config/credential/reader-state mutations mandatory; no MVCC transaction ID assumed universal mutation counter",
+  "VALID_STATE": "Complete snapshot and equal independently observed start/end mutation revision, exact session/generation/registry continuous, no intervening relevant transition through final conditional publication",
+  "INVALID_STATE": "Any relevant mutation, observer gap, mismatch, partial read or reconnect => INVALID or UNKNOWN, never qualify",
+  "LOSS_DETECTION": "Independent observer progress lease exact versioned policy; missing heartbeat/sequencegap denies",
+  "INVALIDATION_AUTHORITY": "HEALTH_GUARD invalidates work before observed mutation can authorize successor generation; writer serializes final qualification publication against mutation revision",
+  "RELEASE_RULE": "End read-only transaction after complete result or rollback/discard on any error; release does not grant qualification",
+  "CRASH_RULE": "Retain pendingUNKNOWN, discard partial snapshot; no prior safe outcome inferred",
+  "TIMEOUT_RULE": "Versioned positive bounded observation lease; overflow/missing policy => no acquisition",
+  "RECONNECT_RULE": "Discard entire snapshot, new session requires fresh challenge",
+  "RESTART_RULE": "Discard old session/observer continuity; independent new generation before acquisition",
+  "CONCURRENT_MUTATION_RULE": "If complete mutation observation/order cannot establish valid revision at final publication =>UNKNOWN; repeatable-read consistency alone does not prove authority currentness",
+  "PARTIAL_OBSERVATION_RULE": "Never merge/reuse partial rows",
+  "UNKNOWN_RULE": "NOT_QUALIFIED",
+  "PHYSICAL_BARRIER_IMPLEMENTATION": "FUTURE_IMPLEMENTATION_PROOF",
+  "remaining_static_subcondition": "Exact source-bound complete mutation event coverage and publication linearization interface still needed; naming mutation sequence alone cannot prove every relevant event observed."
+}

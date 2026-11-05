@@ -1,0 +1,679 @@
+{
+  "scope": "R5N_TEST_ONLY_NATIVE_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "schemas": {
+    "source_identity": [
+      {
+        "name": "source_tree_manifest_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "role_contract_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "build_recipe_identity": [
+      {
+        "name": "recipe_manifest_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "source_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "toolchain_manifest_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "role_contract_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "binary_module_identity": [
+      {
+        "name": "complete_file_sha256",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "ELF_class",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "ELF_machine",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "loader_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "build_recipe_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "dependency_set_identity": [
+      {
+        "name": "dependency_nodes",
+        "type": "dependency_node_set",
+        "encoded_value_length": "1..1048576",
+        "nullable": false
+      },
+      {
+        "name": "dependency_edges",
+        "type": "dependency_edge_set",
+        "encoded_value_length": "1..1048576",
+        "nullable": false
+      }
+    ],
+    "loader_identity": [
+      {
+        "name": "complete_loader_file_sha256",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "resolution_manifest_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "parent_identity": [
+      {
+        "name": "boot_id",
+        "type": "uuid",
+        "encoded_value_length": 16,
+        "nullable": false
+      },
+      {
+        "name": "pid_namespace_inode",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "user_namespace_inode",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "mount_namespace_inode",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "time_namespace_inode",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "cgroup_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "retained_pidfd_dev",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "retained_pidfd_inode",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "kernel_start_ticks",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "approved_binary_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "process_instance_identity": [
+      {
+        "name": "parent_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "participant_id",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "child_pidfd_dev",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "child_pidfd_inode",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "child_kernel_start_ticks",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "qualification_id",
+        "type": "uuid",
+        "encoded_value_length": 16,
+        "nullable": false
+      },
+      {
+        "name": "incarnation_id",
+        "type": "uuid",
+        "encoded_value_length": 16,
+        "nullable": false
+      },
+      {
+        "name": "namespace_set_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "generation": [
+      {
+        "name": "qualification_id",
+        "type": "uuid",
+        "encoded_value_length": 16,
+        "nullable": false
+      },
+      {
+        "name": "incarnation_id",
+        "type": "uuid",
+        "encoded_value_length": 16,
+        "nullable": false
+      },
+      {
+        "name": "epoch",
+        "type": "uuid",
+        "encoded_value_length": 16,
+        "nullable": false
+      },
+      {
+        "name": "participant_id",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "generation_high_water",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "current_generation_record_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "enrollment_identity": [
+      {
+        "name": "bootstrap_context_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "participant_id",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "parent_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "process_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "source_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "build_recipe_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "binary_module_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "dependency_set_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "loader_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "credential_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "channel_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "credential_identity": [
+      {
+        "name": "credential_purpose",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "participant_id",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "generation",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "bootstrap_context_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "credential_certificate_or_endpoint_manifest_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "authenticated_channel_identity": [
+      {
+        "name": "channel_class",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "bootstrap_context_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "creator_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "sender_birth_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "recipient_birth_identity",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "socket_or_server_endpoint_manifest_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "registry_revision": [
+      {
+        "name": "generation_registry_revision",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "per_entity_work_revision_vector",
+        "type": "work_revision_set",
+        "encoded_value_length": "1..1048576",
+        "nullable": false
+      },
+      {
+        "name": "independently_observed_tip_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ],
+    "completed_work_identity": [
+      {
+        "name": "context_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "participant_id",
+        "type": "u16",
+        "encoded_value_length": 2,
+        "nullable": false
+      },
+      {
+        "name": "generation",
+        "type": "u64",
+        "encoded_value_length": 8,
+        "nullable": false
+      },
+      {
+        "name": "challenge_id",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "work_id",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "input_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "result_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "independent_witness_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      },
+      {
+        "name": "publication_record_digest",
+        "type": "bytes32",
+        "encoded_value_length": 32,
+        "nullable": false
+      }
+    ]
+  },
+  "bootstrap_context_schema": [
+    {
+      "name": "qualification_id",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "deployment_id",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "incarnation_id",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "boot_id",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "time_namespace_inode",
+      "type": "u64",
+      "encoded_value_length": 8,
+      "nullable": false
+    },
+    {
+      "name": "database_system_identifier",
+      "type": "u64",
+      "encoded_value_length": 8,
+      "nullable": false
+    },
+    {
+      "name": "database_oid",
+      "type": "u32",
+      "encoded_value_length": 4,
+      "nullable": false
+    },
+    {
+      "name": "binding_id",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "approval_manifest_id",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "manifest_v6_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "approval_manifest_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "binding_fingerprint",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "policy_version",
+      "type": "nfc_utf8",
+      "encoded_value_length": "1..255",
+      "nullable": false
+    },
+    {
+      "name": "policy_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "epoch",
+      "type": "uuid",
+      "encoded_value_length": 16,
+      "nullable": false
+    },
+    {
+      "name": "participant_id",
+      "type": "u16",
+      "encoded_value_length": 2,
+      "nullable": false
+    },
+    {
+      "name": "generation",
+      "type": "u64",
+      "encoded_value_length": 8,
+      "nullable": false
+    }
+  ],
+  "bootstrap_context_rule": "SHA256 same typed domain frame with schema_name=bootstrap_context and exact declared fields; excludes all credential/channel/enrollment/work/registry-record digests. Registry record context_digest means this bootstrap context, not a digest of that record or final enrollment",
+  "construction_order": [
+    "approved raw source/build/loader/dependency file manifests",
+    "trusted generation high-water and bootstrap_context_digest",
+    "parent/process birth identities",
+    "credential identity independent of final enrollment",
+    "channel identity from creator/sender/recipient birth identities independent of final enrollments",
+    "final enrollment identity binds credential/channel/process and bootstrap context",
+    "post-enrollment message context",
+    "completed-work identity after independent publication"
+  ],
+  "no_recursive_hash": "Socket inventory/certificates contain only primitive/birth/bootstrap identifiers before final enrollment. Final enrollments may subsequently be listed in activation records but are NOT hashed back into the channel or key identity. Dependency edges hash flat nodes, not recursive child-subtree identities",
+  "encoding": "For each named schema: u32be ASCII domain byte length || exact domain FLOOOW/PACKAGE0090/R5N/IDENTITY/{schema_name}/V1 || u16be field count || contiguous tag u16be,length u32be,value in declared order; required/non-null exact widths, big-endian integer/UUID rules as native-message-abi. Digest=SHA256 complete frame; no normalization, default or unknown field",
+  "dependency_node_schema": [
+    {
+      "name": "load_name",
+      "type": "nfc_utf8",
+      "encoded_value_length": "1..4096",
+      "nullable": false
+    },
+    {
+      "name": "approved_absolute_path",
+      "type": "nfc_utf8",
+      "encoded_value_length": "1..4096",
+      "nullable": false
+    },
+    {
+      "name": "link_and_resolved_inode_manifest_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "complete_file_sha256",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    }
+  ],
+  "dependency_edge_schema": [
+    {
+      "name": "parent_node_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "load_name",
+      "type": "nfc_utf8",
+      "encoded_value_length": "1..4096",
+      "nullable": false
+    },
+    {
+      "name": "resolved_child_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    }
+  ],
+  "work_revision_schema": [
+    {
+      "name": "participant_id",
+      "type": "u16",
+      "encoded_value_length": 2,
+      "nullable": false
+    },
+    {
+      "name": "generation",
+      "type": "u64",
+      "encoded_value_length": 8,
+      "nullable": false
+    },
+    {
+      "name": "work_id",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    },
+    {
+      "name": "current_entity_revision",
+      "type": "u64",
+      "encoded_value_length": 8,
+      "nullable": false
+    },
+    {
+      "name": "current_record_digest",
+      "type": "bytes32",
+      "encoded_value_length": 32,
+      "nullable": false
+    }
+  ],
+  "set_encoding": "u32be count <=4096; each element u32be size + same tagged-field record under corresponding IDENTITY/{dependency_node|dependency_edge|work_revision}/V1 domain; sort complete element bytes unsigned lexicographically, reject duplicates; total frame<=1048576",
+  "source_and_recipe_manifest": "Immutable approved manifest files use same typed domain framing, exact sorted path/byte-digest source entries and ordered explicit flags/toolchain identities; SHA256 of exact approved manifest bytes, not regenerated live observations. Unsupported dynamic dependency/source input rejects release acceptance",
+  "credential_purpose_enum": {
+    "GENERATION_TRANSPORT": 1,
+    "ONE_USE_WORK_AUTHORIZATION": 2,
+    "POSTMASTER_SERVER_ENDPOINT": 3
+  },
+  "channel_class_enum": {
+    "INHERITED_SEQPACKET": 1,
+    "POSTMASTER_NATIVE_PROBE_ENDPOINT": 2
+  },
+  "no_runtime_values_created": true,
+  "actual_values": "All concrete implementations/builds/processes/keys/channels remain explicitly FUTURE_MEASURED; this codec only defines how to bind later values"
+}

@@ -1,0 +1,429 @@
+{
+  "transitions": [
+    {
+      "TRANSITION_ID": "T1",
+      "proven_relations": [],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T2",
+      "proven_relations": [
+        {
+          "A": "T2",
+          "relation": "A_BEFORE_B",
+          "B": "T5",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Same registry entity must progress ENROLLED before REVOKED"
+        },
+        {
+          "A": "T2",
+          "relation": "A_BEFORE_B",
+          "B": "T9",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Same registry entity path passes ENROLLED and REVOKED"
+        },
+        {
+          "A": "T13",
+          "relation": "A_BEFORE_B",
+          "B": "T2",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "A valid process identity at enrolled native subject requires retained own birth evidence"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T3",
+      "proven_relations": [
+        {
+          "A": "T11",
+          "relation": "A_BEFORE_B",
+          "B": "T3",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Execution phase path confines before ACTIVE"
+        },
+        {
+          "A": "T3",
+          "relation": "A_BEFORE_B",
+          "B": "T4",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Same execution lifecycle ACTIVE before REVOKED"
+        },
+        {
+          "A": "T13",
+          "relation": "A_BEFORE_B",
+          "B": "T3",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "A native subject must be born before its ACTIVE admission"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T4",
+      "proven_relations": [
+        {
+          "A": "T3",
+          "relation": "A_BEFORE_B",
+          "B": "T4",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Same execution lifecycle ACTIVE before REVOKED"
+        },
+        {
+          "A": "T11",
+          "relation": "A_BEFORE_B",
+          "B": "T4",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "No reverse-to-bootstrap phase edge; confined admission precedes later revocation"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T5",
+      "proven_relations": [
+        {
+          "A": "T2",
+          "relation": "A_BEFORE_B",
+          "B": "T5",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Same registry entity must progress ENROLLED before REVOKED"
+        },
+        {
+          "A": "T5",
+          "relation": "A_BEFORE_B",
+          "B": "T9",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Registry revocation precedes EXTINCT recognition"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T6",
+      "proven_relations": [
+        {
+          "A": "T6",
+          "relation": "A_BEFORE_B",
+          "B": "T7",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Generation edge CURRENT->REVOKED before REVOKED->TOMBSTONED"
+        },
+        {
+          "A": "T6",
+          "relation": "A_BEFORE_B",
+          "B": "T8",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Generation path requires prior revocation"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T7",
+      "proven_relations": [
+        {
+          "A": "T6",
+          "relation": "A_BEFORE_B",
+          "B": "T7",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Generation edge CURRENT->REVOKED before REVOKED->TOMBSTONED"
+        },
+        {
+          "A": "T7",
+          "relation": "A_BEFORE_B",
+          "B": "T8",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Generation TOMBSTONED required before NEW_GENERATION edge"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T8",
+      "proven_relations": [
+        {
+          "A": "T7",
+          "relation": "A_BEFORE_B",
+          "B": "T8",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Generation TOMBSTONED required before NEW_GENERATION edge"
+        },
+        {
+          "A": "T6",
+          "relation": "A_BEFORE_B",
+          "B": "T8",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Generation path requires prior revocation"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T9",
+      "proven_relations": [
+        {
+          "A": "T5",
+          "relation": "A_BEFORE_B",
+          "B": "T9",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Registry revocation precedes EXTINCT recognition"
+        },
+        {
+          "A": "T2",
+          "relation": "A_BEFORE_B",
+          "B": "T9",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Same registry entity path passes ENROLLED and REVOKED"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T10",
+      "proven_relations": [],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T11",
+      "proven_relations": [
+        {
+          "A": "T11",
+          "relation": "A_BEFORE_B",
+          "B": "T3",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "Execution phase path confines before ACTIVE"
+        },
+        {
+          "A": "T11",
+          "relation": "A_BEFORE_B",
+          "B": "T4",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "No reverse-to-bootstrap phase edge; confined admission precedes later revocation"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T12",
+      "proven_relations": [],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T13",
+      "proven_relations": [
+        {
+          "A": "T13",
+          "relation": "A_BEFORE_B",
+          "B": "T2",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "A valid process identity at enrolled native subject requires retained own birth evidence"
+        },
+        {
+          "A": "T13",
+          "relation": "A_BEFORE_B",
+          "B": "T3",
+          "scope": "Same source lifecycle/valid subject",
+          "reason": "A native subject must be born before its ACTIVE admission"
+        }
+      ],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    },
+    {
+      "TRANSITION_ID": "T14",
+      "proven_relations": [],
+      "source_refs": [
+        "S3",
+        "S6",
+        "S12",
+        "S13"
+      ],
+      "unresolved_event_pairs": [
+        "successor birth versus exact credential allocation",
+        "phase ACTIVE versus registry ENROLLED cross-domain atomicity/order",
+        "binding creation versus authority/custody transfer",
+        "physical death versus extinction proof recording"
+      ],
+      "unresolved_relation": "UNKNOWN",
+      "no_simultaneity_or_no_order_from_absence": true
+    }
+  ],
+  "scope": "Only source-proven state-path/retained-birth ordering. Conditional approved restart reconciliation/extinction/tombstone-before-fresh-eligibility requirements are preserved, not used to invent complete ordering.",
+  "replacement_prerequisites": {
+    "old_reconciliation_extinction_tombstone_before_fresh_replacement_eligibility": "REQUIRED_BY_CLOSED_RESTART_SCOPE",
+    "source_refs": [
+      "S10",
+      "S13"
+    ]
+  },
+  "no_actual_birth_key_or_binding_creation": true
+}

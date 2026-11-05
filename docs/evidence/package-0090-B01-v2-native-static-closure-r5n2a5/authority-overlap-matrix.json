@@ -1,0 +1,1026 @@
+{
+  "participants": [
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER"
+  ],
+  "matrix": {
+    "POSTMASTER": {
+      "POSTMASTER": "SELF",
+      "SUPERVISOR": "BOUNDED_OVERLAP",
+      "RECEIVER": "BOUNDED_OVERLAP",
+      "CENSUS_OBSERVER": "BOUNDED_OVERLAP",
+      "APPROVAL_PRODUCER": "BOUNDED_OVERLAP",
+      "APPROVAL_CONSUMER": "BOUNDED_OVERLAP",
+      "ENFORCEMENT_WORKER": "BOUNDED_OVERLAP"
+    },
+    "SUPERVISOR": {
+      "POSTMASTER": "BOUNDED_OVERLAP",
+      "SUPERVISOR": "SELF",
+      "RECEIVER": "BOUNDED_OVERLAP",
+      "CENSUS_OBSERVER": "BOUNDED_OVERLAP",
+      "APPROVAL_PRODUCER": "BOUNDED_OVERLAP",
+      "APPROVAL_CONSUMER": "BOUNDED_OVERLAP",
+      "ENFORCEMENT_WORKER": "BOUNDED_OVERLAP"
+    },
+    "RECEIVER": {
+      "POSTMASTER": "BOUNDED_OVERLAP",
+      "SUPERVISOR": "BOUNDED_OVERLAP",
+      "RECEIVER": "SELF",
+      "CENSUS_OBSERVER": "BOUNDED_OVERLAP",
+      "APPROVAL_PRODUCER": "BOUNDED_OVERLAP",
+      "APPROVAL_CONSUMER": "BOUNDED_OVERLAP",
+      "ENFORCEMENT_WORKER": "BOUNDED_OVERLAP"
+    },
+    "CENSUS_OBSERVER": {
+      "POSTMASTER": "BOUNDED_OVERLAP",
+      "SUPERVISOR": "BOUNDED_OVERLAP",
+      "RECEIVER": "BOUNDED_OVERLAP",
+      "CENSUS_OBSERVER": "SELF",
+      "APPROVAL_PRODUCER": "BOUNDED_OVERLAP",
+      "APPROVAL_CONSUMER": "BOUNDED_OVERLAP",
+      "ENFORCEMENT_WORKER": "BOUNDED_OVERLAP"
+    },
+    "APPROVAL_PRODUCER": {
+      "POSTMASTER": "BOUNDED_OVERLAP",
+      "SUPERVISOR": "BOUNDED_OVERLAP",
+      "RECEIVER": "BOUNDED_OVERLAP",
+      "CENSUS_OBSERVER": "BOUNDED_OVERLAP",
+      "APPROVAL_PRODUCER": "SELF",
+      "APPROVAL_CONSUMER": "BOUNDED_OVERLAP",
+      "ENFORCEMENT_WORKER": "BOUNDED_OVERLAP"
+    },
+    "APPROVAL_CONSUMER": {
+      "POSTMASTER": "BOUNDED_OVERLAP",
+      "SUPERVISOR": "BOUNDED_OVERLAP",
+      "RECEIVER": "BOUNDED_OVERLAP",
+      "CENSUS_OBSERVER": "BOUNDED_OVERLAP",
+      "APPROVAL_PRODUCER": "BOUNDED_OVERLAP",
+      "APPROVAL_CONSUMER": "SELF",
+      "ENFORCEMENT_WORKER": "BOUNDED_OVERLAP"
+    },
+    "ENFORCEMENT_WORKER": {
+      "POSTMASTER": "BOUNDED_OVERLAP",
+      "SUPERVISOR": "BOUNDED_OVERLAP",
+      "RECEIVER": "BOUNDED_OVERLAP",
+      "CENSUS_OBSERVER": "BOUNDED_OVERLAP",
+      "APPROVAL_PRODUCER": "BOUNDED_OVERLAP",
+      "APPROVAL_CONSUMER": "BOUNDED_OVERLAP",
+      "ENFORCEMENT_WORKER": "SELF"
+    }
+  },
+  "unique_pairs": 21,
+  "AUTHORITY_COLLAPSE_COUNT": 0,
+  "AUTHORITY_OVERLAP_UNKNOWN_COUNT": 0,
+  "bounded_overlap_evidence": [
+    {
+      "pair": [
+        "POSTMASTER",
+        "SUPERVISOR"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/0",
+        "canonical_fact_sha256": "65dcf2762cfcb7fe4710f1bbcd4b116f043ece06970f49fd6a63b7a8cb15c8de",
+        "selected_fact": {
+          "pair": [
+            "POSTMASTER",
+            "SUPERVISOR"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": false,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "RECEIVER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/1",
+        "canonical_fact_sha256": "36f702d1510bbaf15c6d6e529e1f4738b555ff89711c46423d362c3ce146cc1d",
+        "selected_fact": {
+          "pair": [
+            "POSTMASTER",
+            "RECEIVER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "CENSUS_OBSERVER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/2",
+        "canonical_fact_sha256": "207b681c2debef3a5174a4f1ca4d86c0d03870718b0cdd7d5c54c347be4f6a42",
+        "selected_fact": {
+          "pair": [
+            "POSTMASTER",
+            "CENSUS_OBSERVER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "APPROVAL_PRODUCER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/3",
+        "canonical_fact_sha256": "3c2d34fb72eae5d3901d0d424c44c2aae3d0b655ae2ed461a2fa10512484c68e",
+        "selected_fact": {
+          "pair": [
+            "POSTMASTER",
+            "APPROVAL_PRODUCER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "APPROVAL_CONSUMER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/4",
+        "canonical_fact_sha256": "177cea5ff29ad3d6c0ef5492aef54e76783a53e002feae29c719029018bdbf06",
+        "selected_fact": {
+          "pair": [
+            "POSTMASTER",
+            "APPROVAL_CONSUMER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/5",
+        "canonical_fact_sha256": "74b33b8aad878b8efa34748115f973b6ed8cc79fa343dfee75be34f813c0a26a",
+        "selected_fact": {
+          "pair": [
+            "POSTMASTER",
+            "ENFORCEMENT_WORKER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "RECEIVER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/6",
+        "canonical_fact_sha256": "f712cbce51022f097fae8f443fb15aa66332f99d004c2476baeef7b98b6315e3",
+        "selected_fact": {
+          "pair": [
+            "SUPERVISOR",
+            "RECEIVER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": false,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "CENSUS_OBSERVER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/7",
+        "canonical_fact_sha256": "b9bd032bd6dd8806cfa5a0ac69934559b2fe0b10e1762af141cc7783f67a6df1",
+        "selected_fact": {
+          "pair": [
+            "SUPERVISOR",
+            "CENSUS_OBSERVER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": false,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "APPROVAL_PRODUCER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/8",
+        "canonical_fact_sha256": "dd3f476260036e26d0918b2d3dc09096232ce8cf7d9a0028114b42e701f8a3e0",
+        "selected_fact": {
+          "pair": [
+            "SUPERVISOR",
+            "APPROVAL_PRODUCER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": false,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "APPROVAL_CONSUMER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/9",
+        "canonical_fact_sha256": "5b9b6315bddf7154f98bfa9257aa324073628bfef7f2a7b0df12fd61e37a4348",
+        "selected_fact": {
+          "pair": [
+            "SUPERVISOR",
+            "APPROVAL_CONSUMER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": false,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/10",
+        "canonical_fact_sha256": "a1727df14b985b941bffb63f2f2ed1a5dcf734dda7b02b7f6b49cefb1a91d137",
+        "selected_fact": {
+          "pair": [
+            "SUPERVISOR",
+            "ENFORCEMENT_WORKER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": false,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "CENSUS_OBSERVER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/11",
+        "canonical_fact_sha256": "93dc540f9889eae5af1c1a35268996ca73f5d490cfd47f6d9766e94863f75996",
+        "selected_fact": {
+          "pair": [
+            "RECEIVER",
+            "CENSUS_OBSERVER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "APPROVAL_PRODUCER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/12",
+        "canonical_fact_sha256": "79f3ee4618edb9596524c9ecc0c35f92d57cf2d4e1d458ec651293f300b0728f",
+        "selected_fact": {
+          "pair": [
+            "RECEIVER",
+            "APPROVAL_PRODUCER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "APPROVAL_CONSUMER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/13",
+        "canonical_fact_sha256": "57a1f198ecd25f5bc48471bfa0f02d6f15a213fff160823af6d3406f62985fd2",
+        "selected_fact": {
+          "pair": [
+            "RECEIVER",
+            "APPROVAL_CONSUMER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/14",
+        "canonical_fact_sha256": "aacaeacda7e32a7ae734dc0de18bb6752d6883d2a48a9ab5cd8c00098cb0ff82",
+        "selected_fact": {
+          "pair": [
+            "RECEIVER",
+            "ENFORCEMENT_WORKER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "APPROVAL_PRODUCER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/15",
+        "canonical_fact_sha256": "bf4dfcb181c2270ee65d044157f985730ba8d320941bf6802962dd895e729bf8",
+        "selected_fact": {
+          "pair": [
+            "CENSUS_OBSERVER",
+            "APPROVAL_PRODUCER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "APPROVAL_CONSUMER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/16",
+        "canonical_fact_sha256": "8930c97078433ad0ce7946c1533ebb523b7b386581811d14bedd5102e01f683b",
+        "selected_fact": {
+          "pair": [
+            "CENSUS_OBSERVER",
+            "APPROVAL_CONSUMER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/17",
+        "canonical_fact_sha256": "7f3526796156d68a7d24b4a26b8043a16e0650376668a2d9945abee360c156a1",
+        "selected_fact": {
+          "pair": [
+            "CENSUS_OBSERVER",
+            "ENFORCEMENT_WORKER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "APPROVAL_PRODUCER",
+        "APPROVAL_CONSUMER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/18",
+        "canonical_fact_sha256": "e5fddeb647f858c017ddf914c74d4b50f0fb3b3cd34f315a0db2f765c79f31f8",
+        "selected_fact": {
+          "pair": [
+            "APPROVAL_PRODUCER",
+            "APPROVAL_CONSUMER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "APPROVAL_PRODUCER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/19",
+        "canonical_fact_sha256": "6ff729fccf782760184f22f2724a9757b95b44894e4b6202e8dcc01d4a0d3dc5",
+        "selected_fact": {
+          "pair": [
+            "APPROVAL_PRODUCER",
+            "ENFORCEMENT_WORKER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    },
+    {
+      "pair": [
+        "APPROVAL_CONSUMER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof": {
+        "classification": "BOUNDED_OVERLAP",
+        "read_only": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "forbidden_shared_mutation": true
+      },
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+        "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+        "pointer": "/pairs/20",
+        "canonical_fact_sha256": "60bdf29177b4be8e96c6fa6cc5671a1c85d43c51a5b644e9910674c0945b3105",
+        "selected_fact": {
+          "pair": [
+            "APPROVAL_CONSUMER",
+            "ENFORCEMENT_WORKER"
+          ],
+          "MUST_BE_DISTINCT": true,
+          "MAY_SHARE_BOUNDARY": true,
+          "MAY_SHARE_PARENT": true,
+          "MAY_SHARE_READ_AUTHORITY": true,
+          "MAY_SHARE_CREDENTIAL_CLASS": true,
+          "MUST_NOT_SHARE_CREDENTIAL": true,
+          "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+          "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+          "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+          "MAY_justifications": {
+            "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+            "parent": "Both are exact SUPERVISOR children",
+            "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+            "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+          },
+          "MUST_NOT_enforcement": [
+            "different retained birth anchors and slot UIDs",
+            "private memfd/LSM labels",
+            "no process memory/ptrace/descriptor transfer",
+            "exact sender role/purpose keys and channel peer matching",
+            "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+          ]
+        }
+      }
+    }
+  ]
+}

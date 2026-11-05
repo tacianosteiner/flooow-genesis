@@ -1,0 +1,490 @@
+{
+  "revision": 4,
+  "scope": "TEST_QUALIFICATION_ONLY",
+  "proof_level": "DESIGNED_NOT_STATICALLY_CLOSED",
+  "implementation_authorized": false,
+  "runtime_authority": false,
+  "states": [
+    "SEALED",
+    "UNSEAL_REQUESTED",
+    "UNSEALED",
+    "CAPABILITY_ACTIVATING",
+    "ACTIVE",
+    "MUTATION_IN_FLIGHT",
+    "MUTATION_COMMITTED",
+    "MUTATION_UNKNOWN",
+    "RECONCILING",
+    "CAPABILITY_REVOKING",
+    "WORKER_EXTINCTION_PENDING",
+    "RESEAL_PENDING",
+    "SEALED_NEW_EPOCH",
+    "BLOCKED"
+  ],
+  "transitions": [
+    {
+      "id": "R3/T/0",
+      "from": "SEALED",
+      "to": "UNSEAL_REQUESTED",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_SEALED_TO_UNSEAL_REQUESTED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/1",
+      "from": "UNSEAL_REQUESTED",
+      "to": "UNSEALED",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "all_old_eligibility_endpoints_deny",
+        "old_consumers_drained"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_UNSEAL_REQUESTED_TO_UNSEALED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/2",
+      "from": "UNSEALED",
+      "to": "CAPABILITY_ACTIVATING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_UNSEALED_TO_CAPABILITY_ACTIVATING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/3",
+      "from": "CAPABILITY_ACTIVATING",
+      "to": "ACTIVE",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "exact_worker_artifact_and_anchor",
+        "credential_operation_confinement"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_CAPABILITY_ACTIVATING_TO_ACTIVE",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/4",
+      "from": "ACTIVE",
+      "to": "MUTATION_IN_FLIGHT",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_ACTIVE_TO_MUTATION_IN_FLIGHT",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/5",
+      "from": "MUTATION_IN_FLIGHT",
+      "to": "MUTATION_COMMITTED",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "independent_commit_outcome",
+        "exact_poststate_and_dependency_delta"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_IN_FLIGHT_TO_MUTATION_COMMITTED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/6",
+      "from": "MUTATION_IN_FLIGHT",
+      "to": "MUTATION_UNKNOWN",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_IN_FLIGHT_TO_MUTATION_UNKNOWN",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/7",
+      "from": "MUTATION_UNKNOWN",
+      "to": "RECONCILING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_UNKNOWN_TO_RECONCILING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/8",
+      "from": "RECONCILING",
+      "to": "MUTATION_COMMITTED",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "independent_commit_outcome",
+        "exact_poststate_and_dependency_delta"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_RECONCILING_TO_MUTATION_COMMITTED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/9",
+      "from": "RECONCILING",
+      "to": "CAPABILITY_REVOKING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "independently_known_no_commit",
+        "exact_prestate"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_RECONCILING_TO_CAPABILITY_REVOKING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/10",
+      "from": "MUTATION_COMMITTED",
+      "to": "CAPABILITY_REVOKING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_COMMITTED_TO_CAPABILITY_REVOKING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/11",
+      "from": "CAPABILITY_REVOKING",
+      "to": "WORKER_EXTINCTION_PENDING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "all_capability_handles_credentials_backend_sessions_revoked"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_CAPABILITY_REVOKING_TO_WORKER_EXTINCTION_PENDING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/12",
+      "from": "WORKER_EXTINCTION_PENDING",
+      "to": "RESEAL_PENDING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit",
+        "independent_descendant_backend_descriptor_extinction",
+        "no_pending_prepared_transactions",
+        "mutation_outcome_known"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_WORKER_EXTINCTION_PENDING_TO_RESEAL_PENDING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/13",
+      "from": "RESEAL_PENDING",
+      "to": "SEALED_NEW_EPOCH",
+      "required_known_true": [
+        "old_capability_revoked",
+        "old_worker_extinct",
+        "mutation_outcome_known",
+        "audit_durable",
+        "generation_advanced",
+        "new_expected_state_bound",
+        "new_observer_contract_bound"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_RESEAL_PENDING_TO_SEALED_NEW_EPOCH",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/14",
+      "from": "SEALED_NEW_EPOCH",
+      "to": "UNSEAL_REQUESTED",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_SEALED_NEW_EPOCH_TO_UNSEAL_REQUESTED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/15",
+      "from": "BLOCKED",
+      "to": "RECONCILING",
+      "required_known_true": [
+        "exact_epoch_generation_revision",
+        "exclusive_lease",
+        "durable_transition_audit"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_BLOCKED_TO_RECONCILING",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/16",
+      "from": "SEALED",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_SEALED_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/17",
+      "from": "UNSEAL_REQUESTED",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_UNSEAL_REQUESTED_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/18",
+      "from": "UNSEALED",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_UNSEALED_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/19",
+      "from": "CAPABILITY_ACTIVATING",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_CAPABILITY_ACTIVATING_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/20",
+      "from": "ACTIVE",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_ACTIVE_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/21",
+      "from": "MUTATION_IN_FLIGHT",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_IN_FLIGHT_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/22",
+      "from": "MUTATION_COMMITTED",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_COMMITTED_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/23",
+      "from": "MUTATION_UNKNOWN",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_MUTATION_UNKNOWN_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/24",
+      "from": "RECONCILING",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_RECONCILING_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/25",
+      "from": "CAPABILITY_REVOKING",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_CAPABILITY_REVOKING_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/26",
+      "from": "WORKER_EXTINCTION_PENDING",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_WORKER_EXTINCTION_PENDING_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/27",
+      "from": "RESEAL_PENDING",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_RESEAL_PENDING_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    },
+    {
+      "id": "R3/T/28",
+      "from": "SEALED_NEW_EPOCH",
+      "to": "BLOCKED",
+      "required_known_true": [
+        "any_failure_missing_unknown_stale_or_conflicting_evidence"
+      ],
+      "authority": "Independent verifier + coordinator CAS; bootstrap only where exact unsealed operation requires it",
+      "audit_event": "R3_SEALED_NEW_EPOCH_TO_BLOCKED",
+      "physical_authority_binding": "NOT_PROVEN",
+      "epoch_generation": "New unique epoch/monotonic generation reserved durably before activation; no reuse or rollback",
+      "currentness": "Deny during transition/UNKNOWN/BLOCKED; reseal is TEST contract state only, never READY",
+      "recovery": "Last independently durable revision; unknown SQL outcome retained and reconciled; worker death never implies abort"
+    }
+  ],
+  "frozen_source": {
+    "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-3/closed-epoch-state-machine-v3.json",
+    "git_blob_oid": "27bda741f006384028537b2a57b9fcb446d5c0fe",
+    "git_lf_sha256": "5e1b3a323120afe7a83b1982b404948a5c6e2046c021f65b5fa90eb13fd14bd8",
+    "pointer": "/"
+  },
+  "unchanged_abstract_relation": true,
+  "physical_transition_authority": "NOT_PROVEN",
+  "UNKNOWN_is_TRUE": false
+}

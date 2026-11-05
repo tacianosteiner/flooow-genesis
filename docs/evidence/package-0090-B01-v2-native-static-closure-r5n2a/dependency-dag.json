@@ -1,0 +1,174 @@
+{
+  "scope": "R5N2A_FOUNDATION_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "official_residual_denominator": 10,
+  "foundation_denominator": 8,
+  "records": [
+    {
+      "BLOCKER_ID": "N1-LABEL-IR-ATOMICITY",
+      "INPUT_CONTRACTS": [
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-LABEL-IR-ATOMICITY/v1"
+      ],
+      "DEPENDS_ON": [],
+      "CONSUMED_BY": [
+        "N1-SCALAR-SYSCALL-IR",
+        "N1-CREDENTIAL-CLASS-INVENTORY",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-SCALAR-SYSCALL-IR",
+      "INPUT_CONTRACTS": [
+        "N1-LABEL-IR-ATOMICITY",
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-SCALAR-SYSCALL-IR/v1"
+      ],
+      "DEPENDS_ON": [
+        "N1-LABEL-IR-ATOMICITY"
+      ],
+      "CONSUMED_BY": [
+        "N1-CREDENTIAL-CLASS-INVENTORY",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-SOURCE-STATS-VISIBILITY",
+      "INPUT_CONTRACTS": [
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-SOURCE-STATS-VISIBILITY/v1"
+      ],
+      "DEPENDS_ON": [],
+      "CONSUMED_BY": [
+        "N1-READER-PREPARSE-GATE",
+        "N1-CATALOG-EFFECT-GRAPH",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-READER-PREPARSE-GATE",
+      "INPUT_CONTRACTS": [
+        "N1-SOURCE-STATS-VISIBILITY",
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-READER-PREPARSE-GATE/v1"
+      ],
+      "DEPENDS_ON": [
+        "N1-SOURCE-STATS-VISIBILITY"
+      ],
+      "CONSUMED_BY": [
+        "N1-CATALOG-EFFECT-GRAPH",
+        "N1-SNAPSHOT-MUTATION-BARRIER",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-CATALOG-EFFECT-GRAPH",
+      "INPUT_CONTRACTS": [
+        "N1-SOURCE-STATS-VISIBILITY",
+        "N1-READER-PREPARSE-GATE",
+        "N1-CREDENTIAL-CLASS-INVENTORY",
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-CATALOG-EFFECT-GRAPH/v1"
+      ],
+      "DEPENDS_ON": [
+        "N1-SOURCE-STATS-VISIBILITY",
+        "N1-READER-PREPARSE-GATE",
+        "N1-CREDENTIAL-CLASS-INVENTORY"
+      ],
+      "CONSUMED_BY": [
+        "N1-READER-EFFECTIVE-ACL",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-READER-EFFECTIVE-ACL",
+      "INPUT_CONTRACTS": [
+        "N1-CATALOG-EFFECT-GRAPH",
+        "N1-CREDENTIAL-CLASS-INVENTORY",
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-READER-EFFECTIVE-ACL/v1"
+      ],
+      "DEPENDS_ON": [
+        "N1-CATALOG-EFFECT-GRAPH",
+        "N1-CREDENTIAL-CLASS-INVENTORY"
+      ],
+      "CONSUMED_BY": [
+        "N1-SNAPSHOT-MUTATION-BARRIER",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-SNAPSHOT-MUTATION-BARRIER",
+      "INPUT_CONTRACTS": [
+        "N1-READER-EFFECTIVE-ACL",
+        "N1-READER-PREPARSE-GATE",
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-SNAPSHOT-MUTATION-BARRIER/v1"
+      ],
+      "DEPENDS_ON": [
+        "N1-READER-EFFECTIVE-ACL",
+        "N1-READER-PREPARSE-GATE"
+      ],
+      "CONSUMED_BY": [
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    },
+    {
+      "BLOCKER_ID": "N1-CREDENTIAL-CLASS-INVENTORY",
+      "INPUT_CONTRACTS": [
+        "N1-LABEL-IR-ATOMICITY",
+        "N1-SCALAR-SYSCALL-IR",
+        "R5N2 approved codec/config/protocol manifests"
+      ],
+      "OUTPUT_CONTRACTS": [
+        "N1-CREDENTIAL-CLASS-INVENTORY/v1"
+      ],
+      "DEPENDS_ON": [
+        "N1-LABEL-IR-ATOMICITY",
+        "N1-SCALAR-SYSCALL-IR"
+      ],
+      "CONSUMED_BY": [
+        "N1-CATALOG-EFFECT-GRAPH",
+        "N1-READER-EFFECTIVE-ACL",
+        "N1-QUALIFICATION-INPUT-RESOLUTION",
+        "N1-SUBSTITUTION-STATIC-WITNESSES"
+      ]
+    }
+  ],
+  "topological_order": [
+    "N1-LABEL-IR-ATOMICITY",
+    "N1-SOURCE-STATS-VISIBILITY",
+    "N1-READER-PREPARSE-GATE",
+    "N1-SCALAR-SYSCALL-IR",
+    "N1-CREDENTIAL-CLASS-INVENTORY",
+    "N1-CATALOG-EFFECT-GRAPH",
+    "N1-READER-EFFECTIVE-ACL",
+    "N1-SNAPSHOT-MUTATION-BARRIER"
+  ],
+  "deferred": {
+    "N1-QUALIFICATION-INPUT-RESOLUTION": "OPEN_BY_DEPENDENCY",
+    "N1-SUBSTITUTION-STATIC-WITNESSES": "OPEN_BY_DEPENDENCY"
+  }
+}

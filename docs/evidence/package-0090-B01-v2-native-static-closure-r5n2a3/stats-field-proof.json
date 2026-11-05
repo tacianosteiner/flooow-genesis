@@ -1,0 +1,343 @@
+{
+  "scope": "R5N2A3_SOURCE_IDENTITY_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "fields": [
+    {
+      "FIELD_ID": "datid",
+      "FLOOOW_PREDICATE": "native row DB OID equals approved expected TEST DB",
+      "WHY_REQUIRED": "Expected database attribution; no cross-DB execution authority",
+      "PG_SOURCE_FIELD": "beentry->st_databaseid",
+      "PG_OUTPUT_INDEX_OR_IDENTITY": 0,
+      "SOURCE_STATEMENT": "Before permission branch: if st_databaseid!=InvalidOid, values[0]=ObjectIdGetDatum(st_databaseid); otherwise nulls[0]=true.",
+      "VISIBILITY_BRANCH": "UNCONDITIONALLY_EXPOSED",
+      "BRANCH_CONDITION": "Before permission branch",
+      "SENSITIVE": "Restricted census metadata; never query/config/credential secret",
+      "SELECTED_AUTHORITY": "Ordinary dedicated reader for public IDs; LOGIN bridge independently proves own-session protected facts, no new role membership",
+      "SELECTED_SOURCE": "Exact public/general pg_stat_get_activity/pg_stat_activity column",
+      "ALTERNATES": [],
+      "SOURCE_ANCHORS": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+          "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+          "line_start": 331,
+          "line_end": 686
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+          "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+          "line_start": 878,
+          "line_end": 904
+        }
+      ],
+      "NULL_OR_REDACTION_RULE": "InvalidOid datid/userOID or missing role join =>UNKNOWN for required governed identity; backend_start native0 =>NULL=>UNKNOWN; permission redaction is not safety and cannot be silently overwritten; bridge missing/zero/partial=>UNKNOWN."
+    },
+    {
+      "FIELD_ID": "pid",
+      "FLOOOW_PREDICATE": "native row PID joins independently retained process birth",
+      "WHY_REQUIRED": "Prevent PID/name substitution; PID alone never identity",
+      "PG_SOURCE_FIELD": "beentry->st_procpid",
+      "PG_OUTPUT_INDEX_OR_IDENTITY": 1,
+      "SOURCE_STATEMENT": "values[1]=beentry->st_procpid before HAS_PGSTAT_PERMISSIONS",
+      "VISIBILITY_BRANCH": "UNCONDITIONALLY_EXPOSED",
+      "BRANCH_CONDITION": "Before permission branch",
+      "SENSITIVE": "Restricted census metadata; never query/config/credential secret",
+      "SELECTED_AUTHORITY": "Ordinary dedicated reader for public IDs; LOGIN bridge independently proves own-session protected facts, no new role membership",
+      "SELECTED_SOURCE": "Exact public/general pg_stat_get_activity/pg_stat_activity column",
+      "ALTERNATES": [],
+      "SOURCE_ANCHORS": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+          "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+          "line_start": 331,
+          "line_end": 686
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+          "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+          "line_start": 878,
+          "line_end": 904
+        }
+      ],
+      "NULL_OR_REDACTION_RULE": "InvalidOid datid/userOID or missing role join =>UNKNOWN for required governed identity; backend_start native0 =>NULL=>UNKNOWN; permission redaction is not safety and cannot be silently overwritten; bridge missing/zero/partial=>UNKNOWN."
+    },
+    {
+      "FIELD_ID": "usesysid",
+      "FLOOOW_PREDICATE": "authenticated user OID equals governed role OID",
+      "WHY_REQUIRED": "Reject role substitution/unexpected protected-role backend",
+      "PG_SOURCE_FIELD": "beentry->st_userid",
+      "PG_OUTPUT_INDEX_OR_IDENTITY": 2,
+      "SOURCE_STATEMENT": "Before permission branch: if st_userid!=InvalidOid, values[2]=ObjectIdGetDatum(st_userid); otherwise nulls[2]=true.",
+      "VISIBILITY_BRANCH": "UNCONDITIONALLY_EXPOSED",
+      "BRANCH_CONDITION": "Before permission branch",
+      "SENSITIVE": "Restricted census metadata; never query/config/credential secret",
+      "SELECTED_AUTHORITY": "Ordinary dedicated reader for public IDs; LOGIN bridge independently proves own-session protected facts, no new role membership",
+      "SELECTED_SOURCE": "Exact public/general pg_stat_get_activity/pg_stat_activity column",
+      "ALTERNATES": [],
+      "SOURCE_ANCHORS": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+          "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+          "line_start": 331,
+          "line_end": 686
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+          "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+          "line_start": 878,
+          "line_end": 904
+        }
+      ],
+      "NULL_OR_REDACTION_RULE": "InvalidOid datid/userOID or missing role join =>UNKNOWN for required governed identity; backend_start native0 =>NULL=>UNKNOWN; permission redaction is not safety and cannot be silently overwritten; bridge missing/zero/partial=>UNKNOWN."
+    },
+    {
+      "FIELD_ID": "usename",
+      "FLOOOW_PREDICATE": "role name matches OID and approved roster under mutation barrier",
+      "WHY_REQUIRED": "Detect rename/name/OID divergence",
+      "PG_SOURCE_FIELD": "pg_stat_activity.U.rolname",
+      "PG_OUTPUT_INDEX_OR_IDENTITY": "view join by S.usesysid",
+      "SOURCE_STATEMENT": "LEFT JOIN pg_authid AS U ON (S.usesysid = U.oid); U.rolname, not password",
+      "VISIBILITY_BRANCH": "UNCONDITIONALLY_EXPOSED",
+      "BRANCH_CONDITION": "Before permission branch",
+      "SENSITIVE": "Restricted census metadata; never query/config/credential secret",
+      "SELECTED_AUTHORITY": "Ordinary dedicated reader for public IDs; LOGIN bridge independently proves own-session protected facts, no new role membership",
+      "SELECTED_SOURCE": "pg_stat_activity.usename or narrower pg_roles.oid/rolname join on public usesysid",
+      "ALTERNATES": [],
+      "SOURCE_ANCHORS": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+          "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+          "line_start": 331,
+          "line_end": 686
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+          "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+          "line_start": 878,
+          "line_end": 904
+        }
+      ],
+      "NULL_OR_REDACTION_RULE": "InvalidOid datid/userOID or missing role join =>UNKNOWN for required governed identity; backend_start native0 =>NULL=>UNKNOWN; permission redaction is not safety and cannot be silently overwritten; bridge missing/zero/partial=>UNKNOWN."
+    },
+    {
+      "FIELD_ID": "backend_start",
+      "FLOOOW_PREDICATE": "exact backend timestamp equals independent bridge MyStartTimestamp",
+      "WHY_REQUIRED": "Prevent PID reuse across backend births",
+      "PG_SOURCE_FIELD": "beentry->st_proc_start_timestamp",
+      "PG_OUTPUT_INDEX_OR_IDENTITY": 10,
+      "SOURCE_STATEMENT": "If st_proc_start_timestamp!=0 inside HAS_PGSTAT_PERMISSIONS, values[10]=TimestampTzGetDatum(st_proc_start_timestamp); otherwise nulls[10]=true.",
+      "VISIBILITY_BRANCH": "OWN_ROLE_VISIBLE",
+      "BRANCH_CONDITION": "has_privs_of_role(GetUserId(),ROLE_PG_READ_ALL_STATS) OR has_privs_of_role(GetUserId(),st_userid); self or inheritable membership; otherwise NULL",
+      "SENSITIVE": "Restricted census metadata; never query/config/credential secret",
+      "SELECTED_AUTHORITY": "Ordinary dedicated reader for public IDs; LOGIN bridge independently proves own-session protected facts, no new role membership",
+      "SELECTED_SOURCE": "Independently authenticated LOGIN bridge birth receipt: r.backend_start=MyStartTimestamp, same exact variable copied to st_proc_start_timestamp by backend_status.c",
+      "ALTERNATES": [
+        {
+          "ALTERNATE_SOURCE": "pg_stat_get_backend_start/other direct protected getters",
+          "AUTHORITY_REQUIRED": "Same HAS_PGSTAT_PERMISSIONS",
+          "SEMANTIC_EQUIVALENCE": "Same birth value but no authority reduction",
+          "CONSISTENCY_BINDING": "Not selected"
+        },
+        {
+          "ALTERNATE_SOURCE": "Native kernel start ticks",
+          "AUTHORITY_REQUIRED": "Independent OS observer only",
+          "SEMANTIC_EQUIVALENCE": "Not equivalent to PostgreSQL timestamp/backend class by itself; not selected",
+          "CONSISTENCY_BINDING": "Retained kernel birth still required to bind bridge sender"
+        }
+      ],
+      "SOURCE_ANCHORS": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+          "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+          "line_start": 331,
+          "line_end": 686
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+          "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+          "line_start": 878,
+          "line_end": 904
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+          "sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+          "line_start": 104,
+          "line_end": 108
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/activity/backend_status.c",
+          "sha256": "5ae2973ca1f4debe3ecd912786886d534dd5ea5c579b34736cfc317aa4a3feed",
+          "line_start": 297,
+          "line_end": 301
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/init/miscinit.c",
+          "sha256": "54bdb859c143a6c70d86067ccf2e124f59aa0852e5705bb653652e41a60af39a",
+          "line_start": 281,
+          "line_end": 283
+        }
+      ],
+      "NULL_OR_REDACTION_RULE": "InvalidOid datid/userOID or missing role join =>UNKNOWN for required governed identity; backend_start native0 =>NULL=>UNKNOWN; permission redaction is not safety and cannot be silently overwritten; bridge missing/zero/partial=>UNKNOWN."
+    },
+    {
+      "FIELD_ID": "backend_type",
+      "FLOOOW_PREDICATE": "expected governed session must have B_BACKEND/client backend",
+      "WHY_REQUIRED": "Prevent worker/walsender/process-class substitution",
+      "PG_SOURCE_FIELD": "beentry->st_backendType",
+      "PG_OUTPUT_INDEX_OR_IDENTITY": 17,
+      "SOURCE_STATEMENT": "values[17]=GetBackendTypeDesc(beentry->st_backendType) (background workers special branch); else nulls[17]=true",
+      "VISIBILITY_BRANCH": "OWN_ROLE_VISIBLE",
+      "BRANCH_CONDITION": "has_privs_of_role(GetUserId(),ROLE_PG_READ_ALL_STATS) OR has_privs_of_role(GetUserId(),st_userid); self or inheritable membership; otherwise NULL",
+      "SENSITIVE": "Restricted census metadata; never query/config/credential secret",
+      "SELECTED_AUTHORITY": "Ordinary dedicated reader for public IDs; LOGIN bridge independently proves own-session protected facts, no new role membership",
+      "SELECTED_SOURCE": "Accepted same-process LOGIN bridge precondition MyBackendType==B_BACKEND; core GetBackendTypeDesc(B_BACKEND) gives client backend",
+      "ALTERNATES": [
+        {
+          "ALTERNATE_SOURCE": "Protected pg_stat_activity.backend_type itself; backend-start getter does not return type",
+          "AUTHORITY_REQUIRED": "Same HAS_PGSTAT_PERMISSIONS branch for cross-role backend_type",
+          "SEMANTIC_EQUIVALENCE": "Not a narrower type source; selected B_BACKEND LOGIN precondition instead",
+          "CONSISTENCY_BINDING": "Same retained backend birth required"
+        },
+        {
+          "ALTERNATE_SOURCE": "Native kernel start ticks",
+          "AUTHORITY_REQUIRED": "Independent OS observer only",
+          "SEMANTIC_EQUIVALENCE": "Not equivalent to PostgreSQL timestamp/backend class by itself; not selected",
+          "CONSISTENCY_BINDING": "Retained kernel birth still required to bind bridge sender"
+        }
+      ],
+      "SOURCE_ANCHORS": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+          "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+          "line_start": 331,
+          "line_end": 686
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+          "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+          "line_start": 878,
+          "line_end": 904
+        },
+        {
+          "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+          "sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+          "line_start": 104,
+          "line_end": 108
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/activity/backend_status.c",
+          "sha256": "5ae2973ca1f4debe3ecd912786886d534dd5ea5c579b34736cfc317aa4a3feed",
+          "line_start": 297,
+          "line_end": 301
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/init/miscinit.c",
+          "sha256": "54bdb859c143a6c70d86067ccf2e124f59aa0852e5705bb653652e41a60af39a",
+          "line_start": 281,
+          "line_end": 283
+        }
+      ],
+      "NULL_OR_REDACTION_RULE": "InvalidOid datid/userOID or missing role join =>UNKNOWN for required governed identity; backend_start native0 =>NULL=>UNKNOWN; permission redaction is not safety and cannot be silently overwritten; bridge missing/zero/partial=>UNKNOWN."
+    }
+  ],
+  "source_identity": "REL_18_4@f5cc81719e6da4cbdb1f797c48b693e91018153a",
+  "source_anchors": {
+    "function": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+      "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+      "line_start": 331,
+      "line_end": 686
+    },
+    "permissions_macro": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/pgstatfuncs.c",
+      "sha256": "13b973bf102a5fc37016485f3f1dc82406848e0f7fa3523d537dc5755fb5c43a",
+      "line_start": 37,
+      "line_end": 37
+    },
+    "effective_user": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/init/miscinit.c",
+      "sha256": "54bdb859c143a6c70d86067ccf2e124f59aa0852e5705bb653652e41a60af39a",
+      "line_start": 520,
+      "line_end": 527
+    },
+    "superuser_helper": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/misc/superuser.c",
+      "sha256": "2bf5ff2a424c7d23f5a5d488a8bf63af3dd1b826580bfb7998b1a6203250dce6",
+      "line_start": 56,
+      "line_end": 88
+    },
+    "has_privs_of_role": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/acl.c",
+      "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+      "line_start": 5285,
+      "line_end": 5318
+    },
+    "membership_inherit_filter": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/adt/acl.c",
+      "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+      "line_start": 5227,
+      "line_end": 5227
+    },
+    "role_constant_declaration": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/include/catalog/pg_authid.dat",
+      "sha256": "8b513e63d9b842ef046520470a640efbab422e1627002f4e48c60a2bcfa78fb0",
+      "line_start": 53,
+      "line_end": 53
+    },
+    "view": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/catalog/system_views.sql",
+      "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+      "line_start": 878,
+      "line_end": 904
+    },
+    "prototype": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/include/catalog/pg_proc.dat",
+      "sha256": "1f934ce80d460159dda137714374a35f9896315ea2476709cbb4da13b38ef95a",
+      "line_start": 5635,
+      "line_end": 5643
+    },
+    "backend_status_population": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/activity/backend_status.c",
+      "sha256": "5ae2973ca1f4debe3ecd912786886d534dd5ea5c579b34736cfc317aa4a3feed",
+      "line_start": 297,
+      "line_end": 301
+    },
+    "backend_snapshot_copy": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/activity/backend_status.c",
+      "sha256": "5ae2973ca1f4debe3ecd912786886d534dd5ea5c579b34736cfc317aa4a3feed",
+      "line_start": 873,
+      "line_end": 967
+    },
+    "backend_index": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/activity/backend_status.c",
+      "sha256": "5ae2973ca1f4debe3ecd912786886d534dd5ea5c579b34736cfc317aa4a3feed",
+      "line_start": 1279,
+      "line_end": 1304
+    },
+    "backend_type_description": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/backend/utils/init/miscinit.c",
+      "sha256": "54bdb859c143a6c70d86067ccf2e124f59aa0852e5705bb653652e41a60af39a",
+      "line_start": 281,
+      "line_end": 283
+    },
+    "bridge_start": {
+      "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+      "sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+      "line_start": 104,
+      "line_end": 108
+    },
+    "bridge_identity": {
+      "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+      "sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+      "line_start": 99,
+      "line_end": 113
+    }
+  },
+  "pg_read_all_stats_required": false,
+  "permission_semantics": "PG18.4 general datid/pid/usesysid are assigned before privilege branch. backend_start/backend_type are gated, NOT globally public. has_privs_of_role is self, superuser or INHERIT-option reachability, not SET/ADMIN. usename belongs view join. No role escalation or grant is authorized.",
+  "selector": "For the existing expected governed client-backend roster: use public complete active PID/role/DB rows, join each expected PID to an independent complete bridge enrollment/birth receipt. A row for protectedrole without exact bridge birth =>UNKNOWN/NOTQUALIFIED; no worker inferred safe. Session disappears/renames/restarts or revision changes invalidates comparison.",
+  "bridge_equivalence": "backend_status.c copies MyStartTimestamp; frozen LOGIN module captures exact same variable. Its accepted event-trigger path requires getpid()==MyProcPid and MyBackendType==B_BACKEND. Independent observer validates retained sender PIDFD/birth + approved bridge binary/source + generation/context/enrollment. This is not a claim an untrusted caller says its own type/start.",
+  "raw_vs_selected": "Never fill protected PG column NULL with a bridge value under pg_stat_activity provenance. Raw catalog projection stays exact, may contain permission-redacted NULLs. Separate selected fact receipt names bridge provenance and identical retained process/session identity. Handoff fact-composition contract is an input to deferred qualification derivation, not a change to closed codec or producer graph.",
+  "snapshot_binding": "Use closed13-event mutation/generation/session protocol plus independent receiver/census observer progression. pgstat row seqlock copies are coherent per row, NOT all rows MVCC-consistent; require complete public roster/no missing expected row and observer before/after birth set, same registry generation/context. Any incomplete bridge stage, mismatch, duplicate, stale receipt or nonclient row =>UNKNOWN.",
+  "future_proof": "Measure approved bridge/backend/source binary identity, complete authenticated binding and observer receipts at later build/runtime gate; no runtime value fabricated. Two independent original completed-work observer requirements remain unchanged."
+}

@@ -1,0 +1,20 @@
+{
+  "revision": 5,
+  "scope": "TEST_ONLY_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "physical_instantiation_performed": false,
+  "runtime_proven": false,
+  "fixed_fd_roles": {
+    "3": "read-only approved loader/context manifest",
+    "4": "slot-private signing-key sealed memfd",
+    "5": "authenticated slot channel",
+    "6": "one retained enforcement target pidfd (enforcer only)"
+  },
+  "bootstrap": "Exact approved executable on immutable TEST mount, no_new_privs, non-dumpable, unique UID per actor, distinct key custody; close all nonmanifest inherited fds before enrollment",
+  "enforcement": "One-shot worker accepts only message type107 and fixed STOP_THEN_TERM_THEN_CONT disposition1 for inherited fd6 target identity; no caller PID/path/fd/SQL selector; outputs attempt not success",
+  "kernel_filter": "After bootstrap reject execve/execveat, ptrace, process_vm_writev, kill/tkill/tgkill, pidfd_open/pidfd_getfd, dup/dup2/dup3, fd replacement and executable writable mappings. Enforcer pidfd_send_signal only fd6 and exact permitted three signals; fd6 cannot be closed/replaced until exit. Unexpected syscall kills worker and outcome stays UNKNOWN",
+  "receiving": "Post-enrollment recvmsg only fd5; reject any SCM_RIGHTS and unexpected ancillary, never install it as a target; kernel SCM_PIDFD must match enrolled sender, close temporary validation handles",
+  "capability_boundary": "If platform permissions require CAP_KILL, confine to disposable TEST user/PID namespace and above immutable syscall filter; no ambient/root/superuser broker API. Exact filter instruction/syscall closure is a remaining design validation obligation, not proved by this prose",
+  "design_gap": "No frozen source implements or statically verifies the proposed per-role filter/dependency startup boundary; exact full role-specific syscall/filter generation and credential entitlement remain NOT_PROVEN",
+  "runtime_qualification_required_later": true
+}

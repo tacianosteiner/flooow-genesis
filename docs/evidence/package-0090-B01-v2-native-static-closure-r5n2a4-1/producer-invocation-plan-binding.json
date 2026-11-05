@@ -1,0 +1,190 @@
+{
+  "status": "OPEN_NO_CONFORMING_FROZEN_PLAN_RECOVERED",
+  "plan_id": "UNKNOWN",
+  "producer_steps": [],
+  "producer_step_cardinality": "NOT_ESTABLISHED",
+  "required_binding_obligations": [
+    "FIELD-01",
+    "FIELD-02",
+    "FIELD-03",
+    "FIELD-04",
+    "FIELD-05",
+    "FIELD-06",
+    "FIELD-07",
+    "FIELD-08",
+    "FIELD-09",
+    "FIELD-10",
+    "PREDICATE-01",
+    "PREDICATE-02",
+    "PREDICATE-03",
+    "PREDICATE-04",
+    "PREDICATE-05",
+    "PREDICATE-06"
+  ],
+  "candidates": [
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_complete_currentness.py",
+      "SHA256": "72d5a907e4a474cc5926cee8f3c9aa3c40c18fcf250203862d949bf779c11e9c",
+      "CALLABLE_IDENTITY": "qualify/observe -> QUERY -> projection",
+      "CALLABLE_TYPE": "FIXED_QUERY",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Explicit legacy observer connection user postgres; not approved AUX_READ_PROXY invocation",
+      "REJECTION_REASON": "Raw proconfig/setconfig/body export through to_jsonb; different catalog universe; not CONFIG_ASSERTIONS_V2. Writer connection performs SQL mutations in legacy test. Never executed in this gate.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 14,
+          "text": "CATALOGS = {"
+        },
+        {
+          "line": 47,
+          "text": "def projection(name):"
+        },
+        {
+          "line": 51,
+          "text": "QUERY = 'SELECT jsonb_build_object(' + ','.join(\"'%s',(SELECT coalesce(jsonb_agg(%s ORDER BY (%s)::text),'[]'::jsonb) FROM (%s) t)\" % (name,projection(name),projection(name),sql) for name, sql in CATALOGS.items()) + ')'"
+        },
+        {
+          "line": 58,
+          "text": "def qualify(sql, run, container, folder, record, fixture, runtime_work):"
+        },
+        {
+          "line": 65,
+          "text": "    kwargs = dict(host='127.0.0.1', port=int(port[0]['HostPort']), dbname='g3f4', user='postgres', password=(Path(runtime_work)/'postgres-password').read_text(), autocommit=True)"
+        },
+        {
+          "line": 72,
+          "text": "            start=time.perf_counter_ns(); value=observer.execute(QUERY).fetchone()[0]"
+        }
+      ]
+    },
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_source_closure.py",
+      "SHA256": "8cef26dba9481d07f880882c24042ede47f561bcb4f56dd48911319c76b03b7a",
+      "CALLABLE_IDENTITY": "main/local sql -> command(psql)",
+      "CALLABLE_TYPE": "OTHER_FIXED_CALLABLE",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Generic callback role argument defaults postgres",
+      "REJECTION_REASON": "Caller-supplied statement/role; external docker/psql invocation; not a finite Reader callable manifest.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 149,
+          "text": "    def sql(s, check=True, role='postgres'):"
+        },
+        {
+          "line": 150,
+          "text": "        return command(['docker', 'exec', '-i', container, 'psql', '-X', '-w', '-U', role, '-d', 'g3f4', '-At', '-v', 'ON_ERROR_STOP=1', '-v', 'VERBOSITY=verbose'], s.encode(), check=check)"
+        }
+      ]
+    },
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_reachable_v2_catalog.py",
+      "SHA256": "e42ada36ebfbaffb9c7defae7c31c1f10972405ec0bd2b9ca794f7c6f6e375a7",
+      "CALLABLE_IDENTITY": "qualify -> supplied sql callback",
+      "CALLABLE_TYPE": "OTHER_FIXED_CALLABLE",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Invocation/effective principal depends on external callback",
+      "REJECTION_REASON": "Eight operator/planner catalogs; not 19/146 projection; SQL text assembled from model; no approved Reader binding.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 7,
+          "text": "def prepare(r):"
+        },
+        {
+          "line": 21,
+          "text": "def qualify(sql,run,container,folder,record,fixture,runtime_work):"
+        },
+        {
+          "line": 32,
+          "text": "  actual=json.loads(sql('SELECT COALESCE(jsonb_agg(jsonb_build_object('+','.join(parts)+\")),'[]'::jsonb) FROM pg_catalog.\"+table+' c WHERE '+entry['where']+';').stdout)"
+        }
+      ]
+    },
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_g3f4_catalog.py",
+      "SHA256": "8d0023ccdf57539954345ee9a4b42730a51422361625879bb63a8ef5a8543314",
+      "CALLABLE_IDENTITY": "inspect -> local sql -> subprocess",
+      "CALLABLE_TYPE": "OTHER_FIXED_CALLABLE",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Legacy psql login literal postgres; owner/current_user not thereby proved",
+      "REJECTION_REASON": "Wrapper metadata collector exports raw proconfig and uses external subprocess; not approved Reader producer.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 8,
+          "text": "def inspect(work):"
+        },
+        {
+          "line": 14,
+          "text": "    def sql(statement):"
+        },
+        {
+          "line": 15,
+          "text": "        r=subprocess.run(['docker','exec','-i',container,'psql','-X','-U','postgres','-d','g3f4','-At','-v','ON_ERROR_STOP=1'],input=statement,text=True,capture_output=True,check=True)"
+        },
+        {
+          "line": 25,
+          "text": "      'search_path',p.proconfig,'owner',pg_get_userbyid(p.proowner),"
+        }
+      ]
+    },
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_t10_expectations.py",
+      "SHA256": "f9260f316454c75e2922d4275064dfabfe975fb7b73a3e85ecc04ec4652e695b",
+      "CALLABLE_IDENTITY": "metadata collection -> supplied sql callback",
+      "CALLABLE_TYPE": "OTHER_FIXED_CALLABLE",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Callback session/effective principal not fixed by query text",
+      "REJECTION_REASON": "Concrete body hashing exists, but config remains raw and exact Reader invocation/principal/output binding is absent.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 45,
+          "text": "            function=dict(signature=ledger.signature(f),owner='flooow_offline_audit_owner',language='plpgsql',security_definer=True,volatility='s',strict=False,parallel='u',search_path=['search_path=pg_catalog, pg_temp'],body_sha256=q.sha(body.encode()),source_statement_ordinal=ordinal)"
+        },
+        {
+          "line": 126,
+          "text": "    actual=json.loads(sql(\"SELECT json_build_object('owner',pg_get_userbyid(p.proowner),'language',l.lanname,'security_definer',p.prosecdef,'volatility',p.provolatile,'strict',p.proisstrict,'parallel',p.proparallel,'search_path',p.proconfig,'body_sha256',encode(sha256(convert_to(p.prosrc,'UTF8')),'hex')) FROM pg_proc p JOIN pg_language l ON l.oid=p.prolang WHERE p.oid='%s'::regprocedure;\"%f['signature']).stdout)"
+        }
+      ]
+    },
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_b01_v2/design.py",
+      "SHA256": "fb42380d1b8f4fb2f478d96db770fc259bca15840118a9d0a72059ddc770fe35",
+      "CALLABLE_IDENTITY": "capability design declaration",
+      "CALLABLE_TYPE": "OTHER_FIXED_CALLABLE",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Explicit implementation/principal placeholders",
+      "REJECTION_REASON": "Candidate mechanism policy is not executable invocation authority.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 105,
+          "text": "        capabilities.append(dict(CAPABILITY_ID='0090/B01V2/'+mechanism,AUTHORIZED_CLASS_IDS=sorted({p['CLASS_ID'] for p in ps}),AUTHORIZED_MECHANISMS=[mechanism],AUTHORIZED_TARGETS=sorted({g for p in ps for g in p['GRAPH_OBJECTS']}),FIXED_OPERATION='CANDIDATE_'+mechanism,REQUIRED_DB_ROLE_PATH='Exited out-of-epoch deployment bootstrap; no owner SET or admin capability during SEALED' if route=='BOOTSTRAP_ONLY_CAPABILITY' else 'Separate non-superuser fixed worker; no campaign credential',REVERSIBILITY='Independent exact semantic reversal or discard owned target; never assume rollback',OUTCOME_PROOF='Independent protected projection plus transaction/process/ledger outcome as applicable; not a command ACK',CAPABILITY_CLASS=route,INPUT_SCHEMA=dict(operation_id='exact enum',class_id='exact authorized enum',target_id='exact frozen enum',expected_precondition='exact frozen contract digest'),FIXED_IMPLEMENTATION=None,DB_OS_PRINCIPAL=None,LIFECYCLE='Capability delivered only after durable invalidation; bootstrap only after epoch CLOSED',PRECONDITIONS='Exact source/provider/target identity, no pending transition',TRANSITION_REQUIREMENT='Exclusive lease, PREPARED fsync, non-SEALED and incremented generation before visibility',GENERATION_RULE='Never reuse/decrement; missing state denies',RECONCILIATION_RULE='Independent known outcome required; UNKNOWN cannot directly reseal',AUDIT_BINDING=['epoch','transition','class','mechanism','target','actor','capability','generation_before','generation_after','outcome','reconciliation','terminal_tip'],REVERSAL_TEARDOWN='Worker/session/credential gone before reseal; exact whole protected-state projection comparison',SEALED_AVAILABILITY='No bootstrap/admin worker; immutable closed coordinator only',qualified=False))"
+        }
+      ]
+    },
+    {
+      "SOURCE_FILE": "scripts/validation/package_0090_native_health_qualification/qualification.py",
+      "SHA256": "25338508d182b41ec887357c2a996f31b26e6f6d85385d19cdc490c0f2cf0e2a",
+      "CALLABLE_IDENTITY": "snapshot -> sql helper",
+      "CALLABLE_TYPE": "OTHER_FIXED_CALLABLE",
+      "OBSERVED_STATIC_PRINCIPAL_BINDING": "Legacy test sql role default postgres",
+      "REJECTION_REASON": "Test backend snapshot is not full fixed source projection or restricted Reader invocation.",
+      "READER_BINDING_PROVEN": false,
+      "SOURCE_MATCHES": [
+        {
+          "line": 27,
+          "text": "def sql(s,role='postgres',ok=True,timeout=30):return ex('psql','-X','-w','-h','/tmp/pgsock','-U',role,'-d','native_fixture','-At','-v','ON_ERROR_STOP=1',data=s,ok=ok,timeout=timeout)"
+        },
+        {
+          "line": 50,
+          "text": "def snapshot():"
+        },
+        {
+          "line": 51,
+          "text": "    return sql(\"SELECT coalesce(json_agg(x),'[]'::json) FROM (SELECT pid,usesysid,datid,backend_start,state FROM pg_stat_activity WHERE usename LIKE 'test_%') x;\").stdout"
+        }
+      ]
+    }
+  ],
+  "missing_chain": "PLAN -> STEP -> CALLABLE -> INVOCATION -> EFFECTIVE PRINCIPAL -> SOURCE -> TRANSFORM -> PREDICATE -> OUTPUT",
+  "authority_rule": "No new plan or authority assigned. Desired output and source hashes do not establish invocation.",
+  "future_boundary": "Implementation/authentication/OIDs remain future; static invocation design itself is still missing."
+}

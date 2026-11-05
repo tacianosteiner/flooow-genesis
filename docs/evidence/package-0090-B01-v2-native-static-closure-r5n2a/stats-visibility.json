@@ -1,0 +1,48 @@
+{
+  "scope": "R5N2A_FOUNDATION_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "PG18_SOURCE_ANCHOR": [
+    {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/pg_proc.dat",
+      "sha256": "1f934ce80d460159dda137714374a35f9896315ea2476709cbb4da13b38ef95a",
+      "pointer": "/"
+    },
+    {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/system_views.sql",
+      "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+      "pointer": "/"
+    }
+  ],
+  "FUNCTION_IDENTITY": "pg_catalog.pg_stat_get_activity(integer), prosrc pg_stat_get_activity, projected by pg_stat_activity",
+  "REQUIRED_OUTPUT_FIELDS": [
+    "datid",
+    "pid",
+    "usesysid",
+    "usename",
+    "backend_start",
+    "backend_type"
+  ],
+  "FORBIDDEN_OUTPUT_FIELDS": [
+    "query",
+    "query_id",
+    "client_addr",
+    "client_hostname",
+    "credential secrets",
+    "unrelated session content"
+  ],
+  "VISIBILITY_PREDICATE": "UNRESOLVED_NATIVE_IMPLEMENTATION",
+  "READER_REQUIREMENT": "ordinary dedicated proxy, no broad monitor membership",
+  "PRIVILEGE_REQUIREMENT": "Only exact minimal fixed projection; cross-role field visibility must be proved from native source before provisioning",
+  "SENSITIVE_DATA_EXCLUSION": "Never raw query/config/credential values; only six declared native census fields",
+  "OTHER_SESSION_RULE": "Required isolated TEST protected backend census only",
+  "OWN_SESSION_RULE": "Own connection identity may be measured; does not substitute cross-role roster",
+  "NULL_OR_REDACTION_RULE": "Required field redacted/NULL or incomplete roster => UNKNOWN",
+  "UNKNOWN_RULE": "NOT_QUALIFIED",
+  "narrower_sources": {
+    "database identity": "pg_database.oid/datname",
+    "role identity": "pg_roles.oid/rolname",
+    "process birth": "native retained process identity; does not establish SQL role/session attribution"
+  },
+  "missing_source": "Frozen provider has view/catalog declaration but no pgstatfuncs.c implementation; rg inventory checked. No live DB/source semantics invented."
+}

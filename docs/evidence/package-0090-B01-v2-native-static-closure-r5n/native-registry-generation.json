@@ -1,0 +1,653 @@
+{
+  "scope": "R5N_TEST_ONLY_NATIVE_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "records": [
+    {
+      "type": "PARTICIPANT_REGISTRY",
+      "record_type": 1,
+      "version": 1,
+      "canonical_tuple": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "slot",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_entity_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "record_sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_journal_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "enrollment_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "state",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        }
+      ],
+      "primary_identity": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "generation"
+      ],
+      "writer": "NATIVE_REGISTRY_WRITER",
+      "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+      "credential": "Native writer generation/purpose key, no participant co-holder",
+      "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+      "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+      "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+      "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+      "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+      "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+      "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+      "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+      "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+      "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+      "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+      "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+      "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+    },
+    {
+      "type": "GENERATION_LEDGER",
+      "record_type": 2,
+      "version": 1,
+      "canonical_tuple": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "slot",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_entity_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "record_sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_journal_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "high_water_generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "prior_tombstone_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "state",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        }
+      ],
+      "primary_identity": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot"
+      ],
+      "writer": "NATIVE_REGISTRY_WRITER",
+      "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+      "credential": "Native writer generation/purpose key, no participant co-holder",
+      "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+      "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+      "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+      "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+      "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+      "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+      "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+      "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+      "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+      "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+      "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+      "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+      "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+    },
+    {
+      "type": "GENERATION_TOMBSTONE",
+      "record_type": 3,
+      "version": 1,
+      "canonical_tuple": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "slot",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_entity_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "record_sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_journal_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "retired_generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "retired_enrollment",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "revocation_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "extinction_receipt",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "outcome_state",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        }
+      ],
+      "primary_identity": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "retired_generation"
+      ],
+      "writer": "NATIVE_REGISTRY_WRITER",
+      "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+      "credential": "Native writer generation/purpose key, no participant co-holder",
+      "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+      "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+      "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+      "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+      "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+      "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+      "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+      "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+      "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+      "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+      "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+      "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+      "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+    },
+    {
+      "type": "COMPLETED_WORK_PUBLICATION",
+      "record_type": 4,
+      "version": 1,
+      "canonical_tuple": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "slot",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_entity_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "record_sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "previous_journal_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "publication_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "related_subject_work_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "enrollment_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "result_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "observer_receipt",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "state",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        }
+      ],
+      "primary_identity": [
+        "qualification_id",
+        "incarnation_id",
+        "epoch",
+        "slot",
+        "generation",
+        "work_id"
+      ],
+      "writer": "NATIVE_REGISTRY_WRITER",
+      "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+      "credential": "Native writer generation/purpose key, no participant co-holder",
+      "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+      "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+      "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+      "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+      "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+      "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+      "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+      "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+      "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+      "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+      "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+      "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+      "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+    }
+  ],
+  "encoding": "magic8 FLOOOWN1 || version u16be=1 || type u16be=(300+record_type) || sender u16be=NATIVE_REGISTRY_WRITER actor enum || recipient u16be=HEALTH_GUARD actor enum || payload_length u32be || typed TLV payload (u16be field count, contiguous tag u16be,length u32be,value) || Ed25519 signature64 over ASCII FLOOOW/PACKAGE0090/R5N/REGISTRY/V1 + complete preceding frame. Journal envelope=u32be frame length || frame || SHA256(frame). Exact record schema only; unknown/reordered/extra/truncated/trailing/null reject",
+  "state_enums": {
+    "PARTICIPANT_REGISTRY": {
+      "PROVISIONAL": 1,
+      "ENROLLED": 2,
+      "REVOKED": 3,
+      "EXTINCT": 4,
+      "UNKNOWN": 255
+    },
+    "GENERATION_LEDGER": {
+      "CURRENT": 1,
+      "REVOKED": 2,
+      "TOMBSTONED": 3,
+      "NEW_GENERATION": 4,
+      "UNKNOWN": 255
+    },
+    "GENERATION_TOMBSTONE": {
+      "REVOKED_PENDING_EXTINCTION": 1,
+      "EXTINCT_PROVEN": 2,
+      "UNKNOWN": 255
+    },
+    "COMPLETED_WORK_PUBLICATION": {
+      "RESERVED": 1,
+      "WORK_PENDING": 2,
+      "OBSERVED": 3,
+      "PUBLISHED": 4,
+      "UNKNOWN": 255,
+      "OBSERVED_PROVEN": 5,
+      "CONSUMED": 6,
+      "PUBLISHED_UNVERIFIED_ARTIFACT": 7
+    }
+  },
+  "publication_purpose_enum": {
+    "ARTIFACT": 1,
+    "OBSERVATION": 2,
+    "CONSUMPTION": 3,
+    "COMPLETED_WORK": 4
+  },
+  "base_subject_work_id_encoding": "ABI work_id (base_subject_work_id)=SHA256(ASCII FLOOOW/PACKAGE0090/R5N/SUBJECT-WORK/V1 || bootstrap_context_digest32 || participant_id u16be || challenge_id32 || fixed_input_digest32 || expected_success_result_schema_digest32). Every suffix has exact stated width; ASCII prefix fixed, no NUL. Input/schema digests are precommitted before work and exclude final publication/result digests",
+  "purpose_work_id_encoding": "Record work_id=SHA256(u32be domain byte length || exact ASCII FLOOOW/PACKAGE0090/R5N/WORK-ID/{purpose}/V1 || bootstrap_context_digest32 || related_subject_work_id32 || challenge_id32). purpose is exact uppercase ASCII enum name ARTIFACT/OBSERVATION/CONSUMPTION/COMPLETED_WORK, never numeric/string-coerced. related_subject_work_id MUST equal the base_subject_work_id of the observed subject; record publication_purpose u16be MUST match that purpose enum. Recompute and reject mismatch; no caller-chosen hashing/type order",
+  "publication_receipt_DAG": "Each record-purpose work_id uses the exact independent purpose_work_id_encoding; distinct purposes have distinct entities. ARTIFACT result digest hashes original public material/full context, not its own receipt. OBSERVATION hashes prior artifact/attempt+observer evidence. CONSUMPTION hashes prior artifact+observation and exact one-use CAS. Only then COMPLETED_WORK hashes role result record containing those prior receipt digests. No result hashes its own final receipt or depends on a later DAG node",
+  "publication_rights": "Only HEALTH_GUARD submits fixed validated record schemas to native writer. ARTIFACT must carry producer evidence; OBSERVATION requires distinct current consumer/census/guard witness as appropriate; CONSUMPTION only consumer + exact artifact one-use CAS; COMPLETED_WORK only after role-specific independent observation. Purpose is derived from fixed stage/message route, never arbitrary module operation selector",
+  "artifact_non_authority": "ARTIFACT may publish as PUBLISHED_UNVERIFIED_ARTIFACT before consumer verification; observer_receipt is SHA256(ASCII FLOOOW/R5N/OBSERVATION-PENDING/V1), explicitly NOT_A_PROOF. Such records never satisfy native health. Independent consumer OBSERVATION upgrades exact artifact to PUBLISHED; one CONSUMPTION changes only that artifact to CONSUMED. Final COMPLETED_WORK is a separate entity and remains PUBLISHED for guard validation",
+  "pending_markers": "Pending extinction_receipt=SHA256(ASCII FLOOOW/R5N/EXTINCTION-PENDING/V1), never EXTINCT evidence. First prior_tombstone/previous_entity_digest use context-bound native GENESIS digest; allowed only for independently approved NEW qualification, never inferred from unavailable history. Every marker is explicit NOT_A_PROOF, never zero/default authority",
+  "native_journal": "One private native-only append journal; single writer owns exact inherited append FD and exclusive lock, observer receives separate read-only FD; no caller path/file/type selector. All four schemas fixed; not the global epoch ledger contract",
+  "durability": "Append full frame; fsync journal and directory for creation; independent observer reread matching tip before any eligibility. Crash/torn tail/ACK loss UNKNOWN; never rewrite or infer rollback",
+  "genesis": "SHA256(canonical domain FLOOOW/PACKAGE0090/R5N/GENESIS/V1 with qualification/incarnation/epoch/policy/manifest digest); approved new isolated genesis only, never inferred from missing old rows",
+  "dependency_rule": "Generation registry and per-work publication entities have separate revision domains. Publish does not alter generation registry; guard validates current per-entity publication vector and identical generation/context/dependency vector immediately before native decision",
+  "no_bootstrap_cycle": "Provisional native qualification chores are not Package authority. Only fixed native work, original public-material verification and preassigned TEST target control are eligible; final healthy output requires all seven independently observed current receipts",
+  "state_edges": {
+    "PARTICIPANT_REGISTRY": [
+      [
+        "PROVISIONAL",
+        "ENROLLED"
+      ],
+      [
+        "ENROLLED",
+        "REVOKED"
+      ],
+      [
+        "REVOKED",
+        "EXTINCT"
+      ]
+    ],
+    "COMPLETED_WORK_PUBLICATION": [
+      [
+        "RESERVED",
+        "WORK_PENDING"
+      ],
+      [
+        "WORK_PENDING",
+        "OBSERVED"
+      ],
+      [
+        "OBSERVED",
+        "PUBLISHED"
+      ],
+      [
+        "WORK_PENDING",
+        "UNKNOWN"
+      ],
+      [
+        "UNKNOWN",
+        "OBSERVED_PROVEN"
+      ],
+      [
+        "OBSERVED_PROVEN",
+        "PUBLISHED"
+      ],
+      [
+        "RESERVED",
+        "PUBLISHED_UNVERIFIED_ARTIFACT"
+      ],
+      [
+        "PUBLISHED_UNVERIFIED_ARTIFACT",
+        "PUBLISHED"
+      ],
+      [
+        "PUBLISHED",
+        "CONSUMED"
+      ]
+    ],
+    "GENERATION_LEDGER": [
+      [
+        "CURRENT",
+        "REVOKED"
+      ],
+      [
+        "REVOKED",
+        "TOMBSTONED"
+      ],
+      [
+        "TOMBSTONED",
+        "NEW_GENERATION"
+      ]
+    ],
+    "GENERATION_TOMBSTONE": [
+      [
+        "REVOKED_PENDING_EXTINCTION",
+        "EXTINCT_PROVEN"
+      ]
+    ]
+  },
+  "UNKNOWN_resolution": "UNKNOWN->OBSERVED_PROVEN requires distinct independent exact outcome evidence; never participant success boolean or timeout; no retry of side effect"
+}

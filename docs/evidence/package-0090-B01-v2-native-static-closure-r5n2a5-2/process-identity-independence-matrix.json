@@ -1,0 +1,2794 @@
+{
+  "dimension": "PROCESS_IDENTITY_INDEPENDENCE",
+  "definition": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+  "participants": [
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER"
+  ],
+  "matrix": {
+    "POSTMASTER": {
+      "POSTMASTER": "NOT_APPLICABLE",
+      "SUPERVISOR": "PROVEN_INDEPENDENT",
+      "RECEIVER": "PROVEN_INDEPENDENT",
+      "CENSUS_OBSERVER": "PROVEN_INDEPENDENT",
+      "APPROVAL_PRODUCER": "PROVEN_INDEPENDENT",
+      "APPROVAL_CONSUMER": "PROVEN_INDEPENDENT",
+      "ENFORCEMENT_WORKER": "PROVEN_INDEPENDENT"
+    },
+    "SUPERVISOR": {
+      "POSTMASTER": "PROVEN_INDEPENDENT",
+      "SUPERVISOR": "NOT_APPLICABLE",
+      "RECEIVER": "PROVEN_INDEPENDENT",
+      "CENSUS_OBSERVER": "PROVEN_INDEPENDENT",
+      "APPROVAL_PRODUCER": "PROVEN_INDEPENDENT",
+      "APPROVAL_CONSUMER": "PROVEN_INDEPENDENT",
+      "ENFORCEMENT_WORKER": "PROVEN_INDEPENDENT"
+    },
+    "RECEIVER": {
+      "POSTMASTER": "PROVEN_INDEPENDENT",
+      "SUPERVISOR": "PROVEN_INDEPENDENT",
+      "RECEIVER": "NOT_APPLICABLE",
+      "CENSUS_OBSERVER": "PROVEN_INDEPENDENT",
+      "APPROVAL_PRODUCER": "PROVEN_INDEPENDENT",
+      "APPROVAL_CONSUMER": "PROVEN_INDEPENDENT",
+      "ENFORCEMENT_WORKER": "PROVEN_INDEPENDENT"
+    },
+    "CENSUS_OBSERVER": {
+      "POSTMASTER": "PROVEN_INDEPENDENT",
+      "SUPERVISOR": "PROVEN_INDEPENDENT",
+      "RECEIVER": "PROVEN_INDEPENDENT",
+      "CENSUS_OBSERVER": "NOT_APPLICABLE",
+      "APPROVAL_PRODUCER": "PROVEN_INDEPENDENT",
+      "APPROVAL_CONSUMER": "PROVEN_INDEPENDENT",
+      "ENFORCEMENT_WORKER": "PROVEN_INDEPENDENT"
+    },
+    "APPROVAL_PRODUCER": {
+      "POSTMASTER": "PROVEN_INDEPENDENT",
+      "SUPERVISOR": "PROVEN_INDEPENDENT",
+      "RECEIVER": "PROVEN_INDEPENDENT",
+      "CENSUS_OBSERVER": "PROVEN_INDEPENDENT",
+      "APPROVAL_PRODUCER": "NOT_APPLICABLE",
+      "APPROVAL_CONSUMER": "PROVEN_INDEPENDENT",
+      "ENFORCEMENT_WORKER": "PROVEN_INDEPENDENT"
+    },
+    "APPROVAL_CONSUMER": {
+      "POSTMASTER": "PROVEN_INDEPENDENT",
+      "SUPERVISOR": "PROVEN_INDEPENDENT",
+      "RECEIVER": "PROVEN_INDEPENDENT",
+      "CENSUS_OBSERVER": "PROVEN_INDEPENDENT",
+      "APPROVAL_PRODUCER": "PROVEN_INDEPENDENT",
+      "APPROVAL_CONSUMER": "NOT_APPLICABLE",
+      "ENFORCEMENT_WORKER": "PROVEN_INDEPENDENT"
+    },
+    "ENFORCEMENT_WORKER": {
+      "POSTMASTER": "PROVEN_INDEPENDENT",
+      "SUPERVISOR": "PROVEN_INDEPENDENT",
+      "RECEIVER": "PROVEN_INDEPENDENT",
+      "CENSUS_OBSERVER": "PROVEN_INDEPENDENT",
+      "APPROVAL_PRODUCER": "PROVEN_INDEPENDENT",
+      "APPROVAL_CONSUMER": "PROVEN_INDEPENDENT",
+      "ENFORCEMENT_WORKER": "NOT_APPLICABLE"
+    }
+  },
+  "relations": [
+    {
+      "pair": [
+        "POSTMASTER",
+        "SUPERVISOR"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/0",
+          "canonical_fact_sha256": "65dcf2762cfcb7fe4710f1bbcd4b116f043ece06970f49fd6a63b7a8cb15c8de",
+          "fact": {
+            "pair": [
+              "POSTMASTER",
+              "SUPERVISOR"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": false,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/0",
+          "canonical_fact_sha256": "a4d50699f0108889657ab9efaf3065182f8c22872cbcc480908d832faf160b21",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "RECEIVER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/1",
+          "canonical_fact_sha256": "36f702d1510bbaf15c6d6e529e1f4738b555ff89711c46423d362c3ce146cc1d",
+          "fact": {
+            "pair": [
+              "POSTMASTER",
+              "RECEIVER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/0",
+          "canonical_fact_sha256": "a4d50699f0108889657ab9efaf3065182f8c22872cbcc480908d832faf160b21",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "CENSUS_OBSERVER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/2",
+          "canonical_fact_sha256": "207b681c2debef3a5174a4f1ca4d86c0d03870718b0cdd7d5c54c347be4f6a42",
+          "fact": {
+            "pair": [
+              "POSTMASTER",
+              "CENSUS_OBSERVER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/0",
+          "canonical_fact_sha256": "a4d50699f0108889657ab9efaf3065182f8c22872cbcc480908d832faf160b21",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "APPROVAL_PRODUCER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/3",
+          "canonical_fact_sha256": "3c2d34fb72eae5d3901d0d424c44c2aae3d0b655ae2ed461a2fa10512484c68e",
+          "fact": {
+            "pair": [
+              "POSTMASTER",
+              "APPROVAL_PRODUCER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/0",
+          "canonical_fact_sha256": "a4d50699f0108889657ab9efaf3065182f8c22872cbcc480908d832faf160b21",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "APPROVAL_CONSUMER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/4",
+          "canonical_fact_sha256": "177cea5ff29ad3d6c0ef5492aef54e76783a53e002feae29c719029018bdbf06",
+          "fact": {
+            "pair": [
+              "POSTMASTER",
+              "APPROVAL_CONSUMER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/0",
+          "canonical_fact_sha256": "a4d50699f0108889657ab9efaf3065182f8c22872cbcc480908d832faf160b21",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "POSTMASTER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/5",
+          "canonical_fact_sha256": "74b33b8aad878b8efa34748115f973b6ed8cc79fa343dfee75be34f813c0a26a",
+          "fact": {
+            "pair": [
+              "POSTMASTER",
+              "ENFORCEMENT_WORKER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/0",
+          "canonical_fact_sha256": "a4d50699f0108889657ab9efaf3065182f8c22872cbcc480908d832faf160b21",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "RECEIVER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/6",
+          "canonical_fact_sha256": "f712cbce51022f097fae8f443fb15aa66332f99d004c2476baeef7b98b6315e3",
+          "fact": {
+            "pair": [
+              "SUPERVISOR",
+              "RECEIVER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": false,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/1",
+          "canonical_fact_sha256": "ebd16417621c978de44ccb44432fb6b479277e375c9dc083a32760a215d63577",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "CENSUS_OBSERVER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/7",
+          "canonical_fact_sha256": "b9bd032bd6dd8806cfa5a0ac69934559b2fe0b10e1762af141cc7783f67a6df1",
+          "fact": {
+            "pair": [
+              "SUPERVISOR",
+              "CENSUS_OBSERVER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": false,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/1",
+          "canonical_fact_sha256": "ebd16417621c978de44ccb44432fb6b479277e375c9dc083a32760a215d63577",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "APPROVAL_PRODUCER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/8",
+          "canonical_fact_sha256": "dd3f476260036e26d0918b2d3dc09096232ce8cf7d9a0028114b42e701f8a3e0",
+          "fact": {
+            "pair": [
+              "SUPERVISOR",
+              "APPROVAL_PRODUCER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": false,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/1",
+          "canonical_fact_sha256": "ebd16417621c978de44ccb44432fb6b479277e375c9dc083a32760a215d63577",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "APPROVAL_CONSUMER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/9",
+          "canonical_fact_sha256": "5b9b6315bddf7154f98bfa9257aa324073628bfef7f2a7b0df12fd61e37a4348",
+          "fact": {
+            "pair": [
+              "SUPERVISOR",
+              "APPROVAL_CONSUMER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": false,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/1",
+          "canonical_fact_sha256": "ebd16417621c978de44ccb44432fb6b479277e375c9dc083a32760a215d63577",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "SUPERVISOR",
+        "ENFORCEMENT_WORKER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/10",
+          "canonical_fact_sha256": "a1727df14b985b941bffb63f2f2ed1a5dcf734dda7b02b7f6b49cefb1a91d137",
+          "fact": {
+            "pair": [
+              "SUPERVISOR",
+              "ENFORCEMENT_WORKER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": false,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/1",
+          "canonical_fact_sha256": "ebd16417621c978de44ccb44432fb6b479277e375c9dc083a32760a215d63577",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "CENSUS_OBSERVER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/11",
+          "canonical_fact_sha256": "93dc540f9889eae5af1c1a35268996ca73f5d490cfd47f6d9766e94863f75996",
+          "fact": {
+            "pair": [
+              "RECEIVER",
+              "CENSUS_OBSERVER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/2",
+          "canonical_fact_sha256": "b0216276c49f70e26031d583a553fbb4a5e40a2eb9394721fc1cec64ab22e934",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "APPROVAL_PRODUCER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/12",
+          "canonical_fact_sha256": "79f3ee4618edb9596524c9ecc0c35f92d57cf2d4e1d458ec651293f300b0728f",
+          "fact": {
+            "pair": [
+              "RECEIVER",
+              "APPROVAL_PRODUCER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/2",
+          "canonical_fact_sha256": "b0216276c49f70e26031d583a553fbb4a5e40a2eb9394721fc1cec64ab22e934",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "APPROVAL_CONSUMER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/13",
+          "canonical_fact_sha256": "57a1f198ecd25f5bc48471bfa0f02d6f15a213fff160823af6d3406f62985fd2",
+          "fact": {
+            "pair": [
+              "RECEIVER",
+              "APPROVAL_CONSUMER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/2",
+          "canonical_fact_sha256": "b0216276c49f70e26031d583a553fbb4a5e40a2eb9394721fc1cec64ab22e934",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "RECEIVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/14",
+          "canonical_fact_sha256": "aacaeacda7e32a7ae734dc0de18bb6752d6883d2a48a9ab5cd8c00098cb0ff82",
+          "fact": {
+            "pair": [
+              "RECEIVER",
+              "ENFORCEMENT_WORKER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/2",
+          "canonical_fact_sha256": "b0216276c49f70e26031d583a553fbb4a5e40a2eb9394721fc1cec64ab22e934",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "APPROVAL_PRODUCER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/15",
+          "canonical_fact_sha256": "bf4dfcb181c2270ee65d044157f985730ba8d320941bf6802962dd895e729bf8",
+          "fact": {
+            "pair": [
+              "CENSUS_OBSERVER",
+              "APPROVAL_PRODUCER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/3",
+          "canonical_fact_sha256": "5a8640edf212e26884c5ecfedf340336d85c9c2e8a45b78b817022dc86e49997",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "APPROVAL_CONSUMER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/16",
+          "canonical_fact_sha256": "8930c97078433ad0ce7946c1533ebb523b7b386581811d14bedd5102e01f683b",
+          "fact": {
+            "pair": [
+              "CENSUS_OBSERVER",
+              "APPROVAL_CONSUMER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/3",
+          "canonical_fact_sha256": "5a8640edf212e26884c5ecfedf340336d85c9c2e8a45b78b817022dc86e49997",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "CENSUS_OBSERVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/17",
+          "canonical_fact_sha256": "7f3526796156d68a7d24b4a26b8043a16e0650376668a2d9945abee360c156a1",
+          "fact": {
+            "pair": [
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/3",
+          "canonical_fact_sha256": "5a8640edf212e26884c5ecfedf340336d85c9c2e8a45b78b817022dc86e49997",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "APPROVAL_PRODUCER",
+        "APPROVAL_CONSUMER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/18",
+          "canonical_fact_sha256": "e5fddeb647f858c017ddf914c74d4b50f0fb3b3cd34f315a0db2f765c79f31f8",
+          "fact": {
+            "pair": [
+              "APPROVAL_PRODUCER",
+              "APPROVAL_CONSUMER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/4",
+          "canonical_fact_sha256": "2fdf76f6feca361366199a176095a1c19b219567977098300818df8d3ffb6d67",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "APPROVAL_PRODUCER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/19",
+          "canonical_fact_sha256": "6ff729fccf782760184f22f2724a9757b95b44894e4b6202e8dcc01d4a0d3dc5",
+          "fact": {
+            "pair": [
+              "APPROVAL_PRODUCER",
+              "ENFORCEMENT_WORKER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/4",
+          "canonical_fact_sha256": "2fdf76f6feca361366199a176095a1c19b219567977098300818df8d3ffb6d67",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    },
+    {
+      "pair": [
+        "APPROVAL_CONSUMER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "classification": "PROVEN_INDEPENDENT",
+      "property": "Different concurrent own birth/slot/process identity; not restart invariance of another complete tuple",
+      "evidence": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "/pairs/20",
+          "canonical_fact_sha256": "60bdf29177b4be8e96c6fa6cc5671a1c85d43c51a5b644e9910674c0945b3105",
+          "fact": {
+            "pair": [
+              "APPROVAL_CONSUMER",
+              "ENFORCEMENT_WORKER"
+            ],
+            "MUST_BE_DISTINCT": true,
+            "MAY_SHARE_BOUNDARY": true,
+            "MAY_SHARE_PARENT": true,
+            "MAY_SHARE_READ_AUTHORITY": true,
+            "MAY_SHARE_CREDENTIAL_CLASS": true,
+            "MUST_NOT_SHARE_CREDENTIAL": true,
+            "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+            "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+            "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+            "MAY_justifications": {
+              "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+              "parent": "Both are exact SUPERVISOR children",
+              "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+              "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+            },
+            "MUST_NOT_enforcement": [
+              "different retained birth anchors and slot UIDs",
+              "private memfd/LSM labels",
+              "no process memory/ptrace/descriptor transfer",
+              "exact sender role/purpose keys and channel peer matching",
+              "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+            ]
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+          "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+          "pointer": "/schemas/process_instance_identity",
+          "canonical_fact_sha256": "3e5efd634ea491d30e66111d19972695326dd345509209e566fd1b9767797214",
+          "fact": [
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "participant_id",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_dev",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_pidfd_inode",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "child_kernel_start_ticks",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "namespace_set_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            }
+          ]
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records",
+          "canonical_fact_sha256": "8f03a1778439d6483d7439ec5fbf5df209ea18f1c63ab8d20df496dbe5693759",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "list",
+            "length": 4
+          }
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures/5",
+          "canonical_fact_sha256": "d2113497bbc53515c0b897fca564e0e2ff3e4891e2dfe9a4b673e0db58f2ff43",
+          "fact": {
+            "external_exact_selection": true,
+            "kind": "dict",
+            "length": 19
+          }
+        }
+      ],
+      "bounded_sharing": {
+        "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+        "parent": "Both are exact SUPERVISOR children",
+        "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+        "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+      },
+      "generation_transition_independence": null
+    }
+  ],
+  "counts": {
+    "PROVEN_INDEPENDENT": 21
+  },
+  "required": 21,
+  "scope": "STATIC_CONTRACT_ONLY; physical evidence FUTURE"
+}

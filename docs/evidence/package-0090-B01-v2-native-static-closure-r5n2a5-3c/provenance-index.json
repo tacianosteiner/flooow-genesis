@@ -1,0 +1,1924 @@
+{
+  "selections": [
+    {
+      "id": "S1",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3b/intent-matrix.json",
+      "sha256": "fc5314acd6d3d5b604b2fdf94bdac507be6720daa1259a0fdf35731a4093d9fc",
+      "pointer": "/candidates/12",
+      "exact_fact": {
+        "INTENT_ID": "I13",
+        "INTENT_DESCRIPTION": "PRESERVE_PRINCIPAL_INDEPENDENCE",
+        "CANONICAL_SUPPORT": "PARTIAL",
+        "GENERAL_PROPERTY_SUPPORT": "STRONG",
+        "CASE_SPECIFIC_INTENT_ATTRIBUTION": "NOT_ESTABLISHED",
+        "EXACT_SOURCE_REFERENCES": [
+          "S1",
+          "S2",
+          "S3",
+          "S6",
+          "S8",
+          "S20"
+        ],
+        "SECURITY_PROPERTY_PROTECTED": "PRESERVE_PRINCIPAL_INDEPENDENCE",
+        "ATTACK_CLASS_PREVENTED": "Conditional violation of this existing property; exact original attack class/object/actor/transition NOT_CANONICALLY_DETERMINED",
+        "EXISTING_CLOSED_CONTRACTS_PRESERVED": [
+          "S6",
+          "S8",
+          "S20"
+        ],
+        "EXISTING_CLOSED_CONTRACTS_POTENTIALLY_CONTRADICTED": [],
+        "REQUIRES_NEW_AUTHORITY": "NO",
+        "CHANGES_CUSTODY_SEMANTICS": "NO",
+        "CHANGES_GENERATION_SEMANTICS": "NO",
+        "CHANGES_RESTART_SEMANTICS": "NO",
+        "CHANGES_SUBSTITUTION_SEMANTICS": "NO",
+        "CHANGES_QUALIFICATION_SEMANTICS": "NO",
+        "REOPENS_CLOSED_CONTRACT": "NO",
+        "MINIMAL_TO_EXISTING_ARCHITECTURE": "NOT_ESTABLISHED",
+        "CONFIDENCE": "MEDIUM",
+        "REASON": "Distinct principals remain required while full-cohort restart is dependent; principal independence is not numeric UID continuity.",
+        "impact_flag_scope": "NO means recording the existing bounded general property adds no authority/change. Adopting an exclusive case-specific contract is not performed and its unchosen semantics are not inferred.",
+        "SURVIVING_PLAUSIBLE_SECURITY_INTENT": true
+      },
+      "role": "Frozen surviving I13 is full PRESERVE_PRINCIPAL_INDEPENDENCE, not a credential-only projection"
+    },
+    {
+      "id": "S2",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+      "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+      "pointer": "/pairs/0",
+      "exact_fact": {
+        "pair": [
+          "POSTMASTER",
+          "SUPERVISOR"
+        ],
+        "MUST_BE_DISTINCT": true,
+        "MAY_SHARE_BOUNDARY": true,
+        "MAY_SHARE_PARENT": false,
+        "MAY_SHARE_READ_AUTHORITY": true,
+        "MAY_SHARE_CREDENTIAL_CLASS": true,
+        "MUST_NOT_SHARE_CREDENTIAL": true,
+        "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+        "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+        "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+        "MAY_justifications": {
+          "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+          "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+          "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+          "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+        },
+        "MUST_NOT_enforcement": [
+          "different retained birth anchors and slot UIDs",
+          "private memfd/LSM labels",
+          "no process memory/ptrace/descriptor transfer",
+          "exact sender role/purpose keys and channel peer matching",
+          "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+        ]
+      },
+      "role": "Distinct retained birth anchors and slot UIDs is a separate mandatory security condition"
+    },
+    {
+      "id": "S3",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/principal-independence-matrix.json",
+      "sha256": "ed2f993937abb79feb86226f8deabb9404c5ac67eea8aaac1c32e5afaf46899c",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "d539cd3faf24c8557c7555590127a6f403b815cf4c6cfef2b5813671f8e1d325"
+      },
+      "role": "Frozen approved concurrent principal independence21/21; does not require unchanged numeric UID across restart"
+    },
+    {
+      "id": "S4",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+      "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+      "pointer": "/profiles/0",
+      "exact_fact": {
+        "PARTICIPANT_ID": "POSTMASTER",
+        "PRINCIPAL_CLASS": "PRIVATE_TEST_ENGINE_OS_UID",
+        "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+        "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+        "SET_ROLE_POLICY": "DENY",
+        "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+        "ADMIN_OPTION_POLICY": "DENY",
+        "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+        "CREATEROLE_POLICY": "DENY",
+        "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+        "BYPASSRLS_POLICY": "DENY",
+        "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+        "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+        "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+        "ALLOWED_CAPABILITY_CLASSES": [
+          "exact native message/work type",
+          "read fixed sealed/public inputs",
+          "role-specific isolated operation"
+        ],
+        "FORBIDDEN_CAPABILITY_CLASSES": [
+          "arbitrary SQL",
+          "shell",
+          "arbitrary path/module/target",
+          "host/admin/shared Package privilege",
+          "generic native worker"
+        ],
+        "MUTATION_AUTHORITY": "private TEST engine housekeeping only",
+        "READ_AUTHORITY": "Only exact approved role resources",
+        "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+        "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+        "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+      },
+      "role": "Principal/authority and cross-participant boundaries"
+    },
+    {
+      "id": "S5",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+      "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+      "pointer": "/credentials/0",
+      "exact_fact": {
+        "CREDENTIAL_ID_CLASS": "POSTMASTER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "POSTMASTER",
+        "CUSTODIAN": "HOST-held expected server endpoint authentication manifest, no fabricated POSTMASTER message key",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "role": "Nontransfer/nonduplication, stolen bytes not independent current sender anchor, revocation/restart constraints; no POSTMASTER signing key"
+    },
+    {
+      "id": "S6",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/credential-class-manifest.json",
+      "sha256": "ef422b5c4fd4702d94ca2e75d20eccbe390eaf41c916af96241fb165c2c5c284",
+      "pointer": "/classes/2",
+      "exact_fact": {
+        "CREDENTIAL_CLASS_ID": "POSTMASTER_SERVER_ENDPOINT",
+        "MEMBERS": [
+          "CANDIDATE_0096"
+        ],
+        "PURPOSE": "Authenticate exact private TEST server endpoint and generation; never impersonate POSTMASTER sender",
+        "PROTOCOL_REQUIREMENT": "Preserved native server endpoint manifest plus two independent source-bound observer probes/retained anchors",
+        "ISSUER": "HOST_PLATFORM trusted endpoint provisioning",
+        "SUBJECT": "POSTMASTER subject; observer signing keys remain their own transport credentials",
+        "CUSTODIAN": "Only exact subject private context; endpoint manifest public expected copy remains independently held; no shared signing/session API",
+        "AUTHORITY": "Only the exact purpose above; role/ACL authorization separately derived, never conferred by credential class spelling",
+        "TARGET": "Exact enrolled peer/server/session/work, no arbitrary target selectors",
+        "DELIVERY_REQUIREMENT": "Protected approved bootstrap channel and sealed private descriptor inventory; no participant selection",
+        "AUTHENTICATION_REQUIREMENT": "Verify exact expected actor/server/principal/session identity, mechanism proof and current bindings before accepting use; public digest alone not authority",
+        "STORAGE": "Private non-dumpable subject memory/retained nontransferable descriptor; public refs/manifests may be independently read-only",
+        "PERSISTENCE": "Private material not exported to participant disk/log/snapshot; durable public one-use/revocation metadata retained",
+        "TRANSFER": "FORBIDDEN except explicit trusted bootstrap delivery before eligibility",
+        "DUPLICATION": "FORBIDDEN",
+        "INHERITANCE": "No operational credential inheritance; only explicit pre-enrollment inventory",
+        "USE_COUNT": "Only exact enrolled server generation/endpoint; each native probe bound to fresh challenge and retained server/session anchors",
+        "EXPIRY": "Current generation/context plus versioned positive bounded BOOTTIME policy lease; missing/expired/overflow=>deny",
+        "GENERATION": "Exact independently current high water",
+        "REGISTRY_REVISION": "Exact current enrollment/entity revision applicable to use; no rollback",
+        "CONTEXT": "Exact immutable package/context/policy digest",
+        "REVOCATION": "Monotonic generation/context/session/owner loss invalidates before new eligibility; tombstones preserved",
+        "OBSERVER": "Independent HEALTH_GUARD, CENSUS for server/session probes; HOST watches guard, writer distinct",
+        "DESTRUCTION": "Private handles closed, process/namespace extinction independently observed; pendingUNKNOWN and public audit retained",
+        "REPLAY": "Consumed authorization/oldsequence/expiredsession rejected; exact terminal duplicate may only return original receipt, never restore use",
+        "UNKNOWN": "NOT_QUALIFIED"
+      },
+      "role": "Public manifest vs private context/descriptor; authentication distinct from authority; no material inferred by label"
+    },
+    {
+      "id": "S7",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+      "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+      "pointer": "/profiles/0",
+      "exact_fact": {
+        "PARTICIPANT_ID": "POSTMASTER",
+        "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+        "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+        "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+        "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+        "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+        "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+        "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+        "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+        "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+        "CHILD_CREATION_ALLOWED": true,
+        "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+        "SIBLING_COMMUNICATION_ALLOWED": false,
+        "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+        "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+        "INHERITED_DESCRIPTOR_POLICY": {
+          "protected_fd_numbers": [
+            3,
+            5,
+            16
+          ],
+          "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+          "temporary_fds": "fstat/close only, never replace protected fd or label"
+        },
+        "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+        "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+        "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+        "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+        "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+        "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+        "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+        "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+        "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+        "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+        "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+        "forbidden_syscalls": [
+          "execve",
+          "execveat",
+          "ptrace",
+          "process_vm_writev",
+          "process_vm_readv",
+          "pidfd_open",
+          "pidfd_getfd",
+          "kill",
+          "tkill",
+          "tgkill",
+          "bpf",
+          "perf_event_open",
+          "mount",
+          "umount2",
+          "pivot_root",
+          "chroot",
+          "setns",
+          "unshare",
+          "io_uring_setup",
+          "io_uring_enter",
+          "io_uring_register",
+          "keyctl",
+          "add_key",
+          "request_key",
+          "open_by_handle_at",
+          "init_module",
+          "finit_module",
+          "delete_module",
+          "reboot",
+          "kexec_load",
+          "setuid",
+          "setgid",
+          "setresuid",
+          "setresgid",
+          "capset"
+        ],
+        "postmaster_exception_necessity": "A database engine must manage its own private storage/children to perform source-mandated catalog probes; read-only OS process cannot start it. This grants no SQL superuser/login credential or arbitrary command to a native participant caller"
+      },
+      "role": "Bootstrap inventory, process/parent/lifecycle constraints; no unsupported inherited authority"
+    },
+    {
+      "id": "S8",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+      "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+      "pointer": "/schemas",
+      "exact_fact": {
+        "source_identity": [
+          {
+            "name": "source_tree_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "role_contract_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "build_recipe_identity": [
+          {
+            "name": "recipe_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "source_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "toolchain_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "role_contract_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "binary_module_identity": [
+          {
+            "name": "complete_file_sha256",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "ELF_class",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "ELF_machine",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "loader_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "build_recipe_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "dependency_set_identity": [
+          {
+            "name": "dependency_nodes",
+            "type": "dependency_node_set",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          },
+          {
+            "name": "dependency_edges",
+            "type": "dependency_edge_set",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "loader_identity": [
+          {
+            "name": "complete_loader_file_sha256",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "resolution_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "parent_identity": [
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "pid_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "user_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "mount_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "cgroup_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "retained_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "approved_binary_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "process_instance_identity": [
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "child_pidfd_dev",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "child_pidfd_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "child_kernel_start_ticks",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "namespace_set_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "generation": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "generation_high_water",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "current_generation_record_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "enrollment_identity": [
+          {
+            "name": "bootstrap_context_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "source_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "build_recipe_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binary_module_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "dependency_set_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "loader_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "credential_identity": [
+          {
+            "name": "credential_purpose",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "bootstrap_context_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_certificate_or_endpoint_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "authenticated_channel_identity": [
+          {
+            "name": "channel_class",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "bootstrap_context_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "creator_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_birth_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "recipient_birth_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "socket_or_server_endpoint_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "registry_revision": [
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "per_entity_work_revision_vector",
+            "type": "work_revision_set",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          },
+          {
+            "name": "independently_observed_tip_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ],
+        "completed_work_identity": [
+          {
+            "name": "context_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "independent_witness_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "publication_record_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          }
+        ]
+      },
+      "role": "Distinct process, generation, enrollment and credential identity tuples"
+    },
+    {
+      "id": "S9",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+      "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+      "pointer": "/records",
+      "exact_fact": [
+        {
+          "type": "PARTICIPANT_REGISTRY",
+          "record_type": 1,
+          "version": 1,
+          "canonical_tuple": [
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "epoch",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "slot",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "generation",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "generation_registry_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "entity_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_entity_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "record_sequence",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_journal_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "context_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "process_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "parent_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "enrollment_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "credential_ref",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "channel_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "state",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            }
+          ],
+          "primary_identity": [
+            "qualification_id",
+            "incarnation_id",
+            "epoch",
+            "slot",
+            "generation"
+          ],
+          "writer": "NATIVE_REGISTRY_WRITER",
+          "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+          "credential": "Native writer generation/purpose key, no participant co-holder",
+          "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+          "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+          "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+          "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+          "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+          "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+          "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+          "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+          "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+          "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+          "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+          "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+          "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+        },
+        {
+          "type": "GENERATION_LEDGER",
+          "record_type": 2,
+          "version": 1,
+          "canonical_tuple": [
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "epoch",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "slot",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "generation",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "generation_registry_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "entity_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_entity_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "record_sequence",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_journal_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "context_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "high_water_generation",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "prior_tombstone_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "state",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            }
+          ],
+          "primary_identity": [
+            "qualification_id",
+            "incarnation_id",
+            "epoch",
+            "slot"
+          ],
+          "writer": "NATIVE_REGISTRY_WRITER",
+          "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+          "credential": "Native writer generation/purpose key, no participant co-holder",
+          "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+          "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+          "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+          "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+          "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+          "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+          "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+          "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+          "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+          "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+          "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+          "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+          "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+        },
+        {
+          "type": "GENERATION_TOMBSTONE",
+          "record_type": 3,
+          "version": 1,
+          "canonical_tuple": [
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "epoch",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "slot",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "generation",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "generation_registry_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "entity_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_entity_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "record_sequence",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_journal_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "context_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "retired_generation",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "retired_enrollment",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "revocation_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "extinction_receipt",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "outcome_state",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            }
+          ],
+          "primary_identity": [
+            "qualification_id",
+            "incarnation_id",
+            "epoch",
+            "slot",
+            "retired_generation"
+          ],
+          "writer": "NATIVE_REGISTRY_WRITER",
+          "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+          "credential": "Native writer generation/purpose key, no participant co-holder",
+          "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+          "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+          "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+          "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+          "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+          "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+          "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+          "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+          "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+          "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+          "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+          "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+          "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+        },
+        {
+          "type": "COMPLETED_WORK_PUBLICATION",
+          "record_type": 4,
+          "version": 1,
+          "canonical_tuple": [
+            {
+              "name": "qualification_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "incarnation_id",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "epoch",
+              "type": "uuid",
+              "encoded_value_length": 16,
+              "nullable": false
+            },
+            {
+              "name": "slot",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "generation",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "generation_registry_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "entity_revision",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_entity_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "record_sequence",
+              "type": "u64",
+              "encoded_value_length": 8,
+              "nullable": false
+            },
+            {
+              "name": "previous_journal_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "context_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "publication_purpose",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            },
+            {
+              "name": "related_subject_work_id",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "enrollment_identity",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "work_id",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "challenge_id",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "input_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "result_digest",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "observer_receipt",
+              "type": "bytes32",
+              "encoded_value_length": 32,
+              "nullable": false
+            },
+            {
+              "name": "state",
+              "type": "u16",
+              "encoded_value_length": 2,
+              "nullable": false
+            }
+          ],
+          "primary_identity": [
+            "qualification_id",
+            "incarnation_id",
+            "epoch",
+            "slot",
+            "generation",
+            "work_id"
+          ],
+          "writer": "NATIVE_REGISTRY_WRITER",
+          "observer": "HEALTH_GUARD; HOST_PLATFORM independently observes guard and expected journal",
+          "credential": "Native writer generation/purpose key, no participant co-holder",
+          "CAS_expected": "Exact current verified journal tip/sequence AND entity key/revision/predecessor AND current generation high-water AND legal state edge; duplicate operation key never resets logical entity",
+          "CAS_next": "Append journal_sequence+1/entity_revision+1 checked; update derived entity index only after fsync and independent witness; generation ledger increments only on authorized new generation, work publication never changes generation revision",
+          "monotonicity": "No decreasing high-water/revision or deleted tombstone; incomplete/corrupt/unavailable latest row is UNKNOWN, never earlier generation fallback",
+          "one_use": "Each challenge/work_id consumes at most one exact generation input/result/publication; duplicate same bytes returns original receipt, no work; conflicting bytes denies",
+          "replacement": "Old enrollment revoked, pending UNKNOWN reconciled, old endpoint extinction independently proved, irreversible tombstone durable, checked new generation previous+1 before new enrollment",
+          "restart": "Retain original pending/current high-water and tombstones; new process instance cannot adopt old enrollment/key/work; unclear continuity requires new isolated incarnation under separate trusted provisioning",
+          "reconnect": "Retire old channel identity, preserve pending UNKNOWN; no new channel enrollment or work while unresolved",
+          "revocation": "Monotonic invalidation before new eligibility; every old receipt/credential/channel remains ineligible",
+          "tombstone": "Retired slot/generation remains irreversible even if newer process dies or registry lookup fails",
+          "stale_generation": "Any supplied generation != independently current high-water/current entity denies; never search older signed rows as fallback",
+          "publication_receipt": "Writer signature + exact record/journal/entity digest and revision + independent HEALTH_GUARD observed tip receipt, full R5N context",
+          "corruption": "Bad encoding/signature/hash/predecessor/revision/duplicate entity/partial tail/missing tip => quarantine + UNKNOWN; no truncate-to-success/abort",
+          "UNKNOWN": "Durable pending tuple survives crash and channel/process loss; no new eligibility, generation or blind replay until independent exact reconciliation"
+        }
+      ],
+      "role": "Revocation/currentness/tombstone and UNKNOWN constraints not reduced to deletion"
+    },
+    {
+      "id": "S10",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-dependency-graph.json",
+      "sha256": "3a4159269de993e6f4099e857ef4ed3029d9594454b8a5f5ff93b5a4e92e792c",
+      "pointer": "",
+      "exact_fact": {
+        "nodes": [
+          "POSTMASTER",
+          "SUPERVISOR",
+          "RECEIVER",
+          "CENSUS_OBSERVER",
+          "APPROVAL_PRODUCER",
+          "APPROVAL_CONSUMER",
+          "ENFORCEMENT_WORKER"
+        ],
+        "edges": [
+          {
+            "source": "POSTMASTER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "POSTMASTER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/0/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "RECEIVER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "RECEIVER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/2/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "CENSUS_OBSERVER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "CENSUS_OBSERVER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/3/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "APPROVAL_PRODUCER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "APPROVAL_PRODUCER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/4/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "APPROVAL_CONSUMER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "APPROVAL_CONSUMER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/5/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "ENFORCEMENT_WORKER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "ENFORCEMENT_WORKER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/6/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          }
+        ],
+        "premises": {
+          "exact_six_children": true,
+          "supervisor_parent_host": true,
+          "spawn_pre_enrollment_only": true,
+          "no_ACTIVE_to_bootstrap": true,
+          "host_not_operational": true,
+          "postmaster_exception_engine_only": true,
+          "parent_is_qualified_birth_component": true,
+          "frozen_six_drain_required": true
+        },
+        "closures": [
+          {
+            "subject": "POSTMASTER",
+            "rounds": [
+              [
+                "POSTMASTER"
+              ],
+              [
+                "POSTMASTER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "SUPERVISOR",
+            "rounds": [
+              [
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "RECEIVER",
+            "rounds": [
+              [
+                "RECEIVER"
+              ],
+              [
+                "RECEIVER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "CENSUS_OBSERVER",
+            "rounds": [
+              [
+                "CENSUS_OBSERVER"
+              ],
+              [
+                "CENSUS_OBSERVER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "APPROVAL_PRODUCER",
+            "rounds": [
+              [
+                "APPROVAL_PRODUCER"
+              ],
+              [
+                "APPROVAL_PRODUCER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "APPROVAL_CONSUMER",
+            "rounds": [
+              [
+                "APPROVAL_CONSUMER"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "ENFORCEMENT_WORKER",
+            "rounds": [
+              [
+                "ENFORCEMENT_WORKER"
+              ],
+              [
+                "ENFORCEMENT_WORKER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          }
+        ],
+        "edge_count": 12,
+        "no_new_authority_or_runtime": true,
+        "scope": "Necessary ACTIVE-replacement closure; not a new arbitrary restart API or change to initial bootstrap."
+      },
+      "role": "Restart dependence is not inherited credentials; exact fresh generation/key or endpoint requalification"
+    },
+    {
+      "id": "S11",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/referent-symbol-table.json",
+      "sha256": "75db0ea37ba855bc7b114d77f0ff7bbe990ea6431269a84639cd1feddd56c854",
+      "pointer": "/adjudications/226",
+      "exact_fact": {
+        "REFERENCE_ID": "CANDIDATE_0226",
+        "PRIOR_CANDIDATE_ID": "UNRESOLVED_REFERENCE_EXPRESSION/24180190ea6a88a4d06e1f52ded82c63de65d1229fc555db99042772607d194a",
+        "SOURCE_PATH": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/substitution-matrix.json",
+        "SOURCE_LOCATION": "/new_cases/2/id",
+        "ALL_SOURCE_LOCATIONS": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/substitution-matrix.json",
+            "pointer": "/new_cases/2/id"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2/substitution-witnesses.json",
+            "pointer": "/cases/170/ATTACK_ID"
+          }
+        ],
+        "SOURCE_EXPRESSION": "POSTMASTER/credential_inheritance",
+        "DECLARATION_OR_USE": "USE_OR_CONSTRAINT",
+        "REFERENT_SYMBOL": "CREDENTIAL_POLICY/docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/substitution-matrix.json#/new_cases/2/id",
+        "REFERENT_TYPE": "CREDENTIAL_POLICY",
+        "REFERENT_OWNER": "CONTRACT_NAMESPACE/docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/substitution-matrix.json#/new_cases/2 (schema/policy/evidence ownership only, not credential custody)",
+        "REFERENT_SCOPE": "Source-bound parameterized declaration; future slot/generation values not fabricated",
+        "CREDENTIAL_CLASS_ID": null,
+        "ALIAS_OF": null,
+        "REFERENCED_DECLARATION_CANDIDATES": [],
+        "CONTEXT_PROOF": "Attack requirement/schema predicate or expected identity placeholder; not an actual credential instance; witness gate remains deferred"
+      },
+      "role": "Policy requirement not actual credential instance; prior semantics not retrospectively changed"
+    },
+    {
+      "id": "S12",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3a/semantic-adjudication.json",
+      "sha256": "c4333e1ba7779486692a1d2dccbab1e8cd62f437243596d74a993b89f21416ef",
+      "pointer": "",
+      "exact_fact": {
+        "SELECTED_OUTCOME": "C",
+        "CANONICAL_CONTRACT_SILENT_OR_INSUFFICIENT": "YES",
+        "missing": [
+          "MISSING_CASE_SPECIFIC_OBJECT_SEMANTICS",
+          "MISSING_CASE_SPECIFIC_TRANSITION_SEMANTICS",
+          "MISSING_OBJECT_TRANSITION_BINDING",
+          "MISSING_POSTMASTER_CONTEXT_BINDING"
+        ],
+        "general_contracts_not_missing": [
+          "Purpose3 endpoint authentication",
+          "Public reference vs private custody distinction",
+          "No POSTMASTER native message signing key",
+          "Approved pre-enrollment delivery vs prohibited operational inheritance",
+          "Current generation/context/subject/revocation/qualification constraints",
+          "Retained parent identity and full-cohort restart topology"
+        ],
+        "reason": "Original label+generic predicate never bind exact inherited object, source/receiving subject and custody, lifecycle phase, generation relation or attempted authority use. Later independent identity/custody/restart contracts constrain possible witnesses but do not uniquely choose their conjunction.",
+        "rejected_outcomes": {
+          "A": "No unique provenance-bound object/transition/pair",
+          "B": "No positive evidence that all operational inheritance attacks are inapplicable to POSTMASTER; nonexistence of POST signing key only excludes that interpretation"
+        },
+        "no_witness_materialized": true,
+        "no_contract_repair": true,
+        "STOP_FAIL_CLOSED": true
+      },
+      "role": "Frozen case-specific object/transition gap unchanged"
+    }
+  ],
+  "architectural_input": "architectural-input.json",
+  "no_prior_decision_claim": true,
+  "prior_discovery": "A5.3A full search and A5.3B source selections reused only with all preexisting bytes frozen. Selected full I13/principal matrix inspected for this different coverage question.",
+  "preexisting_files": 8917
+}

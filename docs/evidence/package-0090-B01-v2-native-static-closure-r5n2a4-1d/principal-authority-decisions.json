@@ -1,0 +1,83 @@
+{
+  "decisions": [
+    {
+      "CANDIDATE_AUTHORITY": "existing authenticated LOGIN bridge",
+      "REJECT_OR_ACCEPT": "ACCEPT",
+      "REASON": "S03 only; own-session facts, existing exact same-variable/process proof; no cross-session stats authority",
+      "BROADER_THAN_REQUIRED": false,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "NONE beyond accepted bridge",
+      "FINAL_SELECTION": "EXISTING_AUTHENTICATED_LOGIN_BRIDGE_SELF_SESSION"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "object ownership",
+      "REJECT_OR_ACCEPT": "REJECT",
+      "REASON": "Ownership adds replacement/grant/DML rights; no source or Reader ownership",
+      "BROADER_THAN_REQUIRED": true,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "Owner implicit rights",
+      "FINAL_SELECTION": "NONE"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "role membership",
+      "REJECT_OR_ACCEPT": "REJECT",
+      "REASON": "No inherited/SET/ADMIN paths; zero memberships",
+      "BROADER_THAN_REQUIRED": true,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "Transitive INHERIT/SET/ADMIN",
+      "FINAL_SELECTION": "NONE"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "function EXECUTE",
+      "REJECT_OR_ACCEPT": "ACCEPT",
+      "REASON": "Only exact installed fixed membrane operations, non-PUBLIC, no raw grant; actual ACL later",
+      "BROADER_THAN_REQUIRED": false,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "All implicit calls require source expansion",
+      "FINAL_SELECTION": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "view access",
+      "REJECT_OR_ACCEPT": "REJECT",
+      "REASON": "Owner-mediated/raw-value views can hide authority and replacement",
+      "BROADER_THAN_REQUIRED": true,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "View owner semantics",
+      "FINAL_SELECTION": "NONE"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "schema USAGE",
+      "REJECT_OR_ACCEPT": "ACCEPT",
+      "REASON": "Only future exact fixed-callable namespace if required; never CREATE or ownership",
+      "BROADER_THAN_REQUIRED": false,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "Namespace default ACL reviewed later",
+      "FINAL_SELECTION": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "relation SELECT",
+      "REJECT_OR_ACCEPT": "REJECT",
+      "REASON": "Direct raw column/table access would bypass sanitizer and enable generic selection",
+      "BROADER_THAN_REQUIRED": true,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "Raw config/body exposure",
+      "FINAL_SELECTION": "NONE"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "statistics visibility",
+      "REJECT_OR_ACCEPT": "ACCEPT",
+      "REASON": "S02 public four fields only + S03 separate bridge; protected fields remain NULL",
+      "BROADER_THAN_REQUIRED": false,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "No pg_read_all_stats or monitor/settings membership",
+      "FINAL_SELECTION": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL"
+    },
+    {
+      "CANDIDATE_AUTHORITY": "SECURITY DEFINER",
+      "REJECT_OR_ACCEPT": "REJECT",
+      "REASON": "Would switch role to solve visibility; trusted source operation designed explicitly, no owner switch",
+      "BROADER_THAN_REQUIRED": true,
+      "HIDDEN_TRANSITIVE_AUTHORITY": "Owner EXECUTE and schema replacement",
+      "FINAL_SELECTION": "INVOKER_ONLY"
+    }
+  ],
+  "source_principal": "R5N1_READ_PROXY_LOGICAL_PRINCIPAL",
+  "source_authorization": "Narrow operation capability explicitly created by normative design; never inferred from current role privileges. No grants performed. Backend catalog access implementation must prove this source scope, not just label itself INVOKER.",
+  "pure_principal": "READ_PROXY_LOCAL_PURE_COMPARTMENT",
+  "credential_rule": "Only S01/S02/S04/S05 consume the private Reader bound-session descriptor. No copying to pure transform/evaluator. S03 uses its existing independent self-session authenticated context. No shared generic credential. Revoke/expiry/generation mismatch aborts all in-flight publication.",
+  "security_definer_required": false,
+  "search_path_control": "No search_path-based resolution, user-provided type/operator identifiers, temporary objects or replaceable callback dispatch",
+  "owner_control": "Deployment-only install/replace; implementation owner cannot confer runtime source authority through membership or SD. Reader cannot own/replace objects; future ACL audit mandatory."
+}

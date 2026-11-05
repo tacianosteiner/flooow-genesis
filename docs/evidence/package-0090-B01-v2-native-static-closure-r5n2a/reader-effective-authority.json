@@ -1,0 +1,41 @@
+{
+  "scope": "R5N2A_FOUNDATION_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "inputs": [
+    "native-effect-constructors.json",
+    "credential-inventory.json"
+  ],
+  "root": "Exact enrolled READ_PROXY principal, never postgres legacy role",
+  "dimensions": [
+    "ownership",
+    "directACL",
+    "PUBLIC",
+    "MEMBER",
+    "INHERIT",
+    "SET",
+    "ADMIN",
+    "globaldefault",
+    "schemadefault",
+    "SECURITY_DEFINER",
+    "CREATEROLE",
+    "SUPERUSER",
+    "BYPASSRLS",
+    "bootstrap"
+  ],
+  "traversal": "Compute separate MEMBER/INHERIT/SET reachability leastfixedpoint from reader, with PG18 implicit current-database-owner edge per frozen acl.c; ADMIN member closure + admin_option, not SET; owner rights separate; retain grantor/origin. Do not collapse default/future rights with existing grants. Enumerate all reachable object/callable effects from approved fixed projection source; unknown effect denies.",
+  "invariants": [
+    "NO_MUTATION_PATH",
+    "NO_ROLE_ESCALATION_PATH",
+    "NO_CREDENTIAL_SECRET_PATH",
+    "NO_GENERIC_SQL_AUTHORITY",
+    "NO_ARBITRARY_OBJECT_AUTHORITY"
+  ],
+  "exceptions": [],
+  "remaining": "Exact effective projection/function/CONNECT/USAGE allowlist plus full PUBLIC/default/owner effects incomplete. Missing source/effect/class path yields UNKNOWN for five invariants, not false proof of no path.",
+  "source": {
+    "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/acl.c",
+    "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+    "pointer": "/"
+  }
+}

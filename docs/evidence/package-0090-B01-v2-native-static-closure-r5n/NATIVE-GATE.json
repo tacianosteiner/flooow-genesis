@@ -1,0 +1,81 @@
+{
+  "BRANCH": "checkpoint/package-0090-cloud-handoff",
+  "BASELINE_HEAD": "cbc284f62d9bd09b7169b55c8d66a3c51a68c6cb",
+  "R5_DESIGN_FAILURES_TOTAL": 497,
+  "R5_NATIVE_FAILURES": 7,
+  "R5_NATIVE_ROOT_CAUSES": 3,
+  "R5_NATIVE_DUPLICATE_OR_DERIVED_FAILURES": 7,
+  "R5_NATIVE_FUTURE_IMPLEMENTATION_EVIDENCE": 0,
+  "R5_NATIVE_FUTURE_BUILD_EVIDENCE": 0,
+  "R5_NATIVE_FUTURE_RUNTIME_EVIDENCE": 0,
+  "R5_NATIVE_TRUE_STATIC_DESIGN_FAILURES_REMAINING": 2,
+  "NATIVE_PARTICIPANTS_REQUIRED": 7,
+  "NATIVE_PARTICIPANTS_FULLY_DESIGNED": 0,
+  "UNRESOLVED_NATIVE_WORK_ANCHORS": 7,
+  "GENERIC_PROCESS_SUBSTITUTIONS": 0,
+  "NATIVE_MESSAGE_ABI_COMPLETE": "YES",
+  "NATIVE_GENERATION_PROTOCOL_COMPLETE": "YES",
+  "NATIVE_REGISTRY_PROTOCOL_COMPLETE": "YES",
+  "NATIVE_COMPLETED_WORK_PROTOCOL_COMPLETE": "NO",
+  "NATIVE_INDEPENDENCE_MODEL_COMPLETE": "NOT_PROVEN",
+  "NATIVE_CUSTODY_MODEL_COMPLETE": "NO",
+  "NATIVE_SUBSTITUTION_MATRIX_COMPLETE": "NOT_PROVEN",
+  "IMPLEMENTATION_PERFORMED": "NO",
+  "NATIVE_BUILD_PERFORMED": "NO",
+  "NATIVE_RUNTIME_EXECUTED": "NO",
+  "SQL_EXECUTED": "NO",
+  "DATABASE_CONTACTED": "NO",
+  "V043_EXECUTED": "NO",
+  "B02_EXECUTED": "NO",
+  "NATIVE_INDEPENDENT_REVIEW": "FAIL",
+  "V2_NATIVE_STATUS": "BLOCKED",
+  "BLOCKER_COUNT_FOR_V2_NATIVE": 1,
+  "RESIDUAL_NATIVE_BLOCKERS": [
+    {
+      "id": "R5N-STATIC-ISOLATION",
+      "family": "NATIVE/ISOLATION_CUSTODY",
+      "affected_participants": [
+        "POSTMASTER",
+        "SUPERVISOR",
+        "RECEIVER",
+        "CENSUS_OBSERVER",
+        "APPROVAL_PRODUCER",
+        "APPROVAL_CONSUMER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof_required": "Exact role/phase/architecture syscall and descriptor-direction/argument decision rules, engine OS-service policy and privilege boundary, installed-policy transition and inspection rules; derive a unique enforceable filter policy from these rules. Future policy bytecode and digest may remain FUTURE_MEASURED.",
+      "counterexample": "POSTMASTER calls is only PostgreSQL18-engine-private-OS-service-policy, without a syscall/effect allow/deny mapping. Non-engine calls list plus IO only declared descriptors does not define each read/write/send argument decision or a deterministic libc/OpenSSL policy-generation algorithm. Two different engine/filter policies can satisfy this prose while exposing different effects. Naming independent approval later does not choose the missing static rule.",
+      "anchors": [
+        "native-isolation-custody.json#/profiles",
+        "native-isolation-custody.json#/fixed_descriptor_inventory"
+      ]
+    },
+    {
+      "id": "R5N-STATIC-CATALOG",
+      "family": "NATIVE/CATALOG_WORK_WITNESS",
+      "affected_participants": [
+        "POSTMASTER",
+        "RECEIVER",
+        "CENSUS_OBSERVER",
+        "ENFORCEMENT_WORKER"
+      ],
+      "proof_required": "Specify the exact fixed native snapshot projection/predicate and full typed bounded output, protected expected caller/context roster mapping, owner/ACL/default-privilege checks and server-derived generation/backend attribution; give a deterministic read-only AST recipe. Actual installed body/hash/UID/OID may remain FUTURE_MEASURED.",
+      "counterexample": "observe_exact_context(bytea) RETURNS bytea names neither exact snapshot row schema nor complete predicate/roster. Frozen receiver.c uses a postgres connection and full-header JOIN; observer.c selects pg_stat_activity for all rows. A future helper that omits one role/namespace/backend predicate and one retaining it both fit exact fixed source-derived projection prose; the resulting matching digest is not independently specified complete census evidence.",
+      "anchors": [
+        "catalog-witness-boundary.json#/API",
+        "catalog-witness-boundary.json#/body_identity",
+        "scripts/validation/package_0090_native_health_qualification/receiver.c:18-45",
+        "scripts/validation/package_0090_native_health_qualification/observer.c:57-61"
+      ]
+    }
+  ],
+  "NON_TARGET_BLOCKERS_UNCHANGED": [
+    "V2-EPOCH",
+    "V2-PARTITIONS",
+    "V2-TEMPLATES"
+  ],
+  "NEXT_EXECUTED": false,
+  "NEXT_GATE": "R5N_CLOSE_ISOLATION_CUSTODY_AND_EXACT_NATIVE_CATALOG_DESIGN_NO_LIVE_EXECUTION",
+  "TESTS_DISTINCT": 305,
+  "TEST_FAILURES": 0
+}

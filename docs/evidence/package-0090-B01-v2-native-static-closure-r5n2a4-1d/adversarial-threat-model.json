@@ -1,0 +1,158 @@
+{
+  "threats": [
+    {
+      "THREAT_ID": "T01",
+      "ATTACK_PATH": "generic SQL",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Closed opcode dispatch; no SQL text parameter or generic parser",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T02",
+      "ATTACK_PATH": "arbitrary catalog traversal",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "19 frozen catalogs/146 fields only; no caller traversal",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T03",
+      "ATTACK_PATH": "arbitrary object read",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "No object identifiers/names from caller; reject source mismatch",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T04",
+      "ATTACK_PATH": "privilege escalation",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "No SD/owner switch/membership; explicit operation gate",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T05",
+      "ATTACK_PATH": "secret extraction",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Only fixed config assertions/body digests; secret stores never read; raw buffers contained",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T06",
+      "ATTACK_PATH": "credential reuse beyond purpose",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Session/context/generation/custody-bound acquisition only, revoke in-flight results",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T07",
+      "ATTACK_PATH": "session-state mutation",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "No session setting commands/temp objects; snapshot scope established by trusted lifecycle, source calls cannot mutate it",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T08",
+      "ATTACK_PATH": "role-state mutation",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "No SET ROLE/SET SESSION AUTHORIZATION/role writes",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T09",
+      "ATTACK_PATH": "search_path attack",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Frozen source identities and exact primitive resolution, no ambient namespace",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T10",
+      "ATTACK_PATH": "SECURITY DEFINER escalation",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "INVOKER only; reject SD implementations",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T11",
+      "ATTACK_PATH": "owner-authority expansion",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Reader no owner/CREATE/replacement; deployment sealing and later ACL proof",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T12",
+      "ATTACK_PATH": "unrestricted identifiers",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Parameter schema excludes identifiers; enrolled manifest is not request-selected",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T13",
+      "ATTACK_PATH": "dynamic SQL",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "No SQL parser/dynamic statement engine reachable",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T14",
+      "ATTACK_PATH": "hidden write path",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "All explicit/implicit call effects expanded; writes/unknown calls reject before publication",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T15",
+      "ATTACK_PATH": "external-process authority",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "No spawning executable/process, filesystem or network in pure steps; source dispatch stays confined",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T16",
+      "ATTACK_PATH": "cross-tenant visibility",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Fixed isolated DB/context only, no tenant rows/query content",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T17",
+      "ATTACK_PATH": "unbounded pg_stat visibility",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Only public roster fields; own-session bridge for protected selected facts",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T18",
+      "ATTACK_PATH": "query text leakage",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Query/query_id/client fields excluded at source; diagnostics carry codes only",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    },
+    {
+      "THREAT_ID": "T19",
+      "ATTACK_PATH": "secret metadata confusion",
+      "AFFECTED_STEP": "S01-S08",
+      "MITIGATION": "Potentially sensitive config/body internal processing is explicit; no raw output/unknown config hashing",
+      "RESIDUAL_RISK": "Future source/ACL/custody implementation may violate contract; must be rejected by later binding and independent acceptance, not claimed proved here",
+      "DESIGN_STATUS": "MITIGATED_BY_EXPLICIT_REJECTION_CONTRACT"
+    }
+  ],
+  "BLOCKER_THREATS_OPEN": 0,
+  "design_only": true
+}

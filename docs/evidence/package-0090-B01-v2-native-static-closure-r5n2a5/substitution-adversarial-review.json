@@ -1,0 +1,483 @@
+{
+  "review_id": "R5N.2A5_PHASE_B_INDEPENDENT_SUBSTITUTION_ADVERSARIAL_REVIEW",
+  "reviewer": "/root/r5n2a5_qualification_review",
+  "review_completed": true,
+  "INDEPENDENT_SUBSTITUTION_REVIEW": "FAIL",
+  "SUBSTITUTION_ADVERSARIAL_FINDINGS_OPEN": 1,
+  "scope": "STATIC_DESIGN_SUBSTITUTION_ACCEPTANCE_NOT_RUNTIME",
+  "attack_coverage": [
+    {
+      "id": "SA01",
+      "attack": "aliases",
+      "assessment": "Canonical role enum plus UID/retained birth/custody/channel and independent expected identity checks reject aliases; not sufficient alone for strict fresh substitution",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA02",
+      "attack": "shared LOGIN",
+      "assessment": "Native participants have no SQL LOGIN credential; separate auxiliary Reader excluded",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA03",
+      "attack": "inherited role equivalence",
+      "assessment": "Zero SQL memberships/INHERIT/SET/ADMIN and distinct slot resource contracts",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA04",
+      "attack": "role membership transitivity",
+      "assessment": "No admitted transitive membership or owner switch; fixed phase/label IR",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA05",
+      "attack": "shared credentials",
+      "assessment": "Per-subject/purpose/generation private material; same credential class is not same key",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA06",
+      "attack": "common secret material",
+      "assessment": "Frozen pair requirements prohibit shared private material; no key generation or actual material claim",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA07",
+      "attack": "shared custody",
+      "assessment": "Distinct per-slot custody; common trusted provisioner is not shared live participant custody",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA08",
+      "attack": "shared revocation",
+      "assessment": "Exact tombstone key verified including retired_generation; dependence may suspend eligibility without authority aliasing. Strict substitution preservation remains open",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA09",
+      "attack": "shared endpoint collapses identity",
+      "assessment": "Channel tuple binds creator/sender/recipient retained birth/context/generation, not endpoint name alone",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA10",
+      "attack": "process reuse collapses identity",
+      "assessment": "Retained pidfd/start/incarnation and expected process identity reject reuse; fresh-parent structural counterexample prevents falsely passing SUPERVISOR substitution",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA11",
+      "attack": "same generation/incarnation used as identity",
+      "assessment": "Composite qualified slot/entity/process/custody identity; numeric counter alone insufficient",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA12",
+      "attack": "same mutable pointer",
+      "assessment": "Private resource labels/descriptors and no cross-slot mutable/key access; only bounded RO sharing permitted",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA13",
+      "attack": "same lifecycle record used as authority identity",
+      "assessment": "Different slot-scoped native registry/tombstone/publication entity keys; common journal is not same entity",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA14",
+      "attack": "same owner sufficient distinction",
+      "assessment": "Shared bootstrap host/deployment scope never proves distinction; retained process/principal/custody required",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA15",
+      "attack": "same callable surface equivalent authority",
+      "assessment": "Distinct role-specific native ABI/work functions and scoped resources; shared implementation bytes not authority identity",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA16",
+      "attack": "Reader proxy appears among seven",
+      "assessment": "Exact original seven IDs preserved; auxiliary READ_PROXY not counted",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    },
+    {
+      "id": "SA17",
+      "attack": "future assumption used as present proof",
+      "assessment": "All unresolved replacement witnesses remain UNKNOWN, seven tests0PASS/1FAIL/6UNKNOWN, no7fullyqualified or21proven promotion; physical proofs FUTURE",
+      "status": "REJECTED_BY_EXISTING_STATIC_CONSTRAINTS_WITH_STRICT_SUBSTITUTION_GAP_RETAINED"
+    }
+  ],
+  "findings": [
+    {
+      "FINDING_ID": "A5-SUBSTITUTION-STRICT-PRESERVATION",
+      "BLOCKER_ID": "N1-SUBSTITUTION-STATIC-WITNESSES",
+      "STATUS": "OPEN",
+      "NEW_TOP_LEVEL_BLOCKER": false,
+      "INDEPENDENT_AUTHORITY_CONTRADICTION": false,
+      "EXACT_GAP": "No legal fresh independently-qualified subject substitution preserving every other full identity tuple is proved under retained-parent and full-generation-drain rules.",
+      "FORMAL_COUNTEREXAMPLE": {
+        "old_supervisor": "S_old retained birth",
+        "new_supervisor": "S_new distinct retained birth",
+        "old_children_parent": "parent_identity=P(S_old)",
+        "required_children_parent": "parent_identity=P(S_new)",
+        "dependent_children": [
+          "POSTMASTER",
+          "RECEIVER",
+          "CENSUS_OBSERVER",
+          "APPROVAL_PRODUCER",
+          "APPROVAL_CONSUMER",
+          "ENFORCEMENT_WORKER"
+        ],
+        "argument": "Distinct retained pidfd/start/birth implies distinct parent identity. Every child process identity includes parent_identity, and enrollment binds process. Holding all six full tuples fixed leaves old parent; changing them violates preservation. Therefore strict SUPERVISOR-only substitution is not well-formed."
+      },
+      "CONSEQUENCE": "SUPERVISOR test FAIL; other six UNKNOWN; all21 strict witnesses UNKNOWN. Anti-alias/source-bound authority constraints do not establish this stronger replacement property.",
+      "REQUIRED_NEXT_DECISION": "Resolve exact substitution-preservation contract consistently with existing retained-parent/full-drain lifecycle under a bounded authorized design amendment; do not silently weaken the witness or claim hot replacement."
+    }
+  ],
+  "checks": [
+    {
+      "name": "phaseA_closed_before_B",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_PASS_preserved",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/qualification.py",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/qualification-input-ledger.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/seven-participant-qualification.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/baseline-freeze.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+      "passed": true
+    },
+    {
+      "name": "phaseA_review_hash:docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+      "passed": true
+    },
+    {
+      "name": "21_unique_unordered_pairs",
+      "passed": true
+    },
+    {
+      "name": "no_unsupported_pair_promotion",
+      "passed": true
+    },
+    {
+      "name": "seven_tests_conservative",
+      "passed": true
+    },
+    {
+      "name": "SUPERVISOR_FAIL_other_six_UNKNOWN",
+      "passed": true
+    },
+    {
+      "name": "parent_in_process_schema",
+      "passed": true
+    },
+    {
+      "name": "process_and_parent_in_enrollment",
+      "passed": true
+    },
+    {
+      "name": "all_six_children_retain_SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "six_expected_parent_classes",
+      "passed": true
+    },
+    {
+      "name": "counterexample_all_six_children",
+      "passed": true
+    },
+    {
+      "name": "no_lifecycle_dependency_as_alias",
+      "passed": true
+    },
+    {
+      "name": "authority_7x7",
+      "passed": true
+    },
+    {
+      "name": "authority_SELF_diagonal",
+      "passed": true
+    },
+    {
+      "name": "authority_symmetric",
+      "passed": true
+    },
+    {
+      "name": "credential_7x7",
+      "passed": true
+    },
+    {
+      "name": "credential_SELF_diagonal",
+      "passed": true
+    },
+    {
+      "name": "credential_symmetric",
+      "passed": true
+    },
+    {
+      "name": "bounded_authority_overlap_not_collapse",
+      "passed": true
+    },
+    {
+      "name": "credential_only_nonsecret_common_context",
+      "passed": true
+    },
+    {
+      "name": "frozen_pair_rules_allow_RO_and_class_sharing",
+      "passed": true
+    },
+    {
+      "name": "21_revocation_entities_not_availability_claim",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:POSTMASTER/SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:SUPERVISOR/POSTMASTER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:POSTMASTER/RECEIVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:RECEIVER/POSTMASTER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:POSTMASTER/CENSUS_OBSERVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:CENSUS_OBSERVER/POSTMASTER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:POSTMASTER/APPROVAL_PRODUCER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_PRODUCER/POSTMASTER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:POSTMASTER/APPROVAL_CONSUMER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_CONSUMER/POSTMASTER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:POSTMASTER/ENFORCEMENT_WORKER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:ENFORCEMENT_WORKER/POSTMASTER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:SUPERVISOR/RECEIVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:RECEIVER/SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:SUPERVISOR/CENSUS_OBSERVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:CENSUS_OBSERVER/SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:SUPERVISOR/APPROVAL_PRODUCER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_PRODUCER/SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:SUPERVISOR/APPROVAL_CONSUMER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_CONSUMER/SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:SUPERVISOR/ENFORCEMENT_WORKER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:ENFORCEMENT_WORKER/SUPERVISOR",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:RECEIVER/CENSUS_OBSERVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:CENSUS_OBSERVER/RECEIVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:RECEIVER/APPROVAL_PRODUCER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_PRODUCER/RECEIVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:RECEIVER/APPROVAL_CONSUMER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_CONSUMER/RECEIVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:RECEIVER/ENFORCEMENT_WORKER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:ENFORCEMENT_WORKER/RECEIVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:CENSUS_OBSERVER/APPROVAL_PRODUCER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_PRODUCER/CENSUS_OBSERVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:CENSUS_OBSERVER/APPROVAL_CONSUMER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_CONSUMER/CENSUS_OBSERVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:CENSUS_OBSERVER/ENFORCEMENT_WORKER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:ENFORCEMENT_WORKER/CENSUS_OBSERVER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_PRODUCER/APPROVAL_CONSUMER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_CONSUMER/APPROVAL_PRODUCER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_PRODUCER/ENFORCEMENT_WORKER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:ENFORCEMENT_WORKER/APPROVAL_PRODUCER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:APPROVAL_CONSUMER/ENFORCEMENT_WORKER",
+      "passed": true
+    },
+    {
+      "name": "revocation_key:ENFORCEMENT_WORKER/APPROVAL_CONSUMER",
+      "passed": true
+    },
+    {
+      "name": "all_B_reconciliation_source_lineages_exact",
+      "passed": true
+    },
+    {
+      "name": "12_decisions_11closed_1open",
+      "passed": true
+    },
+    {
+      "name": "original_roots_carried_not_recomputed",
+      "passed": true
+    },
+    {
+      "name": "full_recomputation_not_executed_before_Bclosed",
+      "passed": true
+    },
+    {
+      "name": "substitution_sole_existing_blocker",
+      "passed": true
+    },
+    {
+      "name": "tracked_and_staged_untouched",
+      "passed": true
+    }
+  ],
+  "checks_distinct": 79,
+  "integrity_or_accounting_failures": 0,
+  "source_references_independently_validated": 224,
+  "source_sha256": {
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/substitution.py": "59097323ff0054423fa4255c8c58fa1cd2d3832940366765377a5e068ee605ee",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/substitution-witness-ledger.json": "7bef61ce1be12b78b8e7c2a5047f223c66e171d9d6389e1a487f9ef22d70edfb",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/participant-substitution-tests.json": "1050081f0f0139e3f223b9686165746af76cf565609494ef90af5cef2e27065a",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/authority-overlap-matrix.json": "e126ef058b3b691bcc23428b9fb5db6c843f850107fa92450d7b684a7d8d8267",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/credential-custody-matrix.json": "03f1045b56ee59f523d89cfb2100959b6797436b8411a8e862e0e43b5febf73f",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/revocation-independence-proof.json": "348e35273e2da95b68363360f2524d5610182774bf1db6e92499eb547eb4aac6",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/phase-b-entry.json": "733b40b1e97b23e2548e80c431025aa6efb0415ad01fe3bbc53223a037f5c0c3",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/substitution-closure.json": "da698ea1fbafc006f664119a4c5785f0685c710cb0c31b3bbe0ae06215341cb8",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/qualification-closure.json": "26bd32e2225e74a8ec03287c34d35afa940c6ec0998d8e684d047471cda3729e",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/qualification-adversarial-review.json": "c54c8e07f617684a6b36d3bc4a969c0fa55dc3ec819be49c4db72be920f8290e",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/original-12-decision-reconciliation.json": "03c120b9828344c70874bbf5f8bfd42f918ac266d224d14abce20168cccee019",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/original-root-cause-reconciliation.json": "3fb78d71dd12ef995b97fc7fd17c1cac2f0088dfc6a975e385afc7d8dbbe31b3",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5/v2-native-recomputation.json": "8b736a40d2fa585f47e88af0e773300d569bcc63af4925d1806d1d9530dc98eb",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+    "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782"
+  },
+  "withdrawn_reviewer_suggestion": "Retired_generation revocation key was initially questioned; re-reading frozen GENERATION_TOMBSTONE.primary_identity confirms it is exact and must remain. No source defect or contradiction.",
+  "runtime_substitution_executed": false,
+  "credentials_or_signatures_generated": false
+}

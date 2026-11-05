@@ -1,0 +1,978 @@
+{
+  "FIELD_GAPS_TOTAL": 10,
+  "PREDICATE_GAPS_TOTAL": 6,
+  "SEMANTIC_GAPS_TOTAL": 16,
+  "gaps": [
+    {
+      "GAP_ID": "FIELD-01",
+      "FIELD_ID": "pg_catalog.pg_proc.proconfig",
+      "SOURCE_RELATION": "pg_catalog.pg_proc",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "proconfig",
+        "projected_name": "proconfig",
+        "pg18_type": "_text",
+        "type": "_text",
+        "nullable": true,
+        "expression": {
+          "op": "FIELD",
+          "args": [
+            "proconfig"
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": "CONFIG_ASSERTIONS_V2 before transport/log/hash/storage; no raw values",
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "HAS_SECURITY_DEFINER_PATH",
+        "HAS_UNEXPECTED_OBSERVATION_PATH",
+        "HAS_UNEXPECTED_CREDENTIAL_PATH",
+        "FUNCTION_CONFIG_SAFE",
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_proc.proconfig",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "proconfig",
+          "projected_name": "proconfig",
+          "pg18_type": "_text",
+          "type": "_text",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proconfig"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-02",
+      "FIELD_ID": "pg_catalog.pg_proc.prosrc",
+      "SOURCE_RELATION": "pg_catalog.pg_proc",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "prosrc",
+        "projected_name": "prosrc_sha256",
+        "pg18_type": "text",
+        "type": "bytes32",
+        "nullable": false,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "prosrc"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "prosrc"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "HAS_SECURITY_DEFINER_PATH",
+        "HAS_BOOTSTRAP_AUTHORITY_PATH",
+        "HAS_UNEXPECTED_WRITE_PATH",
+        "HAS_UNEXPECTED_OBSERVATION_PATH",
+        "HAS_UNEXPECTED_CREDENTIAL_PATH",
+        "FUNCTION_CONFIG_SAFE",
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_proc.prosrc",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "prosrc",
+          "projected_name": "prosrc_sha256",
+          "pg18_type": "text",
+          "type": "bytes32",
+          "nullable": false,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "prosrc"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-03",
+      "FIELD_ID": "pg_catalog.pg_proc.probin",
+      "SOURCE_RELATION": "pg_catalog.pg_proc",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "probin",
+        "projected_name": "probin_sha256",
+        "pg18_type": "text",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "probin"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "probin"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_proc.probin",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "probin",
+          "projected_name": "probin_sha256",
+          "pg18_type": "text",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "probin"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-04",
+      "FIELD_ID": "pg_catalog.pg_proc.prosqlbody",
+      "SOURCE_RELATION": "pg_catalog.pg_proc",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "prosqlbody",
+        "projected_name": "prosqlbody_sha256",
+        "pg18_type": "pg_node_tree",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "prosqlbody"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "prosqlbody"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_proc.prosqlbody",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "prosqlbody",
+          "projected_name": "prosqlbody_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "prosqlbody"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-05",
+      "FIELD_ID": "pg_catalog.pg_db_role_setting.setconfig",
+      "SOURCE_RELATION": "pg_catalog.pg_db_role_setting",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "setconfig",
+        "projected_name": "setconfig",
+        "pg18_type": "_text",
+        "type": "_text",
+        "nullable": true,
+        "expression": {
+          "op": "FIELD",
+          "args": [
+            "setconfig"
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": "CONFIG_ASSERTIONS_V2 before transport/log/hash/storage; no raw values",
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "HAS_UNEXPECTED_OBSERVATION_PATH",
+        "HAS_UNEXPECTED_CREDENTIAL_PATH",
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_db_role_setting.setconfig",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "setconfig",
+          "projected_name": "setconfig",
+          "pg18_type": "_text",
+          "type": "_text",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "setconfig"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-06",
+      "FIELD_ID": "pg_catalog.pg_policy.polqual",
+      "SOURCE_RELATION": "pg_catalog.pg_policy",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "polqual",
+        "projected_name": "polqual_sha256",
+        "pg18_type": "pg_node_tree",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "polqual"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "polqual"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "HAS_UNEXPECTED_WRITE_PATH",
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_policy.polqual",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "polqual",
+          "projected_name": "polqual_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "polqual"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-07",
+      "FIELD_ID": "pg_catalog.pg_policy.polwithcheck",
+      "SOURCE_RELATION": "pg_catalog.pg_policy",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "polwithcheck",
+        "projected_name": "polwithcheck_sha256",
+        "pg18_type": "pg_node_tree",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "polwithcheck"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "polwithcheck"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_policy.polwithcheck",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "polwithcheck",
+          "projected_name": "polwithcheck_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "polwithcheck"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-08",
+      "FIELD_ID": "pg_catalog.pg_trigger.tgqual",
+      "SOURCE_RELATION": "pg_catalog.pg_trigger",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "tgqual",
+        "projected_name": "tgqual_sha256",
+        "pg18_type": "pg_node_tree",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "tgqual"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "tgqual"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "HAS_UNEXPECTED_WRITE_PATH",
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_trigger.tgqual",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "tgqual",
+          "projected_name": "tgqual_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "tgqual"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-09",
+      "FIELD_ID": "pg_catalog.pg_rewrite.ev_qual",
+      "SOURCE_RELATION": "pg_catalog.pg_rewrite",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "ev_qual",
+        "projected_name": "ev_qual_sha256",
+        "pg18_type": "pg_node_tree",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "ev_qual"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "ev_qual"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_rewrite.ev_qual",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "ev_qual",
+          "projected_name": "ev_qual_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "ev_qual"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "FIELD-10",
+      "FIELD_ID": "pg_catalog.pg_rewrite.ev_action",
+      "SOURCE_RELATION": "pg_catalog.pg_rewrite",
+      "SOURCE_FIELD_OR_EXPRESSION": {
+        "source_field": "ev_action",
+        "projected_name": "ev_action_sha256",
+        "pg18_type": "pg_node_tree",
+        "type": "bytes32",
+        "nullable": true,
+        "expression": {
+          "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+          "args": [
+            {
+              "op": "FIELD",
+              "args": [
+                "ev_action"
+              ]
+            }
+          ]
+        },
+        "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+      },
+      "TRANSFORMATION": {
+        "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "ev_action"
+            ]
+          }
+        ]
+      },
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "SECURITY_PREDICATE": [
+        "HAS_UNEXPECTED_WRITE_PATH",
+        "SNAPSHOT_COHERENT",
+        "NATIVE_QUALIFIED"
+      ],
+      "OUTPUT_BINDING": {
+        "field": "pg_catalog.pg_rewrite.ev_action",
+        "representation_contract": "R5N2 catalog-codec-type-table.json"
+      },
+      "CURRENT_PROOF": {
+        "projection": {
+          "source_field": "ev_action",
+          "projected_name": "ev_action_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "ev_action"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        "source_reader_policy": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+        "direct_representation_only": true
+      },
+      "MISSING_PROOF": "Exact invoking source plan, callable, execution principal and pre-exposure transformation boundary",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "PREDICATE-01",
+      "PREDICATE_ID": "FUNCTION_CONFIG_SAFE",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_depend",
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.proconfig",
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_depend.objid",
+        "pg_catalog.pg_depend.refobjid"
+      ],
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "EVALUATION_POINT": "UNKNOWN",
+      "TRUE_EFFECT": "Predicate truth must retain its canonical meaning; it is not automatically an allow decision",
+      "FALSE_EFFECT": "Predicate false must retain its canonical meaning; absence cannot be inferred from incomplete graph",
+      "NULL_OR_REDACTION_EFFECT": "Not qualified; no false/zero inference",
+      "CURRENT_PROOF": {
+        "id": "FUNCTION_CONFIG_SAFE",
+        "expression": {
+          "op": "AND",
+          "args": [
+            {
+              "op": "EXACT_APPROVED_PROCONFIG",
+              "args": [
+                "function"
+              ]
+            },
+            {
+              "op": "QUALIFIED_STATIC_DEPENDENCIES_ONLY",
+              "args": [
+                "function"
+              ]
+            },
+            {
+              "op": "NO_UNAPPROVED_SD_OR_OWNER_PATH",
+              "args": [
+                "function"
+              ]
+            }
+          ]
+        },
+        "truth_domain": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN"
+        ],
+        "UNKNOWN": "Not qualified; no false/zero inference",
+        "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+      },
+      "MISSING_PROOF": "Invoked evaluator with source-backed complete explicit/implicit callable effects, principal and exact evaluation layer",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "PREDICATE-02",
+      "PREDICATE_ID": "HAS_BOOTSTRAP_AUTHORITY_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_proc",
+        "pg_catalog.pg_roles"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_roles.rolcreaterole",
+        "pg_catalog.pg_roles.rolsuper",
+        "pg_catalog.pg_proc.prosrc"
+      ],
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "EVALUATION_POINT": "UNKNOWN",
+      "TRUE_EFFECT": "Predicate truth must retain its canonical meaning; it is not automatically an allow decision",
+      "FALSE_EFFECT": "Predicate false must retain its canonical meaning; absence cannot be inferred from incomplete graph",
+      "NULL_OR_REDACTION_EFFECT": "Not qualified; no false/zero inference",
+      "CURRENT_PROOF": {
+        "id": "HAS_BOOTSTRAP_AUTHORITY_PATH",
+        "expression": {
+          "op": "EXISTS_CALLABLE_EDGE_TO",
+          "args": [
+            "HOST_ROOT_OR_DEPLOYMENT_OR_CREATEROLE_OR_SUPERUSER"
+          ]
+        },
+        "truth_domain": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN"
+        ],
+        "UNKNOWN": "Not qualified; no false/zero inference",
+        "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+      },
+      "MISSING_PROOF": "Invoked evaluator with source-backed complete explicit/implicit callable effects, principal and exact evaluation layer",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "PREDICATE-03",
+      "PREDICATE_ID": "HAS_SECURITY_DEFINER_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.prosecdef",
+        "pg_catalog.pg_proc.proowner",
+        "pg_catalog.pg_proc.proacl",
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_proc.proconfig"
+      ],
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "EVALUATION_POINT": "UNKNOWN",
+      "TRUE_EFFECT": "Predicate truth must retain its canonical meaning; it is not automatically an allow decision",
+      "FALSE_EFFECT": "Predicate false must retain its canonical meaning; absence cannot be inferred from incomplete graph",
+      "NULL_OR_REDACTION_EFFECT": "Not qualified; no false/zero inference",
+      "CURRENT_PROOF": {
+        "id": "HAS_SECURITY_DEFINER_PATH",
+        "expression": {
+          "op": "EXISTS_REACHABLE_FUNCTION",
+          "args": [
+            "function.prosecdef=true",
+            "caller_execute_and_schema_usage",
+            "owner_role",
+            "verified_body_effect_graph"
+          ]
+        },
+        "truth_domain": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN"
+        ],
+        "UNKNOWN": "Not qualified; no false/zero inference",
+        "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+      },
+      "MISSING_PROOF": "Invoked evaluator with source-backed complete explicit/implicit callable effects, principal and exact evaluation layer",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "PREDICATE-04",
+      "PREDICATE_ID": "HAS_UNEXPECTED_CREDENTIAL_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_db_role_setting",
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_proc.proconfig",
+        "pg_catalog.pg_db_role_setting.setconfig"
+      ],
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "EVALUATION_POINT": "UNKNOWN",
+      "TRUE_EFFECT": "Predicate truth must retain its canonical meaning; it is not automatically an allow decision",
+      "FALSE_EFFECT": "Predicate false must retain its canonical meaning; absence cannot be inferred from incomplete graph",
+      "NULL_OR_REDACTION_EFFECT": "Not qualified; no false/zero inference",
+      "CURRENT_PROOF": {
+        "id": "HAS_UNEXPECTED_CREDENTIAL_PATH",
+        "expression": {
+          "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+          "args": [
+            "READ_TRANSFER_DUPLICATE_PRIVATE_KEY_OR_DB_CHANNEL"
+          ]
+        },
+        "truth_domain": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN"
+        ],
+        "UNKNOWN": "Not qualified; no false/zero inference",
+        "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+      },
+      "MISSING_PROOF": "Invoked evaluator with source-backed complete explicit/implicit callable effects, principal and exact evaluation layer",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "PREDICATE-05",
+      "PREDICATE_ID": "HAS_UNEXPECTED_OBSERVATION_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_db_role_setting",
+        "pg_catalog.pg_proc"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.proconfig",
+        "pg_catalog.pg_db_role_setting.setconfig",
+        "pg_catalog.pg_proc.prosrc"
+      ],
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "EVALUATION_POINT": "UNKNOWN",
+      "TRUE_EFFECT": "Predicate truth must retain its canonical meaning; it is not automatically an allow decision",
+      "FALSE_EFFECT": "Predicate false must retain its canonical meaning; absence cannot be inferred from incomplete graph",
+      "NULL_OR_REDACTION_EFFECT": "Not qualified; no false/zero inference",
+      "CURRENT_PROOF": {
+        "id": "HAS_UNEXPECTED_OBSERVATION_PATH",
+        "expression": {
+          "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+          "args": [
+            "READ_OTHER_SLOT_SECRET_OR_UNAPPROVED_METADATA"
+          ]
+        },
+        "truth_domain": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN"
+        ],
+        "UNKNOWN": "Not qualified; no false/zero inference",
+        "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+      },
+      "MISSING_PROOF": "Invoked evaluator with source-backed complete explicit/implicit callable effects, principal and exact evaluation layer",
+      "STATUS": "OPEN"
+    },
+    {
+      "GAP_ID": "PREDICATE-06",
+      "PREDICATE_ID": "HAS_UNEXPECTED_WRITE_PATH",
+      "AFFECTED_RELATIONS": [
+        "pg_catalog.pg_policy",
+        "pg_catalog.pg_proc",
+        "pg_catalog.pg_rewrite",
+        "pg_catalog.pg_trigger"
+      ],
+      "AFFECTED_FIELDS": [
+        "pg_catalog.pg_proc.prosrc",
+        "pg_catalog.pg_proc.prosecdef",
+        "pg_catalog.pg_policy.polqual",
+        "pg_catalog.pg_trigger.tgqual",
+        "pg_catalog.pg_rewrite.ev_action"
+      ],
+      "EXPECTED_PRODUCER_STEP": "UNKNOWN",
+      "EXPECTED_CALLABLE": "UNKNOWN",
+      "INVOCATION_PRINCIPAL": "UNKNOWN",
+      "EFFECTIVE_PRINCIPAL": "UNKNOWN",
+      "AUTHORITY_SOURCE": "UNKNOWN",
+      "EVALUATION_POINT": "UNKNOWN",
+      "TRUE_EFFECT": "Predicate truth must retain its canonical meaning; it is not automatically an allow decision",
+      "FALSE_EFFECT": "Predicate false must retain its canonical meaning; absence cannot be inferred from incomplete graph",
+      "NULL_OR_REDACTION_EFFECT": "Not qualified; no false/zero inference",
+      "CURRENT_PROOF": {
+        "id": "HAS_UNEXPECTED_WRITE_PATH",
+        "expression": {
+          "op": "EXISTS_REACHABLE_EFFECT_OUTSIDE_ALLOWLIST",
+          "args": [
+            "WRITE_OR_ROLE_GRANT_OR_CREATE_OR_SIGNAL"
+          ]
+        },
+        "truth_domain": [
+          "TRUE",
+          "FALSE",
+          "UNKNOWN"
+        ],
+        "UNKNOWN": "Not qualified; no false/zero inference",
+        "inputs": "Exactly explicit catalog rows plus typed protected expected manifest/native registry/kernel/work/observer receipts"
+      },
+      "MISSING_PROOF": "Invoked evaluator with source-backed complete explicit/implicit callable effects, principal and exact evaluation layer",
+      "STATUS": "OPEN"
+    }
+  ]
+}

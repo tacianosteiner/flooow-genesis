@@ -1,0 +1,357 @@
+{
+  "scope": "R5N2_STATIC_DESIGN_CANDIDATE",
+  "implementation_performed": false,
+  "future_runtime_values_created": false,
+  "contracts": {
+    "N1-LABEL-IR-ATOMICITY": {
+      "LABEL_IR_VERSION": 2,
+      "LABEL_NAMESPACE": "FLOOOW/P0090/TEST/NATIVE/LABEL/v2",
+      "fields": [
+        [
+          "LABEL_IR_VERSION",
+          "u16",
+          2
+        ],
+        [
+          "LABEL_NAMESPACE",
+          "utf8",
+          "exact constant above"
+        ],
+        [
+          "LABEL_IDENTITY",
+          "bytes32",
+          "SHA256 complete canonical remaining identity fields"
+        ],
+        [
+          "LABEL_SUBJECT",
+          "bytes32",
+          "preserved enrolled process identity digest"
+        ],
+        [
+          "LABEL_GENERATION",
+          "u64",
+          "native registry generation high water"
+        ],
+        [
+          "LABEL_REGISTRY_REVISION",
+          "u64",
+          "exact native registry revision"
+        ],
+        [
+          "LABEL_CONTEXT",
+          "bytes32",
+          "preserved bootstrap context digest"
+        ],
+        [
+          "LABEL_WORK_ID",
+          "bytes32",
+          "preserved purpose work ID"
+        ],
+        [
+          "LABEL_CREDENTIAL_CLASS",
+          "u16",
+          "credential inventory numeric tag"
+        ],
+        [
+          "LABEL_AUTHORITY_CLASS",
+          "u16",
+          "1=READ_ONLY;2=CHANNEL_ONLY;3=ENGINE_PRIVATE;4=TARGET_PIDFD_SIGNAL"
+        ]
+      ],
+      "canonical_encoding": "Field order above, BE integers, u32 byte length then unnormalized strict UTF8, fixed32 hashes. ID preimage excludes LABEL_IDENTITY only, includes namespace/version. No NULL/extra fields. Size bounded by exact field sizes plus namespace length.",
+      "publication_identity": "SHA256(namespace UTF8 || complete canonical label bytes || u64 expected_previous_revision || bytes32 expected_previous_digest)",
+      "store": "Separate private label append journal owned solely by existing NATIVE_REGISTRY_WRITER actor10; HEALTH_GUARD actor8 has read-only descriptor and submits proposals, never writes. The four existing registry record schemas remain byte-identical. Label journal does not grant generation/publication authority or mutate registry revision. OS enforcement binding remains under N1-SCALAR-SYSCALL-IR.",
+      "label_commit_record": "Domain ASCII FLOOOW/P0090/R5N2/LABEL_COMMIT/V2 then u32 BE complete frame length; frame:u16 version2,u16 writer10,u16 observer8,u64 label_revision,u64 expected_previous_revision,bytes32 previous_label_digest,bytes32 observed_registry_tip_digest,u64 observed_registry_sequence,u32 label_length,complete label bytes,u16 state2(COMMITTED); Ed25519 signature64 over domain plus complete frame; trailer SHA256(frame||signature). Record revision starts1 with previous_revision0/previous_digest allzero under fresh independent HOST-approved context; never reset inside same context. Label max65536 bytes; no other record types accepted.",
+      "states": [
+        "PREPARED",
+        "COMMITTED",
+        "REJECTED",
+        "UNKNOWN"
+      ],
+      "CAS": "NATIVE_REGISTRY_WRITER serializes both its registry and label writes under one owned lock. Compare expected previous label revision/digest, expected exact registry tip sequence/digest and current generation high water; require all equal and no pending registry transition. Append full label commit with next label_revision=previous+1 (overflow reject), checksum/signature and previous label digest; fsync label journal, require independent HEALTH_GUARD read-back receipt before eligibility. Release lock only after receipt or durable UNKNOWN quarantine. Consumers verify writer signature and guard receipt binding both exact tips, then revalidate current generation and registry tip at use; any registry advance invalidates label, no fallback. Missing writer/observer continuity => UNKNOWN. No fieldwise publication.",
+      "transitions": {
+        "PREPARED": "No authority. Full record validated but no commit receipt.",
+        "COMMITTED": "Only after durable commit acknowledgment and complete chain/tuple validation.",
+        "REJECTED": "Malformed/conflicting/unauthorized publication; cannot upgrade this identity.",
+        "UNKNOWN": "Incomplete durability/chain/observer evidence; no authority until full independent recovery validates the same commit."
+      },
+      "duplicate": "Same publication ID and byte-identical committed record => return same receipt, no new revision/use. Same ID different bytes or predecessor => REJECTED.",
+      "partial": "No complete frame/checksum/signature => UNKNOWN; never parse a valid prefix as label.",
+      "crashes": {
+        "before": "PREPARED has no authority.",
+        "during": "Incomplete frame => UNKNOWN; complete durable commit recoverable only under preserved journal recovery.",
+        "after": "Committed chain is recovered; prior one-use consumption is retained, never reset."
+      },
+      "replay": "Older generation/revision/context/work or consumed publication => REJECTED; exact duplicate receipt does not grant a second use.",
+      "mismatch": "Generation or registry mismatch => REJECTED. Unknown current high water => UNKNOWN. Both not qualified.",
+      "future_verification": "Measure installed label store/consumer policy identities, inject each state/crash/CAS mismatch into isolated future harness; require no accepted label before complete commit. No installed enforcement claimed."
+    },
+    "N1-SCALAR-SYSCALL-IR": {
+      "design_vs_measurement": "240 prior rows are candidate observations of requested operations, not an approved measured binary syscall set. Actual architecture numbers and concrete set are BUILD_PROOF_PENDING; missing argument/label decision algorithms remain static gaps.",
+      "IR_version": 2,
+      "outcomes": [
+        "ALLOW",
+        "DENY",
+        "CONDITIONALLY_ALLOW",
+        "UNKNOWN"
+      ],
+      "rule_schema": [
+        "operation_identity",
+        "argument_predicate",
+        "resource_class",
+        "direction",
+        "participants",
+        "generation",
+        "context",
+        "result_class",
+        "failure"
+      ],
+      "operators": {
+        "EQ_U64": "Compare unsigned bits after exact target ABI decode.",
+        "BITS_SUBSET": "(value & ~allowed_mask)==0; unresolved target mask => UNKNOWN.",
+        "FD_IDENTITY": "Kernel retained handle must match immutable per-slot handle label plus generation/context and no open-ended numeric-FD equality.",
+        "AND": "FALSE if any false; UNKNOWN if no false and any unknown; TRUE otherwise.",
+        "DENY": "Never issue operation.",
+        "UNKNOWN": "Never issue operation; participant not qualified."
+      },
+      "translation": "Future build emits manifest keyed by OS release/source digest, audit ABI, architecture, build ID, binary SHA256 and policy version. Resolve symbolic operation to syscall number only from pinned ABI table. Reject aliases, unknown numbers, multiplexed hidden operations or absent argument semantics. Compare measured reachable operations against closed IR; every operation must have exactly one rule; duplicates/unknown deny.",
+      "unconditional_forbidden": [
+        "shell",
+        "arbitrary exec",
+        "arbitrary file/socket/process",
+        "ptrace",
+        "credential manipulation",
+        "unknown IOCTL",
+        "io_uring",
+        "BPF policy mutation"
+      ],
+      "static_gap": "FD/path/socket/IPC race-safe kernel inspection and pointer predicates in prior rows still have no selected backend algorithm. A finite IR alone does not discharge these previous missing decisions."
+    },
+    "N1-SOURCE-STATS-VISIBILITY": {
+      "required_facts": [
+        "expected database OID",
+        "backend PID",
+        "role OID/name",
+        "backend start identity",
+        "backend type",
+        "complete relevant backend roster"
+      ],
+      "source": "pg_stat_activity exact six prior projected columns; native independent process anchor supplements, does not substitute for SQL role/session attribution",
+      "reader": "dedicated read proxy; seven participants receive signed non-secret snapshots only",
+      "classification": {
+        "cross_session": "REQUIRED for expected TEST database protected sessions",
+        "cross_database": "FORBIDDEN except unexpected protected role/session existence boolean; no other DB query content",
+        "credential_secrets": "FORBIDDEN",
+        "query_text": "FORBIDDEN",
+        "configuration_secrets": "FORBIDDEN"
+      },
+      "minimum_privilege": "Ordinary role with only approved projection access; no implicit pg_read_all_stats/pg_monitor/superuser. Narrower role/database metadata comes from pg_roles/pg_database, not statistics.",
+      "source_dependency": "Approved PG18 pg_stat_get_activity C implementation is absent from frozen provider; view signature does not prove cross-role field visibility. No authority widening as fallback.",
+      "unknown": "Any redacted required field, source uncertainty or incomplete roster => UNKNOWN; no qualification."
+    },
+    "N1-READER-PREPARSE-GATE": {
+      "boundary_distinction": "This revision adds byte gate BEFORE snapshot decoding. It does not replace the R5N.1 earliest SQL parse/type/planner effect gate; that original subcondition remains open under this same ID.",
+      "header_order": [
+        "magic",
+        "version",
+        "source_manifest_digest",
+        "source_version_digest",
+        "schema_digest",
+        "field_set_digest",
+        "codec_table_digest",
+        "context",
+        "generation",
+        "registry_revision",
+        "relation_count",
+        "payload_length"
+      ],
+      "header_types": [
+        "8bytes=F0090NS2",
+        "u16=2",
+        "bytes32",
+        "bytes32",
+        "bytes32",
+        "bytes32",
+        "bytes32",
+        "bytes32",
+        "u64",
+        "u64",
+        "u16",
+        "u32"
+      ],
+      "source_identities": "All six header digests must equal enrolled approved manifest values; no caller authority to choose expected values.",
+      "limits": {
+        "frame_bytes_max": 16777216,
+        "relations_max": 19,
+        "rows_per_relation_max": 65536,
+        "scalar_bytes_max": 1048576,
+        "array_elements_max": 65536
+      },
+      "algorithm": [
+        "Check fixed magic/version and complete fixed header length without allocation from claimed length.",
+        "Compare header identities/generation/context/revision against independent approved challenge; unknown expected identity => PREPARSE_UNKNOWN.",
+        "Check payload length equals remaining bytes and configured maxima; no trailing bytes.",
+        "Require exactly19 relation frames with source IDs from codec table, each exactly once in numeric ID order.",
+        "For each row validate declared exact field count, monotonically assigned tags, exact type IDs/null flags/lengths and source field set; reject duplicate/missing/unknown tags.",
+        "Reject duplicate natural row keys; enforce canonical row ordering and exact expected identity roster where supplied.",
+        "Validate every scalar/array using codec table before releasing any decoded row. Stage all rows privately until entire snapshot validates.",
+        "Only complete frame produces PREPARSE_ACCEPT and immutable decoded snapshot identity; no prefix rows enter graph."
+      ],
+      "results": {
+        "PREPARSE_ACCEPT": "All deterministic structural and independent identity checks true; not itself qualification.",
+        "PREPARSE_REJECT": "Malformed, unsupported version, duplicate/unknown/missing field/relation, truncation, limit violation, unexpected extra bytes or identity mismatch.",
+        "PREPARSE_UNKNOWN": "Required independent expected identity/version/currentness evidence unavailable; does not qualify."
+      }
+    },
+    "N1-CATALOG-EFFECT-GRAPH": {
+      "output": "NATIVE_QUALIFICATION_EFFECT only; no global Package authority or mechanism partitions",
+      "scope": "Seven participant role mappings plus dedicated reader and authority reachable from them in isolated TEST database; global role membership metadata retained solely to discover such reachability.",
+      "nodes": "Role keyed OID; object keyed databaseOID/classOID/objectOID/subobjectID; reader/participant keyed preserved identity digest; credential keyed inventory class tag.",
+      "edges": {
+        "MEMBER_OF": "pg_auth_members.member -> roleid, retain grantor/three options.",
+        "INHERITS_FROM": "Same row iff inherit_option=true.",
+        "CAN_SET_ROLE_TO": "Same row iff set_option=true.",
+        "HAS_ADMIN_ON": "From MEMBER_OF closure to role with admin_option grant; self false except superuser source semantics.",
+        "OWNS": "Object owner OID -> exact object address.",
+        "DIRECT_ACL": "ACL grantee -> object/privilege with grantor and grant option retained.",
+        "PUBLIC_ACL": "PUBLIC sentinel -> object/privilege; do not represent PUBLIC as role membership.",
+        "DEFAULT_PRIVILEGE_PATH": "Creator and schema scope plus exact global/schema pg_default_acl row; future creation applicability separate.",
+        "SECURITY_DEFINER_EXECUTION_PATH": "EXECUTE-capable caller -> owner authority only for independently approved exact body/effect digest. Unapproved body is UNKNOWN, not inferred harmless.",
+        "CREATEROLE_EFFECT": "rolcreaterole true invalidates narrow participant/reader invariant.",
+        "SUPERUSER_EFFECT": "rolsuper true invalidates narrow invariant.",
+        "BYPASSRLS_EFFECT": "rolbypassrls true invalidates narrow invariant."
+      },
+      "edge_id": "SHA256 canonical edge kind || canonical source node || canonical target node || complete canonical origin row || applicability context; no origin collapse.",
+      "fixedpoint": "For MEMBER, INHERIT and SET separately: initialize with role itself, repeatedly union targets of applicable edges until no change; finite complete snapshot visited set; no depth cap. Retain cyclic edges/origins even when node already visited. PG implicit database-owner membership added independently from frozen acl.c.",
+      "UNKNOWN": "Incomplete source/edge/unsupported callable => UNKNOWN NATIVE_QUALIFICATION_EFFECT, never safe by absence.",
+      "remaining_static_gap": "Per-edge PG18 default ACL/owner/function effects, callable/type/default-argument coverage and exact approved body effect source are still not complete. Proargdefaults/type callable families remain source dependencies; do not claim global graph solved."
+    },
+    "N1-READER-EFFECTIVE-ACL": {
+      "dimensions": [
+        "direct",
+        "ownership",
+        "PUBLIC",
+        "MEMBER",
+        "INHERIT",
+        "SET",
+        "ADMIN",
+        "global defaults",
+        "schema defaults",
+        "SECURITY DEFINER",
+        "CREATEROLE",
+        "SUPERUSER",
+        "BYPASSRLS",
+        "bootstrap"
+      ],
+      "invariants": [
+        "NO_MUTATION_PATH",
+        "NO_ROLE_ESCALATION_PATH",
+        "NO_CREDENTIAL_SECRET_PATH",
+        "NO_GENERIC_SQL_AUTHORITY",
+        "NO_ARBITRARY_OBJECT_AUTHORITY"
+      ],
+      "algorithm": "Construct separate typed reachability sets and privilege origins from catalog effect graph. Reject superuser/createrole/bypassrls or reachable owner/admin of protected roles/objects. Evaluate every callable/table/schema/database effective privilege including PUBLIC and default owner rights against exact reader allowlist. Unknown callable/default/body/effective ACL => UNKNOWN, never qualify.",
+      "exceptions": [],
+      "remaining_static_gap": "Exact PG18 effective grant/deny plan including PUBLIC built-in routines and earliest SQL ingress constraint not yet source-closed. Desired column grants alone insufficient."
+    },
+    "N1-CONFIG-SECRET-EXCLUSION": {
+      "collection_boundary": "Producer sanitizes inside trusted source adapter BEFORE transport, logging, hashing or storing raw values. Untrusted participants never receive source raw config arrays.",
+      "classes": [
+        {
+          "CONFIG_FIELD_CLASS": "identity",
+          "VISIBILITY": "ALLOW",
+          "QUALIFICATION_REQUIRED": true,
+          "SECRET_CLASS": "NONE",
+          "EXCLUSION_RULE": "role OID/database OID/routine OID only"
+        },
+        {
+          "CONFIG_FIELD_CLASS": "name",
+          "VISIBILITY": "ALLOW",
+          "QUALIFICATION_REQUIRED": true,
+          "SECRET_CLASS": "NONE",
+          "EXCLUSION_RULE": "Only allowlisted ASCII names search_path,row_security,default_transaction_read_only; all other names represented by one UNKNOWN_SETTING_PRESENT boolean, never copied"
+        },
+        {
+          "CONFIG_FIELD_CLASS": "provenance",
+          "VISIBILITY": "ALLOW",
+          "QUALIFICATION_REQUIRED": true,
+          "SECRET_CLASS": "NONE",
+          "EXCLUSION_RULE": "Origin role/database/routine OID and global/schema/session scope enum only"
+        },
+        {
+          "CONFIG_FIELD_CLASS": "effective_scope",
+          "VISIBILITY": "ALLOW",
+          "QUALIFICATION_REQUIRED": true,
+          "SECRET_CLASS": "NONE",
+          "EXCLUSION_RULE": "enum GLOBAL,DATABASE,ROLE,ROLE_DATABASE,ROUTINE,SESSION"
+        },
+        {
+          "CONFIG_FIELD_CLASS": "value",
+          "VISIBILITY": "FORBIDDEN_RAW",
+          "QUALIFICATION_REQUIRED": false,
+          "SECRET_CLASS": "POTENTIAL_SECRET",
+          "EXCLUSION_RULE": "Never output/hash raw values. Within trusted adapter compare search_path against exact approved pg_catalog plus private schema OID list with pg_temp forbidden; row_security must be on; default_transaction_read_only must be on. Output SAFE/UNSAFE/UNKNOWN enum only; parser ambiguity UNKNOWN."
+        }
+      ],
+      "forbidden": [
+        "password material",
+        "credential secrets",
+        "private keys",
+        "tokens",
+        "connection secrets"
+      ],
+      "safe_projection_override": "Replace raw pg_proc.proconfig and pg_db_role_setting.setconfig output types with CONFIG_ASSERTIONS_V2 defined in codec table; preserve NULL vs empty and origin identity, never secret value.",
+      "unknown_setting": "Unknown setting presence invalidates authority classification until independently approved effects; omitted secret VALUE itself never fails qualification. Absence is not taken as proof of safety.",
+      "no_secret_hash": "Hashing raw low-entropy secrets is not permitted as exclusion."
+    },
+    "N1-SNAPSHOT-MUTATION-BARRIER": {
+      "SNAPSHOT_MUTATION_AUTHORITY": "NONE",
+      "reader": "Dedicated ordinary proxy role, zero role memberships, not deployment/admin/owner; immutable statement producer; no participant-supplied SQL/parameters.",
+      "transaction": "One read-only REPEATABLE READ transaction; source catalog plus independently observed native generation barrier; session begin/end identity must match.",
+      "allowed": [
+        "protocol startup authentication",
+        "begin fixed read-only repeatable-read transaction",
+        "fixed approved catalog projections",
+        "commit/rollback",
+        "close connection"
+      ],
+      "forbidden": [
+        "DML",
+        "DDL",
+        "SET ROLE",
+        "role changes",
+        "SET SESSION AUTHORIZATION",
+        "session GUC mutation beyond fixed startup contract",
+        "temporary objects",
+        "COPY PROGRAM",
+        "advisory locks",
+        "arbitrary functions",
+        "unapproved SECURITY DEFINER",
+        "large object writes",
+        "arbitrary SQL"
+      ],
+      "loss": "Any reconnect/restart/change of role/session/generation during snapshot => UNKNOWN; discard whole snapshot and invalidate outstanding work. No mixed snapshot.",
+      "remaining_static_gap": "A command allowlist does not establish pre-parser nonmutation or freeze concurrent catalog authority. Exact external catalog mutator exclusion/token ownership/publication ordering from N1 review remains undefined; read-only transaction alone insufficient."
+    },
+    "N1-CREDENTIAL-CLASS-INVENTORY": {
+      "class_table": "credential-classes.json",
+      "known_classes": 3,
+      "remaining_static_gap": "Proxy SQL authentication and per-reference ledger require exact source-derived class/issuer/custodian scope; not closed by enum count."
+    },
+    "N1-CATALOG-CODEC-TYPE-TABLE": {
+      "table": "catalog-codec-type-table.json",
+      "unsupported_types": [],
+      "remaining_static_gap": "Codec structural completeness separate from statistics field visibility, config safe extraction/effect semantics; all five prior issues must remain mapped, not erase because type exists."
+    },
+    "N1-QUALIFICATION-INPUT-RESOLUTION": {
+      "table": "qualification-inputs.json",
+      "remaining_static_gap": "Seven typed inputs per participant improve source identity binding but exact per-field producer/receipt validation comparisons still require complete mapping; no PROSE_ONLY consumption permitted at runtime."
+    },
+    "N1-SUBSTITUTION-STATIC-WITNESSES": {
+      "table": "substitution-witnesses.json",
+      "remaining_static_gap": "350 cases retained with explicit identity/witness skeleton, but exact attack-specific typed schema paths and graph evaluations still missing; expected REJECT alone not static witness closure."
+    }
+  },
+  "scope_boundary": "NATIVE qualification only; EPOCH/PARTITIONS/TEMPLATES unchanged",
+  "rule": "These are candidate amendments to evidence only, not approved implemented enforcement. Independent review controls final status."
+}

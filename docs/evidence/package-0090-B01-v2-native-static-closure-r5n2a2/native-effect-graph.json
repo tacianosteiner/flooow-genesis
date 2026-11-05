@@ -1,0 +1,91 @@
+{
+  "scope": "R5N2A2_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "constructors": [
+    {
+      "CONSTRUCTOR_ID": "ROUTINE_EXECUTION",
+      "SOURCE": "pg_proc.oid/proowner/proacl/prosecdef/proconfig + separate executeACL origins",
+      "FROM": "reader or SET/INHERIT reachable role",
+      "TO": "routine OID",
+      "EDGE_TYPE": "DIRECT_ACL or PUBLIC_ACL",
+      "APPLICABILITY": "Only if caller has effective EXECUTE and fixed source path actually invokes routine",
+      "TRANSITIVE": "Effect reachability only after entry condition true",
+      "EFFECT": "INVOKER retains currentrole; DEFINER uses exact owner for duration, scoped proconfig/searchpath checked; no execution effect merely existence",
+      "UNKNOWN": "Unsupported body/effect/sourcepath=>NOTQUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "SECURITY_DEFINER",
+      "SOURCE": "pg_proc.prosecdef/proowner/proconfig",
+      "FROM": "reachable executable routine",
+      "TO": "exact owner authority context",
+      "EDGE_TYPE": "SECURITY_DEFINER_PATH",
+      "APPLICABILITY": "Only executable routine transition with approved exact body/context",
+      "TRANSITIVE": "Traverse owner effects separately from membership",
+      "EFFECT": "Enter owner context for function only; do not pretend membership/SET",
+      "UNKNOWN": "Missing body/context allowlist=>NOTQUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "TYPE_CODEC_IDENTITY",
+      "SOURCE": "Closed source/type/field codec table",
+      "FROM": "source field",
+      "TO": "canonical primitive codec",
+      "EDGE_TYPE": "NO_NATIVE_AUTHORITY_EDGE_REQUIRED",
+      "APPLICABILITY": "Snapshot bytes decoded solely by closed canonical primitive decoders; never arbitrary PG type input",
+      "TRANSITIVE": false,
+      "EFFECT": "Type existence/OID not privilege; no new authority edge",
+      "UNKNOWN": "Unknowncodec=>preparsereject"
+    },
+    {
+      "CONSTRUCTOR_ID": "SOURCE_TYPE_CALLABLE",
+      "SOURCE": "Source producer fixed SQL types and pg_type supportcallables where actually invoked",
+      "FROM": "fixedproducer expression",
+      "TO": "exact invokedtypefunction",
+      "EDGE_TYPE": "ROUTINE_EXECUTION existing semantic transition",
+      "APPLICABILITY": "Only if actual producer parse/type path invokes callable, not because type exists",
+      "TRANSITIVE": "Reuse routine effect semantics",
+      "EFFECT": "Needs source-approved callableeffect manifest or rejectunsupportedsource",
+      "UNKNOWN": "Native sourceparse/typecallable absence=>NOTQUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "FUTURE_DEFAULT_PRIVILEGES",
+      "SOURCE": "pg_default_acl.defaclrole/defaclnamespace/defaclobjtype/defaclacl + creator CREATE/schema rights",
+      "FROM": "exact creatorrole/objectclass/schemascope",
+      "TO": "future object -> ACLgrantee/privilege/grantoption",
+      "EDGE_TYPE": "DEFAULT_PRIVILEGE_EFFECT",
+      "APPLICABILITY": "Only if creator can create target objectclass in scope; globaldefault applies then schemaadditionalrights; retain exact creatorrole, not inherited role whose defaults incidentally exist",
+      "TRANSITIVE": "Evaluate future object effect only; never existingobjectACL",
+      "EFFECT": "Potentialfuture rights invalidating native noauthority invariant if creator reachable",
+      "UNKNOWN": "Unknown create/effect scope=>NOTQUALIFIED"
+    }
+  ],
+  "base_semantics": {
+    "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/acl.c",
+    "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+    "pointer": "/"
+  },
+  "default_semantics": {
+    "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/aclchk.c",
+    "sha256": "9700258318959b47c42edb423418fb511dd3a008023e732f601eecf4c80868f8",
+    "pointer": "/"
+  },
+  "distinct_dimensions": [
+    "MEMBER_OF",
+    "INHERIT",
+    "SET",
+    "ADMIN",
+    "OWNERSHIP",
+    "DIRECT_ACL",
+    "PUBLIC_ACL",
+    "DEFAULT_PRIVILEGE_EFFECT",
+    "SECURITY_DEFINER_PATH",
+    "CREATEROLE",
+    "SUPERUSER",
+    "BYPASSRLS",
+    "BOOTSTRAP"
+  ],
+  "scope_fence": "Only NATIVE qualification; never V2-PARTITIONS complete graph",
+  "missing_source_families": "Codec-only type edges removed; producer callable/type/defaultargument source effects remain explicit until fixed source plan/effect manifest proved. Do not silently drop source-side effects just because decoder pure.",
+  "source_relations": 19,
+  "projected_fields": 146,
+  "predicate_count": 26
+}

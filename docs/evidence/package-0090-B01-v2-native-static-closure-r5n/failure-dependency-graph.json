@@ -1,0 +1,137 @@
+{
+  "scope": "R5N_TEST_ONLY_NATIVE_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "roots": [
+    {
+      "id": "NATIVE/ISOLATION_CUSTODY",
+      "classifications": [
+        "A",
+        "E"
+      ],
+      "missing": "Exact lifecycle phase, role-specific syscall/descriptor/UID/key/loader and privilege boundary",
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-5/native-confinement-contract-v5.json",
+        "sha256": "50ea5f8d42450818702d2bac6d19378d48cafc282356c20ed4e543d593fe65dc",
+        "pointer": "/design_gap"
+      }
+    },
+    {
+      "id": "NATIVE/CATALOG_WORK_WITNESS",
+      "classifications": [
+        "B",
+        "G"
+      ],
+      "missing": "Exact independent server-generation/catalog/work attribution, with narrow observer entitlement rather than generic postgres helper credential",
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-5/static-adversarial-review-v5.json",
+        "sha256": "b27d0f1ba1cbaab6dc350957d05c10548ff55e478b6648073c0ecb7ab8f983a2",
+        "pointer": "/findings"
+      }
+    },
+    {
+      "id": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "classifications": [
+        "C",
+        "F",
+        "H"
+      ],
+      "missing": "Exact completed-work publication/registry/generation/replay and bootstrapping dependency protocol, distinct from runtime measured values",
+      "source": {
+        "path": "docs/evidence/package-0090-B01-v2-static-closure-revision-5/native-seven-participant-contract-v5.json",
+        "sha256": "60077db4e968ca0d63e659fbb90bb1d48052915b162ffa29fcb8462f594f53aa",
+        "pointer": "/participants"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:POSTMASTER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:POSTMASTER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/CATALOG_WORK_WITNESS",
+      "consequence": "participant-privilege-closure:POSTMASTER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:SUPERVISOR",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:SUPERVISOR",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:RECEIVER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:RECEIVER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/CATALOG_WORK_WITNESS",
+      "consequence": "participant-privilege-closure:RECEIVER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:CENSUS_OBSERVER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:CENSUS_OBSERVER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/CATALOG_WORK_WITNESS",
+      "consequence": "participant-privilege-closure:CENSUS_OBSERVER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:APPROVAL_PRODUCER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:APPROVAL_PRODUCER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:APPROVAL_CONSUMER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:APPROVAL_CONSUMER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/ISOLATION_CUSTODY",
+      "consequence": "participant-privilege-closure:ENFORCEMENT_WORKER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    },
+    {
+      "cause": "NATIVE/PUBLICATION_GENERATION_BINDING",
+      "consequence": "participant-privilege-closure:ENFORCEMENT_WORKER",
+      "relation": "REQUIRED_PROOF_NOT_EQUIVALENCE"
+    }
+  ],
+  "acyclic": true,
+  "no_equivalence_collapse": true,
+  "root_resolution_requires": "Actual deterministic design rules and independent review; naming a family never closes a predicate"
+}

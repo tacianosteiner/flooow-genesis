@@ -1,0 +1,14 @@
+{
+  "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "domain": "FLOOOW/PACKAGE0090/R5N1/CATALOG/V1",
+  "frame": "u32be UTF8 domain length || domain || u16be field count || fields ascending contiguous tag u16be,length u32be,payload; null payload00; present01||typed bytes",
+  "numeric": "oid u32be; int2/int4/int8 signed 2/4/8-byte BE two-complement; bool 00/01; char exactly1 ASCII byte; name/text strict already NFC UTF8; reject noncanonical, no normalization",
+  "timestamp": "finite signed i64 UTC microseconds since2000-01-01 as native source, SQL NULL presence preserved; reject infinity sentinels/submicrosecond conversion",
+  "arrays": "u32be count then u32be element size+typed element; preserve declared argument/setting order. ACL exploded rows sort complete canonical bytes and preserve grantor/grantee/privilege/grant-option; NULL ACL != empty ACL",
+  "collection": "u32be row count then u32be row size+row; source rows sorted complete unsigned bytes, reject duplicate natural keys; never truncate/adopt live extras",
+  "ACL": "Normalize each explicit aclitem through frozen acl.c aclexplode semantics into grantor oid,grantee oid (0=PUBLIC),privilege exact enum,is_grantable bool. NULL ACL uses acldefault(kind,owner) model, explicit empty ACL count0 retains owner implicit rights separately. Default ACL rows never retroactively replace current-object ACL",
+  "pg_node_tree_and_body": "Hash exact stored UTF8 bytes with NULL-preserving presence; no pg_get_functiondef pretty rendering. Verified expected source/body effect manifests separate from digest equality",
+  "bounds": "All count/byte limits finite positive in independent immutable native snapshot policy before later execution. Overflow, unknown type/source or limit breach => UNKNOWN, no partial snapshot"
+}

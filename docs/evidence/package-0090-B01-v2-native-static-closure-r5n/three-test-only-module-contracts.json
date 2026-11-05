@@ -1,0 +1,2335 @@
+{
+  "scope": "R5N_TEST_ONLY_NATIVE_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "modules": [
+    {
+      "MODULE_ID": "R5N/APPROVAL_PRODUCER/TEST-ONLY-V1",
+      "PURPOSE": "Published fully verified immutable approval generation",
+      "PARENT": "SUPERVISOR retained birth-anchor; HOST_PLATFORM independently witnesses exact child/parent before enrollment",
+      "START_AUTHORITY": "HOST_PLATFORM pre-enrollment fixed bootstrap plan only; no operational spawn/exec API",
+      "INPUT_ABI": {
+        "id": "APPROVAL_PRODUCER/CHALLENGE",
+        "message_type": 105,
+        "participant": "APPROVAL_PRODUCER",
+        "sender": "HEALTH_GUARD",
+        "recipient": "APPROVAL_PRODUCER",
+        "field_order": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "deployment_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_system_identifier",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_oid",
+            "type": "u32",
+            "encoded_value_length": 4,
+            "nullable": false
+          },
+          {
+            "name": "binding_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "manifest_v6_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binding_fingerprint",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "policy_version",
+            "type": "nfc_utf8",
+            "encoded_value_length": "1..255",
+            "nullable": false
+          },
+          {
+            "name": "policy_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "enrollment_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "work_entity_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "expected_result_schema_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_code",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "previous_state_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "original_emission_boottime_us",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sequence",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_enrollment",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_record",
+            "type": "typed_record",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "body": "Only the declared context/digests, never SQL/shell/command/path/PID/operation-selector payload",
+        "challenge_binding": "Challenge key=(qualification,epoch,slot,generation,challenge_id,work_id); input digest and expected result schema precommitted by HEALTH_GUARD; nonce only uniqueness, never identity",
+        "currentness": "Exact trusted generation/enrollment/credential/channel/context and expected generation-registry revision; work_entity_revision is participant-specific CAS predecessor, not a shared global work counter",
+        "outcome": "Response OBSERVED_EXACT_WORK accepted only with independently observed role result and exact result_digest; self signature alone never counts",
+        "replay": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work"
+      },
+      "OUTPUT_ABI": {
+        "id": "APPROVAL_PRODUCER/RESPONSE",
+        "message_type": 205,
+        "participant": "APPROVAL_PRODUCER",
+        "sender": "APPROVAL_PRODUCER",
+        "recipient": "HEALTH_GUARD",
+        "field_order": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "deployment_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_system_identifier",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_oid",
+            "type": "u32",
+            "encoded_value_length": 4,
+            "nullable": false
+          },
+          {
+            "name": "binding_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "manifest_v6_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binding_fingerprint",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "policy_version",
+            "type": "nfc_utf8",
+            "encoded_value_length": "1..255",
+            "nullable": false
+          },
+          {
+            "name": "policy_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "enrollment_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "work_entity_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "expected_result_schema_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_code",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "previous_state_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "original_emission_boottime_us",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sequence",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_enrollment",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_record",
+            "type": "typed_record",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "body": "Only the declared context/digests, never SQL/shell/command/path/PID/operation-selector payload",
+        "challenge_binding": "Challenge key=(qualification,epoch,slot,generation,challenge_id,work_id); input digest and expected result schema precommitted by HEALTH_GUARD; nonce only uniqueness, never identity",
+        "currentness": "Exact trusted generation/enrollment/credential/channel/context and expected generation-registry revision; work_entity_revision is participant-specific CAS predecessor, not a shared global work counter",
+        "outcome": "Response OBSERVED_EXACT_WORK accepted only with independently observed role result and exact result_digest; self signature alone never counts",
+        "replay": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work"
+      },
+      "MESSAGE_VERSION": 1,
+      "MESSAGE_FIELD_ORDER": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "enrollment_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "work_entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "expected_result_schema_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "result_code",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "result_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "previous_state_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "original_emission_boottime_us",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sender_generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sender_enrollment",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "sender_process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "sender_credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_record",
+          "type": "typed_record",
+          "encoded_value_length": "1..1048576",
+          "nullable": false
+        }
+      ],
+      "FIELD_TYPES": "Exact per-field type/length in INPUT_ABI; no additional fields",
+      "FIELD_LENGTHS": "Exact per-field widths; UTF8 1..255; whole frame<=1048576",
+      "NULLABILITY": "No field nullable; non-result uses explicit NOT_A_RESULT enum and fixed no-result digest, never absent design",
+      "CANONICAL_ENCODING": {
+        "magic_hex": "464c4f4f4f574e31",
+        "version": 1,
+        "header": "magic8 || version u16be || message_type u16be || sender_actor u16be || recipient_actor u16be || payload_length u32be",
+        "payload": "field_count u16be; ascending contiguous fields: tag u16be || length u32be || exact typed value; no presence byte because every field is required/non-null",
+        "signature": "64-byte Ed25519 signature over ASCII FLOOOW/PACKAGE0090/R5N/TEST/V1 followed by complete header+payload; fixed algorithm; expected key looked up by enrolled role/purpose/generation, never selected by caller credential_ref",
+        "integers": "Unsigned fixed-width big-endian u16/u32/u64; signed i64 is exactly8-byte big-endian two-complement in range -2^63..2^63-1. Overflow/range violation rejects; sequence/generation/revisions checked before increment",
+        "uuid": "16 network-order bytes, non-nil",
+        "text": "Strict UTF8 NFC already normalized, no control/NUL/empty; reject rather than normalize",
+        "bytes": "bytes32 and bytes64 exact raw length",
+        "arrays": "u32be count then u32be element length and exact canonical typed element; sets sort full unsigned bytes and reject duplicates; bounded <=4096 entries",
+        "maximum_frame_bytes": 1048576,
+        "unknown": "Unknown version/type/field, missing/extra/duplicate/out-of-order tag, invalid width, truncation/MSG_TRUNC/MSG_CTRUNC, trailing bytes or excess ancillary => reject before work",
+        "nonresult": "Challenge result_code=0 NOT_A_RESULT and result_digest=SHA256(ASCII FLOOOW/R5N/NO-RESULT/V1); never an observed outcome",
+        "result_codes": {
+          "NOT_A_RESULT": 0,
+          "OBSERVED_EXACT_WORK": 1,
+          "REJECTED": 2,
+          "UNKNOWN": 3
+        },
+        "time": "Original CLOCK_BOOTTIME microseconds=floor(clock_gettime(CLOCK_BOOTTIME) nanoseconds/1000) in same boot_id/time namespace. server_start_epoch_us is signed finite PostgreSQL microseconds since2000-01-01T00:00:00Z, matching frozen PgStartTime/pg_stat_activity conversion, not Unix1970; reject PostgreSQL infinity sentinels. Approval signed-window wall time preserves original canonical UTC encoding and authoritative independently observed database clock; never compare it directly to BOOTTIME. Immutable policy gives finite positive max age, work deadline, key validity and heartbeat frame limits; numeric values remain independently approved provisioning data; time/nonce never authority",
+        "schema_JSON": "For expected_result_schema_digest only: exact declared field-schema array with object keys sorted ASCII lexicographically, arrays in declared order, UTF8 bytes, no BOM/newline/whitespace. Allowed values are printable ASCII strings, booleans true/false and exact nonnegative integers<=9007199254740991; no null/float/nonfinite/negative/duplicate keys. Decimal integers no leading zeros; strings escape only quote and backslash, slash is unescaped. This restricted domain is exactly json.dumps(schema,sort_keys=True,separators=(comma,colon),ensure_ascii=False,allow_nan=False).encode(UTF8) for these schema objects. SHA256 those exact bytes; schema digest is design data, never binary identity"
+      },
+      "DOMAIN_SEPARATOR": "FLOOOW/PACKAGE0090/R5N/TEST/V1",
+      "CONTEXT_BINDING": "All ordered ABI subject/emitter fields and exact typed input/result record, including expected original public material, policy, manifest and binding fingerprint",
+      "GENERATION_BINDING": "Exact current incarnation+slot+generation+enrollment; latest high-water never falls back",
+      "REGISTRY_REVISION_BINDING": "Frozen current generation registry revision plus current participant work entity predecessor; both rechecked before CAS/guard",
+      "CHALLENGE_BINDING": "HEALTH_GUARD-authenticated one-use challenge and work ID; expected input/result schema precommitted",
+      "COMPLETED_WORK_BINDING": "completed-work-protocol.json exact participant rule, independent witness required",
+      "CREDENTIAL_TYPE": "TEST-only slot/generation/purpose Ed25519 transport certificate plus one-use work authorization; original canonical SPKI verify-only",
+      "CREDENTIAL_SOURCE": "HOST_PLATFORM approved private TEST key custody; CSPRNG at future provisioning, no provider/domain/execution secret reuse",
+      "CREDENTIAL_CUSTODY": "Only exact process UID, sealed memfd4 then private non-dumpable memory; no shared signing API/FD transfer; zero private key returns/logs; expected public ref pinned independently",
+      "CREDENTIAL_USE_COUNT": "At most one accepted work completion per signed work authorization; duplicate requests return same retained receipt, no second signature/effect. Heartbeat key purpose restricted and bounded by approved per-generation frame limit",
+      "CREDENTIAL_EXPIRY_RULE": "Current generation/enrollment plus immutable approved native policy key-valid-until BOOTTIME in exact boot/timens; expiry/revoke/tombstone invalidates without renewal; no hardcoded experimental TTL",
+      "CHANNEL_TYPE": "Inherited AF_UNIX SOCK_SEQPACKET fd5; no alternate socket/path/RPC endpoint",
+      "CHANNEL_AUTHENTICATION": "Creation inventory binds socketpair cookies/inodes, creator anchor and intended peer roles. SO_PEERPIDFD on inherited socket proves creation peer only. Each recvmsg requires exactly one current kernel SCM_PIDFD matching enrolled sender; no post-start SCM_RIGHTS/duplicate descriptors allowed",
+      "PEER_IDENTITY_RULE": "Signed bootstrap inventory creator identity + kernel CURRENT sender anchor + exact enum/credential/context equality",
+      "REPLAY_REJECTION": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work",
+      "STALE_GENERATION_REJECTION": "Exact latest authoritative current slot generation; old signed receipts cannot restore it",
+      "WRONG_PARENT_REJECTION": "Compare retained expected parent tuple, no name/PID-only match",
+      "WRONG_BINARY_REJECTION": "Compare approved executable+module+loader+dependency manifest actual measured identity before enrollment/publication",
+      "WRONG_CHANNEL_REJECTION": "Reject transfer/creator/current-sender/namespace/inventory mismatch",
+      "WRONG_CONTEXT_REJECTION": "Reject any mismatch in fixed expected ABI tuple, including original signed bundle/custody",
+      "UNKNOWN_BEHAVIOR": "Persist exact pending work/operation tuple and quarantine; no blind retry/replacement/eligibility",
+      "REVOCATION_BEHAVIOR": "Irreversible generation/credential/channel ineligibility and tombstone; keep retained evidence until independent extinction",
+      "CRASH_BEHAVIOR": "Crash/ACK loss yields UNKNOWN unless independent exact outcome already durable; never treat process death as abort/extinction",
+      "OUTPUT_WITNESS": "HEALTH_GUARD independent result check; ENFORCEMENT_WORKER additionally requires CENSUS_OBSERVER actual outcome, not worker signature",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM; producer verification separately repeated by APPROVAL_CONSUMER",
+      "MODULE_IMPLEMENTED": false,
+      "SQL_TEXT_INPUT_ALLOWED": false,
+      "GENERIC_OPERATION_SELECTOR": false
+    },
+    {
+      "MODULE_ID": "R5N/APPROVAL_CONSUMER/TEST-ONLY-V1",
+      "PURPOSE": "Successfully consumed current verified approval generation",
+      "PARENT": "SUPERVISOR retained birth-anchor; HOST_PLATFORM independently witnesses exact child/parent before enrollment",
+      "START_AUTHORITY": "HOST_PLATFORM pre-enrollment fixed bootstrap plan only; no operational spawn/exec API",
+      "INPUT_ABI": {
+        "id": "APPROVAL_CONSUMER/CHALLENGE",
+        "message_type": 106,
+        "participant": "APPROVAL_CONSUMER",
+        "sender": "HEALTH_GUARD",
+        "recipient": "APPROVAL_CONSUMER",
+        "field_order": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "deployment_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_system_identifier",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_oid",
+            "type": "u32",
+            "encoded_value_length": 4,
+            "nullable": false
+          },
+          {
+            "name": "binding_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "manifest_v6_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binding_fingerprint",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "policy_version",
+            "type": "nfc_utf8",
+            "encoded_value_length": "1..255",
+            "nullable": false
+          },
+          {
+            "name": "policy_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "enrollment_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "work_entity_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "expected_result_schema_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_code",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "previous_state_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "original_emission_boottime_us",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sequence",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_enrollment",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_record",
+            "type": "typed_record",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "body": "Only the declared context/digests, never SQL/shell/command/path/PID/operation-selector payload",
+        "challenge_binding": "Challenge key=(qualification,epoch,slot,generation,challenge_id,work_id); input digest and expected result schema precommitted by HEALTH_GUARD; nonce only uniqueness, never identity",
+        "currentness": "Exact trusted generation/enrollment/credential/channel/context and expected generation-registry revision; work_entity_revision is participant-specific CAS predecessor, not a shared global work counter",
+        "outcome": "Response OBSERVED_EXACT_WORK accepted only with independently observed role result and exact result_digest; self signature alone never counts",
+        "replay": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work"
+      },
+      "OUTPUT_ABI": {
+        "id": "APPROVAL_CONSUMER/RESPONSE",
+        "message_type": 206,
+        "participant": "APPROVAL_CONSUMER",
+        "sender": "APPROVAL_CONSUMER",
+        "recipient": "HEALTH_GUARD",
+        "field_order": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "deployment_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_system_identifier",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_oid",
+            "type": "u32",
+            "encoded_value_length": 4,
+            "nullable": false
+          },
+          {
+            "name": "binding_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "manifest_v6_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binding_fingerprint",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "policy_version",
+            "type": "nfc_utf8",
+            "encoded_value_length": "1..255",
+            "nullable": false
+          },
+          {
+            "name": "policy_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "enrollment_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "work_entity_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "expected_result_schema_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_code",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "previous_state_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "original_emission_boottime_us",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sequence",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_enrollment",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_record",
+            "type": "typed_record",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "body": "Only the declared context/digests, never SQL/shell/command/path/PID/operation-selector payload",
+        "challenge_binding": "Challenge key=(qualification,epoch,slot,generation,challenge_id,work_id); input digest and expected result schema precommitted by HEALTH_GUARD; nonce only uniqueness, never identity",
+        "currentness": "Exact trusted generation/enrollment/credential/channel/context and expected generation-registry revision; work_entity_revision is participant-specific CAS predecessor, not a shared global work counter",
+        "outcome": "Response OBSERVED_EXACT_WORK accepted only with independently observed role result and exact result_digest; self signature alone never counts",
+        "replay": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work"
+      },
+      "MESSAGE_VERSION": 1,
+      "MESSAGE_FIELD_ORDER": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "enrollment_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "work_entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "expected_result_schema_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "result_code",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "result_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "previous_state_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "original_emission_boottime_us",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sender_generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sender_enrollment",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "sender_process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "sender_credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_record",
+          "type": "typed_record",
+          "encoded_value_length": "1..1048576",
+          "nullable": false
+        }
+      ],
+      "FIELD_TYPES": "Exact per-field type/length in INPUT_ABI; no additional fields",
+      "FIELD_LENGTHS": "Exact per-field widths; UTF8 1..255; whole frame<=1048576",
+      "NULLABILITY": "No field nullable; non-result uses explicit NOT_A_RESULT enum and fixed no-result digest, never absent design",
+      "CANONICAL_ENCODING": {
+        "magic_hex": "464c4f4f4f574e31",
+        "version": 1,
+        "header": "magic8 || version u16be || message_type u16be || sender_actor u16be || recipient_actor u16be || payload_length u32be",
+        "payload": "field_count u16be; ascending contiguous fields: tag u16be || length u32be || exact typed value; no presence byte because every field is required/non-null",
+        "signature": "64-byte Ed25519 signature over ASCII FLOOOW/PACKAGE0090/R5N/TEST/V1 followed by complete header+payload; fixed algorithm; expected key looked up by enrolled role/purpose/generation, never selected by caller credential_ref",
+        "integers": "Unsigned fixed-width big-endian u16/u32/u64; signed i64 is exactly8-byte big-endian two-complement in range -2^63..2^63-1. Overflow/range violation rejects; sequence/generation/revisions checked before increment",
+        "uuid": "16 network-order bytes, non-nil",
+        "text": "Strict UTF8 NFC already normalized, no control/NUL/empty; reject rather than normalize",
+        "bytes": "bytes32 and bytes64 exact raw length",
+        "arrays": "u32be count then u32be element length and exact canonical typed element; sets sort full unsigned bytes and reject duplicates; bounded <=4096 entries",
+        "maximum_frame_bytes": 1048576,
+        "unknown": "Unknown version/type/field, missing/extra/duplicate/out-of-order tag, invalid width, truncation/MSG_TRUNC/MSG_CTRUNC, trailing bytes or excess ancillary => reject before work",
+        "nonresult": "Challenge result_code=0 NOT_A_RESULT and result_digest=SHA256(ASCII FLOOOW/R5N/NO-RESULT/V1); never an observed outcome",
+        "result_codes": {
+          "NOT_A_RESULT": 0,
+          "OBSERVED_EXACT_WORK": 1,
+          "REJECTED": 2,
+          "UNKNOWN": 3
+        },
+        "time": "Original CLOCK_BOOTTIME microseconds=floor(clock_gettime(CLOCK_BOOTTIME) nanoseconds/1000) in same boot_id/time namespace. server_start_epoch_us is signed finite PostgreSQL microseconds since2000-01-01T00:00:00Z, matching frozen PgStartTime/pg_stat_activity conversion, not Unix1970; reject PostgreSQL infinity sentinels. Approval signed-window wall time preserves original canonical UTC encoding and authoritative independently observed database clock; never compare it directly to BOOTTIME. Immutable policy gives finite positive max age, work deadline, key validity and heartbeat frame limits; numeric values remain independently approved provisioning data; time/nonce never authority",
+        "schema_JSON": "For expected_result_schema_digest only: exact declared field-schema array with object keys sorted ASCII lexicographically, arrays in declared order, UTF8 bytes, no BOM/newline/whitespace. Allowed values are printable ASCII strings, booleans true/false and exact nonnegative integers<=9007199254740991; no null/float/nonfinite/negative/duplicate keys. Decimal integers no leading zeros; strings escape only quote and backslash, slash is unescaped. This restricted domain is exactly json.dumps(schema,sort_keys=True,separators=(comma,colon),ensure_ascii=False,allow_nan=False).encode(UTF8) for these schema objects. SHA256 those exact bytes; schema digest is design data, never binary identity"
+      },
+      "DOMAIN_SEPARATOR": "FLOOOW/PACKAGE0090/R5N/TEST/V1",
+      "CONTEXT_BINDING": "All ordered ABI subject/emitter fields and exact typed input/result record, including expected original public material, policy, manifest and binding fingerprint",
+      "GENERATION_BINDING": "Exact current incarnation+slot+generation+enrollment; latest high-water never falls back",
+      "REGISTRY_REVISION_BINDING": "Frozen current generation registry revision plus current participant work entity predecessor; both rechecked before CAS/guard",
+      "CHALLENGE_BINDING": "HEALTH_GUARD-authenticated one-use challenge and work ID; expected input/result schema precommitted",
+      "COMPLETED_WORK_BINDING": "completed-work-protocol.json exact participant rule, independent witness required",
+      "CREDENTIAL_TYPE": "TEST-only slot/generation/purpose Ed25519 transport certificate plus one-use work authorization; original canonical SPKI verify-only",
+      "CREDENTIAL_SOURCE": "HOST_PLATFORM approved private TEST key custody; CSPRNG at future provisioning, no provider/domain/execution secret reuse",
+      "CREDENTIAL_CUSTODY": "Only exact process UID, sealed memfd4 then private non-dumpable memory; no shared signing API/FD transfer; zero private key returns/logs; expected public ref pinned independently",
+      "CREDENTIAL_USE_COUNT": "At most one accepted work completion per signed work authorization; duplicate requests return same retained receipt, no second signature/effect. Heartbeat key purpose restricted and bounded by approved per-generation frame limit",
+      "CREDENTIAL_EXPIRY_RULE": "Current generation/enrollment plus immutable approved native policy key-valid-until BOOTTIME in exact boot/timens; expiry/revoke/tombstone invalidates without renewal; no hardcoded experimental TTL",
+      "CHANNEL_TYPE": "Inherited AF_UNIX SOCK_SEQPACKET fd5; no alternate socket/path/RPC endpoint",
+      "CHANNEL_AUTHENTICATION": "Creation inventory binds socketpair cookies/inodes, creator anchor and intended peer roles. SO_PEERPIDFD on inherited socket proves creation peer only. Each recvmsg requires exactly one current kernel SCM_PIDFD matching enrolled sender; no post-start SCM_RIGHTS/duplicate descriptors allowed",
+      "PEER_IDENTITY_RULE": "Signed bootstrap inventory creator identity + kernel CURRENT sender anchor + exact enum/credential/context equality",
+      "REPLAY_REJECTION": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work",
+      "STALE_GENERATION_REJECTION": "Exact latest authoritative current slot generation; old signed receipts cannot restore it",
+      "WRONG_PARENT_REJECTION": "Compare retained expected parent tuple, no name/PID-only match",
+      "WRONG_BINARY_REJECTION": "Compare approved executable+module+loader+dependency manifest actual measured identity before enrollment/publication",
+      "WRONG_CHANNEL_REJECTION": "Reject transfer/creator/current-sender/namespace/inventory mismatch",
+      "WRONG_CONTEXT_REJECTION": "Reject any mismatch in fixed expected ABI tuple, including original signed bundle/custody",
+      "UNKNOWN_BEHAVIOR": "Persist exact pending work/operation tuple and quarantine; no blind retry/replacement/eligibility",
+      "REVOCATION_BEHAVIOR": "Irreversible generation/credential/channel ineligibility and tombstone; keep retained evidence until independent extinction",
+      "CRASH_BEHAVIOR": "Crash/ACK loss yields UNKNOWN unless independent exact outcome already durable; never treat process death as abort/extinction",
+      "OUTPUT_WITNESS": "HEALTH_GUARD independent result check; ENFORCEMENT_WORKER additionally requires CENSUS_OBSERVER actual outcome, not worker signature",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM; producer verification separately repeated by APPROVAL_CONSUMER",
+      "MODULE_IMPLEMENTED": false,
+      "SQL_TEXT_INPUT_ALLOWED": false,
+      "GENERIC_OPERATION_SELECTOR": false
+    },
+    {
+      "MODULE_ID": "R5N/ENFORCEMENT_WORKER/TEST-ONLY-V1",
+      "PURPOSE": "Completed target-bound control action",
+      "PARENT": "SUPERVISOR retained birth-anchor; HOST_PLATFORM independently witnesses exact child/parent before enrollment",
+      "START_AUTHORITY": "HOST_PLATFORM pre-enrollment fixed bootstrap plan only; no operational spawn/exec API",
+      "INPUT_ABI": {
+        "id": "ENFORCEMENT_WORKER/CHALLENGE",
+        "message_type": 107,
+        "participant": "ENFORCEMENT_WORKER",
+        "sender": "HEALTH_GUARD",
+        "recipient": "ENFORCEMENT_WORKER",
+        "field_order": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "deployment_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_system_identifier",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_oid",
+            "type": "u32",
+            "encoded_value_length": 4,
+            "nullable": false
+          },
+          {
+            "name": "binding_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "manifest_v6_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binding_fingerprint",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "policy_version",
+            "type": "nfc_utf8",
+            "encoded_value_length": "1..255",
+            "nullable": false
+          },
+          {
+            "name": "policy_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "enrollment_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "work_entity_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "expected_result_schema_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_code",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "previous_state_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "original_emission_boottime_us",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sequence",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_enrollment",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_record",
+            "type": "typed_record",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "body": "Only the declared context/digests, never SQL/shell/command/path/PID/operation-selector payload",
+        "challenge_binding": "Challenge key=(qualification,epoch,slot,generation,challenge_id,work_id); input digest and expected result schema precommitted by HEALTH_GUARD; nonce only uniqueness, never identity",
+        "currentness": "Exact trusted generation/enrollment/credential/channel/context and expected generation-registry revision; work_entity_revision is participant-specific CAS predecessor, not a shared global work counter",
+        "outcome": "Response OBSERVED_EXACT_WORK accepted only with independently observed role result and exact result_digest; self signature alone never counts",
+        "replay": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work"
+      },
+      "OUTPUT_ABI": {
+        "id": "ENFORCEMENT_WORKER/RESPONSE",
+        "message_type": 207,
+        "participant": "ENFORCEMENT_WORKER",
+        "sender": "ENFORCEMENT_WORKER",
+        "recipient": "HEALTH_GUARD",
+        "field_order": [
+          {
+            "name": "qualification_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "deployment_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "incarnation_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "boot_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "time_namespace_inode",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_system_identifier",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "database_oid",
+            "type": "u32",
+            "encoded_value_length": 4,
+            "nullable": false
+          },
+          {
+            "name": "binding_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_id",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "manifest_v6_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "approval_manifest_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "binding_fingerprint",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "policy_version",
+            "type": "nfc_utf8",
+            "encoded_value_length": "1..255",
+            "nullable": false
+          },
+          {
+            "name": "policy_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "epoch",
+            "type": "uuid",
+            "encoded_value_length": 16,
+            "nullable": false
+          },
+          {
+            "name": "participant_id",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "parent_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "enrollment_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "channel_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "generation_registry_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "work_entity_revision",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "challenge_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "work_id",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "input_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "expected_result_schema_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_code",
+            "type": "u16",
+            "encoded_value_length": 2,
+            "nullable": false
+          },
+          {
+            "name": "result_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "previous_state_digest",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "original_emission_boottime_us",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sequence",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_generation",
+            "type": "u64",
+            "encoded_value_length": 8,
+            "nullable": false
+          },
+          {
+            "name": "sender_enrollment",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_process_identity",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "sender_credential_ref",
+            "type": "bytes32",
+            "encoded_value_length": 32,
+            "nullable": false
+          },
+          {
+            "name": "result_record",
+            "type": "typed_record",
+            "encoded_value_length": "1..1048576",
+            "nullable": false
+          }
+        ],
+        "body": "Only the declared context/digests, never SQL/shell/command/path/PID/operation-selector payload",
+        "challenge_binding": "Challenge key=(qualification,epoch,slot,generation,challenge_id,work_id); input digest and expected result schema precommitted by HEALTH_GUARD; nonce only uniqueness, never identity",
+        "currentness": "Exact trusted generation/enrollment/credential/channel/context and expected generation-registry revision; work_entity_revision is participant-specific CAS predecessor, not a shared global work counter",
+        "outcome": "Response OBSERVED_EXACT_WORK accepted only with independently observed role result and exact result_digest; self signature alone never counts",
+        "replay": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work"
+      },
+      "MESSAGE_VERSION": 1,
+      "MESSAGE_FIELD_ORDER": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "deployment_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_system_identifier",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "database_oid",
+          "type": "u32",
+          "encoded_value_length": 4,
+          "nullable": false
+        },
+        {
+          "name": "binding_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "manifest_v6_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "approval_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "binding_fingerprint",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "policy_version",
+          "type": "nfc_utf8",
+          "encoded_value_length": "1..255",
+          "nullable": false
+        },
+        {
+          "name": "policy_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "enrollment_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "channel_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "generation_registry_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "work_entity_revision",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "challenge_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "work_id",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "expected_result_schema_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "result_code",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "result_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "previous_state_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "original_emission_boottime_us",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sender_generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "sender_enrollment",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "sender_process_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "sender_credential_ref",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "input_record",
+          "type": "typed_record",
+          "encoded_value_length": "1..1048576",
+          "nullable": false
+        }
+      ],
+      "FIELD_TYPES": "Exact per-field type/length in INPUT_ABI; no additional fields",
+      "FIELD_LENGTHS": "Exact per-field widths; UTF8 1..255; whole frame<=1048576",
+      "NULLABILITY": "No field nullable; non-result uses explicit NOT_A_RESULT enum and fixed no-result digest, never absent design",
+      "CANONICAL_ENCODING": {
+        "magic_hex": "464c4f4f4f574e31",
+        "version": 1,
+        "header": "magic8 || version u16be || message_type u16be || sender_actor u16be || recipient_actor u16be || payload_length u32be",
+        "payload": "field_count u16be; ascending contiguous fields: tag u16be || length u32be || exact typed value; no presence byte because every field is required/non-null",
+        "signature": "64-byte Ed25519 signature over ASCII FLOOOW/PACKAGE0090/R5N/TEST/V1 followed by complete header+payload; fixed algorithm; expected key looked up by enrolled role/purpose/generation, never selected by caller credential_ref",
+        "integers": "Unsigned fixed-width big-endian u16/u32/u64; signed i64 is exactly8-byte big-endian two-complement in range -2^63..2^63-1. Overflow/range violation rejects; sequence/generation/revisions checked before increment",
+        "uuid": "16 network-order bytes, non-nil",
+        "text": "Strict UTF8 NFC already normalized, no control/NUL/empty; reject rather than normalize",
+        "bytes": "bytes32 and bytes64 exact raw length",
+        "arrays": "u32be count then u32be element length and exact canonical typed element; sets sort full unsigned bytes and reject duplicates; bounded <=4096 entries",
+        "maximum_frame_bytes": 1048576,
+        "unknown": "Unknown version/type/field, missing/extra/duplicate/out-of-order tag, invalid width, truncation/MSG_TRUNC/MSG_CTRUNC, trailing bytes or excess ancillary => reject before work",
+        "nonresult": "Challenge result_code=0 NOT_A_RESULT and result_digest=SHA256(ASCII FLOOOW/R5N/NO-RESULT/V1); never an observed outcome",
+        "result_codes": {
+          "NOT_A_RESULT": 0,
+          "OBSERVED_EXACT_WORK": 1,
+          "REJECTED": 2,
+          "UNKNOWN": 3
+        },
+        "time": "Original CLOCK_BOOTTIME microseconds=floor(clock_gettime(CLOCK_BOOTTIME) nanoseconds/1000) in same boot_id/time namespace. server_start_epoch_us is signed finite PostgreSQL microseconds since2000-01-01T00:00:00Z, matching frozen PgStartTime/pg_stat_activity conversion, not Unix1970; reject PostgreSQL infinity sentinels. Approval signed-window wall time preserves original canonical UTC encoding and authoritative independently observed database clock; never compare it directly to BOOTTIME. Immutable policy gives finite positive max age, work deadline, key validity and heartbeat frame limits; numeric values remain independently approved provisioning data; time/nonce never authority",
+        "schema_JSON": "For expected_result_schema_digest only: exact declared field-schema array with object keys sorted ASCII lexicographically, arrays in declared order, UTF8 bytes, no BOM/newline/whitespace. Allowed values are printable ASCII strings, booleans true/false and exact nonnegative integers<=9007199254740991; no null/float/nonfinite/negative/duplicate keys. Decimal integers no leading zeros; strings escape only quote and backslash, slash is unescaped. This restricted domain is exactly json.dumps(schema,sort_keys=True,separators=(comma,colon),ensure_ascii=False,allow_nan=False).encode(UTF8) for these schema objects. SHA256 those exact bytes; schema digest is design data, never binary identity"
+      },
+      "DOMAIN_SEPARATOR": "FLOOOW/PACKAGE0090/R5N/TEST/V1",
+      "CONTEXT_BINDING": "All ordered ABI subject/emitter fields and exact typed input/result record, including expected original public material, policy, manifest and binding fingerprint",
+      "GENERATION_BINDING": "Exact current incarnation+slot+generation+enrollment; latest high-water never falls back",
+      "REGISTRY_REVISION_BINDING": "Frozen current generation registry revision plus current participant work entity predecessor; both rechecked before CAS/guard",
+      "CHALLENGE_BINDING": "HEALTH_GUARD-authenticated one-use challenge and work ID; expected input/result schema precommitted",
+      "COMPLETED_WORK_BINDING": "completed-work-protocol.json exact participant rule, independent witness required",
+      "CREDENTIAL_TYPE": "TEST-only slot/generation/purpose Ed25519 transport certificate plus one-use work authorization; original canonical SPKI verify-only",
+      "CREDENTIAL_SOURCE": "HOST_PLATFORM approved private TEST key custody; CSPRNG at future provisioning, no provider/domain/execution secret reuse",
+      "CREDENTIAL_CUSTODY": "Only exact process UID, sealed memfd4 then private non-dumpable memory; no shared signing API/FD transfer; zero private key returns/logs; expected public ref pinned independently",
+      "CREDENTIAL_USE_COUNT": "At most one accepted work completion per signed work authorization; duplicate requests return same retained receipt, no second signature/effect. Heartbeat key purpose restricted and bounded by approved per-generation frame limit",
+      "CREDENTIAL_EXPIRY_RULE": "Current generation/enrollment plus immutable approved native policy key-valid-until BOOTTIME in exact boot/timens; expiry/revoke/tombstone invalidates without renewal; no hardcoded experimental TTL",
+      "CHANNEL_TYPE": "Inherited AF_UNIX SOCK_SEQPACKET fd5; no alternate socket/path/RPC endpoint",
+      "CHANNEL_AUTHENTICATION": "Creation inventory binds socketpair cookies/inodes, creator anchor and intended peer roles. SO_PEERPIDFD on inherited socket proves creation peer only. Each recvmsg requires exactly one current kernel SCM_PIDFD matching enrolled sender; no post-start SCM_RIGHTS/duplicate descriptors allowed",
+      "PEER_IDENTITY_RULE": "Signed bootstrap inventory creator identity + kernel CURRENT sender anchor + exact enum/credential/context equality",
+      "REPLAY_REJECTION": "Repeated identical request returns original retained terminal receipt without work, new signing, counter advance or expiry renewal; conflicting digest/consumed challenge/stale generation denies; UNKNOWN never retries work",
+      "STALE_GENERATION_REJECTION": "Exact latest authoritative current slot generation; old signed receipts cannot restore it",
+      "WRONG_PARENT_REJECTION": "Compare retained expected parent tuple, no name/PID-only match",
+      "WRONG_BINARY_REJECTION": "Compare approved executable+module+loader+dependency manifest actual measured identity before enrollment/publication",
+      "WRONG_CHANNEL_REJECTION": "Reject transfer/creator/current-sender/namespace/inventory mismatch",
+      "WRONG_CONTEXT_REJECTION": "Reject any mismatch in fixed expected ABI tuple, including original signed bundle/custody",
+      "UNKNOWN_BEHAVIOR": "Persist exact pending work/operation tuple and quarantine; no blind retry/replacement/eligibility",
+      "REVOCATION_BEHAVIOR": "Irreversible generation/credential/channel ineligibility and tombstone; keep retained evidence until independent extinction",
+      "CRASH_BEHAVIOR": "Crash/ACK loss yields UNKNOWN unless independent exact outcome already durable; never treat process death as abort/extinction",
+      "OUTPUT_WITNESS": "HEALTH_GUARD independent result check; ENFORCEMENT_WORKER additionally requires CENSUS_OBSERVER actual outcome, not worker signature",
+      "INDEPENDENT_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM; producer verification separately repeated by APPROVAL_CONSUMER",
+      "MODULE_IMPLEMENTED": false,
+      "SQL_TEXT_INPUT_ALLOWED": false,
+      "GENERIC_OPERATION_SELECTOR": false
+    }
+  ],
+  "original_approval": "Producer and consumer repeat frozen _observer_once public-material verification: exact independent custody status/bundle, SPKI DER/fingerprint, canonical manifest hash, exact canonical signature preimage and original Ed25519 signature, current signed window and independently fetched exact header/lifecycle. TEST transport signatures never replace original approval evidence",
+  "native_enforcement": "Only one prebound target fd6 and fixed STOP_THEN_TERM_THEN_CONT; no PID, signal, path, SQL or shell selector; lost syscall/commit result UNKNOWN and never reexecuted",
+  "separate_outcome_witness": true
+}

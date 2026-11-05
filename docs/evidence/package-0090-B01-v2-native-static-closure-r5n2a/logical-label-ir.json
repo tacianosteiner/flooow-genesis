@@ -1,0 +1,128 @@
+{
+  "scope": "R5N2A_FOUNDATION_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "fields": [
+    [
+      "LABEL_VERSION",
+      "u16"
+    ],
+    [
+      "SUBJECT_ID",
+      "bytes32"
+    ],
+    [
+      "RESOURCE_ID",
+      "bytes32"
+    ],
+    [
+      "RESOURCE_CLASS",
+      "u16"
+    ],
+    [
+      "PARTICIPANT_ID",
+      "u16"
+    ],
+    [
+      "GENERATION",
+      "u64"
+    ],
+    [
+      "REGISTRY_REVISION",
+      "u64"
+    ],
+    [
+      "PACKAGE_CONTEXT",
+      "bytes32"
+    ],
+    [
+      "AUTHORITY_CLASS",
+      "u16"
+    ],
+    [
+      "CREDENTIAL_CLASS",
+      "u16"
+    ],
+    [
+      "WORK_ID",
+      "bytes32"
+    ],
+    [
+      "STATE",
+      "u16"
+    ]
+  ],
+  "resource_class_enum": {
+    "FD": 1,
+    "PATH": 2,
+    "SOCKET": 3,
+    "IPC_ENDPOINT": 4,
+    "PROCESS": 5,
+    "CREDENTIAL_HANDLE": 6,
+    "CATALOG_SNAPSHOT_HANDLE": 7,
+    "IMMUTABLE_CODE": 8,
+    "PRIVATE_MEMORY": 9
+  },
+  "authority_class_enum": {
+    "OBSERVE": 1,
+    "READ": 2,
+    "WRITE_PRIVATE_ENGINE": 3,
+    "CHANNEL_SEND": 4,
+    "CHANNEL_RECEIVE": 5,
+    "TARGET_SIGNAL": 6,
+    "PRIVATE_KEY_USE": 7
+  },
+  "state_enum": {
+    "ABSENT": 0,
+    "PREPARED": 1,
+    "COMMITTED": 2,
+    "REVOKED": 3,
+    "UNKNOWN": 4
+  },
+  "canonical": "Exact ordered fields above; fixed32 raw digests; u16/u64 BE; no NULL/extra; LABEL_VERSION=1. Label identity SHA256(ASCII FLOOOW/P0090/R5N2A/LABEL/V1 || all fields). Resource identity SHA256 retained native object birth/namespace tuple encoded by adapter schema, never name/number alone.",
+  "state_transition": "ABSENT->PREPARED->COMMITTED; writer10 commits complete tuple + complete resource alias-set digest + predecessor label revision/digest + expected registry tip under CAS; guard8 read-only independently confirms; future adapter exposes one authoritative label identity atomically or denies all aliases. COMMITTED->REVOKED monotonic; UNKNOWN never authorizes.",
+  "publication_protocol": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2/decision-contracts.json",
+    "sha256": "c6558a2815fa310a5d6b0775f1ce9eb50bf864ed3e1f1b18f421b042b750c194",
+    "pointer": "/contracts/N1-LABEL-IR-ATOMICITY"
+  },
+  "cases": {
+    "partial_propagation": "No complete resource alias set + committed label identity => NOT_QUALIFIED; invalidate all affected work.",
+    "resource_duplication": "New alias preserves same resource identity; adapter commits alias-set successor atomically before either alias is usable; unsupported duplicate denied.",
+    "resource_transfer": "Only explicit allowed owner/channel transition, new subject binding requires fresh prepared label CAS; source loses eligibility before target can commit. Default forbidden.",
+    "resource_inheritance": "Default deny; only signed bootstrap inventory or approved POSTMASTER engine-child plan; parent binding cannot authorize child use.",
+    "resource_aliasing": "All names/FD aliases resolving same retained object share one resource identity; path string/fd number alone never identity. Unknown aliases => deny resource.",
+    "FD_duplication": "Same object alias rule; protected slot descriptors cannot be overwritten.",
+    "socket_transfer": "SCM_RIGHTS capability transfer default denied; metadata sender PIDFD is temporary observation handle, never promoted to channel/credential resource.",
+    "IPC_transfer": "Default denied; private engine IPC only within declared subject compartment and approved child plan.",
+    "process_fork_spawn": "Only POSTMASTER declared engine children; require observed birth tuple, inherited private compartment and complete labels before child gets eligibility. Other ACTIVE participants cannot spawn/exec.",
+    "reconnect": "Retire old channel label; pending UNKNOWN retained; new channel requires new enrollment and label commit, never reuse old binding.",
+    "restart": "Old process/credential labels revoked and tombstoned before new generation enrollment; no namespace/PID reuse authority.",
+    "crash_before_commit": "ABSENT/PREPARED never authorize; incomplete record => UNKNOWN.",
+    "crash_after_commit": "Recover exact durable committed record plus independent guard observation; no rollback of use/alias revisions.",
+    "stale_generation": "Reject mismatch against independently current high water; no older signed fallback.",
+    "wrong_registry_revision": "Reject; reobserve and recommit label for exact current tip before use.",
+    "UNKNOWN": "No operation/qualification; journal pending state retained, never success by absence."
+  },
+  "adapter_conformance": {
+    "measurement_identity": [
+      "approved Linux source/OS identity",
+      "ABI/architecture",
+      "adapter source/build identity",
+      "complete installed policy digest",
+      "exact resource birth/alias tuple schema",
+      "registry/context/participant/generation"
+    ],
+    "mandatory_operations": [
+      "retain object birth reference",
+      "resolve all aliases without user-controlled path traversal escape",
+      "serialize check/use with label/alias mutation",
+      "atomically install/replace alias bindings",
+      "deny unsupported transfer/inheritance/duplication",
+      "revoke on generation/registry/subject loss"
+    ],
+    "algorithm": "Before granting resource use, capture kernel-retained object identity and complete alias set under adapter synchronization; compare committed label tuple/alias digest/current generation/registry/subject/credential/work to independently approved expected tuple; hold synchronization or operate on retained immutable reference through use. Any uncertain race denies; cannot validate path then reopen by string. Publish conformance receipt only if each case above and each logical operation has proven complete mediation.",
+    "proof_contract": "Future adapter must supply source-to-hook complete mediation proof for every resource class and check/use linearization point, then isolated counterexample tests for every alias/transfer/race/crash case. Missing hook/proof => adapter NOT_CONFORMANT, never weaken IR. No concrete backend absent value is required now.",
+    "unknown": "NOT_CONFORMANT; all dependent participants NOT_QUALIFIED"
+  }
+}

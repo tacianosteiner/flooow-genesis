@@ -1,0 +1,655 @@
+{
+  "rules": [
+    {
+      "id": "MATCH_BINARY",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_binary",
+          "$expected_binary"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "binary_module_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_MODULE",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_module",
+          "$expected_module"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "binary_module_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_DEPENDENCIES",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_dependencies",
+          "$expected_dependencies"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "dependency_set_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_LOADER",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_loader",
+          "$expected_loader"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "loader_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_PARENT",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_parent",
+          "$expected_parent"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "parent_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_SUBJECT_PROCESS",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_subject_process",
+          "$expected_subject_process"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "process_instance_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_GENERATION",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_generation",
+          "$expected_generation"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "generation complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_ENROLLMENT",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_enrollment",
+          "$expected_enrollment"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "enrollment_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_CREDENTIAL",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_credential",
+          "$expected_credential"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "credential_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_CHANNEL",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_channel",
+          "$expected_channel"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "authenticated_channel_identity complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_REGISTRY_REVISION",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_registry_revision",
+          "$expected_registry_revision"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0001",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "registry_revision complete canonical tuple, independent expected value vs authenticated observed value"
+    },
+    {
+      "id": "MATCH_KERNEL_SENDER",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_kernel_sender",
+          "$expected_kernel_sender"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0003",
+        "EVID/0009"
+      ],
+      "canonical_field_binding": "Frame sender_process_identity compared to independent current kernel SCM_PIDFD birth; subject is separate"
+    },
+    {
+      "id": "MATCH_SENDER_ACTOR",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_sender_actor",
+          "$expected_sender_actor"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0003",
+        "EVID/0002"
+      ],
+      "canonical_field_binding": "Exact response sender_actor from participant-specific frozen RESPONSE route"
+    },
+    {
+      "id": "MATCH_SUBJECT_SLOT",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_subject_slot",
+          "$expected_subject_slot"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0002",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "Frame participant_id == current independently enrolled target slot"
+    },
+    {
+      "id": "MATCH_READER_PRINCIPAL",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_reader_principal",
+          "$expected_reader_principal"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010"
+      ],
+      "canonical_field_binding": "Exact proxy OS/process/enrollment binding, not any native actor"
+    },
+    {
+      "id": "MATCH_READER_ROLE",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_reader_role",
+          "$expected_reader_role"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "pg_roles.oid/rolname == independently enrolled Reader role; native slots have no SQL role"
+    },
+    {
+      "id": "MATCH_SERVER_GENERATION",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_server_generation",
+          "$expected_server_generation"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0017"
+      ],
+      "canonical_field_binding": "Reader exact postmaster/server incarnation/start binding including independent bridge-selected provenance"
+    },
+    {
+      "id": "MATCH_SNAPSHOT_SESSION",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_snapshot_session",
+          "$expected_snapshot_session"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0017"
+      ],
+      "canonical_field_binding": "Exact Reader SQL session/backend-start/descriptor incarnation"
+    },
+    {
+      "id": "MATCH_CUSTODIAN",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_custodian",
+          "$expected_custodian"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0009"
+      ],
+      "canonical_field_binding": "Independent private recipient/slot custody or expected endpoint-manifest custody, not foreign co-holder"
+    },
+    {
+      "id": "MATCH_SOURCE_PRINCIPAL",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observed_source_principal",
+          "$expected_source_principal"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0011"
+      ],
+      "canonical_field_binding": "Authenticated fixed source peer/context; foreign native cannot append trusted source rows"
+    },
+    {
+      "id": "FORBID_WORK_AUTHORIZATION_CONSUMED",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$work_authorization_consumed"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0006",
+        "EVID/0002"
+      ],
+      "canonical_field_binding": "One-use challenge/work authorization; duplicate terminal read is not new work"
+    },
+    {
+      "id": "FORBID_CHALLENGE_CONSUMED",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$challenge_consumed"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0006",
+        "EVID/0002"
+      ],
+      "canonical_field_binding": "Challenge/work key and strictly current sequence; no repeated effect"
+    },
+    {
+      "id": "FORBID_RESPONSE_CONSUMED",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$response_consumed"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0006",
+        "EVID/0002"
+      ],
+      "canonical_field_binding": "Exact existing response entity may return original receipt only"
+    },
+    {
+      "id": "FORBID_PUBLICATION_CONSUMED",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$publication_consumed"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0006",
+        "EVID/0008"
+      ],
+      "canonical_field_binding": "Published/consumed purpose record cannot renew work/clock/revision"
+    },
+    {
+      "id": "FORBID_GENERATION_TOMBSTONED",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$generation_tombstoned"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "Irreversible retired generation excludes eligibility; no stale fallback"
+    },
+    {
+      "id": "FORBID_CREDENTIAL_REVOKED",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$credential_revoked"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0009",
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "Current enrolled subject credential must not be revoked/retired"
+    },
+    {
+      "id": "FORBID_PENDING_UNKNOWN",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$pending_unknown"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0006"
+      ],
+      "canonical_field_binding": "No reconnect/new enrollment/adoption while old pending outcome UNKNOWN"
+    },
+    {
+      "id": "FORBID_INHERITED_NATIVE_CREDENTIAL",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$inherited_native_credential"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0009"
+      ],
+      "canonical_field_binding": "No cross-native credential/descriptor inheritance; engine-owned descriptors are not native authority"
+    },
+    {
+      "id": "FORBID_READER_SUPERUSER",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$reader_superuser"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "Reader LOGIN requires NOSUPERUSER"
+    },
+    {
+      "id": "FORBID_READER_CREATEROLE",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$reader_createrole"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "Reader LOGIN requires NOCREATEROLE"
+    },
+    {
+      "id": "FORBID_READER_OWNER",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$reader_owner"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0011",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "No inspected relation/schema/function ownership or owner authority switch"
+    },
+    {
+      "id": "ZERO_READER_MEMBERSHIPS",
+      "expression": {
+        "op": "EMPTY",
+        "args": [
+          "$reader_memberships"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0010",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "Zero incoming/outgoing membership; MEMBER/INHERIT/SET/ADMIN kept distinct in attack metadata"
+    },
+    {
+      "id": "FIXED_INPUT_TAGS",
+      "expression": {
+        "op": "SUBSET",
+        "args": [
+          "$input_tags",
+          "$allowed_input_tags"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0004",
+        "EVID/0005",
+        "EVID/0011"
+      ],
+      "canonical_field_binding": "No extra SQL/object/function/role selector TLV tag"
+    },
+    {
+      "id": "REQUIRED_ROSTER",
+      "expression": {
+        "op": "SUBSET",
+        "args": [
+          "$required_roster_keys",
+          "$observed_roster_keys"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0013",
+        "EVID/0014"
+      ],
+      "canonical_field_binding": "Required enrolled Reader OID/name source row cannot be missing; other rows remain universally qualified inputs"
+    },
+    {
+      "id": "UNIQUE_ROSTER",
+      "expression": {
+        "op": "UNIQUE",
+        "args": [
+          "$observed_roster_keys"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0014"
+      ],
+      "canonical_field_binding": "Duplicate natural key rejects; no DISTINCT repair"
+    },
+    {
+      "id": "COHERENT_SNAPSHOT",
+      "expression": {
+        "op": "ALL_EQUAL",
+        "args": [
+          "$row_snapshot_bindings"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0017",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "Same transaction/session/barrier/generation collection identity, not mixed source epochs"
+    },
+    {
+      "id": "DISTINCT_OBSERVER_WRITER",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$observer_is_writer"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0007",
+        "EVID/0008"
+      ],
+      "canonical_field_binding": "Independent observation source cannot be same writer/subject role"
+    },
+    {
+      "id": "PUBLISHED_OBSERVATION_PURPOSE",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$observation_purpose",
+          2
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0007",
+        "EVID/0008"
+      ],
+      "canonical_field_binding": "OBSERVATION=2; ARTIFACT=1 is not independent completed-work evidence"
+    },
+    {
+      "id": "NO_DEFAULT_RETROACTIVE_GRANT",
+      "expression": {
+        "op": "FALSE",
+        "args": [
+          "$use_future_default_as_existing_grant"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0016",
+        "EVID/0013"
+      ],
+      "canonical_field_binding": "Future default ACL alone supplies no grant on already-existing protected object with no current ACL authority"
+    },
+    {
+      "id": "APPROVED_CALLABLE_CLOSURE",
+      "expression": {
+        "op": "TRUE",
+        "args": [
+          "$callable_effect_manifest_admitted"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0012",
+        "EVID/0011"
+      ],
+      "canonical_field_binding": "Exact complete source effect manifest; unapproved SD/implicit routine/owner expansion cannot enter accepted universe"
+    },
+    {
+      "id": "FIXED_QUALIFIED_RESOLUTION",
+      "expression": {
+        "op": "EQ",
+        "args": [
+          "$source_resolution_mode",
+          "FROZEN_QUALIFIED_ONLY"
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0011",
+        "EVID/0012"
+      ],
+      "canonical_field_binding": "Source identity from exact frozen catalog/primitive mapping, never ambient search_path"
+    },
+    {
+      "id": "VALID_FRESH_ENROLLMENT_TOPOLOGY",
+      "expression": {
+        "op": "IMPLIES",
+        "args": [
+          {
+            "op": "TRUE",
+            "args": [
+              "$fresh_enrollment_requested"
+            ]
+          },
+          {
+            "op": "ALL_TRUE",
+            "args": [
+              {
+                "op": "TRUE",
+                "args": [
+                  "$drain_complete"
+                ]
+              },
+              {
+                "op": "TRUE",
+                "args": [
+                  "$old_generation_extinct"
+                ]
+              },
+              {
+                "op": "TRUE",
+                "args": [
+                  "$fresh_material_complete"
+                ]
+              },
+              {
+                "op": "TRUE",
+                "args": [
+                  "$cohort_requalification_complete"
+                ]
+              },
+              {
+                "op": "EQ",
+                "args": [
+                  "$phase",
+                  "CONFINED_PRE_ENROLLMENT"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "evidence_refs": [
+        "EVID/0018",
+        "EVID/0006",
+        "EVID/0009",
+        "EVID/0019"
+      ],
+      "canonical_field_binding": "Replacement admission after full drain/extinction/new generation/new key or endpoint/all70requalification, not an ACTIVE parent patch"
+    }
+  ],
+  "semantics": "Exact field equality, source identity, one-use/currentness, no-membership/fixed-surface, finite frame and lifecycle acceptance constraints from evidence refs; not newly granted authority"
+}

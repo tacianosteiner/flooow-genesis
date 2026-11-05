@@ -1,0 +1,75 @@
+{
+  "scope": "R5N2A2_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "inputs": [
+    "N1-SCALAR-SYSCALL-IR",
+    "N1-SOURCE-STATS-VISIBILITY",
+    "N1-CREDENTIAL-CLASS-INVENTORY",
+    "N1-SNAPSHOT-MUTATION-BARRIER",
+    "N1-CATALOG-EFFECT-GRAPH"
+  ],
+  "START_NODE": "Exactly enrolled ordinary READ_PROXY principal; no postgres authority",
+  "fixpoint": {
+    "MEMBER": "closure allmemberedges; preserve options",
+    "INHERIT": "closure only inherit_option=true; perPG18 edge option not roleattribute shortcut",
+    "SET": "closure only set_option=true; never relabelINHERIT",
+    "ADMIN": "memberclosure reaches grant with admin_option; self false unlesssuperuser per frozenacl.c",
+    "OWNERSHIP": "Owner implicit authority separate from ACL; SETreachable owner retains typed SETpath",
+    "SECURITY_DEFINER": "Only executable relevant routine switches toowner scopedexecution; unapprovedeffectUNKNOWN",
+    "DEFAULT": "Futurecreator identity/schema/class paths separate from existing ACL",
+    "PUBLIC": "No rolemembership; addPUBLICorigin grants applicable to everyprincipal",
+    "cycle": "Visited typednode/state; no depthlimit; keep origin paths",
+    "stop": "Finitecomplete source universe reaches stable typedstate set",
+    "UNKNOWN": "Any needed edge/source/identity missing=>qualification failure"
+  },
+  "invariants": [
+    {
+      "ID": "NO_MUTATION_PATH",
+      "VALUE": "UNKNOWN",
+      "exact_missing_inputs": [
+        "PG18 visibility implementation/required projection minimal privilege",
+        "Exact fixed producer call/parse/effect allowlist",
+        "Proxy class effective role/endpoint binding and full PUBLIC/default/owner graph"
+      ]
+    },
+    {
+      "ID": "NO_ROLE_ESCALATION_PATH",
+      "VALUE": "UNKNOWN",
+      "exact_missing_inputs": [
+        "PG18 visibility implementation/required projection minimal privilege",
+        "Exact fixed producer call/parse/effect allowlist",
+        "Proxy class effective role/endpoint binding and full PUBLIC/default/owner graph"
+      ]
+    },
+    {
+      "ID": "NO_CREDENTIAL_SECRET_PATH",
+      "VALUE": "UNKNOWN",
+      "exact_missing_inputs": [
+        "PG18 visibility implementation/required projection minimal privilege",
+        "Exact fixed producer call/parse/effect allowlist",
+        "Proxy class effective role/endpoint binding and full PUBLIC/default/owner graph"
+      ]
+    },
+    {
+      "ID": "NO_GENERIC_SQL_AUTHORITY",
+      "VALUE": "UNKNOWN",
+      "exact_missing_inputs": [
+        "PG18 visibility implementation/required projection minimal privilege",
+        "Exact fixed producer call/parse/effect allowlist",
+        "Proxy class effective role/endpoint binding and full PUBLIC/default/owner graph"
+      ]
+    },
+    {
+      "ID": "NO_ARBITRARY_OBJECT_AUTHORITY",
+      "VALUE": "UNKNOWN",
+      "exact_missing_inputs": [
+        "PG18 visibility implementation/required projection minimal privilege",
+        "Exact fixed producer call/parse/effect allowlist",
+        "Proxy class effective role/endpoint binding and full PUBLIC/default/owner graph"
+      ]
+    }
+  ],
+  "no_broad_privilege_exception": true,
+  "actual_authority_graph_available": false,
+  "reason": "No actual reader ACL expected-manifest or complete producer effect allowlist exists in frozen inputs; cannot derive no-path from desired invariants alone"
+}

@@ -1,0 +1,171 @@
+{
+  "scope": "R5N2A2_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "alternatives": [
+    {
+      "mechanism": "global exclusion",
+      "verdict": "Stronger than needed; no frozen requirement to stop unrelated mutations"
+    },
+    {
+      "mechanism": "bounded domain exclusion",
+      "verdict": "Sufficient but stronger if complete observed revision/publication protocol exists"
+    },
+    {
+      "mechanism": "coherent snapshot+mutationepoch+generationconditionalpublication",
+      "verdict": "SELECTED_LOGICAL_PROTOCOL"
+    },
+    {
+      "mechanism": "before/after digest only",
+      "verdict": "INSUFFICIENT ABA and observation-to-publication race"
+    },
+    {
+      "mechanism": "generation only",
+      "verdict": "INSUFFICIENT catalog mutations without generation transition"
+    }
+  ],
+  "BARRIER_SCOPE": "Native qualification authority domain only",
+  "MUTATION_DOMAIN": "Reachable role/membership/owner/schema/ACL/default/routine/config/reader/credential/native registry state",
+  "MUTATION_EVENT_CLASSES": [
+    {
+      "EVENT_CLASS": "role_attribute",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "membership",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "SET_INHERIT_ADMIN_options",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "ownership",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "object_ACL",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "default_privilege",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "routine_security",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "routine_owner",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "schema_authority",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "configuration_authority",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "reader_authority",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "credential_authority",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    },
+    {
+      "EVENT_CLASS": "registry_generation_authority",
+      "DOMAIN": "Only authority reachable from seven native participants or READ_PROXY in isolated TEST namespace/database; shared role changes included",
+      "BEGIN": "Before effect can become usable, publish INVALIDATING event and increment monotonic domain revision under writer serialization; mark affected snapshots invalid",
+      "COMMIT": "Publish exact poststate digest/eventcommit; affected prior snapshots remain invalid, never revalidate by same digest",
+      "ABORT": "Retain revision increment/invalidation even if change aborted; prevents ABA validity",
+      "FAILURE": "Missing begin/commit/source coverage=>domainUNKNOWN; no qualifying publication",
+      "INVALIDATION": "Every affected snapshot/work consumed under older revision becomes ineligible"
+    }
+  ],
+  "BEGIN_IDENTITY": "Signed challenge binding current mutation_revision,registrytip,generation,session,context",
+  "END_IDENTITY": "Signed independent observer receipt binding complete snapshot digest and exact same mutation_revision,registrytip,generation,session,context",
+  "SNAPSHOT_IDENTITY": "Closed canonical codec complete19source146field projection digest",
+  "GENERATION": "Exactcurrenthighwater",
+  "REGISTRY_REVISION": "Exactcurrenttip",
+  "AUTHORITY_STATE_BEFORE": "Complete independent authority-domain digest+revision",
+  "AUTHORITY_STATE_AFTER": "Equal revision and verified complete snapshot bound to post-observation challenge, not digest equality alone",
+  "VALIDATION": "All source identities/reader constraints/snapshot coherence/event coverage/current revision known true; any intervening relevant event invalidates",
+  "PUBLICATION_ORDER": "Writer performs CAS(expected mutation_revision,registrytip,generation,snapshotID,workunconsumed) under same domain serialization as mutationBEGIN; append one-use qualification receipt only on exact match. MutationBEGIN before CAS invalidates; CAS before mutationBEGIN produces receipt immediately invalidated for futureuse. Consumers revalidate revision under same conditionaluse protocol, never trust old receipt alone.",
+  "INVALIDATION": "Monotonic before mutation takes effect; no ABA rollback to earlier validrevision",
+  "LOSS": "Observer gap/eventsequencegap/sourcehookabsence=>UNKNOWN",
+  "CRASH": "PersistpendingUNKNOWN and revision highwater; no truncate-to-success/reset",
+  "TIMEOUT": "Versioned positive bounded observation lease; missing/overflow=>deny",
+  "RECONNECT": "Discardwholeobservation; newchallenge",
+  "RESTART": "Retire old process/session/observer incarnation; newgeneration before newqualification",
+  "UNKNOWN": "NOT_QUALIFIED",
+  "logical_event_coverage": 13,
+  "PHYSICAL_BARRIER_IMPLEMENTATION": "FUTURE_IMPLEMENTATION_PROOF",
+  "adapter_requirement": "Future mediation proof must cover every mutation class and relevant source path before activation; prove begin-before-effect linearization and CAS order. Trusted HOST outside malicious-admin threat model, but governed admin mutations still routed; any unmediated relevant mutator means domainNOTCONFORMANT.",
+  "source": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a/snapshot-observation-barrier.json",
+    "sha256": "873b85da06ef96271f1be9a6183983175526a66cbc09b72d362ed7fa6d2676f4",
+    "pointer": "/"
+  }
+}

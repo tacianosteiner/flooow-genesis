@@ -1,0 +1,217 @@
+{
+  "scope": "R5N2A_FOUNDATION_STATIC_DESIGN_ONLY",
+  "implementation_performed": false,
+  "runtime_values_created": false,
+  "constructors": [
+    {
+      "CONSTRUCTOR_ID": "MEMBER",
+      "SOURCE_RELATION": "pg_catalog.pg_auth_members",
+      "SOURCE_FIELDS": [
+        "member",
+        "roleid",
+        "grantor",
+        "admin_option",
+        "inherit_option",
+        "set_option"
+      ],
+      "SOURCE_PREDICATE": "true",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "role(member)",
+      "TO_NODE": "role(roleid)",
+      "EDGE_TYPE": "MEMBER_OF",
+      "DIRECTION": "member->role",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "membership recursion only",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "INHERIT",
+      "SOURCE_RELATION": "pg_catalog.pg_auth_members",
+      "SOURCE_FIELDS": [
+        "member",
+        "roleid",
+        "inherit_option"
+      ],
+      "SOURCE_PREDICATE": "inherit_option=true",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "role(member)",
+      "TO_NODE": "role(roleid)",
+      "EDGE_TYPE": "INHERITS_FROM",
+      "DIRECTION": "member->role",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "inherit closure only",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "SET",
+      "SOURCE_RELATION": "pg_catalog.pg_auth_members",
+      "SOURCE_FIELDS": [
+        "member",
+        "roleid",
+        "set_option"
+      ],
+      "SOURCE_PREDICATE": "set_option=true",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "role(member)",
+      "TO_NODE": "role(roleid)",
+      "EDGE_TYPE": "CAN_SET_ROLE_TO",
+      "DIRECTION": "member->role",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "set closure only",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "ADMIN",
+      "SOURCE_RELATION": "pg_catalog.pg_auth_members",
+      "SOURCE_FIELDS": [
+        "member",
+        "roleid",
+        "admin_option"
+      ],
+      "SOURCE_PREDICATE": "admin_option=true",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "role(member)",
+      "TO_NODE": "role(roleid)",
+      "EDGE_TYPE": "HAS_ADMIN_ON",
+      "DIRECTION": "member->role",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "MEMBER recursion to admin edge; self false exceptsuperuser",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "ROUTINE",
+      "SOURCE_RELATION": "pg_catalog.pg_proc",
+      "SOURCE_FIELDS": [
+        "oid",
+        "proowner",
+        "prosecdef",
+        "proacl",
+        "proconfig",
+        "prosrc",
+        "probin",
+        "prosqlbody"
+      ],
+      "SOURCE_PREDICATE": "routine is executable from reader effective rights",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "routine(oid)",
+      "TO_NODE": "role(proowner)",
+      "EDGE_TYPE": "SECURITY_DEFINER_EXECUTION_PATH",
+      "DIRECTION": "caller->routine->owner",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "exact approved effect digest only; unknown body => UNKNOWN",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "TYPE",
+      "SOURCE_RELATION": "pg_catalog.pg_type",
+      "SOURCE_FIELDS": [
+        "oid",
+        "typowner",
+        "typacl"
+      ],
+      "SOURCE_PREDICATE": "type used in approved fixed projection parse/codec",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "reader",
+      "TO_NODE": "type(oid)",
+      "EDGE_TYPE": "TYPE_CALL_EFFECT",
+      "DIRECTION": "reader->type",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "existence alone never authority; any unsupported input/output callable effect=>UNKNOWN",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    },
+    {
+      "CONSTRUCTOR_ID": "DEFAULT",
+      "SOURCE_RELATION": "pg_catalog.pg_default_acl",
+      "SOURCE_FIELDS": [
+        "defaclrole",
+        "defaclnamespace",
+        "defaclobjtype",
+        "defaclacl"
+      ],
+      "SOURCE_PREDICATE": "role can create object type in schema",
+      "SOURCE_IDENTITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "FROM_NODE": "role(defaclrole)",
+      "TO_NODE": "future_object(defaclrole,defaclnamespace,defaclobjtype)",
+      "EDGE_TYPE": "DEFAULT_PRIVILEGE_PATH",
+      "DIRECTION": "creator->future object",
+      "APPLICABILITY": "Only native participant/reader reachable authority in isolated TEST database",
+      "TRANSITIVITY": "apply global default thenschema additions per PG18 semantics; preservecreator, never existingACL",
+      "CYCLE_RULE": "Retain typed edges/origins; visited-node leastfixedpoint, no depth cap; no edge-class collapse",
+      "EFFECT": "NATIVE_QUALIFICATION_EFFECT only",
+      "UNKNOWN_EFFECT": "NOT_QUALIFIED"
+    }
+  ],
+  "carried_distinct_edges": {
+    "MEMBER_OF": "pg_auth_members.member -> roleid, retain grantor/three options.",
+    "INHERITS_FROM": "Same row iff inherit_option=true.",
+    "CAN_SET_ROLE_TO": "Same row iff set_option=true.",
+    "HAS_ADMIN_ON": "From MEMBER_OF closure to role with admin_option grant; self false except superuser source semantics.",
+    "OWNS": "Object owner OID -> exact object address.",
+    "DIRECT_ACL": "ACL grantee -> object/privilege with grantor and grant option retained.",
+    "PUBLIC_ACL": "PUBLIC sentinel -> object/privilege; do not represent PUBLIC as role membership.",
+    "DEFAULT_PRIVILEGE_PATH": "Creator and schema scope plus exact global/schema pg_default_acl row; future creation applicability separate.",
+    "SECURITY_DEFINER_EXECUTION_PATH": "EXECUTE-capable caller -> owner authority only for independently approved exact body/effect digest. Unapproved body is UNKNOWN, not inferred harmless.",
+    "CREATEROLE_EFFECT": "rolcreaterole true invalidates narrow participant/reader invariant.",
+    "SUPERUSER_EFFECT": "rolsuper true invalidates narrow invariant.",
+    "BYPASSRLS_EFFECT": "rolbypassrls true invalidates narrow invariant."
+  },
+  "source_relations": 19,
+  "projected_fields": 146,
+  "predicates": 26,
+  "root_nodes": [
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER",
+    "READ_PROXY"
+  ],
+  "scope_fence": "Never global Package0090 authority graph / V2-PARTITIONS",
+  "missing_families": [
+    "pg_proc.proargdefaults effect constructors",
+    "pg_type callable support edges or finite approved rejection manifest"
+  ],
+  "remaining": "Exact callable/body allowlist and PG18 default privilege effect constructors not fully derived from available frozen source; do not claim closed from seven row templates."
+}

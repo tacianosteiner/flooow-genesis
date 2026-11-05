@@ -1,0 +1,3165 @@
+{
+  "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "sources": [
+    {
+      "SOURCE_ID": "pg_catalog.pg_roles",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolname",
+          "projected_name": "rolname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolcanlogin",
+          "projected_name": "rolcanlogin",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolcanlogin"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolinherit",
+          "projected_name": "rolinherit",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolinherit"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolsuper",
+          "projected_name": "rolsuper",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolsuper"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolcreaterole",
+          "projected_name": "rolcreaterole",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolcreaterole"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolcreatedb",
+          "projected_name": "rolcreatedb",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolcreatedb"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolreplication",
+          "projected_name": "rolreplication",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolreplication"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rolbypassrls",
+          "projected_name": "rolbypassrls",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rolbypassrls"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/system_views.sql",
+        "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_auth_members",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "roleid",
+          "projected_name": "roleid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "roleid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "member",
+          "projected_name": "member",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "member"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "grantor",
+          "projected_name": "grantor",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "grantor"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "admin_option",
+          "projected_name": "admin_option",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "admin_option"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "inherit_option",
+          "projected_name": "inherit_option",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "inherit_option"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "set_option",
+          "projected_name": "set_option",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "set_option"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_database",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "datname",
+          "projected_name": "datname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "datname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "datdba",
+          "projected_name": "datdba",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "datdba"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "datallowconn",
+          "projected_name": "datallowconn",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "datallowconn"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "datconnlimit",
+          "projected_name": "datconnlimit",
+          "pg18_type": "int4",
+          "type": "int4",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "datconnlimit"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "encoding",
+          "projected_name": "encoding",
+          "pg18_type": "int4",
+          "type": "int4",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "encoding"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "datacl",
+          "projected_name": "datacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "datacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_namespace",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "nspname",
+          "projected_name": "nspname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "nspname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "nspowner",
+          "projected_name": "nspowner",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "nspowner"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "nspacl",
+          "projected_name": "nspacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "nspacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_class",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relname",
+          "projected_name": "relname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relnamespace",
+          "projected_name": "relnamespace",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relnamespace"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relowner",
+          "projected_name": "relowner",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relowner"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relkind",
+          "projected_name": "relkind",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relkind"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relrowsecurity",
+          "projected_name": "relrowsecurity",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relrowsecurity"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relforcerowsecurity",
+          "projected_name": "relforcerowsecurity",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relforcerowsecurity"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "relacl",
+          "projected_name": "relacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "relacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_attribute",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "attrelid",
+          "projected_name": "attrelid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "attrelid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "attnum",
+          "projected_name": "attnum",
+          "pg18_type": "int2",
+          "type": "int2",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "attnum"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "attname",
+          "projected_name": "attname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "attname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "atttypid",
+          "projected_name": "atttypid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "atttypid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "attnotnull",
+          "projected_name": "attnotnull",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "attnotnull"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "attisdropped",
+          "projected_name": "attisdropped",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "attisdropped"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "attacl",
+          "projected_name": "attacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "attacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "AND",
+        "args": [
+          {
+            "op": "GT",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "attnum"
+                ]
+              },
+              0
+            ]
+          },
+          {
+            "op": "EQ",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "attisdropped"
+                ]
+              },
+              false
+            ]
+          }
+        ]
+      },
+      "EXACT_JOIN_KEYS": [
+        "attrelid",
+        "attnum"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_proc",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proname",
+          "projected_name": "proname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "pronamespace",
+          "projected_name": "pronamespace",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "pronamespace"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proowner",
+          "projected_name": "proowner",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proowner"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "prolang",
+          "projected_name": "prolang",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "prolang"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "prokind",
+          "projected_name": "prokind",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "prokind"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "prosecdef",
+          "projected_name": "prosecdef",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "prosecdef"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proisstrict",
+          "projected_name": "proisstrict",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proisstrict"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proretset",
+          "projected_name": "proretset",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proretset"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "provolatile",
+          "projected_name": "provolatile",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "provolatile"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proparallel",
+          "projected_name": "proparallel",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proparallel"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "pronargs",
+          "projected_name": "pronargs",
+          "pg18_type": "int2",
+          "type": "int2",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "pronargs"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "pronargdefaults",
+          "projected_name": "pronargdefaults",
+          "pg18_type": "int2",
+          "type": "int2",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "pronargdefaults"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "prorettype",
+          "projected_name": "prorettype",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "prorettype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proargtypes",
+          "projected_name": "proargtypes",
+          "pg18_type": "oidvector",
+          "type": "oidvector",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proargtypes"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "proallargtypes",
+          "projected_name": "proallargtypes",
+          "pg18_type": "_oid",
+          "type": "_oid",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proallargtypes"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "proargmodes",
+          "projected_name": "proargmodes",
+          "pg18_type": "_char",
+          "type": "_char",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proargmodes"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "proargnames",
+          "projected_name": "proargnames",
+          "pg18_type": "_text",
+          "type": "_text",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proargnames"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "proconfig",
+          "projected_name": "proconfig",
+          "pg18_type": "_text",
+          "type": "_text",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proconfig"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "proacl",
+          "projected_name": "proacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "proacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "prosrc",
+          "projected_name": "prosrc_sha256",
+          "pg18_type": "text",
+          "type": "bytes32",
+          "nullable": false,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "prosrc"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "probin",
+          "projected_name": "probin_sha256",
+          "pg18_type": "text",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "probin"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "prosqlbody",
+          "projected_name": "prosqlbody_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "prosqlbody"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_type",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typname",
+          "projected_name": "typname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typnamespace",
+          "projected_name": "typnamespace",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typnamespace"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typowner",
+          "projected_name": "typowner",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typowner"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typtype",
+          "projected_name": "typtype",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typtype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typrelid",
+          "projected_name": "typrelid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typrelid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typelem",
+          "projected_name": "typelem",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typelem"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typarray",
+          "projected_name": "typarray",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typarray"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typbasetype",
+          "projected_name": "typbasetype",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typbasetype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "typacl",
+          "projected_name": "typacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "typacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_language",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "lanname",
+          "projected_name": "lanname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "lanname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "lanowner",
+          "projected_name": "lanowner",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "lanowner"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "lanpltrusted",
+          "projected_name": "lanpltrusted",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "lanpltrusted"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "lanplcallfoid",
+          "projected_name": "lanplcallfoid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "lanplcallfoid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "laninline",
+          "projected_name": "laninline",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "laninline"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "lanvalidator",
+          "projected_name": "lanvalidator",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "lanvalidator"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "lanacl",
+          "projected_name": "lanacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "lanacl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_depend",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "classid",
+          "projected_name": "classid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "classid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "objid",
+          "projected_name": "objid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "objid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "objsubid",
+          "projected_name": "objsubid",
+          "pg18_type": "int4",
+          "type": "int4",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "objsubid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "refclassid",
+          "projected_name": "refclassid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "refclassid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "refobjid",
+          "projected_name": "refobjid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "refobjid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "refobjsubid",
+          "projected_name": "refobjsubid",
+          "pg18_type": "int4",
+          "type": "int4",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "refobjsubid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "deptype",
+          "projected_name": "deptype",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "deptype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "classid",
+        "objid",
+        "objsubid",
+        "refclassid",
+        "refobjid",
+        "refobjsubid",
+        "deptype"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_shdepend",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "dbid",
+          "projected_name": "dbid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "dbid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "classid",
+          "projected_name": "classid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "classid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "objid",
+          "projected_name": "objid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "objid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "objsubid",
+          "projected_name": "objsubid",
+          "pg18_type": "int4",
+          "type": "int4",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "objsubid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "refclassid",
+          "projected_name": "refclassid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "refclassid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "refobjid",
+          "projected_name": "refobjid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "refobjid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "deptype",
+          "projected_name": "deptype",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "deptype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "IN",
+        "args": [
+          {
+            "op": "FIELD",
+            "args": [
+              "dbid"
+            ]
+          },
+          [
+            0,
+            "EXPECTED_DATABASE_OID"
+          ]
+        ]
+      },
+      "EXACT_JOIN_KEYS": [
+        "dbid",
+        "classid",
+        "objid",
+        "objsubid",
+        "refclassid",
+        "refobjid",
+        "deptype"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_default_acl",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "defaclrole",
+          "projected_name": "defaclrole",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "defaclrole"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "defaclnamespace",
+          "projected_name": "defaclnamespace",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "defaclnamespace"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "defaclobjtype",
+          "projected_name": "defaclobjtype",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "defaclobjtype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "defaclacl",
+          "projected_name": "defaclacl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "defaclacl"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_db_role_setting",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "setdatabase",
+          "projected_name": "setdatabase",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "setdatabase"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "setrole",
+          "projected_name": "setrole",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "setrole"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "setconfig",
+          "projected_name": "setconfig",
+          "pg18_type": "_text",
+          "type": "_text",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "setconfig"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "setdatabase",
+        "setrole"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_parameter_acl",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "parname",
+          "projected_name": "parname",
+          "pg18_type": "text",
+          "type": "text",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "parname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "paracl",
+          "projected_name": "paracl",
+          "pg18_type": "_aclitem",
+          "type": "_aclitem",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "paracl"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_policy",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "polname",
+          "projected_name": "polname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "polname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "polrelid",
+          "projected_name": "polrelid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "polrelid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "polcmd",
+          "projected_name": "polcmd",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "polcmd"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "polpermissive",
+          "projected_name": "polpermissive",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "polpermissive"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "polroles",
+          "projected_name": "polroles",
+          "pg18_type": "_oid",
+          "type": "_oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "polroles"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "polqual",
+          "projected_name": "polqual_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "polqual"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "polwithcheck",
+          "projected_name": "polwithcheck_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "polwithcheck"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_trigger",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgrelid",
+          "projected_name": "tgrelid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgrelid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgparentid",
+          "projected_name": "tgparentid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgparentid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgname",
+          "projected_name": "tgname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgfoid",
+          "projected_name": "tgfoid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgfoid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgtype",
+          "projected_name": "tgtype",
+          "pg18_type": "int2",
+          "type": "int2",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgtype"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgenabled",
+          "projected_name": "tgenabled",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgenabled"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgisinternal",
+          "projected_name": "tgisinternal",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgisinternal"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgconstraint",
+          "projected_name": "tgconstraint",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "tgconstraint"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "tgqual",
+          "projected_name": "tgqual_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "tgqual"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_rewrite",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "rulename",
+          "projected_name": "rulename",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "rulename"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "ev_class",
+          "projected_name": "ev_class",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "ev_class"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "ev_type",
+          "projected_name": "ev_type",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "ev_type"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "ev_enabled",
+          "projected_name": "ev_enabled",
+          "pg18_type": "char",
+          "type": "char",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "ev_enabled"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "is_instead",
+          "projected_name": "is_instead",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "is_instead"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "ev_qual",
+          "projected_name": "ev_qual_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "ev_qual"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "ev_action",
+          "projected_name": "ev_action_sha256",
+          "pg18_type": "pg_node_tree",
+          "type": "bytes32",
+          "nullable": true,
+          "expression": {
+            "op": "NULL_PRESERVING_SHA256_UTF8_STORED_BYTES",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "ev_action"
+                ]
+              }
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_extension",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "oid",
+          "projected_name": "oid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "oid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "extname",
+          "projected_name": "extname",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "extname"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "extowner",
+          "projected_name": "extowner",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "extowner"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "extnamespace",
+          "projected_name": "extnamespace",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "extnamespace"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "extrelocatable",
+          "projected_name": "extrelocatable",
+          "pg18_type": "bool",
+          "type": "bool",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "extrelocatable"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "extversion",
+          "projected_name": "extversion",
+          "pg18_type": "text",
+          "type": "text",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "extversion"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "TRUE",
+        "args": []
+      },
+      "EXACT_JOIN_KEYS": [
+        "oid"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/postgres.bki",
+        "sha256": "ba43fc265c5e477644ac7c28b1771e42d020ee76520cb80bf9a82074a9e90756",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "View/BKI field identity frozen; exact future read privileges and no-secret exposure checked independently before activation"
+    },
+    {
+      "SOURCE_ID": "pg_catalog.pg_stat_activity",
+      "SOURCE_VERSION": "Frozen PostgreSQL18 provider manifest; exact file hash is source authority",
+      "EXACT_PROJECTED_FIELDS": [
+        {
+          "source_field": "datid",
+          "projected_name": "datid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "datid"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "pid",
+          "projected_name": "pid",
+          "pg18_type": "int4",
+          "type": "int4",
+          "nullable": false,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "pid"
+            ]
+          },
+          "NULL_rule": "Any NULL => UNKNOWN/reject snapshot"
+        },
+        {
+          "source_field": "usesysid",
+          "projected_name": "usesysid",
+          "pg18_type": "oid",
+          "type": "oid",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "usesysid"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "usename",
+          "projected_name": "usename",
+          "pg18_type": "name",
+          "type": "name",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "usename"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "backend_start",
+          "projected_name": "backend_start",
+          "pg18_type": "timestamptz",
+          "type": "timestamptz",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "backend_start"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        },
+        {
+          "source_field": "backend_type",
+          "projected_name": "backend_type",
+          "pg18_type": "text",
+          "type": "text",
+          "nullable": true,
+          "expression": {
+            "op": "FIELD",
+            "args": [
+              "backend_type"
+            ]
+          },
+          "NULL_rule": "Preserve SQL NULL presence; no zero/empty coercion. Privilege arrays NULL use approved PG18 hardwired-default expansion only in predicate layer"
+        }
+      ],
+      "EXACT_ROW_PREDICATE": {
+        "op": "OR",
+        "args": [
+          {
+            "op": "EQ",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "datid"
+                ]
+              },
+              "EXPECTED_DATABASE_OID"
+            ]
+          },
+          {
+            "op": "IN",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "usesysid"
+                ]
+              },
+              "EXPECTED_PROTECTED_ROLE_OIDS"
+            ]
+          },
+          {
+            "op": "IN",
+            "args": [
+              {
+                "op": "FIELD",
+                "args": [
+                  "usename"
+                ]
+              },
+              "EXPECTED_PROTECTED_ROLE_NAMES"
+            ]
+          }
+        ]
+      },
+      "EXACT_JOIN_KEYS": [
+        "pid",
+        "backend_start"
+      ],
+      "DEPENDENCY_DIRECTION": "Referencing member/object/function -> granted role, owner, referenced dependency/object; preserve grantor as independent field, never merge origins",
+      "NULL_SEMANTICS": "Per field; any essential role/backend/scope identity NULL => UNKNOWN. Nullable ACL/config/body absence preserved, not inferred safe",
+      "DUPLICATE_SEMANTICS": "Duplicate natural key or unexpected duplicate source row rejects; no DISTINCT/dedup hiding evidence",
+      "ORDERING_RULE": "Unsigned lexicographic order of complete canonical row bytes, duplicate key separately checked",
+      "CANONICAL_ENCODING": "catalog-encoding.json",
+      "CANONICALIZATION_RULE": "No pretty-print/psql/locale or lossy normalization; typed field order is the explicit list",
+      "SNAPSHOT_SCOPE": "Current isolated TEST database; role/member/db shared catalogs all rows needed to discover unexpected paths, never a caller-selected object filter",
+      "SNAPSHOT_IDENTITY_RULE": "SHA256 typed source_id/version/snapshot-context/full ordered row collection",
+      "SNAPSHOT_REVISION_RULE": "Single read-only REPEATABLE READ MVCC transaction plus independent native registry/kernel barrier before/after; pg_stat activity needs separate volatile-statistics applicability check",
+      "SOURCE_AUTHORITY": {
+        "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/system_views.sql",
+        "sha256": "418f4ae7472fe0742e6fbdc7a055581602c5131e082aa6f17e2c7269bf711972",
+        "pointer": "/"
+      },
+      "READER_PRINCIPAL": "R5N1_READ_PROXY SQL role: LOGIN NOINHERIT NOSUPERUSER NOCREATEROLE NOCREATEDB NOREPLICATION NOBYPASSRLS, zero memberships",
+      "REQUIRED_READ_PRIVILEGE": "SELECT exact listed non-secret metadata fields or exact fixed read-only projection; no table wildcard, no secret field grant",
+      "FORBIDDEN_PRIVILEGES": [
+        "DML",
+        "GRANT OPTION",
+        "ownership",
+        "SET ROLE",
+        "CREATEROLE",
+        "superuser",
+        "BYPASSRLS",
+        "credential secrets",
+        "arbitrary SQL API"
+      ],
+      "SENSITIVE_FIELDS_EXCLUDED": [
+        "pg_authid.rolpassword",
+        "pg_shadow.passwd",
+        "pg_stat_activity.query/query_id/client_addr/client_hostname",
+        "private Package key_material/secret_verifier",
+        "raw function/policy/trigger bodies"
+      ],
+      "MISSING_ROW_SEMANTICS": "Expected identity/source row missing => UNKNOWN; collection absence is only evidence after complete verified snapshot, never query failure",
+      "MULTIPLE_ROW_SEMANTICS": "Expected singleton multiple rows => UNKNOWN; legitimate graph collections preserve all distinct rows",
+      "UNKNOWN_SEMANTICS": "FAIL_CLOSED",
+      "source_visibility_proof": "UNRESOLVED_PG_STAT_GET_ACTIVITY_BODY"
+    }
+  ],
+  "source_relations_total": 19,
+  "projected_fields_total": 146,
+  "projected_scope_derivation": "Role/privilege/ownership/SD/default/config/dependency discovery needs global metadata address/ACL origins in the isolated TEST database; pg_roles avoids password source, bodies are hashes only. External native registry/kernel/context facts are separate typed inputs, not fabricated SQL catalogs",
+  "no_SELECT_star": true,
+  "no_implicit_column_order": true,
+  "no_psql_or_locale": true,
+  "native_registry_source": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+    "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+    "pointer": "/"
+  },
+  "native_kernel_source": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+    "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+    "pointer": "/"
+  },
+  "no_catalog_row_filter_for_convenience": true
+}

@@ -1,0 +1,731 @@
+FLOOOW / PACKAGE-0090 R5N.2A5.3C
+EXPLICIT ARCHITECTURAL SEMANTIC DECISION — credential_inheritance
+
+MODE:
+ADVERSARIAL / FAIL CLOSED / STATIC DESIGN-EVIDENCE ONLY
+NO IMPLEMENTATION / NO BUILD / NO RUNTIME / NO SQL / NO DB
+NO V043 / NO B02 / NO GIT ADD / COMMIT / PUSH
+NO TRACKED FILE MODIFICATION
+
+======================================================================
+0. FROZEN BASELINE
+======================================================================
+
+BRANCH=checkpoint/package-0090-cloud-handoff
+HEAD=cbc284f62d9bd09b7169b55c8d66a3c51a68c6cb
+
+A5.3A=OUTCOME_C_STOP_FAIL_CLOSED
+A5.3B=OUTCOME_C_MULTIPLE_LEGITIMATE_INTENTS_STOP_FAIL_CLOSED
+
+N1_QUALIFICATION_INPUT_RESOLUTION=CLOSED
+N1_SUBSTITUTION_STATIC_WITNESSES=OPEN
+
+N1_DECISIONS_REQUIRED=12
+N1_DECISIONS_CLOSED=11
+N1_DECISIONS_OPEN=1
+
+V2_NATIVE_STATIC_DESIGN_PROOF=FAIL
+V2_NATIVE_STATUS=BLOCKED
+
+CANONICAL_ATTACK_DENOMINATOR=350
+CONFIRMED_TARGET_SEMANTIC_GAP=1
+OTHER_UNVALIDATED_AFTER_PRIOR_STOP=349
+
+A5.3B established:
+
+UNIQUE_INTENT=NOT_ESTABLISHED
+COMPOSITE_INTENT=NOT_ESTABLISHED
+
+SURVIVING_AMBIGUOUS_INTENTS=
+I1,I2,I3,I4,I5,I7,I8,I9,I10,I11,I12,I13,I14,I15,I16,I17
+
+Do not reinterpret A5.3A or A5.3B.
+
+Do not resume the 349 other cases.
+
+======================================================================
+1. EXPLICIT ARCHITECTURAL DECISION
+======================================================================
+
+This is an explicit architectural input.
+
+DO NOT infer it from provenance.
+
+DO NOT claim the existing corpus already contained this decision.
+
+The ambiguous identifier:
+
+credential_inheritance
+
+SHALL be evaluated as a THREAT FAMILY rather than as one terminal
+attack semantic.
+
+The candidate decomposition is exactly:
+
+1. CREDENTIAL_CUSTODY_INHERITANCE
+2. CREDENTIAL_AUTHORITY_INHERITANCE
+3. CREDENTIAL_BINDING_INHERITANCE
+
+These dimensions are intentionally non-equivalent.
+
+The same transition MAY have different verdicts across the three
+dimensions.
+
+This gate MUST attempt to falsify this architectural decision before
+it may be accepted.
+
+======================================================================
+2. CANDIDATE SEMANTIC DEFINITIONS
+======================================================================
+
+A. CREDENTIAL_CUSTODY_INHERITANCE
+
+Question:
+
+Did credential-bearing material or a credential-bearing private object
+under custody of one participant/generation become available to a
+successor without a new canonically authorized custody assignment?
+
+Possible objects may include only objects whose credential-bearing
+semantics are independently established.
+
+DO NOT infer credential-bearing semantics from the word "credential".
+
+PUBLIC MANIFEST DATA MUST NOT automatically become credential material.
+
+------------------------------------------------------------
+
+B. CREDENTIAL_AUTHORITY_INHERITANCE
+
+Question:
+
+Can a successor exercise credential-derived authority belonging to a
+prior participant/generation without receiving a new valid authority
+binding?
+
+Secret copying is NOT required for this condition.
+
+Possession is NOT sufficient for this condition.
+
+The question is effective authority.
+
+------------------------------------------------------------
+
+C. CREDENTIAL_BINDING_INHERITANCE
+
+Question:
+
+Does a credential reference, descriptor, or authority-bearing binding
+remain valid across a transition that renews subject, generation, or
+process identity where the relevant binding should have been renewed
+or requalified?
+
+This dimension concerns binding continuity.
+
+It MUST NOT silently collapse into custody or effective authority.
+
+======================================================================
+3. MANDATORY DISTINCTIONS
+======================================================================
+
+Preserve all of the following:
+
+PUBLIC_MANIFEST_COPY
+!= PRIVATE_CREDENTIAL_DESCRIPTOR
+
+PRIVATE_CREDENTIAL_DESCRIPTOR
+!= SECRET_CREDENTIAL_MATERIAL
+
+CREDENTIAL_REFERENCE
+!= CREDENTIAL_SECRET
+
+POSSESSION
+!= CUSTODY
+
+CUSTODY
+!= AUTHORITY
+
+CREDENTIAL_EXISTENCE
+!= CREDENTIAL_USABILITY
+
+CREDENTIAL_USABILITY
+!= AUTHORITY_TO_ACT
+
+LOGICAL_ROLE_CONTINUITY
+!= CREDENTIAL_INSTANCE_CONTINUITY
+
+LOGICAL_ROLE_CONTINUITY
+!= CREDENTIAL_AUTHORITY_CONTINUITY
+
+LOGICAL_ROLE_CONTINUITY
+!= GENERATION_BINDING_CONTINUITY
+
+RESTART_DEPENDENCE
+!= CREDENTIAL_INHERITANCE
+
+SUBSTITUTION
+!= INHERITANCE
+
+REVOCATION
+!= DELETION
+
+AUTHORITY
+!= PRINCIPAL
+
+PRINCIPAL
+!= PROCESS_IDENTITY
+
+PROCESS_IDENTITY
+!= GENERATION_IDENTITY
+
+======================================================================
+4. CANDIDATE INVARIANT
+======================================================================
+
+Candidate invariant:
+
+NO_INHERITANCE_BY_CONTINUITY
+
+Meaning:
+
+Restart, substitution, process continuity, or logical-role continuity
+MUST NOT by itself grant:
+
+- credential custody continuity;
+- credential authority continuity;
+- credential binding continuity.
+
+This invariant is NOT automatically accepted merely because it is
+supplied here.
+
+Attempt to falsify it against already-closed canonical semantics.
+
+======================================================================
+5. REQUIRED INTENT MAPPING
+======================================================================
+
+Evaluate exactly these surviving A5.3B intents:
+
+I1
+I2
+I3
+I4
+I5
+I7
+I8
+I9
+I10
+I11
+I12
+I13
+I14
+I15
+I16
+I17
+
+For every intent classify:
+
+CUSTODY
+AUTHORITY
+BINDING
+DERIVED
+NOT_COVERED
+
+Multiple classifications are allowed only when independently justified.
+
+DO NOT force every intent into the three candidate dimensions.
+
+For each intent provide:
+
+INTENT_ID
+A5_3B_SUPPORT_LEVEL
+PROPOSED_DIMENSION
+EXACT_CANONICAL_REFERENCES
+WHY_MAPPING_IS_VALID
+WHY_MAPPING_IS_NOT_FORCED
+SECURITY_PROPERTY
+CLOSED_CONTRACTS_DEPENDED_ON
+CONTRADICTIONS
+CONFIDENCE
+REASON
+
+Required accounting:
+
+SURVIVING_INTENTS_REQUIRED=16
+
+Every intent must be accounted for exactly once in the top-level
+accounting even when its detailed mapping references more than one
+dimension.
+
+======================================================================
+6. MATERIAL COVERAGE TEST
+======================================================================
+
+Determine whether any surviving intent represents a MATERIAL security
+concern that cannot be represented by:
+
+CUSTODY
+AUTHORITY
+BINDING
+
+without semantic distortion.
+
+If YES:
+
+DO NOT invent a fourth dimension.
+
+STOP with OUTCOME C.
+
+======================================================================
+7. CLOSED-CONTRACT COMPATIBILITY
+======================================================================
+
+For each proposed dimension determine whether adopting it would:
+
+- contradict closed identity semantics;
+- contradict closed authority semantics;
+- contradict closed custody semantics;
+- alter restart semantics;
+- alter substitution semantics;
+- alter qualification semantics;
+- alter revocation semantics;
+- create new authority;
+- create a new credential class;
+- reopen a closed N1 decision;
+- reinterpret a closed contract;
+- convert public metadata into credential-bearing material;
+- collapse descriptor into secret;
+- collapse custody into authority;
+- collapse binding into authority.
+
+Any positive contradiction with a closed contract:
+
+STOP with OUTCOME D.
+
+======================================================================
+8. ORTHOGONALITY ATTACK
+======================================================================
+
+Attempt to establish whether the three dimensions are actually
+independent enough to justify separate semantics.
+
+Evaluate at minimum:
+
+CASE O1:
+CUSTODY=YES
+AUTHORITY=NO
+
+CASE O2:
+CUSTODY=NO
+AUTHORITY=YES
+
+CASE O3:
+BINDING=YES
+AUTHORITY=NO
+
+CASE O4:
+AUTHORITY=YES
+BINDING=NO
+
+For every case classify:
+
+SEMANTICALLY_POSSIBLE
+SEMANTICALLY_IMPOSSIBLE
+INSUFFICIENTLY_DETERMINED
+
+Provide canonical reasoning.
+
+Do not invent runtime behavior.
+
+If orthogonality is merely assumed rather than demonstrated:
+
+OUTCOME E.
+
+======================================================================
+9. WITNESSABILITY TEST
+======================================================================
+
+For every candidate dimension that survives, determine whether a future
+case-specific witness can in principle have exact:
+
+SOURCE
+TARGET
+OBJECT
+TRANSITION
+PRECONDITION
+SECURITY_PROPERTY
+EXPECTED_FAIL_CLOSED_RESULT
+
+without inventing semantics that are still absent.
+
+IMPORTANT:
+
+DO NOT create those case-specific witnesses in this gate.
+
+DO NOT choose a concrete POSTMASTER credential object unless already
+canonically determined.
+
+DO NOT choose a concrete authority transition unless already
+canonically determined.
+
+This gate validates semantic structure only.
+
+======================================================================
+10. ATTACK CATALOG ACCOUNTING
+======================================================================
+
+CANONICAL_ATTACK_DENOMINATOR remains frozen:
+
+350
+
+DO NOT change it.
+
+DO NOT infer:
+
+350 -> 352
+
+DO NOT infer:
+
+350 -> 1050
+
+DO NOT infer any new denominator.
+
+Determine only whether the existing ambiguous target appears to be:
+
+ONE_TO_ONE_REFINABLE
+
+ONE_TO_MANY_REFINABLE
+
+ALREADY_REPRESENTED_ELSEWHERE
+
+PARTLY_DUPLICATE_OR_DERIVED
+
+REQUIRES_FUTURE_CATALOG_RECONCILIATION
+
+Multiple observations may be reported, but no accounting mutation is
+authorized.
+
+Required:
+
+DENOMINATOR_CHANGED=NO
+ATTACKS_MATERIALIZED_THIS_GATE=0
+ATTACKS_EVALUATED_THIS_GATE=0
+
+The previous 398 evaluator checks MUST NOT be represented as attack
+evaluations.
+
+======================================================================
+11. N1 / V2 FREEZE
+======================================================================
+
+Unless a direct contradiction with the frozen baseline is discovered:
+
+N1_QUALIFICATION_INPUT_RESOLUTION=CLOSED
+
+N1_SUBSTITUTION_STATIC_WITNESSES=OPEN
+
+N1_DECISIONS_REQUIRED=12
+N1_DECISIONS_CLOSED=11
+N1_DECISIONS_OPEN=1
+
+V2_NATIVE_STATIC_DESIGN_PROOF=FAIL
+V2_NATIVE_STATUS=BLOCKED
+
+A5.3C has NO authority to close N1.
+
+A5.3C has NO authority to declare V2 PASS.
+
+======================================================================
+12. EXACT ALLOWED OUTCOMES
+======================================================================
+
+OUTCOME A — DECOMPOSITION_VALIDATED
+
+Requirements:
+
+- all material surviving intents map without distortion;
+- no forced mapping;
+- no closed contract reopened;
+- no new authority;
+- no new credential class;
+- no architecture contradiction;
+- orthogonality coherent;
+- every accepted dimension witnessable in principle;
+- no denominator mutation.
+
+STOP.
+
+NEXT_GATE=
+A5.3D_CASE_SPECIFIC_SEMANTIC_CONTRACT_MATERIALIZATION_AND_ATTACK_CATALOG_RECONCILIATION
+
+------------------------------------------------------------
+
+OUTCOME B — DECOMPOSITION_VALID_WITH_REFINEMENT
+
+The three-way architecture survives, but one or more exact definitions
+require narrowing that is derivable from already-closed semantics.
+
+No fourth family may be invented.
+
+Report the exact refinement.
+
+DO NOT adopt the refinement silently.
+
+STOP.
+
+NEXT_GATE=
+EXPLICIT_REFINED_ARCHITECTURAL_DECISION
+
+------------------------------------------------------------
+
+OUTCOME C — DECOMPOSITION_INCOMPLETE
+
+At least one material surviving intent cannot map without semantic
+distortion.
+
+DO NOT invent a fourth family.
+
+STOP.
+
+NEXT_GATE=
+EXPLICIT_ARCHITECTURAL_RECONSIDERATION
+
+------------------------------------------------------------
+
+OUTCOME D — DECOMPOSITION_CONTRADICTS_CLOSED_ARCHITECTURE
+
+Positive evidence shows contradiction with one or more closed canonical
+contracts.
+
+DO NOT repair.
+
+STOP.
+
+------------------------------------------------------------
+
+OUTCOME E — INSUFFICIENT_TO_VALIDATE
+
+Evidence cannot establish compatibility, orthogonality, or
+witnessability.
+
+STOP.
+
+======================================================================
+13. FORBIDDEN SHORTCUTS
+======================================================================
+
+DO NOT:
+
+- choose public manifest as the credential object;
+- choose private descriptor as the credential object without proof;
+- choose secret material as the credential object without proof;
+- infer authority from possession;
+- infer custody from possession;
+- infer authority from the word credential;
+- infer inheritance from restart dependence;
+- infer inheritance from substitution;
+- infer continuity from logical role;
+- treat ambiguity as inapplicability;
+- treat missing semantics as attack rejection;
+- create S3;
+- invent a fourth semantic family;
+- create a new authority class;
+- create a new credential class;
+- modify a closed contract;
+- reopen a closed N1 decision;
+- materialize the 350 attacks;
+- evaluate the 349 other cases;
+- close N1;
+- declare V2 PASS;
+- perform implementation;
+- perform native build;
+- execute runtime;
+- execute SQL;
+- contact any database;
+- execute V043;
+- execute B02;
+- create credentials;
+- create keys;
+- create signatures;
+- create physical roles;
+- change privileges;
+- git add;
+- commit;
+- push;
+- modify tracked files.
+
+======================================================================
+14. INDEPENDENT ADVERSARIAL REVIEWS
+======================================================================
+
+Run independent reviews that explicitly attempt to falsify:
+
+1. public manifest/private descriptor separation
+2. descriptor/secret separation
+3. custody/authority separation
+4. binding/authority separation
+5. restart/inheritance separation
+6. substitution/inheritance separation
+7. logical-role continuity misuse
+8. hidden new authority
+9. hidden new credential class
+10. closed-contract reopening
+11. forced mapping of I1-I17
+12. invented orthogonality
+13. desired N1 closure bias
+14. denominator manipulation
+15. confusion of 398 evaluator checks with 350 attacks
+
+Required reviews:
+
+INDEPENDENT_SEMANTIC_REVIEW
+INDEPENDENT_COMPATIBILITY_REVIEW
+INDEPENDENT_ACCOUNTING_REVIEW
+
+Any review FAIL:
+
+STOP FAIL-CLOSED.
+
+======================================================================
+15. EVIDENCE
+======================================================================
+
+Create durable evidence only inside the already-authorized untracked
+Package-0090 evidence boundary.
+
+Required:
+
+Human-readable report
+
+Machine-readable intent mapping
+
+Machine-readable compatibility matrix
+
+Machine-readable orthogonality matrix
+
+Machine-readable catalog-accounting assessment
+
+Independent review evidence
+
+SHA256 manifest
+
+Suggested evidence identity:
+
+PACKAGE-0090-B01-v2-native-static-closure-r5n2a5-3c
+
+Do not mutate previous evidence.
+
+======================================================================
+16. REQUIRED FINAL RETURN
+======================================================================
+
+Return exactly enough information to independently audit the gate,
+including at minimum:
+
+BRANCH=
+BASELINE_HEAD=
+CURRENT_HEAD=
+
+TRACKED_DIRTY_COUNT=
+STAGED_COUNT=
+UNTRACKED_BEFORE=
+UNTRACKED_AFTER=
+UNAUTHORIZED_UNTRACKED_COUNT=
+
+TARGET_GAP=POSTMASTER/credential_inheritance
+
+ARCHITECTURAL_INPUT=
+THREAT_FAMILY_CUSTODY_AUTHORITY_BINDING
+
+SURVIVING_INTENTS_REQUIRED=16
+SURVIVING_INTENTS_MAPPED=
+SURVIVING_INTENTS_NOT_COVERED=
+FORCED_MAPPINGS=
+
+CUSTODY_DIMENSION=
+AUTHORITY_DIMENSION=
+BINDING_DIMENSION=
+
+ORTHOGONALITY_STATUS=
+NO_INHERITANCE_BY_CONTINUITY_STATUS=
+
+NEW_AUTHORITY_REQUIRED=
+NEW_CREDENTIAL_CLASS_REQUIRED=
+CLOSED_CONTRACT_REOPEN_REQUIRED=
+ARCHITECTURE_CONTRADICTION=
+
+ATTACK_CATALOG_RELATION=
+SELECTED_OUTCOME=
+
+CANONICAL_ATTACK_DENOMINATOR=350
+DENOMINATOR_CHANGED=NO
+
+CONFIRMED_TARGET_SEMANTIC_GAP=1
+OTHER_UNVALIDATED_AFTER_PRIOR_STOP=349
+
+ATTACKS_MATERIALIZED_THIS_GATE=0
+ATTACKS_EVALUATED_THIS_GATE=0
+
+N1_QUALIFICATION_INPUT_RESOLUTION=CLOSED
+N1_SUBSTITUTION_STATIC_WITNESSES=OPEN
+
+N1_DECISIONS_REQUIRED=12
+N1_DECISIONS_CLOSED=11
+N1_DECISIONS_OPEN=1
+
+V2_NATIVE_STATIC_DESIGN_PROOF=FAIL
+V2_NATIVE_STATUS=BLOCKED
+
+IMPLEMENTATION_PERFORMED=NO
+NATIVE_BUILD_PERFORMED=NO
+NATIVE_RUNTIME_EXECUTED=NO
+SQL_EXECUTED=NO
+DATABASE_CONTACTED=NO
+V043_EXECUTED=NO
+B02_EXECUTED=NO
+
+GIT_ADD=NO
+COMMIT=NO
+PUSH=NO
+
+INDEPENDENT_SEMANTIC_REVIEW=
+INDEPENDENT_COMPATIBILITY_REVIEW=
+INDEPENDENT_ACCOUNTING_REVIEW=
+
+R5N2A5_3C_STATUS=
+
+NEXT_EXECUTED=false
+NEXT_GATE=
+
+Also return paths for:
+
+EVIDENCE_REPORT=
+INTENT_MAPPING=
+COMPATIBILITY_MATRIX=
+ORTHOGONALITY_MATRIX=
+CATALOG_ACCOUNTING=
+INDEPENDENT_REVIEW=
+SHA256_MANIFEST=
+
+======================================================================
+17. EXECUTION ORDER
+======================================================================
+
+1. Preflight.
+2. Verify frozen baseline.
+3. Preserve all existing authorized untracked evidence.
+4. Re-read A5.3A and A5.3B.
+5. Treat the three-way decomposition only as explicit architectural
+   input to be falsified.
+6. Map I1-I17 surviving intents.
+7. Attack compatibility.
+8. Attack orthogonality.
+9. Test future witnessability.
+10. Reconcile catalog relationship without changing 350.
+11. Run independent adversarial reviews.
+12. Select exactly one allowed outcome.
+13. Write durable untracked evidence.
+14. Return the required gate summary.
+15. STOP.
+
+BEGIN.

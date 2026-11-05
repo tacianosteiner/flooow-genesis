@@ -1,0 +1,228 @@
+{
+  "revision": 5,
+  "scope": "TEST_ONLY_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "physical_instantiation_performed": false,
+  "runtime_proven": false,
+  "store": {
+    "store": "reservation",
+    "record_version": 1,
+    "store_id": "TEST/R5/STORE/reservation",
+    "path": "/var/lib/flooow/b01-r5/reservation/ledger",
+    "field_order": [
+      {
+        "name": "qualification_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "deployment_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "database_system_identifier",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "database_oid",
+        "type": "u32",
+        "nullable": false
+      },
+      {
+        "name": "database_name",
+        "type": "utf8_nfc",
+        "nullable": false
+      },
+      {
+        "name": "epoch",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "generation",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "policy_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "manifest_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "enrollment_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "actor_id",
+        "type": "u16",
+        "nullable": false
+      },
+      {
+        "name": "process_identity_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "parent_identity_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "backend_pid",
+        "type": "u32",
+        "nullable": true
+      },
+      {
+        "name": "backend_start_epoch_us",
+        "type": "i64",
+        "nullable": true
+      },
+      {
+        "name": "operation_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "challenge_id",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "sequence",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "registry_revision",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "original_emitted_boottime_us",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "store_id",
+        "type": "u16",
+        "nullable": false
+      },
+      {
+        "name": "record_revision",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "previous_tip",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "entity_key_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "entity_revision",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "prior_entity_record",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "capability_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "target_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "precondition_digest",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "consumer_enrollment",
+        "type": "bytes32",
+        "nullable": false
+      },
+      {
+        "name": "lease_revision",
+        "type": "u64",
+        "nullable": false
+      },
+      {
+        "name": "state",
+        "type": "u16",
+        "nullable": false
+      }
+    ],
+    "encoding": {
+      "frame": "ASCII FLOOOWR5 (8 bytes) || version u16be=1 || message_type u16be || sender u16be || recipient u16be || payload_size u32be || payload || signature64",
+      "payload": "u16be field count; fields in declared order, tag u16be (1-based), length u32be, payload; null payload=00; present=01||typed value",
+      "integers": "fixed-width big-endian; unsigned u16/u32/u64; i64 two-complement; checked range, overflow rejects",
+      "uuid": "16 network-order bytes, non-nil",
+      "bytes32": "exact 32 raw bytes",
+      "bytes64": "exact 64 raw bytes",
+      "bool": "one byte 00 or 01",
+      "utf8_nfc": "strict UTF8 already NFC; no normalization; reject NUL/control, empty identity or >4096 bytes",
+      "array": "u32be count, then u32be byte length + canonical typed element; ordered input preserves order; set sorted unsigned bytes and duplicates reject",
+      "bounds": "frame <=1048576 bytes; array count<=4096; lengths checked before allocating; policy-specific smaller limits also mandatory",
+      "invalid": "Unknown/reordered/duplicate/missing tags, unexpected NULL, noncanonical bytes, truncated/trailing bytes, unknown versions/types reject before effect",
+      "signature": "Ed25519 over complete frame excluding signature64; statically assigned sender public key from enrolled credential manifest; no algorithm/key selector",
+      "domain": "FLOOOW/B01/R5/TEST; signatures also bind message type, sender, recipient and qualification tuple; never canonical attestation authority"
+    },
+    "store_enum": 1,
+    "identity_key": [
+      "qualification_id",
+      "epoch",
+      "generation",
+      "operation_id",
+      "store_id"
+    ],
+    "generation_key": [
+      "qualification_id",
+      "epoch",
+      "generation"
+    ],
+    "logical_entity_key": [
+      "qualification_id",
+      "epoch",
+      "generation",
+      "operation_id"
+    ],
+    "CAS_predicate": "Exclusive writer; expected global revision/tip == verified durable global tip AND expected entity revision/prior record == independently reconstructed latest record for entity_key_digest AND requested phase edge legal. New operation_id never resets existing entity. Consume exact request idempotency key; append global+1/entity+1 checked; any conflict denies without replacement",
+    "writer": "TEST/R5/RESERVATION_WRITER",
+    "writer_credential": "TEST/R5/RESERVATION_WRITER/SIGNING_KEY",
+    "observer": "TEST/R5/OUTCOME_OBSERVER",
+    "observer_credential": "TEST/R5/OUTCOME_OBSERVER/SIGNING_KEY",
+    "append_update": "Append only. No in-place rewrite/truncate/delete. Logical state changes append predecessor-bound new revision; terminal keys cannot reactivate",
+    "record_envelope": "u32be record size || canonical signed frame || SHA256(frame), no trailing bytes; writer signature binds store_id/type and full context",
+    "atomicity": "Dedicated single writer per store, exclusive OS lock; before receipt append entire record, fsync ledger then fsync parent directory for creation/rotation. Startup scans complete length+signature+hash+revision chain; partial tail or ambiguous durability quarantines store and records UNKNOWN externally; never truncate into inferred abort",
+    "durability": "Receipt only after full fsync success and independent observer reread of identical durable tip; fsync error/lost ACK => UNKNOWN. No network/distributed filesystem assumption; future filesystem crash behavior must be qualified",
+    "replay": "Same operation identity key and exact canonical digest returns original signed receipt without append/effect; different digest conflicts; different operation targeting same entity must satisfy existing entity CAS/phase, never create fresh eligibility; pending never re-executes",
+    "corruption": "Invalid signature/hash/length/revision/tip/missing predecessor or duplicated key => store quarantined; no repair/zero/default state",
+    "UNKNOWN": "Persist pending on separate independently durable reservation/outcome lineage; block new work, generation and reseal until independent resolution",
+    "physical_instance": null,
+    "STATIC_DESIGN_BOUND": true,
+    "PHYSICAL_INSTANTIATION_PENDING": true,
+    "RUNTIME_PROOF_PENDING": true
+  },
+  "other_store_ownership_forbidden": true,
+  "outcome_evidence": "COMMITTED requires exact full transaction plus independently observed expected dependency delta; ABORTED_PROVEN requires independent no-effect/transaction resolution; timeout, process death or absent row is not abort",
+  "static_gap": "Exact per-writer syscall confinement and filesystem credential/read entitlement not fully source-to-effect proven; complete store schema does not close endpoint denominator"
+}

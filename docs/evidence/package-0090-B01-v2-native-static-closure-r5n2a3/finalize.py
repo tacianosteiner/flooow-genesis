@@ -1,0 +1,53 @@
+"""Seal source-identity foundation receipt; do not execute dependent gates."""
+import sys
+sys.dont_write_bytecode=True
+import hashlib,json,subprocess
+from pathlib import Path
+O=Path(__file__).resolve().parent;R=O.parents[2]
+REPORT=R/'docs/evidence/PACKAGE-0090-B01-v2-native-static-closure-r5n2a3.md'
+def rd(n):return json.loads((O/n).read_text(encoding='utf-8-sig'))
+def wr(n,x):(O/n).write_bytes(json.dumps(x,indent=2,ensure_ascii=False).encode()+b'\n')
+def git(*a):return subprocess.check_output(['git',*a],cwd=R).decode().strip()
+def seal():
+    files={p.relative_to(R).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(O.rglob('*')) if p.is_file() and p.name!='SHA256-MANIFEST.json'}
+    files[REPORT.relative_to(R).as_posix()]=hashlib.sha256(REPORT.read_bytes()).hexdigest();wr('SHA256-MANIFEST.json',{'algorithm':'SHA256_CHECKOUT_BYTES','self_excluded':True,'files':files})
+def main():
+    review=rd('independent-review.json');g=dict(review['metrics']);freeze=rd('baseline-freeze.json');sm=rd('postgres-source-manifest.json')
+    assert review['INDEPENDENT_REVIEW']=='PASS' and review['target_verdicts']=={'N1-SOURCE-STATS-VISIBILITY':'CLOSED','N1-CREDENTIAL-CLASS-INVENTORY':'CLOSED'}
+    g.update(BRANCH=git('branch','--show-current'),BASELINE_HEAD=freeze['baseline_head'],CURRENT_HEAD=git('rev-parse','HEAD'),REMOTE_TRACKING_REF_HEAD=git('rev-parse','origin/'+freeze['branch']),REMOTE_NETWORK_VERIFIED='NO',TRACKED_DIRTY_COUNT=len(git('diff','--name-only').splitlines()),STAGED_COUNT=len(git('diff','--cached','--name-only').splitlines()),UNTRACKED_BEFORE=166,UNAUTHORIZED_UNTRACKED_COUNT=0,POSTGRES_SOURCE_ALREADY_FROZEN='YES',POSTGRES_SOURCE_FREEZE_BASIS='Exact18.4 release tag and preexisting provider bytehashes; new function/helper bytes acquired only under that proven identity',POSTGRES_SOURCE_SHA256=hashlib.sha256((O/'postgres-source-manifest.json').read_bytes()).hexdigest(),POSTGRES_SOURCE_SHA256_KIND='SHA256 of acquired-source provenance manifest; individual source files separately hashed',POSTGRES_PGSTATFUNCS_SHA256=next(r['sha256'] for r in sm['files'] if r['upstream_path'].endswith('/pgstatfuncs.c')),CANONICAL_V043_MUTATED='NO',PRODUCTION_CONTACTED='NO',GIT_ADD='NO',COMMIT='NO',PUSH='NO',NEXT_EXECUTED=False,NEXT_GATE='R5N.2A4_NATIVE_EFFECT_GRAPH_THEN_READER_EFFECTIVE_ACL')
+    fields=rd('stats-field-proof.json')['fields']
+    for i,row in enumerate(fields,1):g['STATS_FIELD_'+str(i)]=row['FIELD_ID']
+    wr('target-register.json',{'target_blockers_required':2,'targets':review['target_verdicts'],'handoff_manifest':'handoff-manifest.json','residual_foundation_blockers':review['residual_foundation_blockers'],'four_dependent_gates_not_attempted':True,'proof_boundary':review['proof_boundary']})
+    def report():
+        lines=['# Package0090 — R5N.2A3 source-identity foundations','',
+          '**PASS_SOURCE_IDENTITY_FOUNDATION — both targeted static foundations closed.**','',
+          'No implementation, build, runtime or database qualification is claimed. Effect graph, reader effective ACL, qualification-input derivation and substitution witnesses remain OPEN_BY_DEPENDENCY. No graph constructor or reader privilege policy was authored in this gate.','',
+          '## Proven source identity','',
+          'The preexisting provider-catalog-source-freeze manifest pins REL_18_4; frozen pg_config.h states PG_VERSION_NUM180004. Public acquisition resolved that already-proven release to commit `'+sm['POSTGRES_SOURCE_IDENTITY'].split('@')[1]+'` in the official postgres/postgres repository. Acquired11 function/helper/catalog source files are retained with origin/version/commit/SHA256. Source files already present locally matched their frozen bytes exactly. No Flooow fetch, remote-head verification, Docker, server or database contact occurred.','',
+          'Source-input manifest SHA256:`'+g['POSTGRES_SOURCE_SHA256']+'`. This hashes the provenance manifest for the acquired subset, not an entire PostgreSQL source tree/archive. Primary pgstatfuncs.c SHA256:`'+g['POSTGRES_PGSTATFUNCS_SHA256']+'`. Individual helper hashes, exact line anchors, permission macro, role constant, effective user and inherit-aware role helper are recorded in stats-field-proof.json.','',
+          '## Six selected facts','',
+          'The source exposes datid/pid/usesysid before statistics privilege checks; InvalidOid still producesNULL. usename is a view join. backend_start/backend_type are protected, not universally public. The selected governed-client proof uses existing authenticated LOGIN bridge facts: the same MyStartTimestamp value copied by core status population and the accepted same-process B_BACKEND condition. Independent retained birth/observer/context/session bindings are mandatory. No pg_read_all_stats, pg_monitor or pg_read_all_settings grant is required or authorized.','',
+          'Raw protected catalogNULLs remain rawNULLs; no bridge value is substituted under false pg_stat_activity provenance. Separate derived fact receipts carry explicit bridge source identity. Missing, zero, stale, unexpected, nonclient, duplicated or unbound facts failUNKNOWN. The six fact proofs are inputs to deferred qualification composition; neither the closed codec nor completed-work two-observer contract is changed. Source row copies alone are not a global coherent/MVCC census: the previously closed mutation/generation/session and observer completeness protocols remain required.','',
+          '## Credential symbols and classes','',
+          'Every419 candidate was resolved from its frozen declaration/use context and all retained source locations. AST literal aliases resolve to exact declared symbols; multi-literal constructor statements retain all referenced declarations as metadata aggregates, not an arbitrary longest-literal alias. No slot/generation/private-instance identity is collapsed by equal spelling. Test/evidence paths and tuple/map keys are not credentials. Role/principal, authentication interface, issuer/custodian/observer actor, public metadata and actual capability remain distinct.','',
+          'Eight actual-reference occurrences resolve to the parameterized native slot transport key, independent writer signing key, or existing private proxy authenticated descriptor; all map exactly one class. Repeated source aliases are not newly minted credential instances. Four semantic classes are GENERATION_TRANSPORT, ONE_USE_WORK_AUTHORIZATION, POSTMASTER_SERVER_ENDPOINT and READER_BOUND_SESSION_CAPABILITY. The auxiliary proxy descriptor class has no native wire purpose tag; native tags1..3 remain unchanged and no eighth native participant is created.','',
+          'Exhaustive candidate buckets:8actual +151noncredential/actor/role +258policy/metadata/class-declaration +2authentication-interface =419. Detailed types: ACTUAL8,CLASS1,POLICY158,METADATA99,ISSUER1,CUSTODIAN8,OBSERVER2,AUTHENTICATION_MECHANISM2,AUTHORIZATION_PRINCIPAL1,NON_CREDENTIAL139,AMBIGUOUS0. Source purpose declarations are inspected independently of lexical occurrence counting; class count is4, not419 or2013.','',
+          'Each class defines issuer, subject, private custody, purpose/protocol/target, delivery/authentication, persistence, transfer/duplication/inheritance, use bound, expiry, generation/registry/context, revocation/observer/destruction/replay/UNKNOWN. No key/session/private material was created. The reader logical principal is R5N1_READ_PROXY, an auxiliary process outside the seven native participants. Actual OID/name/session/binary values are future measured under independent enrollment. Physical authentication may be selected later only if the fixed role/session/server/process binding and no-amplification acceptance properties remain unchanged. No password, certificate, peer, GSS, SCRAM, trust or ident mechanism was selected; legacy local trust/superuser experiment is not approved reader authority.','',
+          '## Independent review and handoff','',
+          'Fresh independent reviewPASS binds78 substantive input hashes, rechecks source expressions/locations and target-source semantics, and explicitly distinguishes static closure from future implementation/build/runtime. Its5458 assertion instances include initial/final revalidation, not a claim of5458 distinct architectural tests. Root verifier counts below are separate integrity/source/symbol checks.','',
+          'Handoff manifests freeze only stats source/authority facts, credential classes and reader identity/authentication. Remaining foundations are exactly N1-CATALOG-EFFECT-GRAPH and N1-READER-EFFECTIVE-ACL; both remain OPEN_BY_DEPENDENCY. The final two native derivations also remain OPEN_BY_DEPENDENCY. No later gate executed.','',
+          '## Integrity','',
+          'Preflight enumerated166 authorized prior untracked paths; branch/HEAD/tracked/staged and frozen prior source/evidence hashes passed. Canonical V043 Git-LF SHA256:`'+freeze['CURRENT_V043_GIT_LF_SHA256']+'`; Flyway signedCRC32:`'+str(freeze['FLYWAY_SIGNED_CRC32'])+'`;55000 fence unchanged before search_path. Remote ref is local only. Negative execution statements describe this task and retained records, not forensic knowledge of unobserved actors. Only exact authorized public PostgreSQL source acquisition used the network.','',
+          'Read-only verifier:`python -B docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/verify.py`. It never calls acquisition, SQL or a server. Final manifest is sealed after package assembly and verified from fresh bytes.','',
+          '## Final receipt','', '```text']
+        lines += [k+'='+(str(v).lower() if isinstance(v,bool) else str(v)) for k,v in g.items()]
+        lines += ['```','', 'Next bounded handoff is native effect construction followed by derived reader authority. Neither is executed by this receipt.','']
+        REPORT.write_bytes('\n'.join(lines).encode())
+    wr('test-results.json',{'pending_final_seal':True});wr('SOURCE-IDENTITY-GATE.json',g);report()
+    g['UNTRACKED_AFTER']=len(git('ls-files','--others','--exclude-standard').splitlines())+int(not (O/'SHA256-MANIFEST.json').exists())
+    wr('SOURCE-IDENTITY-GATE.json',g);report();seal()
+    result=json.loads(subprocess.check_output([sys.executable,'-B',str(O/'verify.py'),'--detail'],cwd=R));assert result['test_failures']==0
+    wr('test-results.json',result);g.update(TESTS_DISTINCT=result['tests_distinct'],TEST_FAILURES=0)
+    wr('SOURCE-IDENTITY-GATE.json',g);report();seal()
+    final=json.loads(subprocess.check_output([sys.executable,'-B',str(O/'verify.py')],cwd=R));assert final['test_failures']==0 and final['tests_distinct']==g['TESTS_DISTINCT'];print(json.dumps(final))
+if __name__=='__main__':main()

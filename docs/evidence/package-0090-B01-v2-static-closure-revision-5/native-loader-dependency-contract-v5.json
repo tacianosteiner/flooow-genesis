@@ -1,0 +1,219 @@
+{
+  "revision": 5,
+  "scope": "TEST_ONLY_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "physical_instantiation_performed": false,
+  "runtime_proven": false,
+  "process_identity_schema": [
+    {
+      "name": "qualified_deployment_digest",
+      "type": "bytes32",
+      "nullable": false
+    },
+    {
+      "name": "pid_namespace_inode",
+      "type": "u64",
+      "nullable": false
+    },
+    {
+      "name": "user_namespace_inode",
+      "type": "u64",
+      "nullable": false
+    },
+    {
+      "name": "mount_namespace_inode",
+      "type": "u64",
+      "nullable": false
+    },
+    {
+      "name": "retained_pidfd_dev",
+      "type": "u64",
+      "nullable": false
+    },
+    {
+      "name": "retained_pidfd_inode",
+      "type": "u64",
+      "nullable": false
+    },
+    {
+      "name": "kernel_start_ticks",
+      "type": "u64",
+      "nullable": false
+    },
+    {
+      "name": "parent_identity_digest",
+      "type": "bytes32",
+      "nullable": false
+    },
+    {
+      "name": "executable_manifest_digest",
+      "type": "bytes32",
+      "nullable": false
+    },
+    {
+      "name": "enrollment_digest",
+      "type": "bytes32",
+      "nullable": false
+    },
+    {
+      "name": "generation",
+      "type": "u64",
+      "nullable": false
+    }
+  ],
+  "encoding": {
+    "frame": "ASCII FLOOOWR5 (8 bytes) || version u16be=1 || message_type u16be || sender u16be || recipient u16be || payload_size u32be || payload || signature64",
+    "payload": "u16be field count; fields in declared order, tag u16be (1-based), length u32be, payload; null payload=00; present=01||typed value",
+    "integers": "fixed-width big-endian; unsigned u16/u32/u64; i64 two-complement; checked range, overflow rejects",
+    "uuid": "16 network-order bytes, non-nil",
+    "bytes32": "exact 32 raw bytes",
+    "bytes64": "exact 64 raw bytes",
+    "bool": "one byte 00 or 01",
+    "utf8_nfc": "strict UTF8 already NFC; no normalization; reject NUL/control, empty identity or >4096 bytes",
+    "array": "u32be count, then u32be byte length + canonical typed element; ordered input preserves order; set sorted unsigned bytes and duplicates reject",
+    "bounds": "frame <=1048576 bytes; array count<=4096; lengths checked before allocating; policy-specific smaller limits also mandatory",
+    "invalid": "Unknown/reordered/duplicate/missing tags, unexpected NULL, noncanonical bytes, truncated/trailing bytes, unknown versions/types reject before effect",
+    "signature": "Ed25519 over complete frame excluding signature64; statically assigned sender public key from enrolled credential manifest; no algorithm/key selector",
+    "domain": "FLOOOW/B01/R5/TEST; signatures also bind message type, sender, recipient and qualification tuple; never canonical attestation authority"
+  },
+  "contract": {
+    "binary_identity": "Future approved build-manifest SHA256 of exact executable bytes, ELF class/machine/PT_INTERP/build-id and source/dependency/build recipe digests; source digest NEVER substituted for executable digest",
+    "actual_binary_sha256": null,
+    "DESIGN_BINDING_COMPLETE": true,
+    "PHYSICAL_INSTANTIATION_REQUIRED_LATER": true,
+    "dependencies": "Parse PT_INTERP/DT_NEEDED/RPATH/RUNPATH and every transitive loader resolution offline at future build; exact finite resolved path+inode+bytes digest list, reject unresolved/duplicate/conflicting nodes; bind approved PG18/OpenSSL/libpq identities from frozen provider snapshots",
+    "loaders": "Only manifest-enumerated absolute interpreter+ELF loader images on immutable private TEST mount; no ambient PATH/LD_PRELOAD/LD_LIBRARY_PATH/user site/plugin fallback",
+    "startup": "Bootstrap opens/hashes all files without symlink fallback; retains exact handles on read-only mount; load only manifest set; seal writable context, close unknown fds, drop privileges, install no_new_privs and syscall policy before enrollment",
+    "post_enrollment": "No execve/execveat/dlopen/ptrace/process_vm_writev/open writable executable/mprotect executable; unenumerated executable mappings revoke generation and quarantine",
+    "source_primitives": [
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/binding_codec.c",
+        "git_blob_oid": "80ae9bd7458657aed11aa75d2f3abaad149a6948",
+        "git_lf_sha256": "47c6bde10bd525f42a90a3fcc34e5e8ea8c9c86a7178360c11a63d2eef11b691",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/binding_encode.c",
+        "git_blob_oid": "4f225761b42c51a64518d2b5bfef6b57bca8ed8e",
+        "git_lf_sha256": "3559fd6f48e54b9004176fc341c2b5e907dd8fbbf7ff6eb1d7ba524b6f914693",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/boottime.c",
+        "git_blob_oid": "da075efa987dfbecf60ffdf677adba86ee01e20b",
+        "git_lf_sha256": "cde771a46bb227e7ecc93d2fd30c6b7b4b1128147713d0027c00ea5e2775e754",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/census.h",
+        "git_blob_oid": "a8ed07520817a000a63648ee725abd52e7a9bd82",
+        "git_lf_sha256": "214a8902953ecec558624e2517275813dd2511410928ed9732814b465709f736",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/census_snapshot_tests.c",
+        "git_blob_oid": "ad1c635289969439ce3065c731388879f73479ba",
+        "git_lf_sha256": "e5d3507863ef76e122075bc1c679d46110df7d4d5b4c619313d7e35ed10bb39f",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/clone3_probe.c",
+        "git_blob_oid": "decfc1f65047f45210c82498502ded45ed6bb0cc",
+        "git_lf_sha256": "75a93999aaf1ba8e38082f70742bce209587ddc5fefb1d0bafa5b3d3081fd9ac",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/fake_receiver.c",
+        "git_blob_oid": "c67580559d461d0b2164a3f05a21ce43562ec8ac",
+        "git_lf_sha256": "2cba7ac8ce797a156f45cc6f8ea7275883918a299417fdebefb5210b73ab2228",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/frame_tests.c",
+        "git_blob_oid": "e5b486cf1f9968c81a70a0f664fd3cbabf4cbec1",
+        "git_lf_sha256": "9090783ba7bb790da6f8bbcade1369e7d07a309ba5154685ef5518977320e19a",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/heartbeat.h",
+        "git_blob_oid": "636296d49e685c959331533fc94d4ccf1df0a394",
+        "git_lf_sha256": "b95210160980cec94124767bfc109f6b6d643e2d866224a47719ecc3f9c758b4",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/heartbeat_tests.c",
+        "git_blob_oid": "ff7fe86d3b0086bbca393da62350e503e0844aec",
+        "git_lf_sha256": "55da4692d83684a453bdc7f8fba5bbf62464e3992099d0f3dd0681d23b902343",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/login.c",
+        "git_blob_oid": "097457f75a651c0fc44986e726a01b658e77919e",
+        "git_lf_sha256": "a4de953941fc73eed66c226b6ffb9deaaa17c2a409881aac782d95e92bfbb4fb",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/namespace_replay.c",
+        "git_blob_oid": "ce3806588d8d836d2200637dbe8e004e98ef21ac",
+        "git_lf_sha256": "4c406f9b048782dbf6d330d7dc7b5a3266ffb67b0d01f77595c6ef7a80c17205",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/observer.c",
+        "git_blob_oid": "1e03fb9f2bb4f7052cf5df71670f96eebee29eec",
+        "git_lf_sha256": "2b9a1631cbb72b02023f51bdcc326dfc61adbf8678de4d4fdc1735bb3852e048",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/observer_state_tests.c",
+        "git_blob_oid": "e5e8919e460760453b00b99a1c8d660f9bab0263",
+        "git_lf_sha256": "89b8ae78abb664f8b140b1473e49b59203d88b88bab9a3ea85a4f199378a1439",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/population_state_tests.c",
+        "git_blob_oid": "620f5320264691138eb1bb055f33800fb247ca73",
+        "git_lf_sha256": "fa523c9cefcacfcafb081608eb1a248711d65af559b20ae6e8e2775c13c6ca26",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/process_class.h",
+        "git_blob_oid": "9da0c129cf4afca04ca7ea828e83941ec76cd821",
+        "git_lf_sha256": "92c1b915548e02e2731810eaa3878cf626faa82caf6329ed493d1d64b8df548d",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/protocol.h",
+        "git_blob_oid": "f91c34e0ddd6bdecf1bd38352c46aa8969ca15aa",
+        "git_lf_sha256": "0c550c38a854cbf67ac689784fa07bc7aa66a11ded5e2203143fa47f7dc14a99",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/quarantine.h",
+        "git_blob_oid": "415adcd2f210f3dbd95bf92501a10eba84e2071e",
+        "git_lf_sha256": "31e23581c78d5d9da3ef111d3e15e07c265f28337e312fe9672f63b45d81b15d",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/receiver.c",
+        "git_blob_oid": "57c95e5a1b2431716b09cfa60f7ac1ce381c9ef0",
+        "git_lf_sha256": "875710a363f1f5cecc5f71ba379a3627801ba1bd08305ed330915cb703f64314",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/scm_replay.c",
+        "git_blob_oid": "393244bfa012d2ecc5cca2c1b750115ac6d2d02e",
+        "git_lf_sha256": "2d053f661044d4371b3d80b8d9aa7455d43640e2c58a9d9a70d6c37d7e85618f",
+        "pointer": "/"
+      },
+      {
+        "path": "scripts/validation/package_0090_native_health_qualification/supervisor.c",
+        "git_blob_oid": "e6edcb0ad4e6855fbda8df7fd739b0ba1f5817cf",
+        "git_lf_sha256": "8982589be6169a417e2e86f88951641ce071b62e7bc982038b8654fef22a9b42",
+        "pointer": "/"
+      }
+    ],
+    "guard": "CATALOG_OBSERVER and REGISTRY_OBSERVER compare independently retained expected source/build/module/provider identities; missing build instance denies activation, not a missing design value"
+  },
+  "design_vs_physical": "Recipe and required checks are design; actual binaries/load maps are future build/runtime evidence, not proof available in R5"
+}

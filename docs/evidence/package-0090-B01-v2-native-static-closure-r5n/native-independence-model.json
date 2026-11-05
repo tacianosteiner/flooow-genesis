@@ -1,0 +1,86 @@
+{
+  "scope": "R5N_TEST_ONLY_NATIVE_STATIC_DESIGN",
+  "implementation_authorized": false,
+  "runtime_proven": false,
+  "required_edges": [
+    [
+      "HOST_PLATFORM",
+      "HEALTH_GUARD"
+    ],
+    [
+      "HEALTH_GUARD",
+      "POSTMASTER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "SUPERVISOR"
+    ],
+    [
+      "HEALTH_GUARD",
+      "RECEIVER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "CENSUS_OBSERVER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "APPROVAL_PRODUCER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "APPROVAL_CONSUMER"
+    ],
+    [
+      "HEALTH_GUARD",
+      "ENFORCEMENT_WORKER"
+    ]
+  ],
+  "source": {
+    "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/native-proof-v6.json",
+    "sha256": "6d7cf3fcbac1067eb608460c3c142971d7bc90c904ecbd221db34d4af3419583",
+    "pointer": "/required_edges"
+  },
+  "actors": [
+    "POSTMASTER",
+    "SUPERVISOR",
+    "RECEIVER",
+    "CENSUS_OBSERVER",
+    "APPROVAL_PRODUCER",
+    "APPROVAL_CONSUMER",
+    "ENFORCEMENT_WORKER",
+    "HEALTH_GUARD",
+    "HOST_PLATFORM",
+    "NATIVE_REGISTRY_WRITER"
+  ],
+  "role_separation": [
+    [
+      "APPROVAL_PRODUCER",
+      "APPROVAL_CONSUMER"
+    ],
+    [
+      "APPROVAL_CONSUMER",
+      "ENFORCEMENT_WORKER"
+    ],
+    [
+      "ENFORCEMENT_WORKER",
+      "CENSUS_OBSERVER"
+    ],
+    [
+      "NATIVE_REGISTRY_WRITER",
+      "HEALTH_GUARD"
+    ],
+    [
+      "HEALTH_GUARD",
+      "HOST_PLATFORM"
+    ]
+  ],
+  "phase_separation": "Trusted HOST_PLATFORM bootstrap is explicit pre-enrollment root assumption, not an operational capability. SUPERVISOR drops bootstrap powers before active; no generic root/SQL/shell/CREATEROLE entrypoint",
+  "guard_function": "HEALTH_GUARD independently checks each current published native-work entity plus identical context/generation/dependency vector; HOST_PLATFORM independently observes guard identity/channel/generation/work and recomputes required native health facts from signed inputs",
+  "native_fact_not_execution_authority": true,
+  "non_target_gates_not_closed": true,
+  "STATIC_DESIGN_PROOF": "PROPOSED_REQUIRED_RULES_REVIEW_PENDING",
+  "IMPLEMENTATION_PROOF_PENDING": true,
+  "BUILD_PROOF_PENDING": true,
+  "RUNTIME_PROOF_PENDING": true
+}

@@ -1,0 +1,2056 @@
+{
+  "selections": [
+    {
+      "id": "S1",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+      "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+      "pointer": "/pairs/0",
+      "exact_fact": {
+        "pair": [
+          "POSTMASTER",
+          "SUPERVISOR"
+        ],
+        "MUST_BE_DISTINCT": true,
+        "MAY_SHARE_BOUNDARY": true,
+        "MAY_SHARE_PARENT": false,
+        "MAY_SHARE_READ_AUTHORITY": true,
+        "MAY_SHARE_CREDENTIAL_CLASS": true,
+        "MUST_NOT_SHARE_CREDENTIAL": true,
+        "MUST_NOT_SHARE_MUTATION_AUTHORITY": true,
+        "MUST_NOT_SHARE_OBSERVER_AUTHORITY": true,
+        "MUST_NOT_SHARE_OUTCOME_AUTHORITY": true,
+        "MAY_justifications": {
+          "boundary": "Only common outer TEST namespace/host, never same process/private UID or writable memory",
+          "parent": "Not allowed: SUPERVISOR parent is HOST_PLATFORM, child parent is SUPERVISOR",
+          "read": "Same immutable expected public manifest/original signature bytes or readonly journal, never private key or independent observation receipt ownership",
+          "credential_class": "Same Ed25519/public binding format only; concrete key/custody/purpose/generation instances distinct"
+        },
+        "MUST_NOT_enforcement": [
+          "different retained birth anchors and slot UIDs",
+          "private memfd/LSM labels",
+          "no process memory/ptrace/descriptor transfer",
+          "exact sender role/purpose keys and channel peer matching",
+          "independent observer key/UID and native registry writer separate from HEALTH_GUARD"
+        ]
+      },
+      "meaning": "Separate principal/birth/UID and key/custody/authority obligations"
+    },
+    {
+      "id": "S2",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/authority-isolation.json",
+      "sha256": "b6c0eca816a16434414fd923c97e53a5f3c646adf1925b17e6565c44d87f1233",
+      "pointer": "/profiles/0",
+      "exact_fact": {
+        "PARTICIPANT_ID": "POSTMASTER",
+        "PRINCIPAL_CLASS": "PRIVATE_TEST_ENGINE_OS_UID",
+        "LOGIN_OR_NONLOGIN_REQUIREMENT": "No native SQL login credential; reader proxy has separate explicit LOGIN role",
+        "ROLE_MEMBERSHIP_REQUIREMENT": "Zero incoming/outgoing SQL owner/admin/shared-role memberships; no native OS supplementary privilege groups",
+        "SET_ROLE_POLICY": "DENY",
+        "INHERIT_POLICY": "DENY authority inheritance; process forks only as declared engine children, never key inheritance",
+        "ADMIN_OPTION_POLICY": "DENY",
+        "OWNERSHIP_POLICY": "No inspected database/schema/table/function ownership; engine OS owns only private TEST PGDATA, not native registry or other slot material",
+        "CREATEROLE_POLICY": "DENY",
+        "SUPERUSER_POLICY": "NO SQL superuser credential or operational root broker",
+        "BYPASSRLS_POLICY": "DENY",
+        "PUBLIC_DEPENDENCY_POLICY": "No authority inferred from PUBLIC; snapshot must classify every applicable public grant separately",
+        "DEFAULT_PRIVILEGE_DEPENDENCY_POLICY": "No implicit non-owner new-object privilege; require approved creator/default snapshot",
+        "SECURITY_DEFINER_DEPENDENCY_POLICY": "Native snapshot reader INVOKER/read-only only; no privileged definer fallback without independently closed exception",
+        "ALLOWED_CAPABILITY_CLASSES": [
+          "exact native message/work type",
+          "read fixed sealed/public inputs",
+          "role-specific isolated operation"
+        ],
+        "FORBIDDEN_CAPABILITY_CLASSES": [
+          "arbitrary SQL",
+          "shell",
+          "arbitrary path/module/target",
+          "host/admin/shared Package privilege",
+          "generic native worker"
+        ],
+        "MUTATION_AUTHORITY": "private TEST engine housekeeping only",
+        "READ_AUTHORITY": "Only exact approved role resources",
+        "OBSERVATION_AUTHORITY": "Role-specific signed facts; cannot self-issue independent observer truth",
+        "CROSS_PARTICIPANT_AUTHORITY_ALLOWED": false,
+        "CROSS_PARTICIPANT_AUTHORITY_RULE": "No access to other slot private key/process memory/write endpoint; all peer facts independently revalidated by HEALTH_GUARD"
+      },
+      "meaning": "Principal class distinct from operational grants and capabilities"
+    },
+    {
+      "id": "S3",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+      "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+      "pointer": "/credentials/0",
+      "exact_fact": {
+        "CREDENTIAL_ID_CLASS": "POSTMASTER/TEST_GENERATION_TRANSPORT",
+        "ISSUER": "HOST_PLATFORM approved TEST key custodian",
+        "RECIPIENT_PARTICIPANT": "POSTMASTER",
+        "CUSTODIAN": "HOST-held expected server endpoint authentication manifest, no fabricated POSTMASTER message key",
+        "DELIVERY_CHANNEL": "Dedicated inherited sealed FD4 or server-endpoint expected manifest for POSTMASTER",
+        "DELIVERY_AUTHENTICATION": "Exact retained parent/child birth and immutable bootstrap inventory",
+        "STORAGE_POLICY": "Private slot UID only, sealed memfd, no host paths/env/argv/log export",
+        "MEMORY_RESIDENCE_POLICY": "Import before ACTIVE, non-dumpable private memory, no ptrace/proc access; fixed bounded buffers zeroized after retirement",
+        "PERSISTENCE_POLICY": "No private key disk persistence; public SPKI/digest/tombstone only",
+        "TRANSFER_ALLOWED": false,
+        "TRANSFER_TARGETS": [],
+        "DUPLICATION_ALLOWED": false,
+        "INHERITANCE_ALLOWED": false,
+        "USE_COUNT": "One accepted work authorization; duplicate returns same receipt. Separate heartbeat purpose has finite approved frame count",
+        "EXPIRY_RULE": "Exact immutable native policy BOOTTIME bound and current boot/timens; current generation/enrollment mandatory, no TTL renewal",
+        "GENERATION_BINDING": "Exact current slot/generation high-water, no fallback",
+        "REGISTRY_BINDING": "Exact native current enrollment/publication revisions",
+        "CONTEXT_BINDING": "Preserved R5N bootstrap/full-message context",
+        "REVOCATION_AUTHORITY": "NATIVE_REGISTRY_WRITER applies exact invalidation; HOST controls custody teardown",
+        "REVOCATION_OBSERVER": "HEALTH_GUARD observed by HOST_PLATFORM",
+        "CRASH_BEHAVIOR": "UNKNOWN, no reissue of same live authority",
+        "RESTART_BEHAVIOR": "New generation/key only after old reconciliation/extinction/tombstone",
+        "RECONNECT_BEHAVIOR": "No key/channel adoption while UNKNOWN",
+        "LEAK_OR_THEFT_BEHAVIOR": "Quarantine entire affected generation; retire key/channel; stolen bytes alone cannot match required current kernel sender anchor",
+        "REPLAY_BEHAVIOR": "Deny used challenge/stale generation/context; identical terminal receipt read only",
+        "DESTRUCTION_OR_ZEROIZATION_REQUIREMENT": "Close import descriptor, explicit secret buffer cleanse on retirement; absence of destruction witness UNKNOWN",
+        "UNKNOWN_CUSTODY_BEHAVIOR": "FAIL_CLOSED"
+      },
+      "meaning": "Specialized POSTMASTER endpoint/no message key; closed custody/currentness/restart rules"
+    },
+    {
+      "id": "S4",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/credential-class-manifest.json",
+      "sha256": "ef422b5c4fd4702d94ca2e75d20eccbe390eaf41c916af96241fb165c2c5c284",
+      "pointer": "/classes",
+      "exact_fact": [
+        {
+          "CREDENTIAL_CLASS_ID": "GENERATION_TRANSPORT",
+          "MEMBERS": [
+            "CANDIDATE_0052",
+            "CANDIDATE_0060",
+            "CANDIDATE_0083",
+            "CANDIDATE_0111",
+            "CANDIDATE_0184",
+            "CANDIDATE_0215"
+          ],
+          "PURPOSE": "Authenticate exact enrolled actor messages only; not authorize SQL/work by signature alone",
+          "PROTOCOL_REQUIREMENT": "Ed25519 fixed native domain + exact actor/purpose/context/generation/channel; writer journal domain also exact",
+          "ISSUER": "HOST_PLATFORM trusted pre-enrollment key provisioning",
+          "SUBJECT": "Exact enrolled signing actor, auxiliary guard/writer keys distinct",
+          "CUSTODIAN": "Only exact subject private context; endpoint manifest public expected copy remains independently held; no shared signing/session API",
+          "AUTHORITY": "Only the exact purpose above; role/ACL authorization separately derived, never conferred by credential class spelling",
+          "TARGET": "Exact enrolled peer/server/session/work, no arbitrary target selectors",
+          "DELIVERY_REQUIREMENT": "Protected approved bootstrap channel and sealed private descriptor inventory; no participant selection",
+          "AUTHENTICATION_REQUIREMENT": "Verify exact expected actor/server/principal/session identity, mechanism proof and current bindings before accepting use; public digest alone not authority",
+          "STORAGE": "Private non-dumpable subject memory/retained nontransferable descriptor; public refs/manifests may be independently read-only",
+          "PERSISTENCE": "Private material not exported to participant disk/log/snapshot; durable public one-use/revocation metadata retained",
+          "TRANSFER": "FORBIDDEN except explicit trusted bootstrap delivery before eligibility",
+          "DUPLICATION": "FORBIDDEN",
+          "INHERITANCE": "No operational credential inheritance; only explicit pre-enrollment inventory",
+          "USE_COUNT": "Only enrolled generation/channel with strictly monotonic frame sequence and immutable policy bound; not other actor/purpose/work",
+          "EXPIRY": "Current generation/context plus versioned positive bounded BOOTTIME policy lease; missing/expired/overflow=>deny",
+          "GENERATION": "Exact independently current high water",
+          "REGISTRY_REVISION": "Exact current enrollment/entity revision applicable to use; no rollback",
+          "CONTEXT": "Exact immutable package/context/policy digest",
+          "REVOCATION": "Monotonic generation/context/session/owner loss invalidates before new eligibility; tombstones preserved",
+          "OBSERVER": "Independent HEALTH_GUARD, CENSUS for server/session probes; HOST watches guard, writer distinct",
+          "DESTRUCTION": "Private handles closed, process/namespace extinction independently observed; pendingUNKNOWN and public audit retained",
+          "REPLAY": "Consumed authorization/oldsequence/expiredsession rejected; exact terminal duplicate may only return original receipt, never restore use",
+          "UNKNOWN": "NOT_QUALIFIED"
+        },
+        {
+          "CREDENTIAL_CLASS_ID": "ONE_USE_WORK_AUTHORIZATION",
+          "MEMBERS": [
+            "Source declaration docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json#/credential_purpose_enum/ONE_USE_WORK_AUTHORIZATION"
+          ],
+          "PURPOSE": "Permit exactly one precommitted work/challenge publication, distinct from identity authentication",
+          "PROTOCOL_REQUIREMENT": "Preserved challenge/work authorization and durable one-use purpose ledger",
+          "ISSUER": "HEALTH_GUARD fixed one-use work/challenge issuance",
+          "SUBJECT": "Exact named native worker/work recipient; guard issues authorization",
+          "CUSTODIAN": "Only exact subject private context; endpoint manifest public expected copy remains independently held; no shared signing/session API",
+          "AUTHORITY": "Only the exact purpose above; role/ACL authorization separately derived, never conferred by credential class spelling",
+          "TARGET": "Exact enrolled peer/server/session/work, no arbitrary target selectors",
+          "DELIVERY_REQUIREMENT": "Protected approved bootstrap channel and sealed private descriptor inventory; no participant selection",
+          "AUTHENTICATION_REQUIREMENT": "Verify exact expected actor/server/principal/session identity, mechanism proof and current bindings before accepting use; public digest alone not authority",
+          "STORAGE": "Private non-dumpable subject memory/retained nontransferable descriptor; public refs/manifests may be independently read-only",
+          "PERSISTENCE": "Private material not exported to participant disk/log/snapshot; durable public one-use/revocation metadata retained",
+          "TRANSFER": "FORBIDDEN except explicit trusted bootstrap delivery before eligibility",
+          "DUPLICATION": "FORBIDDEN",
+          "INHERITANCE": "No operational credential inheritance; only explicit pre-enrollment inventory",
+          "USE_COUNT": "Exactly one precommitted challenge/work/purpose; duplicate terminal replay returns original receipt only",
+          "EXPIRY": "Current generation/context plus versioned positive bounded BOOTTIME policy lease; missing/expired/overflow=>deny",
+          "GENERATION": "Exact independently current high water",
+          "REGISTRY_REVISION": "Exact current enrollment/entity revision applicable to use; no rollback",
+          "CONTEXT": "Exact immutable package/context/policy digest",
+          "REVOCATION": "Monotonic generation/context/session/owner loss invalidates before new eligibility; tombstones preserved",
+          "OBSERVER": "Independent HEALTH_GUARD, CENSUS for server/session probes; HOST watches guard, writer distinct",
+          "DESTRUCTION": "Private handles closed, process/namespace extinction independently observed; pendingUNKNOWN and public audit retained",
+          "REPLAY": "Consumed authorization/oldsequence/expiredsession rejected; exact terminal duplicate may only return original receipt, never restore use",
+          "UNKNOWN": "NOT_QUALIFIED"
+        },
+        {
+          "CREDENTIAL_CLASS_ID": "POSTMASTER_SERVER_ENDPOINT",
+          "MEMBERS": [
+            "CANDIDATE_0096"
+          ],
+          "PURPOSE": "Authenticate exact private TEST server endpoint and generation; never impersonate POSTMASTER sender",
+          "PROTOCOL_REQUIREMENT": "Preserved native server endpoint manifest plus two independent source-bound observer probes/retained anchors",
+          "ISSUER": "HOST_PLATFORM trusted endpoint provisioning",
+          "SUBJECT": "POSTMASTER subject; observer signing keys remain their own transport credentials",
+          "CUSTODIAN": "Only exact subject private context; endpoint manifest public expected copy remains independently held; no shared signing/session API",
+          "AUTHORITY": "Only the exact purpose above; role/ACL authorization separately derived, never conferred by credential class spelling",
+          "TARGET": "Exact enrolled peer/server/session/work, no arbitrary target selectors",
+          "DELIVERY_REQUIREMENT": "Protected approved bootstrap channel and sealed private descriptor inventory; no participant selection",
+          "AUTHENTICATION_REQUIREMENT": "Verify exact expected actor/server/principal/session identity, mechanism proof and current bindings before accepting use; public digest alone not authority",
+          "STORAGE": "Private non-dumpable subject memory/retained nontransferable descriptor; public refs/manifests may be independently read-only",
+          "PERSISTENCE": "Private material not exported to participant disk/log/snapshot; durable public one-use/revocation metadata retained",
+          "TRANSFER": "FORBIDDEN except explicit trusted bootstrap delivery before eligibility",
+          "DUPLICATION": "FORBIDDEN",
+          "INHERITANCE": "No operational credential inheritance; only explicit pre-enrollment inventory",
+          "USE_COUNT": "Only exact enrolled server generation/endpoint; each native probe bound to fresh challenge and retained server/session anchors",
+          "EXPIRY": "Current generation/context plus versioned positive bounded BOOTTIME policy lease; missing/expired/overflow=>deny",
+          "GENERATION": "Exact independently current high water",
+          "REGISTRY_REVISION": "Exact current enrollment/entity revision applicable to use; no rollback",
+          "CONTEXT": "Exact immutable package/context/policy digest",
+          "REVOCATION": "Monotonic generation/context/session/owner loss invalidates before new eligibility; tombstones preserved",
+          "OBSERVER": "Independent HEALTH_GUARD, CENSUS for server/session probes; HOST watches guard, writer distinct",
+          "DESTRUCTION": "Private handles closed, process/namespace extinction independently observed; pendingUNKNOWN and public audit retained",
+          "REPLAY": "Consumed authorization/oldsequence/expiredsession rejected; exact terminal duplicate may only return original receipt, never restore use",
+          "UNKNOWN": "NOT_QUALIFIED"
+        },
+        {
+          "CREDENTIAL_CLASS_ID": "READER_BOUND_SESSION_CAPABILITY",
+          "MEMBERS": [
+            "CANDIDATE_0173",
+            "CANDIDATE_0204"
+          ],
+          "PURPOSE": "Use one already-authenticated fixed-role SQL session privately in auxiliary proxy; no new SQL privileges",
+          "PROTOCOL_REQUIREMENT": "Frozen preauthenticated fixed-role descriptor contract + approved mechanism interface, no password/cert/peer/trust selected",
+          "ISSUER": "DEPLOYMENT/HOST approved private session provisioning under existing reader identity interface",
+          "SUBJECT": "Auxiliary READ_PROXY process only; never any of seven native participants",
+          "CUSTODIAN": "Only exact subject private context; endpoint manifest public expected copy remains independently held; no shared signing/session API",
+          "AUTHORITY": "Only the exact purpose above; role/ACL authorization separately derived, never conferred by credential class spelling",
+          "TARGET": "Exact enrolled peer/server/session/work, no arbitrary target selectors",
+          "DELIVERY_REQUIREMENT": "Protected approved bootstrap channel and sealed private descriptor inventory; no participant selection",
+          "AUTHENTICATION_REQUIREMENT": "Verify exact expected actor/server/principal/session identity, mechanism proof and current bindings before accepting use; public digest alone not authority",
+          "STORAGE": "Private non-dumpable subject memory/retained nontransferable descriptor; public refs/manifests may be independently read-only",
+          "PERSISTENCE": "Private material not exported to participant disk/log/snapshot; durable public one-use/revocation metadata retained",
+          "TRANSFER": "FORBIDDEN except explicit trusted bootstrap delivery before eligibility",
+          "DUPLICATION": "FORBIDDEN",
+          "INHERITANCE": "No operational credential inheritance; only explicit pre-enrollment inventory",
+          "USE_COUNT": "Exactly one snapshot challenge/session; bounded fixed projection sequence; reconnect destroys old capability",
+          "EXPIRY": "Current generation/context plus versioned positive bounded BOOTTIME policy lease; missing/expired/overflow=>deny",
+          "GENERATION": "Exact independently current high water",
+          "REGISTRY_REVISION": "Exact current enrollment/entity revision applicable to use; no rollback",
+          "CONTEXT": "Exact immutable package/context/policy digest",
+          "REVOCATION": "Monotonic generation/context/session/owner loss invalidates before new eligibility; tombstones preserved",
+          "OBSERVER": "Independent HEALTH_GUARD, CENSUS for server/session probes; HOST watches guard, writer distinct",
+          "DESTRUCTION": "Private handles closed, process/namespace extinction independently observed; pendingUNKNOWN and public audit retained",
+          "REPLAY": "Consumed authorization/oldsequence/expiredsession rejected; exact terminal duplicate may only return original receipt, never restore use",
+          "UNKNOWN": "NOT_QUALIFIED"
+        }
+      ],
+      "meaning": "Credential types, public reference/private context distinction; no authority by spelling"
+    },
+    {
+      "id": "S5",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+      "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+      "pointer": "/schemas/process_instance_identity",
+      "exact_fact": [
+        {
+          "name": "parent_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "child_kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "namespace_set_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "meaning": "Retained own process identity distinct from principal and generation"
+    },
+    {
+      "id": "S6",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+      "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+      "pointer": "/schemas/generation",
+      "exact_fact": [
+        {
+          "name": "qualification_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "incarnation_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "epoch",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation_high_water",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "current_generation_record_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "meaning": "Independent qualification/incarnation/epoch/slot/current-generation tuple"
+    },
+    {
+      "id": "S7",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+      "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+      "pointer": "/schemas/parent_identity",
+      "exact_fact": [
+        {
+          "name": "boot_id",
+          "type": "uuid",
+          "encoded_value_length": 16,
+          "nullable": false
+        },
+        {
+          "name": "pid_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "user_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "mount_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "time_namespace_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "cgroup_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "retained_pidfd_dev",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "retained_pidfd_inode",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "kernel_start_ticks",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "approved_binary_identity",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "meaning": "Captured parent birth identity, not credential inheritance"
+    },
+    {
+      "id": "S8",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-identity-codec.json",
+      "sha256": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394",
+      "pointer": "/schemas/credential_identity",
+      "exact_fact": [
+        {
+          "name": "credential_purpose",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "participant_id",
+          "type": "u16",
+          "encoded_value_length": 2,
+          "nullable": false
+        },
+        {
+          "name": "generation",
+          "type": "u64",
+          "encoded_value_length": 8,
+          "nullable": false
+        },
+        {
+          "name": "bootstrap_context_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        },
+        {
+          "name": "credential_certificate_or_endpoint_manifest_digest",
+          "type": "bytes32",
+          "encoded_value_length": 32,
+          "nullable": false
+        }
+      ],
+      "meaning": "Credential identity reference does not equal secret or permission grant"
+    },
+    {
+      "id": "S9",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+      "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+      "pointer": "/profiles/0",
+      "exact_fact": {
+        "PARTICIPANT_ID": "POSTMASTER",
+        "EXECUTION_BOUNDARY": "private TEST user/PID/mount/time/IPC/cgroup compartment, exact HOST-approved labels and immutable executable",
+        "EXPECTED_PARENT_CLASS": "SUPERVISOR",
+        "ALLOWED_PARENT_IDENTITY_RULE": "Exact retained birth tuple from preserved native identity codec; no PID/name-only match",
+        "FORBIDDEN_PARENT_CLASSES": "Any caller/restarted/tombstoned/generic harness parent",
+        "PROCESS_IDENTITY_RULE": "preserved native-identity-codec process_instance_identity + current registry entity",
+        "BINARY_IDENTITY_RULE": "full approved executable bytes SHA256, FUTURE_MEASURED",
+        "MODULE_IDENTITY_RULE": "exact approved module map/hash; FUTURE_MEASURED never source hash substitution",
+        "LOADER_IDENTITY_RULE": "approved ELF interpreter+fixed resolution manifest; no ambient ENV",
+        "DEPENDENCY_IDENTITY_RULE": "closed flat node/edge manifest, exact approved file handles",
+        "CHILD_CREATION_ALLOWED": true,
+        "CHILD_CREATION_POLICY": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines",
+        "SIBLING_COMMUNICATION_ALLOWED": false,
+        "SIBLING_COMMUNICATION_POLICY": "Native participants communicate only via exact HEALTH_GUARD typed channels; readonly artifact/journal sharing is not an unmediated sibling RPC",
+        "INHERITED_HANDLE_POLICY": "Only signed bootstrap inventory, no unknown descriptor; receive current SCM_PIDFD as temporary validation handle and close it; reject all unsolicited SCM_RIGHTS",
+        "INHERITED_DESCRIPTOR_POLICY": {
+          "protected_fd_numbers": [
+            3,
+            5,
+            16
+          ],
+          "fd4": "private key import PRE_ENROLLMENT then closed and forbidden for data IO",
+          "temporary_fds": "fstat/close only, never replace protected fd or label"
+        },
+        "INHERITED_ENVIRONMENT_POLICY": "Empty environment except explicit immutable locale/loader and exact descriptor-role map approved in build manifest; no PATH/PYTHONPATH/LD_PRELOAD/LD_LIBRARY_PATH import fallback",
+        "INHERITED_CREDENTIAL_POLICY": "Fresh slot/purpose/generation key only; no inherited host/admin/provider/domain key or DB superuser password",
+        "DYNAMIC_CODE_LOADING_POLICY": "All code/provider mappings preloaded/hash-verified during trusted initialization; ACTIVE denies executable new mappings/dlopen targets; unsupported required dependency denies activation",
+        "ARBITRARY_MODULE_LOADING_POLICY": "DENY",
+        "ARBITRARY_COMMAND_POLICY": "DENY exec/shell/SQL API in native messages",
+        "NETWORK_POLICY": "No AF_INET/AF_INET6/external DNS; exact inherited AF_UNIX channels. POSTMASTER private TEST listener only; observer SQL transport held by dedicated fixed reader proxy, never exported to participants",
+        "FILESYSTEM_POLICY": "No host/prod/private-other-slot mount. Code/config/public originals RO; private key sealed memory; native journal participants RO. POSTMASTER PGDATA private engine storage write is explicit service exception, never native caller-selected file authority",
+        "DATABASE_CONNECTION_POLICY": "OS-only participants hold no SQL credential/session. POSTMASTER owns private TEST server only. Receiver/census request typed fixed observation from private READ_PROXY; no participant has arbitrary SQL transport",
+        "RESTART_POLICY": "No bootstrap authority returns inside ACTIVE; retire old generation, reconcile UNKNOWN, prove old endpoints extinct, then explicit fresh bootstrap/new generation",
+        "RECONNECT_POLICY": "Retain pending UNKNOWN; no new enrolled channel or inherited credential while unresolved",
+        "UNKNOWN_IDENTITY_BEHAVIOR": "FAIL_CLOSED",
+        "DEFAULT_SYSCALL": "DENY_AND_UNKNOWN",
+        "forbidden_syscalls": [
+          "execve",
+          "execveat",
+          "ptrace",
+          "process_vm_writev",
+          "process_vm_readv",
+          "pidfd_open",
+          "pidfd_getfd",
+          "kill",
+          "tkill",
+          "tgkill",
+          "bpf",
+          "perf_event_open",
+          "mount",
+          "umount2",
+          "pivot_root",
+          "chroot",
+          "setns",
+          "unshare",
+          "io_uring_setup",
+          "io_uring_enter",
+          "io_uring_register",
+          "keyctl",
+          "add_key",
+          "request_key",
+          "open_by_handle_at",
+          "init_module",
+          "finit_module",
+          "delete_module",
+          "reboot",
+          "kexec_load",
+          "setuid",
+          "setgid",
+          "setresuid",
+          "setresgid",
+          "capset"
+        ],
+        "postmaster_exception_necessity": "A database engine must manage its own private storage/children to perform source-mandated catalog probes; read-only OS process cannot start it. This grants no SQL superuser/login credential or arbitrary command to a native participant caller"
+      },
+      "meaning": "Bootstrap inventory/private handle/process/lifecycle constraints"
+    },
+    {
+      "id": "S10",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a2/native-effect-graph.json",
+      "sha256": "ac3f867b5aebd755240ffe39ed3df02ba6332760a4c0b4fdc41e79ac2550fee9",
+      "pointer": "/constructors",
+      "exact_fact": [
+        {
+          "CONSTRUCTOR_ID": "ROUTINE_EXECUTION",
+          "SOURCE": "pg_proc.oid/proowner/proacl/prosecdef/proconfig + separate executeACL origins",
+          "FROM": "reader or SET/INHERIT reachable role",
+          "TO": "routine OID",
+          "EDGE_TYPE": "DIRECT_ACL or PUBLIC_ACL",
+          "APPLICABILITY": "Only if caller has effective EXECUTE and fixed source path actually invokes routine",
+          "TRANSITIVE": "Effect reachability only after entry condition true",
+          "EFFECT": "INVOKER retains currentrole; DEFINER uses exact owner for duration, scoped proconfig/searchpath checked; no execution effect merely existence",
+          "UNKNOWN": "Unsupported body/effect/sourcepath=>NOTQUALIFIED"
+        },
+        {
+          "CONSTRUCTOR_ID": "SECURITY_DEFINER",
+          "SOURCE": "pg_proc.prosecdef/proowner/proconfig",
+          "FROM": "reachable executable routine",
+          "TO": "exact owner authority context",
+          "EDGE_TYPE": "SECURITY_DEFINER_PATH",
+          "APPLICABILITY": "Only executable routine transition with approved exact body/context",
+          "TRANSITIVE": "Traverse owner effects separately from membership",
+          "EFFECT": "Enter owner context for function only; do not pretend membership/SET",
+          "UNKNOWN": "Missing body/context allowlist=>NOTQUALIFIED"
+        },
+        {
+          "CONSTRUCTOR_ID": "TYPE_CODEC_IDENTITY",
+          "SOURCE": "Closed source/type/field codec table",
+          "FROM": "source field",
+          "TO": "canonical primitive codec",
+          "EDGE_TYPE": "NO_NATIVE_AUTHORITY_EDGE_REQUIRED",
+          "APPLICABILITY": "Snapshot bytes decoded solely by closed canonical primitive decoders; never arbitrary PG type input",
+          "TRANSITIVE": false,
+          "EFFECT": "Type existence/OID not privilege; no new authority edge",
+          "UNKNOWN": "Unknowncodec=>preparsereject"
+        },
+        {
+          "CONSTRUCTOR_ID": "SOURCE_TYPE_CALLABLE",
+          "SOURCE": "Source producer fixed SQL types and pg_type supportcallables where actually invoked",
+          "FROM": "fixedproducer expression",
+          "TO": "exact invokedtypefunction",
+          "EDGE_TYPE": "ROUTINE_EXECUTION existing semantic transition",
+          "APPLICABILITY": "Only if actual producer parse/type path invokes callable, not because type exists",
+          "TRANSITIVE": "Reuse routine effect semantics",
+          "EFFECT": "Needs source-approved callableeffect manifest or rejectunsupportedsource",
+          "UNKNOWN": "Native sourceparse/typecallable absence=>NOTQUALIFIED"
+        },
+        {
+          "CONSTRUCTOR_ID": "FUTURE_DEFAULT_PRIVILEGES",
+          "SOURCE": "pg_default_acl.defaclrole/defaclnamespace/defaclobjtype/defaclacl + creator CREATE/schema rights",
+          "FROM": "exact creatorrole/objectclass/schemascope",
+          "TO": "future object -> ACLgrantee/privilege/grantoption",
+          "EDGE_TYPE": "DEFAULT_PRIVILEGE_EFFECT",
+          "APPLICABILITY": "Only if creator can create target objectclass in scope; globaldefault applies then schemaadditionalrights; retain exact creatorrole, not inherited role whose defaults incidentally exist",
+          "TRANSITIVE": "Evaluate future object effect only; never existingobjectACL",
+          "EFFECT": "Potentialfuture rights invalidating native noauthority invariant if creator reachable",
+          "UNKNOWN": "Unknown create/effect scope=>NOTQUALIFIED"
+        }
+      ],
+      "meaning": "Explicit ACL/member/owner/call/source effects, not authority by credential possession"
+    },
+    {
+      "id": "S11",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+      "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+      "pointer": "",
+      "exact_fact": {
+        "scope": "R5N1_NATIVE_STATIC_DESIGN_ONLY",
+        "implementation_authorized": false,
+        "runtime_proven": false,
+        "matrix": [
+          {
+            "PARTICIPANT_ID": "POSTMASTER",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/0"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          },
+          {
+            "PARTICIPANT_ID": "SUPERVISOR",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/1"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          },
+          {
+            "PARTICIPANT_ID": "RECEIVER",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/2"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          },
+          {
+            "PARTICIPANT_ID": "CENSUS_OBSERVER",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/3"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          },
+          {
+            "PARTICIPANT_ID": "APPROVAL_PRODUCER",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/4"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          },
+          {
+            "PARTICIPANT_ID": "APPROVAL_CONSUMER",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/5"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          },
+          {
+            "PARTICIPANT_ID": "ENFORCEMENT_WORKER",
+            "carried_closed_identity": {
+              "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+              "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+              "pointer": "/participants/6"
+            },
+            "carried_protocol_hashes": {
+              "native-message-abi.json": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+              "native-registry-generation.json": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+              "native-identity-codec.json": "40afd51ff1cb234e68de0ba2fbdcea29d396fa833bf8b582a2ed3de3794ed394"
+            },
+            "qualification": {
+              "op": "ALL_KNOWN_TRUE",
+              "args": [
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_CONSTANT_IDENTITY_MODEL"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "STATIC_ISOLATION_IR"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CUSTODY_ATTESTATION"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "REGISTRY_SNAPSHOT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "CURRENT_GENERATION_HIGH_WATER"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "COMPLETED_WORK_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "INDEPENDENT_OBSERVER_RECEIPT"
+                  ]
+                },
+                {
+                  "op": "INPUT",
+                  "args": [
+                    "ONE_USE_PUBLICATION"
+                  ]
+                }
+              ]
+            },
+            "input_types": {
+              "STATIC_CONSTANT_IDENTITY_MODEL": "STATIC_CONSTANT",
+              "FUTURE_MEASURED_APPROVED_CODE_PARENT_PROCESS": "FUTURE_MEASURED",
+              "STATIC_ISOLATION_IR": "STATIC_CONSTANT",
+              "CUSTODY_ATTESTATION": "INDEPENDENT_OBSERVER_RECEIPT",
+              "CATALOG_SNAPSHOT_AUTHORITY_PREDICATES": "CATALOG_SNAPSHOT",
+              "REGISTRY_SNAPSHOT": "REGISTRY_SNAPSHOT",
+              "CURRENT_GENERATION_HIGH_WATER": "REGISTRY_SNAPSHOT",
+              "COMPLETED_WORK_RECEIPT": "COMPLETED_WORK_RECEIPT",
+              "INDEPENDENT_OBSERVER_RECEIPT": "INDEPENDENT_OBSERVER_RECEIPT",
+              "ONE_USE_PUBLICATION": "REGISTRY_SNAPSHOT"
+            },
+            "UNKNOWN": "NOT_QUALIFIED",
+            "STATIC_IDENTITY_DESIGN": "CARRIED_CLOSED_RULES_FUTURE_VALUES_PENDING",
+            "STATIC_ABI_DESIGN": "CARRIED_CLOSED",
+            "STATIC_ISOLATION_DESIGN": "CANDIDATE_EXACT_IR_REVIEW_REQUIRED",
+            "STATIC_CUSTODY_DESIGN": "CANDIDATE_REVIEW_REQUIRED",
+            "STATIC_GENERATION_DESIGN": "CARRIED_CLOSED",
+            "STATIC_REGISTRY_DESIGN": "CARRIED_CLOSED",
+            "STATIC_CATALOG_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_COMPLETED_WORK_DESIGN": "REQUIRES_BOTH_CUSTODY_AND_CATALOG_NOT_ONLY_CUSTODY",
+            "STATIC_INDEPENDENCE_DESIGN": "REVIEW_REQUIRED",
+            "STATIC_SUBSTITUTION_REJECTION_DESIGN": "REVIEW_REQUIRED",
+            "FULLY_DESIGNED": "NOT_YET_ACCEPTED"
+          }
+        ],
+        "participants_required": 7,
+        "not_carried_zero_or_assumed_seven": true,
+        "completed_work_connection": "Exact identity/generation/entity revision/channel/key/context/observer/outcome/one-use publication as preserved native work record; catalog visibility and fixed reader effect authority are independent static prerequisites, so earlier NO was not solely missing custody"
+      },
+      "meaning": "Qualification requires independent identity/isolation/custody/registry/currentness/work inputs, all known true"
+    },
+    {
+      "id": "S12",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-dependency-graph.json",
+      "sha256": "3a4159269de993e6f4099e857ef4ed3029d9594454b8a5f5ff93b5a4e92e792c",
+      "pointer": "",
+      "exact_fact": {
+        "nodes": [
+          "POSTMASTER",
+          "SUPERVISOR",
+          "RECEIVER",
+          "CENSUS_OBSERVER",
+          "APPROVAL_PRODUCER",
+          "APPROVAL_CONSUMER",
+          "ENFORCEMENT_WORKER"
+        ],
+        "edges": [
+          {
+            "source": "POSTMASTER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "POSTMASTER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/0/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "RECEIVER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "RECEIVER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/2/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "CENSUS_OBSERVER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "CENSUS_OBSERVER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/3/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "APPROVAL_PRODUCER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "APPROVAL_PRODUCER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/4/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "APPROVAL_CONSUMER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "APPROVAL_CONSUMER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/5/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          },
+          {
+            "source": "ENFORCEMENT_WORKER",
+            "target": "SUPERVISOR",
+            "type": "ACTIVE_NATIVE_CHILD_REPLACEMENT_REQUIRES_FRESH_BOOTSTRAP_SUPERVISOR",
+            "reason": "No ACTIVE supervisor fork/bootstrap return; required retained parent cannot be forged by HOST or POSTMASTER engine child",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/profiles/1/CHILD_CREATION_POLICY",
+                "canonical_fact_sha256": "3de820eec5ac756fda904bf21814ca4ae87ada1619d776f59892f9b575ca1fbd",
+                "fact": "SUPERVISOR fixed seven-slot pre-enrollment plan only; after sealing no clone/fork/exec. POSTMASTER only owned engine children under ACTIVE rule table and HOST observed birth inventory; unknown process class quarantines"
+              },
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/execution-isolation.json",
+                "sha256": "26a4442d73081a542d0ee3cfb79b16e4bd14c582cb79a0cf9367a9b587c43046",
+                "pointer": "/phase_edges",
+                "canonical_fact_sha256": "9115585b531888f8c136b7ab35d85796fcc0fb5fb6f968d31edba27a99932951",
+                "fact": [
+                  [
+                    "TRUSTED_BOOTSTRAP",
+                    "CONFINED_PRE_ENROLLMENT"
+                  ],
+                  [
+                    "CONFINED_PRE_ENROLLMENT",
+                    "ACTIVE"
+                  ],
+                  [
+                    "ACTIVE",
+                    "REVOKED"
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "source": "SUPERVISOR",
+            "target": "ENFORCEMENT_WORKER",
+            "type": "NEW_SUPERVISOR_PARENT_REQUIRES_FRESH_CHILD_GENERATION",
+            "reason": "Frozen retained-parent birth/full-drain/fresh-spawn, not a live reference retarget",
+            "evidence": [
+              {
+                "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-participants.json",
+                "sha256": "71bba6293a151ff3ee4af6cfce4dd64ed6f433ea4fe7e439ca9cb95d382debbf",
+                "pointer": "/participants/6/PARENT_REQUIREMENT",
+                "canonical_fact_sha256": "1d95ab0ce52297c7151968c1dc2f161b06a9f35214b2c4c4113855712d2722e0",
+                "fact": "SUPERVISOR retained parent; replacement during sealed generation forbidden; full generation drain before fresh spawn phase"
+              }
+            ]
+          }
+        ],
+        "premises": {
+          "exact_six_children": true,
+          "supervisor_parent_host": true,
+          "spawn_pre_enrollment_only": true,
+          "no_ACTIVE_to_bootstrap": true,
+          "host_not_operational": true,
+          "postmaster_exception_engine_only": true,
+          "parent_is_qualified_birth_component": true,
+          "frozen_six_drain_required": true
+        },
+        "closures": [
+          {
+            "subject": "POSTMASTER",
+            "rounds": [
+              [
+                "POSTMASTER"
+              ],
+              [
+                "POSTMASTER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "SUPERVISOR",
+            "rounds": [
+              [
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "RECEIVER",
+            "rounds": [
+              [
+                "RECEIVER"
+              ],
+              [
+                "RECEIVER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "CENSUS_OBSERVER",
+            "rounds": [
+              [
+                "CENSUS_OBSERVER"
+              ],
+              [
+                "CENSUS_OBSERVER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "APPROVAL_PRODUCER",
+            "rounds": [
+              [
+                "APPROVAL_PRODUCER"
+              ],
+              [
+                "APPROVAL_PRODUCER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "APPROVAL_CONSUMER",
+            "rounds": [
+              [
+                "APPROVAL_CONSUMER"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          },
+          {
+            "subject": "ENFORCEMENT_WORKER",
+            "rounds": [
+              [
+                "ENFORCEMENT_WORKER"
+              ],
+              [
+                "ENFORCEMENT_WORKER",
+                "SUPERVISOR"
+              ],
+              [
+                "APPROVAL_CONSUMER",
+                "APPROVAL_PRODUCER",
+                "CENSUS_OBSERVER",
+                "ENFORCEMENT_WORKER",
+                "POSTMASTER",
+                "RECEIVER",
+                "SUPERVISOR"
+              ]
+            ],
+            "least_fixed_point": [
+              "APPROVAL_CONSUMER",
+              "APPROVAL_PRODUCER",
+              "CENSUS_OBSERVER",
+              "ENFORCEMENT_WORKER",
+              "POSTMASTER",
+              "RECEIVER",
+              "SUPERVISOR"
+            ],
+            "qualified_phase": "ACTIVE_REPLACEMENT_ONLY",
+            "source_premises": true,
+            "matches_enumerated_topology": true
+          }
+        ],
+        "edge_count": 12,
+        "no_new_authority_or_runtime": true,
+        "scope": "Necessary ACTIVE-replacement closure; not a new arbitrary restart API or change to initial bootstrap."
+      },
+      "meaning": "Full-cohort replacement dependency does not confer old identity/authority"
+    },
+    {
+      "id": "S13",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/independence-dimension-decomposition.json",
+      "sha256": "3103e04fd3ad10b61a3a7b664aa4661894af97e1a76197ac8f26452f517dbce7",
+      "pointer": "/participants/0",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "dfa356c18cdfffd4a1205bf6c9c37028c804da0534cd3f89f1620031f644661c"
+      },
+      "meaning": "Logical role/principal/authority/process/generation identities separated"
+    },
+    {
+      "id": "S14",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3b/intent-matrix.json",
+      "sha256": "fc5314acd6d3d5b604b2fdf94bdac507be6720daa1259a0fdf35731a4093d9fc",
+      "pointer": "/candidates/12",
+      "exact_fact": {
+        "INTENT_ID": "I13",
+        "INTENT_DESCRIPTION": "PRESERVE_PRINCIPAL_INDEPENDENCE",
+        "CANONICAL_SUPPORT": "PARTIAL",
+        "GENERAL_PROPERTY_SUPPORT": "STRONG",
+        "CASE_SPECIFIC_INTENT_ATTRIBUTION": "NOT_ESTABLISHED",
+        "EXACT_SOURCE_REFERENCES": [
+          "S1",
+          "S2",
+          "S3",
+          "S6",
+          "S8",
+          "S20"
+        ],
+        "SECURITY_PROPERTY_PROTECTED": "PRESERVE_PRINCIPAL_INDEPENDENCE",
+        "ATTACK_CLASS_PREVENTED": "Conditional violation of this existing property; exact original attack class/object/actor/transition NOT_CANONICALLY_DETERMINED",
+        "EXISTING_CLOSED_CONTRACTS_PRESERVED": [
+          "S6",
+          "S8",
+          "S20"
+        ],
+        "EXISTING_CLOSED_CONTRACTS_POTENTIALLY_CONTRADICTED": [],
+        "REQUIRES_NEW_AUTHORITY": "NO",
+        "CHANGES_CUSTODY_SEMANTICS": "NO",
+        "CHANGES_GENERATION_SEMANTICS": "NO",
+        "CHANGES_RESTART_SEMANTICS": "NO",
+        "CHANGES_SUBSTITUTION_SEMANTICS": "NO",
+        "CHANGES_QUALIFICATION_SEMANTICS": "NO",
+        "REOPENS_CLOSED_CONTRACT": "NO",
+        "MINIMAL_TO_EXISTING_ARCHITECTURE": "NOT_ESTABLISHED",
+        "CONFIDENCE": "MEDIUM",
+        "REASON": "Distinct principals remain required while full-cohort restart is dependent; principal independence is not numeric UID continuity.",
+        "impact_flag_scope": "NO means recording the existing bounded general property adds no authority/change. Adopting an exclusive case-specific contract is not performed and its unchosen semantics are not inferred.",
+        "SURVIVING_PLAUSIBLE_SECURITY_INTENT": true
+      },
+      "meaning": "Frozen full principal-independence intent; partial case attribution, no historic removal"
+    },
+    {
+      "id": "S15",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c/material-coverage-stop.json",
+      "sha256": "eb29e21243a20c77cff505bbeb8518912800ff625216fe3b86d8bb52cebf5820",
+      "pointer": "",
+      "exact_fact": {
+        "uncovered_intent": "I13",
+        "material_property": "Concurrent principals/slot UIDs and retained birth anchors remain distinct; approved21pair principal independence",
+        "source_refs": [
+          "S1",
+          "S2",
+          "S3",
+          "S4"
+        ],
+        "structural_argument": [
+          "Each candidate dimension conditions a credential-object custody, credential-derived effective authority, or credential-binding continuity event involving a successor/identity-renewal transition.",
+          "Pairwise concurrent principal distinction is a separate invariant and remains required independently of whether a credential succession/continuity event occurs.",
+          "The candidate definitions contain no implication deriving that pairwise principal-distinct obligation. Neither authority nor process identity is principal identity under the mandatory distinctions.",
+          "A projection preserving only credential-related consequences does not establish full I13. Labeling that projection DERIVED would silently narrow the expressly surviving property."
+        ],
+        "strongest_objection": "Threat family need not encompass all architecture; treat I13 as external context.",
+        "objection_answer": "This gate explicitly requires exactly16 surviving intents and §6 tests any material concern not representable without distortion. Frozen A5.3B I13 states the full property; no authorization or canonical implication narrows it to credential context alone.",
+        "not_claimed": [
+          "No runtime counterexample or physical UID assignment",
+          "No implementation design failure",
+          "No reversal of approved21principal independence proofs",
+          "No positive contradiction with closed architecture",
+          "No fourth family or repair proposed"
+        ],
+        "stop": "§6 MATERIAL_COVERAGE_TEST => OUTCOME_C_DECOMPOSITION_INCOMPLETE"
+      },
+      "meaning": "Prior correct STOP was full-intent coverage test, not a family-membership adjudication"
+    },
+    {
+      "id": "S16",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/principal-independence-matrix.json",
+      "sha256": "ed2f993937abb79feb86226f8deabb9404c5ac67eea8aaac1c32e5afaf46899c",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "d539cd3faf24c8557c7555590127a6f403b815cf4c6cfef2b5813671f8e1d325"
+      },
+      "meaning": "Accepted static concurrent pairwise dimension; physical evidence future, no universal future-substitution guarantee"
+    },
+    {
+      "id": "S17",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/authority-independence-matrix.json",
+      "sha256": "3761eb533aac9727cb42df02e8a90025d17950be724697c78e25993b58433b68",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "4e0fd87f99e81b2e3e997f8734cdf6499a50a2d54693a0f68b9bf5006570e09f"
+      },
+      "meaning": "Accepted static concurrent pairwise dimension; physical evidence future, no universal future-substitution guarantee"
+    },
+    {
+      "id": "S18",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/credential-secret-independence-matrix.json",
+      "sha256": "0ffc780091bf3c7c7ec84447be51fa095b3e4495b01059c341a965391ce48702",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "3755ba0b5f548aa8cecbfd9cb84b62ecf1cdfa83e34ecf01e0c2798dac2247ab"
+      },
+      "meaning": "Accepted static concurrent pairwise dimension; physical evidence future, no universal future-substitution guarantee"
+    },
+    {
+      "id": "S19",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/custody-independence-matrix.json",
+      "sha256": "8e3a540dab40565eda54123bd90b63f4295d75c21503fbdc6f0b1ea9e3ba8c18",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "0ed026a3623c2a1243dcde4327ecc0226539ca54d0a62456e9d7fa1c6cd9a05b"
+      },
+      "meaning": "Accepted static concurrent pairwise dimension; physical evidence future, no universal future-substitution guarantee"
+    },
+    {
+      "id": "S20",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/revocation-independence-matrix.json",
+      "sha256": "7bd87414619c123e1f1cf51313360f00f90f3e37238d168e212d08720247bd2b",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "743ec71c2a7717e6ffabe4cd0bcb5ba18f38639f2b1c65833af944515cabef32"
+      },
+      "meaning": "Accepted static concurrent pairwise dimension; physical evidence future, no universal future-substitution guarantee"
+    },
+    {
+      "id": "S21",
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/process-identity-independence-matrix.json",
+      "sha256": "38611c516e88b1f2dc7aba802659e9e8d65554304fbf609842f3b55e8668d56f",
+      "pointer": "",
+      "exact_fact": {
+        "external_exact_selection": true,
+        "selected_fact_sha256": "0be4762d6936b1b25d44f9fa9e5e414d10ce14b61a132f4df85c60482bf4847c"
+      },
+      "meaning": "Accepted static concurrent pairwise dimension; physical evidence future, no universal future-substitution guarantee"
+    }
+  ],
+  "classification_hypothesis": "H1 supplied for falsification, not automatically adopted",
+  "authority_rule": "Positive canonical semantic separation and direct A5.2 source-fact audit; no implementation behavior or keyword absence creates semantics.",
+  "prior_corpus_byte_preserved": true,
+  "preexisting_files": 8934
+}
