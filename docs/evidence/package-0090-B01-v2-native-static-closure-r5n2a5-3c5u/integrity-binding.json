@@ -1,0 +1,43 @@
+{
+  "INTEGRITY_BINDING_ESTABLISHED": "YES",
+  "establishment_scope": "Prospective deterministic evidence-only integrity envelope specification, not actual input/output binding or full semantic procedure readiness",
+  "historically_entailed": false,
+  "authority": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5u/project-authority-input.txt",
+    "sha256": "96e05ec526db2653abfa65578beb9a322a3125f237546b508491aec4b3da903a",
+    "pointer": ""
+  },
+  "version": "C5U-INTEGRITY-ENVELOPE/v1",
+  "hash_algorithm": "SHA256",
+  "byte_rules": [
+    "All digest operands are bytes; no platform newline, locale, native path or implicit Unicode normalization",
+    "Opaque exact identity strings use strict UTF-8, preserve codepoints; caller aliases/casefold/path normalization forbidden",
+    "U64(n) is unsigned 64-bit big-endian, 0 <= n < 2^64; reject oversized input",
+    "L(b) = U64(len(b)) || b",
+    "F(tag, fields) = L(UTF8(tag)) || U64(number_of_fields) || concat(L(field_bytes))",
+    "Source content digest is SHA256(exact immutable source bytes); encoded as raw 32 bytes, not textual hex",
+    "Source record R = F(\"C5U/source/v1\", [construction_input_id, canonical_source_identity, source_content_digest]); all text operands strictly encoded as above",
+    "Source records sorted lexicographically by pair (construction_input_id UTF8 bytes, canonical_source_identity UTF8 bytes); duplicate pairs reject, source roster must independently be proved complete",
+    "M = F(\"C5U/manifest/v1\", sorted R records)",
+    "V = F(\"C5U/procedure/v1\", [approved_full_procedure_version_id, SHA256(exact approved full procedure specification bytes)])",
+    "D = SHA256(F(\"C5U/output-binding/v1\", [M, V, exact canonical output identity bytes, exact output content bytes]))",
+    "Displayed integrity digest is lowercase hex of D; display is not an identity/authority grant"
+  ],
+  "canonical_input_ordering": "Exact UTF-8 byte pair lexicographic order; no source-defined relation/graph row reordering implied",
+  "canonical_serialization": "Length-prefixed binary envelope; output content remains exact source-authorized canonical bytes, whose semantic serialization is NOT_ESTABLISHED",
+  "actual_output_digest": null,
+  "actual_source_manifest": null,
+  "integrity_is_authority": false,
+  "integrity_is_authentication": false,
+  "integrity_is_admission": false,
+  "integrity_is_semantic_correctness": false,
+  "self_reference_guard": "Procedure specification digest excludes generated digest/report; actual output bytes must not include their own envelope digest. Any source-required recursive encoding is unresolved and rejects.",
+  "fail_closed": [
+    "Unknown canonical identity or source roster",
+    "Unavailable/unauthorized source bytes or provenance",
+    "Undefined approved procedure or output serialization/identity",
+    "Duplicate source pair",
+    "Invalid UTF-8, non-byte operand, invalid length",
+    "Expected-result/status channels in transform or input roster"
+  ]
+}

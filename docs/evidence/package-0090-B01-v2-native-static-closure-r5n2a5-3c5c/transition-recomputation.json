@@ -1,0 +1,156 @@
+{
+  "PRE_STATE": "SOURCE_GENERATION_CREDENTIAL_STATE_EXISTS_UNDER_SOURCE_GENERATION_AUTHORITY",
+  "EVENT": "FRESH_GENERATION_LEDGER_SUCCESSION",
+  "POST_STATE": "TARGET_GENERATION_EXISTS_WITH_CREDENTIAL_AUTHORITY_REQUIRING_TARGET_GENERATION_QUALIFICATION",
+  "CORE_RULE": "SOURCE_GENERATION_CREDENTIAL_AUTHORITY_DOES_NOT_AUTOMATICALLY_TRANSFER_TO_TARGET_GENERATION",
+  "FORBIDDEN_CONTINUITY": "UNQUALIFIED_INHERITANCE_OF_SOURCE_GENERATION_CREDENTIAL_AUTHORITY_AS_TARGET_GENERATION_AUTHORITY",
+  "REQUIRED_DISCONTINUITY": "AUTHORITY_CONTINUITY_ACROSS_GENERATION_SUCCESSION_MUST_NOT_BE_PRESUMED",
+  "ALLOWED_CONTINUITY": "UNDERLYING_CREDENTIAL_MATERIAL_OR_IDENTITY_RELATION_MAY_CONTINUE_ONLY_WHERE_SEPARATELY_AUTHORIZED_AND_QUALIFIED",
+  "TRANSITION_RESOLVED": "YES",
+  "resolution_scope": "Prospective T8 identity and supplied authority-continuity rule only; not exhaustive O8 membership/context/atomicity or witness closure.",
+  "source_event": {
+    "id": "T8",
+    "name": "FRESH_GENERATION_LEDGER_SUCCESSION",
+    "PRE": "GENERATION_LEDGER.TOMBSTONED",
+    "EVENT": "Checked previous+1 ledger succession with prior tombstone retained",
+    "POST": "GENERATION_LEDGER.NEW_GENERATION; new enrollment/qualification not established by edge alone"
+  },
+  "semantic_to_source_mapping": [
+    {
+      "field": "PRE_STATE",
+      "mapping": "Source-generation credential-state provenance/domain is referenced; it is not a CURRENT usable grant immediately before T8. The immediate source ledger state remains TOMBSTONED, and old authority remains ineligible. No private live source material is asserted to survive.",
+      "basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records/1/replacement",
+          "canonical_fact_sha256": "32756f82da82d8048935f87186c3b88f9490fd88f838bd77b945a8d1d06644f0",
+          "semantic_proposition": "Old invalidation/extinction/tombstone precede new eligibility",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records/1/stale_generation",
+          "canonical_fact_sha256": "0dc539a66f048fba6a338109c7c9f2c580f481098b25e7c678a2a9613e627cb2",
+          "semantic_proposition": "No earlier-generation fallback",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        }
+      ]
+    },
+    {
+      "field": "EVENT",
+      "mapping": "Exactly the existing T8 source ledger edge, not a replacement compound, process birth or new credential creation.",
+      "basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/state_edges/GENERATION_LEDGER",
+          "canonical_fact_sha256": "32a76de4b27a012893283b4efa5503b9b0facc157526e0b5a43ee7dedf4c9d0d",
+          "semantic_proposition": "Source edge TOMBSTONED→NEW_GENERATION",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        }
+      ]
+    },
+    {
+      "field": "POST_STATE",
+      "mapping": "Target generation exists and its credential authority REQUIRES target-generation qualification. This does not assert qualification or a valid grant already exists at ledger advancement.",
+      "basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/0/GENERATION_BINDING",
+          "canonical_fact_sha256": "3e7940103ddf33d4117db1aaa8312968124ab2aef11b3ece78833eb0d9d2c16d",
+          "semantic_proposition": "Independently current exact generation mandatory",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/0/REGISTRY_BINDING",
+          "canonical_fact_sha256": "af64cee0a0cf903c141a994bec75c3f77a3a72aca3e2d5f881699e4dd3148996",
+          "semantic_proposition": "Current enrollment/publication revisions mandatory",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        }
+      ]
+    }
+  ],
+  "derived_rules": [
+    {
+      "id": "R1",
+      "rule": "Source-generation credential authority alone is insufficient to establish target-generation authority.",
+      "basis": "DIRECT_CURRENT_CORE_RULE"
+    },
+    {
+      "id": "R2",
+      "rule": "At T8, do not treat the old authority as qualified target authority without independent target qualification.",
+      "basis": "DIRECT_CURRENT_FORBIDDEN_CONTINUITY_AND_POST_STATE"
+    },
+    {
+      "id": "R3",
+      "rule": "Material equality or difference alone cannot prove target authority; no automatic material rotation requirement is derived.",
+      "basis": "CURRENT_MANDATORY_DISTINCTION_AND_CORE_RULE"
+    },
+    {
+      "id": "R4",
+      "rule": "Missing/unknown independently current target qualification cannot grant authority; preserve fail-closed UNKNOWN/NOT_QUALIFIED.",
+      "basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-registry-generation.json",
+          "sha256": "2c0bdbe11039efd972af2ca9dd53b40eefe9d7464df29d84d90d16e4ad0fd65f",
+          "pointer": "/records/0/UNKNOWN",
+          "canonical_fact_sha256": "b4fe6a9a169953a0166e96edb0e51d35ef64f332a7a85af35151ed542b1796f3",
+          "semantic_proposition": "No new eligibility while unresolved",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+          "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+          "pointer": "/credentials/0/UNKNOWN_CUSTODY_BEHAVIOR",
+          "canonical_fact_sha256": "1955cfdc31f1b7b2e92f5824fc06428834e86b4ac15a2ff811b00a7c26bd3dfc",
+          "semantic_proposition": "Unknown custody fails closed",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "rule": "Conditional allowed material/identity continuity requires separate authorization AND qualification; neither is supplied by the word may.",
+      "basis": "DIRECT_CURRENT_ALLOWED_CONTINUITY"
+    },
+    {
+      "id": "R6",
+      "rule": "Existing fresh-key, renewed endpoint, retirement, extinction, retained-parent and full-cohort requirements remain binding in their approved ACTIVE replacement scope.",
+      "basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-2/replacement-topology.json",
+          "sha256": "c32aaf0fa7402d42081d994ab85e9be303c49ca97579f7b47e0ebbc3a6d7b91b",
+          "pointer": "/closures",
+          "canonical_fact_sha256": "22b64e0d22243b87044ad799697c5b1f57513cc2d5c853b7e156a5ac5e99284e",
+          "semantic_proposition": "Frozen qualified ACTIVE replacement scope and exact mandatory renewal sets",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_DESIGN",
+          "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+        }
+      ]
+    },
+    {
+      "id": "R7",
+      "rule": "I13 remains mandatory external; substitution necessity/sufficiency, all-credential revocation and principal-change obligations are not inferred from this designation.",
+      "basis": "DIRECT_CURRENT_MANDATORY_DISTINCTION; independent existing constraints retained"
+    }
+  ],
+  "CREDENTIAL_MATERIAL_ROTATION_REQUIRED": "NOT_BY_DESIGNATION; independent scoped fresh-key/endpoint requirements retained",
+  "PRINCIPAL_IDENTITY_CHANGE_REQUIRED": "NOT_BY_DESIGNATION; independent fresh qualified-subject requirements retained, no numeric UID delta inferred",
+  "SUBSTITUTION_NECESSARY": "NOT_ESTABLISHED_BY_DESIGNATION",
+  "SUBSTITUTION_SUFFICIENT": "NOT_ESTABLISHED_BY_DESIGNATION",
+  "I13_PRESERVED_IN_FULL": "YES",
+  "DISTINCT_CONCURRENT_PRINCIPALS_REQUIREMENT": "INDEPENDENT_I13_NOT_DERIVED_FROM_DESIGNATION",
+  "target_qualification_evidence_supplied_by_designation": false
+}

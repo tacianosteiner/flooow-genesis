@@ -1,0 +1,1749 @@
+{
+  "models": {
+    "BASELINE/POSTMASTER/V1": {
+      "model_id": "BASELINE/POSTMASTER/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 1,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "CENSUS_OBSERVER",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "POSTMASTER",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/POSTMASTER/CHALLENGE",
+            "FRAME/POSTMASTER/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/0",
+            "canonical_fact_sha256": "37f1fbb89e3eed97c8898536aa4085325cfacee6436dd7f4c5a91215ea888d06",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private endpoint-subject/retained nontransferable-use context from A3; HOST-held expected public endpoint manifest is a separate readonly value, never an Ed25519 POSTMASTER message key."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    },
+    "BASELINE/SUPERVISOR/V1": {
+      "model_id": "BASELINE/SUPERVISOR/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 2,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "SUPERVISOR",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "SUPERVISOR",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/SUPERVISOR/CHALLENGE",
+            "FRAME/SUPERVISOR/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/1",
+            "canonical_fact_sha256": "eccf4d8ec3cfe4fc2b7a345a10aff5cf30860e4ce523ac4238da9916e919ebee",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private non-exportable slot/purpose/generation credential reference, never actual secret bytes."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    },
+    "BASELINE/RECEIVER/V1": {
+      "model_id": "BASELINE/RECEIVER/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 3,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "RECEIVER",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "RECEIVER",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/RECEIVER/CHALLENGE",
+            "FRAME/RECEIVER/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/2",
+            "canonical_fact_sha256": "f327b862e26576b9720bb14ea641e15ebbf0242f2c7b8074208a995069967265",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private non-exportable slot/purpose/generation credential reference, never actual secret bytes."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    },
+    "BASELINE/CENSUS_OBSERVER/V1": {
+      "model_id": "BASELINE/CENSUS_OBSERVER/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 4,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "CENSUS_OBSERVER",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "CENSUS_OBSERVER",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/CENSUS_OBSERVER/CHALLENGE",
+            "FRAME/CENSUS_OBSERVER/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/3",
+            "canonical_fact_sha256": "5ded24dbd6904e0af6a1c2c8691693b31adebd3cfd276dba7ae110cf8aacca00",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private non-exportable slot/purpose/generation credential reference, never actual secret bytes."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    },
+    "BASELINE/APPROVAL_PRODUCER/V1": {
+      "model_id": "BASELINE/APPROVAL_PRODUCER/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 5,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "APPROVAL_PRODUCER",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "APPROVAL_PRODUCER",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/APPROVAL_PRODUCER/CHALLENGE",
+            "FRAME/APPROVAL_PRODUCER/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/4",
+            "canonical_fact_sha256": "1aa10a968c492271d35a79109945c006507654897dc6a369aeddc97503ddc224",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private non-exportable slot/purpose/generation credential reference, never actual secret bytes."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    },
+    "BASELINE/APPROVAL_CONSUMER/V1": {
+      "model_id": "BASELINE/APPROVAL_CONSUMER/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 6,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "APPROVAL_CONSUMER",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "APPROVAL_CONSUMER",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/APPROVAL_CONSUMER/CHALLENGE",
+            "FRAME/APPROVAL_CONSUMER/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/5",
+            "canonical_fact_sha256": "06dc8663e2f1f96eaf06e60ec2adee1a982e7f29193198b15a7f1084de9fc89b",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private non-exportable slot/purpose/generation credential reference, never actual secret bytes."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    },
+    "BASELINE/ENFORCEMENT_WORKER/V1": {
+      "model_id": "BASELINE/ENFORCEMENT_WORKER/V1",
+      "kind": "FULLY_DECLARED_PARAMETRIC_STATIC_MODEL_NOT_A_CAPTURED_OBSERVATION",
+      "participant_enum": 7,
+      "actual_challenge_sender": "HEALTH_GUARD",
+      "actual_response_sender": "ENFORCEMENT_WORKER",
+      "actual_response_recipient": "HEALTH_GUARD",
+      "subject": "ENFORCEMENT_WORKER",
+      "actor_blocks": {
+        "POSTMASTER": {
+          "enum": 1,
+          "principal_symbol": "OS(POSTMASTER)",
+          "birth_symbol": "BIRTH(POSTMASTER)",
+          "current_enrollment_symbol": "ENROL(POSTMASTER,G)",
+          "key_or_endpoint_symbol": "ENDPOINT(POSTMASTER,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "SUPERVISOR": {
+          "enum": 2,
+          "principal_symbol": "OS(SUPERVISOR)",
+          "birth_symbol": "BIRTH(SUPERVISOR)",
+          "current_enrollment_symbol": "ENROL(SUPERVISOR,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(SUPERVISOR,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "RECEIVER": {
+          "enum": 3,
+          "principal_symbol": "OS(RECEIVER)",
+          "birth_symbol": "BIRTH(RECEIVER)",
+          "current_enrollment_symbol": "ENROL(RECEIVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(RECEIVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "CENSUS_OBSERVER": {
+          "enum": 4,
+          "principal_symbol": "OS(CENSUS_OBSERVER)",
+          "birth_symbol": "BIRTH(CENSUS_OBSERVER)",
+          "current_enrollment_symbol": "ENROL(CENSUS_OBSERVER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(CENSUS_OBSERVER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_PRODUCER": {
+          "enum": 5,
+          "principal_symbol": "OS(APPROVAL_PRODUCER)",
+          "birth_symbol": "BIRTH(APPROVAL_PRODUCER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_PRODUCER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_PRODUCER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "APPROVAL_CONSUMER": {
+          "enum": 6,
+          "principal_symbol": "OS(APPROVAL_CONSUMER)",
+          "birth_symbol": "BIRTH(APPROVAL_CONSUMER)",
+          "current_enrollment_symbol": "ENROL(APPROVAL_CONSUMER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(APPROVAL_CONSUMER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "ENFORCEMENT_WORKER": {
+          "enum": 7,
+          "principal_symbol": "OS(ENFORCEMENT_WORKER)",
+          "birth_symbol": "BIRTH(ENFORCEMENT_WORKER)",
+          "current_enrollment_symbol": "ENROL(ENFORCEMENT_WORKER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(ENFORCEMENT_WORKER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HEALTH_GUARD": {
+          "enum": 8,
+          "principal_symbol": "OS(HEALTH_GUARD)",
+          "birth_symbol": "BIRTH(HEALTH_GUARD)",
+          "current_enrollment_symbol": "ENROL(HEALTH_GUARD,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HEALTH_GUARD,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "HOST_PLATFORM": {
+          "enum": 9,
+          "principal_symbol": "OS(HOST_PLATFORM)",
+          "birth_symbol": "BIRTH(HOST_PLATFORM)",
+          "current_enrollment_symbol": "ENROL(HOST_PLATFORM,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(HOST_PLATFORM,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        },
+        "NATIVE_REGISTRY_WRITER": {
+          "enum": 10,
+          "principal_symbol": "OS(NATIVE_REGISTRY_WRITER)",
+          "birth_symbol": "BIRTH(NATIVE_REGISTRY_WRITER)",
+          "current_enrollment_symbol": "ENROL(NATIVE_REGISTRY_WRITER,G)",
+          "key_or_endpoint_symbol": "CREDENTIAL(NATIVE_REGISTRY_WRITER,PURPOSE,G)",
+          "no_numeric_UID_or_private_key_value": true
+        }
+      },
+      "required_typed_parameters": {
+        "G": {
+          "type": "u64",
+          "constraint": "2 <= G <= 2^64-2"
+        },
+        "G_SOURCE": {
+          "type": "u64",
+          "definition": "G-1"
+        },
+        "context": {
+          "schema": "bootstrap_context_schema",
+          "field_binding": "Each declared field is a separately typed immutable parameter; exact shared-field equalities follow the source construction order, not a boolean valid-context flag."
+        },
+        "identity_tuples": {
+          "schemas": "ALL IDENTITY/* in schema-library.json",
+          "field_binding": "For each subject/emitter and each declared field: symbol (model_id,actor,schema_id,field_name) with that exact source type; digest references equal the canonical hash of the complete bound tuple."
+        },
+        "module_map": {
+          "type": "finite nonempty map (load_name,absolute_path)->ModuleMapEntry",
+          "binding": "Exact approved per-role module map; all entry fields have source types. MODULE_KEY is the lexicographically first complete canonical key in that independently approved map. Candidate map has the same keys before mutation. Module map is a declared design projection, not an invented native frame field."
+        },
+        "frames": {
+          "schemas": [
+            "FRAME/ENFORCEMENT_WORKER/CHALLENGE",
+            "FRAME/ENFORCEMENT_WORKER/RESPONSE"
+          ],
+          "field_binding": "Every exact field_order entry has a typed symbol. Subject fields bind the participant; sender_* fields bind actual sender, never subject-by-default. input_record/result_record use exact source nested schemas."
+        },
+        "registry": {
+          "schemas": [
+            "REGISTRY/PARTICIPANT_REGISTRY",
+            "REGISTRY/GENERATION_LEDGER",
+            "REGISTRY/GENERATION_TOMBSTONE",
+            "REGISTRY/COMPLETED_WORK_PUBLICATION"
+          ],
+          "field_binding": "Every declared canonical field has a typed symbol; entity keys, predecessor digests and independent observed journal tip must match their referenced complete tuples."
+        },
+        "principals": {
+          "type": "map actor->PrincipalRef",
+          "constraint": "All frozen concurrent MUST_BE_DISTINCT pairs have unequal OS subject/birth references; auxiliary writer/observer/source identities remain separately constrained."
+        },
+        "private_resource": {
+          "type": "PrivateResourceRef",
+          "class_binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/credential-custody.json",
+            "sha256": "ea2db328d2b532901c47968a330aa7c8e1e970c73053dd9fc172056c6eac7738",
+            "pointer": "/credentials/6",
+            "canonical_fact_sha256": "d43c84a7dbd87011928465b348fbd9781cc21dfb099fdf4c9daf3754084b37fb",
+            "proposition": "Exact slot/purpose/generation custody restrictions",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          },
+          "POSTMASTER_form": "Private non-exportable slot/purpose/generation credential reference, never actual secret bytes."
+        },
+        "work": {
+          "type": "WorkUse",
+          "binding": "Challenge/work/input/result identities bind their exact canonical publication tuple; fresh and terminal history rows are separate typed values."
+        },
+        "snapshot": {
+          "type": "SnapshotHeader",
+          "sources": "ALL CATALOG/* complete row collections with exact projected columns and natural keys; typed OIDs are injectively bound to natural-key identities, never native OS enums."
+        },
+        "source_membrane": {
+          "type": "fixed-operation capability model",
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/forbidden-capability-negative-proof.json",
+            "sha256": "176e05fbb56d400020181606c321ba5fb1e4f3821e00d85b0c085fcc3fbbec47",
+            "pointer": "/source_capability",
+            "canonical_fact_sha256": "5a2e7f665827f378784c501da814034c56ca631306d4edb038656de01ed425f0",
+            "proposition": "Closed source membrane, not raw SQL/table authority",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "source_effect_and_ACL_model": {
+          "binding": {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a4-2/effective-acl-ledger.json",
+            "sha256": "21cf5bec3d806027460e9bf85ad92adfb88be443ef8d97cdf4fa9ac78575aef2",
+            "pointer": "",
+            "canonical_fact_sha256": "08a987ea667f7e0cd37a98c29bf5da1053b0d0c0b22dc996c8a93ad35d184de0",
+            "proposition": "All accepted effective-ACL entries and conditions, not assumed installed PostgreSQL grants",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+            "direct_or_derived": "DIRECT_SELECTION"
+          }
+        },
+        "candidate_source_effect_leaf": {
+          "type": "EffectLeaf",
+          "binding": "Leaf keyed exactly by callable_id=DESIGN/SOURCE_FIXED_PROJECT, operation_id=S01 and resource_relation=pg_catalog.pg_roles. Before kind=FIXED_PROJECTION and projected_field_schema_ref=CATALOG/pg_catalog.pg_roles. Candidate body/effect digest is separate from unchanged independently expected manifest."
+        },
+        "candidate_resolution": {
+          "type": "ResolutionExpression",
+          "binding": "Before EXACT_FROZEN_IDENTITY(OID(pg_catalog.pg_roles),OID(pg_catalog),pg_roles). Candidate namespace N_ATTACK and its relation T_ATTACK are complete source-typed pg_namespace/pg_class rows; N_ATTACK!=pg_catalog, T_ATTACK.relname=pg_roles,T_ATTACK.relnamespace=N_ATTACK and T_ATTACK.oid!=OID(pg_catalog.pg_roles). No actual namespace/object is created."
+        },
+        "roles_for_graph_fixture": {
+          "type": "complete typed CATALOG/pg_catalog.pg_roles rows",
+          "bindings": "R=the source-authenticated Reader SQL role; A=existing deployment/owner SQL role; M=a distinct non-native symbolic intermediate catalog role. All fields are declared source types. R is not any native participant OS identity."
+        },
+        "graph_fixture_objects": {
+          "type": "complete rows of exact relevant CATALOG schema",
+          "bindings": "Object/schema/function/default-ACL IDs are typed symbolic natural-key references, with owner, ACL, body/config/effect manifest and source version independently bound. No object is created or installed."
+        },
+        "policy": {
+          "type": "immutable source-policy parameters",
+          "constraint": "Version-bound positive finite max age/deadline/lease, declared count/byte limits, no numeric production TTL invented; captured time and arithmetic constrained to source integer ranges."
+        }
+      },
+      "baseline_constraints": [
+        "expected and candidate identity tuples are initially equal field-by-field; every digest references its full canonical tuple rather than replacing proof with a file hash",
+        "candidate actual emitter identity/enrollment/credential/purpose and kernel birth anchor bind the actual source ABI sender; POSTMASTER type201 is emitted by CENSUS_OBSERVER",
+        "current ledger high-water=G; current registry enrollment revision is independently witnessed; retired-generation set contains G_SOURCE and excludes G",
+        "current subject enrollment is ENROLLED and operational phase ACTIVE for ordinary current-generation cases; new-qualification/UNKNOWN variants explicitly override only their named state components",
+        "Reader source context is its own bound session/process and fixed operation; S03 uses its independent authenticated LOGIN bridge and is not substituted for S01",
+        "all exact source collections share one snapshot/backend/barrier identity before mutation; complete typed row multisets preserve duplicates for validation",
+        "all7 concurrent subject principals and the required auxiliary custodians remain independently distinct; no equality of SQL roles and OS subjects",
+        "R has no ownership, memberships, superuser, CREATEROLE or BYPASSRLS. Invocation is fixed-source INVOKER-only, no caller-provided identifiers, callback, generic SQL or raw descriptor export",
+        "M/A are typed test-model catalog principals, not created roles; candidate membership/ACL/call effects have complete source fields and explicit edge kinds, never merged authority booleans"
+      ],
+      "source_basis": [
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/sender_vs_subject",
+          "canonical_fact_sha256": "463153e490397380dae50eefbe3c0f3121ac4a70d22a32e9ddcef81d256e29e7",
+          "proposition": "Actual emitter and subject are independent",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+          "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+          "pointer": "/POSTMASTER_transport",
+          "canonical_fact_sha256": "13dd23fb85f43ab6091cd5aa7453e68978940a6950b31a304328781ae68f08fe",
+          "proposition": "No fabricated POSTMASTER signature",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/independence-matrix.json",
+          "sha256": "8bd2febdfe3ad25599f903b7cb2de0645232a099a80f2782bbe2cd8318b5c782",
+          "pointer": "",
+          "canonical_fact_sha256": "76c97a8478772c4c318dfa9f12727d55cad5b512a7842749ee2561b13973376d",
+          "proposition": "Concurrent principal and auxiliary separation",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        },
+        {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/snapshot-consistency.json",
+          "sha256": "571193d9e35e3a67aa6ed4c8119e912148921d4059815fbaa3076446b0aaa592",
+          "pointer": "",
+          "canonical_fact_sha256": "97038c88b86c89790c43cb4095a7c4d6d43d7a7a8d54248615f08e374e5b1f2c",
+          "proposition": "Exact snapshot/session/barrier/currentness rules",
+          "authority_class": "FROZEN_ACCEPTED_STATIC_CONTRACT",
+          "direct_or_derived": "DIRECT_SELECTION"
+        }
+      ],
+      "future_binding_rule": "A future static fixture instantiation must supply EVERY typed parameter and verify all source equalities/constraints. Missing/inconsistent parameters => NOT_EVALUABLE, never assumed true. No such binding is instantiated in C5D.",
+      "constraint_application": "This is a reusable declaration library. Only the case-selected views and explicit variant state below apply; a T8 or pending-qualification case does not also require the ordinary ACTIVE/ENROLLED target-state assumption.",
+      "information_flow": "Raw source config/body values, internal source descriptor and source snapshot rows belong only to the trusted membrane model. Reader receives only approved sanitized projections/digests. No model signature, body hash or public endpoint manifest grants source authority."
+    }
+  },
+  "completeness_scope": "Specification of all parameter domains and relations, not existence/proof of their future values",
+  "no_predicates_evaluated": true
+}

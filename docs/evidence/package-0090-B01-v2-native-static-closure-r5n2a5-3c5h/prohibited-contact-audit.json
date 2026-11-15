@@ -1,0 +1,70 @@
+{
+  "scope": "Performed actions in C5H primary session and two explicitly constrained reviewers. This does not assert anything about unrelated machine processes.",
+  "action_ledger": [
+    {
+      "actions": "Read request attachment via Get-Content UTF8; local Get-Content/rg/Get-ChildItem/Select-Object of frozen authority and evidence",
+      "effect": "Read only"
+    },
+    {
+      "actions": "git status, rev-parse, branch --show-current, diff --name-only, diff --cached --name-only, ls-files --others --exclude-standard, merge-base --is-ancestor",
+      "effect": "Read-only Git; no add/commit/push"
+    },
+    {
+      "actions": "Inline Python pathlib/json/hashlib inspections of frozen source, schemas, manifest and historical byte hashes; importlib.util.find_spec local availability check only",
+      "effect": "Local static inspection; no package install/network"
+    },
+    {
+      "actions": "apply_patch C5H evidence scripts; python -B close_gaps.py (iterated after local accounting/parser/source-dependency fixes); pure in-memory expression tests and partial model-fragment evaluations",
+      "effect": "Only C5H evidence writes; canonical attack suite not invoked"
+    },
+    {
+      "actions": "Two independent review tasks: local read-only Git/Python inspections; reviewed scripts, field/hash/source facts; each writes own C5H review JSON",
+      "effect": "No native/build/SQL/DB/network. Reviewers removed only the C5H pycache files accidentally created by their initial imports; no historical artifact changed."
+    },
+    {
+      "actions": "Copy-Item of supplied request to C5H/project-authority-input.txt",
+      "effect": "New authority-input copy only"
+    },
+    {
+      "actions": "python -B finalize.py",
+      "effect": "Final integrity verification and C5H-only sealing"
+    }
+  ],
+  "inspected_script_imports": {
+    "close_gaps.py": [
+      "import ast",
+      "import collections",
+      "import copy",
+      "import functools",
+      "import hashlib",
+      "import json",
+      "import pathlib",
+      "import subprocess",
+      "import sys",
+      "from static_evaluator import parse, observe, inputs_for, operators_for, dependencies_for"
+    ],
+    "static_evaluator.py": [
+      "import collections",
+      "import re"
+    ],
+    "finalize.py": [
+      "import ast",
+      "import hashlib",
+      "import json",
+      "import pathlib",
+      "import subprocess"
+    ]
+  },
+  "execution_inspection": "static_evaluator has no IO. close_gaps/finalize use only local file operations and read-only git subprocess commands. No database driver/client, Docker/Compose/container, Gradle/build, native process, network API, SQL, V043/B02 migration, or attack runner executed.",
+  "SHARED_DB_CONTACTED": "NO",
+  "PRODUCTION_CONTACTED": "NO",
+  "EXISTING_LOCAL_DB_CONTACTED": "NO",
+  "NETWORK_CONTACT_FOR_PROOF": "NO",
+  "V043_EXECUTED": "NO",
+  "V043_CHANGED": "NO",
+  "B02_EXECUTED": "NO",
+  "GIT_ADD": "NO",
+  "COMMIT": "NO",
+  "PUSH": "NO",
+  "evidence_limit": "Action/script audit rather than OS packet capture. Scope is this gate, not preexisting host state."
+}

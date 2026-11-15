@@ -1,0 +1,71 @@
+{
+  "input_keys": [
+    "roles",
+    "memberships",
+    "databases",
+    "database_context"
+  ],
+  "row_projections": {
+    "roles": [
+      "oid",
+      "rolbypassrls",
+      "rolcanlogin",
+      "rolcreatedb",
+      "rolcreaterole",
+      "rolinherit",
+      "rolname",
+      "rolreplication",
+      "rolsuper"
+    ],
+    "memberships": [
+      "admin_option",
+      "grantor",
+      "inherit_option",
+      "member",
+      "oid",
+      "roleid",
+      "set_option"
+    ],
+    "databases": [
+      "datacl",
+      "datallowconn",
+      "datconnlimit",
+      "datdba",
+      "datname",
+      "encoding",
+      "oid"
+    ]
+  },
+  "database_context_variants": [
+    {
+      "kind": "DATABASE",
+      "database_oid": "source-bound exact current OID"
+    },
+    {
+      "kind": "NO_DATABASE",
+      "meaning": "Explicit source no-database backend context; never inferred from missing row/None/zero"
+    }
+  ],
+  "consumed_fields_validated": "Exact nonzero OIDs, role endpoint/grantor references, independent boolean options, role superuser flag, exact current database owner, builtin OID/name, source name NFC/strictUTF8 and source int4 fields",
+  "external_gates": [
+    "Authenticated/exhaustive same-context source rowsets and source snapshot/cardinality proof",
+    "Name byte bounds and independent finite snapshot policy",
+    "Unused datacl element/encoding/ACL normalization; only NULL/array presence preserved locally",
+    "Canonical pre/post binding, parent full source-schema validation and decision/no-new-authority composition"
+  ],
+  "parallel_rows": "Distinct membership OID/grantor rows retained; same OID rejected before traversal",
+  "outputs": {
+    "availability": [
+      "AVAILABLE",
+      "UNAVAILABLE"
+    ],
+    "value": "local boolean property iff AVAILABLE",
+    "no_automatic_mapping": [
+      "UNAVAILABLE to evidence UNKNOWN",
+      "UNAVAILABLE to qualification REJECT",
+      "local boolean to PROVEN"
+    ]
+  },
+  "trace_scope": "Deterministic helper input-order BFS explanation, never provider-observed runtime order",
+  "canonical_fixture_or_snapshot_complete_claim": false
+}

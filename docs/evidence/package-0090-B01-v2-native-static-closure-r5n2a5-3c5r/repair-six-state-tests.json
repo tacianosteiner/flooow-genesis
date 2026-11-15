@@ -1,0 +1,158 @@
+{
+  "REPAIR_TESTS_REQUIRED": 6,
+  "REPAIR_TESTS_PASSING": 6,
+  "REPAIR_TESTS_FAILING": 0,
+  "tests": [
+    {
+      "CASE_ID": "1_EXISTING_AUTHENTICATED_ADMITTED",
+      "STATE": {
+        "ARTIFACT_REQUIREMENT_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHORITY_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHENTICATION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_ADMISSION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_EXISTS": "YES",
+        "ARTIFACT_AUTHENTICATED": "YES",
+        "ARTIFACT_ADMITTED": "YES"
+      },
+      "INDEPENDENT_SYNTHETIC_FACTS": {
+        "origin": "PRE_EXISTING",
+        "independent_authentication_proved": true,
+        "independent_admission_proved": true
+      },
+      "EXPECTED_STATUS": "EXISTING_AUTHENTICATED_ARTIFACT_RECOVERED",
+      "ACTUAL_STATUS": "EXISTING_AUTHENTICATED_ARTIFACT_RECOVERED",
+      "PASS": true,
+      "SYNTHETIC_ONLY": true,
+      "ACTUAL_DOMAIN_CLOSURES": 0
+    },
+    {
+      "CASE_ID": "2_ABSENT_EXISTING_AUTHORITY_CRITERIA",
+      "STATE": {
+        "ARTIFACT_REQUIREMENT_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHORITY_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHENTICATION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_ADMISSION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_EXISTS": "NO",
+        "ARTIFACT_AUTHENTICATED": "NOT_ESTABLISHED",
+        "ARTIFACT_ADMITTED": "NOT_ESTABLISHED"
+      },
+      "INDEPENDENT_SYNTHETIC_FACTS": {},
+      "EXPECTED_STATUS": "ABSENT_NOT_ESTABLISHED_UNDER_EXISTING_AUTHORITY",
+      "ACTUAL_STATUS": "ABSENT_NOT_ESTABLISHED_UNDER_EXISTING_AUTHORITY",
+      "PASS": true,
+      "SYNTHETIC_ONLY": true,
+      "ACTUAL_DOMAIN_CLOSURES": 0
+    },
+    {
+      "CASE_ID": "3_GENUINELY_NEW_AUTHORITY",
+      "STATE": {
+        "ARTIFACT_REQUIREMENT_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHORITY_ESTABLISHED": "NO",
+        "ARTIFACT_AUTHENTICATION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_ADMISSION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_EXISTS": "NO",
+        "ARTIFACT_AUTHENTICATED": "NOT_ESTABLISHED",
+        "ARTIFACT_ADMITTED": "NOT_ESTABLISHED"
+      },
+      "INDEPENDENT_SYNTHETIC_FACTS": {
+        "new_normative_authority_required_proved": true
+      },
+      "EXPECTED_STATUS": "NEW_AUTHORITY_REQUIRED",
+      "ACTUAL_STATUS": "NEW_AUTHORITY_REQUIRED",
+      "PASS": true,
+      "SYNTHETIC_ONLY": true,
+      "ACTUAL_DOMAIN_CLOSURES": 0
+    },
+    {
+      "CASE_ID": "4_POSITIVE_RUNTIME_NECESSITY",
+      "STATE": {
+        "ARTIFACT_REQUIREMENT_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHORITY_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHENTICATION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_ADMISSION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_EXISTS": "NO",
+        "ARTIFACT_AUTHENTICATED": "NOT_ESTABLISHED",
+        "ARTIFACT_ADMITTED": "NOT_ESTABLISHED"
+      },
+      "INDEPENDENT_SYNTHETIC_FACTS": {
+        "inherently_observational_runtime_required_proved": true
+      },
+      "EXPECTED_STATUS": "RUNTIME_REQUIRED",
+      "ACTUAL_STATUS": "RUNTIME_REQUIRED",
+      "PASS": true,
+      "SYNTHETIC_ONLY": true,
+      "ACTUAL_DOMAIN_CLOSURES": 0
+    },
+    {
+      "CASE_ID": "5_REQUIREMENT_UNDERSPECIFIED",
+      "STATE": {
+        "ARTIFACT_REQUIREMENT_ESTABLISHED": "NO",
+        "ARTIFACT_AUTHORITY_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHENTICATION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_ADMISSION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_EXISTS": "NO",
+        "ARTIFACT_AUTHENTICATED": "NOT_ESTABLISHED",
+        "ARTIFACT_ADMITTED": "NOT_ESTABLISHED"
+      },
+      "INDEPENDENT_SYNTHETIC_FACTS": {
+        "requirement_underspecified_proved": true
+      },
+      "EXPECTED_STATUS": "REQUIREMENT_UNDERSPECIFIED",
+      "ACTUAL_STATUS": "REQUIREMENT_UNDERSPECIFIED",
+      "PASS": true,
+      "SYNTHETIC_ONLY": true,
+      "ACTUAL_DOMAIN_CLOSURES": 0
+    },
+    {
+      "CASE_ID": "6_CONTRADICTS_FROZEN_AUTHORITY",
+      "STATE": {
+        "ARTIFACT_REQUIREMENT_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHORITY_ESTABLISHED": "YES",
+        "ARTIFACT_AUTHENTICATION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_ADMISSION_CRITERIA_ESTABLISHED": "YES",
+        "ARTIFACT_EXISTS": "NO",
+        "ARTIFACT_AUTHENTICATED": "NOT_ESTABLISHED",
+        "ARTIFACT_ADMITTED": "NOT_ESTABLISHED"
+      },
+      "INDEPENDENT_SYNTHETIC_FACTS": {
+        "frozen_authority_contradiction_proved": true
+      },
+      "EXPECTED_STATUS": "CONTRADICTED",
+      "ACTUAL_STATUS": "CONTRADICTED",
+      "PASS": true,
+      "SYNTHETIC_ONLY": true,
+      "ACTUAL_DOMAIN_CLOSURES": 0
+    }
+  ],
+  "additional_controls": [
+    {
+      "control": "Unknown facts never imply normative/runtime/underspec/contradiction",
+      "passed": true
+    },
+    {
+      "control": "Creation/hash alone never authenticate or close",
+      "passed": true
+    },
+    {
+      "control": "Self-asserted authentication lacks independent proof",
+      "passed": true
+    },
+    {
+      "control": "Independent admission proof still required",
+      "passed": true
+    },
+    {
+      "control": "Bookkeeping origin is NOT additional closure predicate",
+      "passed": true
+    },
+    {
+      "control": "Positive frozen contradiction blocks closure despite claimed positive flags",
+      "passed": true
+    }
+  ],
+  "all_cases_synthetic": true,
+  "actual_artifacts_created": 0,
+  "actual_blocker_closures": 0,
+  "no_witness_execution": true,
+  "validation_revision": 2
+}

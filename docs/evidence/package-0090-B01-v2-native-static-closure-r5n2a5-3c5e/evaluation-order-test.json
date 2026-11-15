@@ -1,0 +1,89 @@
+{
+  "source_steps": [
+    {
+      "step": "S01",
+      "order": 1,
+      "depends_on": []
+    },
+    {
+      "step": "S02",
+      "order": 2,
+      "depends_on": []
+    },
+    {
+      "step": "S03",
+      "order": 3,
+      "depends_on": []
+    },
+    {
+      "step": "S04",
+      "order": 4,
+      "depends_on": []
+    },
+    {
+      "step": "S05",
+      "order": 5,
+      "depends_on": []
+    },
+    {
+      "step": "S06",
+      "order": 6,
+      "depends_on": [
+        "S01",
+        "S02",
+        "S03",
+        "S04",
+        "S05"
+      ]
+    },
+    {
+      "step": "S07",
+      "order": 7,
+      "depends_on": [
+        "S06"
+      ]
+    },
+    {
+      "step": "S08",
+      "order": 8,
+      "depends_on": [
+        "S06",
+        "S07"
+      ]
+    }
+  ],
+  "known_constraints": [
+    {
+      "proposition": "S06 depends on acquisition/sanitization S01-S05 and rejects duplicate/missing identity in prose.",
+      "basis": [
+        "G_S06"
+      ]
+    },
+    {
+      "proposition": "S07 depends on S06; S08 depends on S06/S07. Three-valued outputs and uncertainty are retained.",
+      "basis": [
+        "G_S07",
+        "G_S08",
+        "G_ORDER"
+      ]
+    },
+    {
+      "proposition": "Failure/unknown prevents a qualified receipt and unsupported authority result; no fallback role/query.",
+      "basis": [
+        "G_S06",
+        "G_S07",
+        "G_S08"
+      ]
+    }
+  ],
+  "not_established": [
+    "Exact first step that fires for this deleted expected pg_roles row",
+    "Placement/type of generic canonical required_outcome=REJECT",
+    "Whether UNKNOWN is an intermediate code then canonical REJECT terminal",
+    "Whether canonical REJECT precedes a final UNKNOWN witness value",
+    "Omission-specific wire error reason/result-code mapping"
+  ],
+  "canonical_composition_order_established": false,
+  "no_short_circuit_inferred": true,
+  "prose_rejects_not_ignored": "It establishes denial/abort, but does not explicitly equate that with the untyped canonical marker."
+}

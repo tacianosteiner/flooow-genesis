@@ -1,0 +1,145 @@
+{
+  "status": "PASS",
+  "reference_algorithm": "Independent dense Floyd-Warshall transitive closure versus deque BFS; ADMIN explicit edge query over reference MEMBER closure",
+  "exhaustive_normalized_unit_graph_checks": 11664,
+  "coverage": {
+    "MEMBER": 2916,
+    "SET": 2916,
+    "INHERIT": 2916,
+    "PROJECT_HAS_ADMIN_OPTION": 2916
+  },
+  "observation_digest": "4c9a3ab400777064d09f82e0971cc8ec4492900e6ea38fb2b29a24aef2dfb577",
+  "negative_and_boundary_controls": [
+    {
+      "name": "missing context is not no database",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Exact normalized input contract required",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "missing exact current database row",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Current database exact row missing/duplicated",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "duplicate current database natural key retained",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Duplicate source natural-key OID; never silently deduplicate",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "duplicate membership OID not deduplicated",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Duplicate source natural-key OID; never silently deduplicate",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "dangling target endpoint",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Missing membership endpoint/grantor role proof",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "boolean numeric coercion rejected",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Exact source boolean required",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "strict UTF8 enforced",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Noncanonical UTF8 source name",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "builtin row not inferred from constant",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Builtin role reference not bound to frozen OID/name",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "zero OID is not identity",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Unbound/invalid OID; no boolean or zero identity coercion",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "outside exact ADMIN R!=A domain",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Outside frozen canonical R!=A domain; provider/project self-superuser rules differ",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "self superuser remains outside scoped ADMIN domain",
+      "observed": {
+        "availability": "UNAVAILABLE",
+        "value": null,
+        "reason": "Outside frozen canonical R!=A domain; provider/project self-superuser rules differ",
+        "domain_UNKNOWN_or_qualification_REJECT_emitted": false
+      }
+    },
+    {
+      "name": "parallel grants preserve grantor/options and ADMIN row",
+      "observed": "SET/INHERIT/ADMIN true; neither row overwritten"
+    },
+    {
+      "name": "transitively reached database owner has implicit edge in each class, never synthetic ADMIN",
+      "observed": true
+    },
+    {
+      "name": "outgoing explicit edge from implicitly reached builtin retains SET/INHERIT/ADMIN flags",
+      "observed": true
+    },
+    {
+      "name": "300-role UNIT chain has no arbitrary depth cap",
+      "observed": true
+    },
+    {
+      "name": "distinct-target superuser branch in scoped project/provider agreement",
+      "observed": true
+    },
+    {
+      "name": "static source-rule self-superuser counterexample",
+      "provider_rule_reference": true,
+      "project_rule_reference": false,
+      "provider_runtime_executed": false
+    }
+  ],
+  "data_generator": "decompose_and_verify.py unit()/row()/role(); UNIT_* inputs only",
+  "canonical_fixture_values_created": 0,
+  "canonical_witnesses_evaluated": 0,
+  "canonical_attacks_materialized": 0,
+  "canonical_attacks_evaluated": 0,
+  "full_source_snapshot_authentication_or_scalar_encoding_proven": false
+}

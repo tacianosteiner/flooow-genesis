@@ -1,0 +1,43 @@
+{
+  "scope": "Actions of this C5G tool session and its two reviewers; no assertion about unrelated preexisting machine activity.",
+  "reviewed_action_ledger": [
+    {
+      "actions": "PowerShell Get-Content, Get-ChildItem, Select-Object; rg text search",
+      "effect": "Local read only"
+    },
+    {
+      "actions": "PowerShell Copy-Item of supplied request attachment to C5G/project-authority-input.txt; Python AST inspection of two evidence scripts",
+      "effect": "New C5G authority provenance copy and local code inspection"
+    },
+    {
+      "actions": "git status, branch --show-current, ls-files --others --exclude-standard, rev-parse, diff --name-only, diff --cached --name-only, merge-base --is-ancestor",
+      "effect": "Repository metadata read only"
+    },
+    {
+      "actions": "Python JSON/pathlib/hashlib/collections inspections of source evidence; SHA256 historical and manifest checks",
+      "effect": "Local immutable evidence read only"
+    },
+    {
+      "actions": "apply_patch of C5G materialize.py and finalize.py; Python materialize.py twice (second run corrects seven C5F artifact overrides)",
+      "effect": "Writes only new C5G evidence namespace; no historical writes"
+    },
+    {
+      "actions": "Two independent reviewer tasks explicitly constrained to read-only Git/Python and their own C5G review JSON",
+      "effect": "Review evidence only; no runtime authority"
+    },
+    {
+      "actions": "Python finalize.py",
+      "effect": "Final integrity checks and C5G evidence sealing only"
+    }
+  ],
+  "code_inspection": "Both evidence scripts use only local filesystem, JSON, hashing, copy/cache and allowlisted read-only git subprocesses. No socket, HTTP, database driver, psql, Docker, Gradle, native executable, SQL execution, migrations or attack runner invoked.",
+  "SHARED_DB_CONTACTED": "NO",
+  "PRODUCTION_CONTACTED": "NO",
+  "EXISTING_LOCAL_DB_CONTACTED": "NO",
+  "V043_EXECUTED": "NO",
+  "B02_EXECUTED": "NO",
+  "GIT_ADD": "NO",
+  "COMMIT": "NO",
+  "PUSH": "NO",
+  "evidence_limit": "Tool-action ledger and inspected executed scripts support absence of contact in this gate; no OS-level network packet capture was taken."
+}

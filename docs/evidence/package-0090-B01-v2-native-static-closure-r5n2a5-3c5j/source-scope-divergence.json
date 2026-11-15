@@ -1,0 +1,36 @@
+{
+  "finding": "ADMIN self-superuser ordering differs between frozen project predicate and general provider function",
+  "provider": {
+    "source": {
+      "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/acl.c",
+      "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+      "pointer": ""
+    },
+    "rule": "superuser_arg(member) first -> TRUE, then member==role -> FALSE"
+  },
+  "project": {
+    "source": {
+      "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-security-predicates.json",
+      "sha256": "e64f274807479f6c5aa0d2d2633b6b0f5de52f81297efff71e290157c3deb6dd",
+      "pointer": "/predicates/7"
+    },
+    "rule": "AND(NE(member,target), OR(superuser,...))"
+  },
+  "counterexample_unit_state": {
+    "member_equals_target": true,
+    "member_superuser": true,
+    "static_provider_rule_boolean": true,
+    "static_project_formula_boolean": false,
+    "provider_runtime_executed": false,
+    "new_scoped_adapter": "UNAVAILABLE_OUTSIDE_R_NE_A_DOMAIN"
+  },
+  "canonical_scope": {
+    "source": "C5D CLOSED_READER_AUTHORITY_MODEL role_rows R/A/M distinct; ADMIN case R nonsuperuser before mutation",
+    "affected_current_canonical_witnesses": 0,
+    "canonical_contradiction_or_disproof_claimed": false
+  },
+  "GENERAL_PROVIDER_EQUIVALENCE": false,
+  "historical_evidence_repaired": false,
+  "new_normative_choice": false,
+  "minimum_safe_boundary": "Enforce frozen R!=A domain, preserve discrepancy, do not broaden general-provider equivalence or authority."
+}

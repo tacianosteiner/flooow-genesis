@@ -1,0 +1,40 @@
+{
+  "provider": {
+    "path": "docs/evidence/package-0090-full-reachable-expectation-closure-v2/provider/acl.c",
+    "sha256": "e2d27105df25c156028c148fdfab1c968922ac045f5c992b7c36793160fd6a71",
+    "pointer": ""
+  },
+  "provider_locations": {
+    "roles_is_member_of": "lines5136-5248",
+    "is_admin_of_role": "lines5415-5427"
+  },
+  "project_predicates": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-security-predicates.json",
+    "sha256": "e64f274807479f6c5aa0d2d2633b6b0f5de52f81297efff71e290157c3deb6dd",
+    "pointer": "/predicates"
+  },
+  "project_edge_rules": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-security-predicates.json",
+    "sha256": "e64f274807479f6c5aa0d2d2633b6b0f5de52f81297efff71e290157c3deb6dd",
+    "pointer": "/role_edge_rules"
+  },
+  "builtin_binding": {
+    "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a3/postgres-source/src/include/catalog/pg_authid.dat",
+    "sha256": "8b513e63d9b842ef046520470a640efbab422e1627002f4e48c60a2bcfa78fb0",
+    "pointer": ""
+  },
+  "builtin_constant": {
+    "ROLE_PG_DATABASE_OWNER": 6171,
+    "rolname": "pg_database_owner",
+    "installed_row_existence_proven": false
+  },
+  "rules": [
+    "Reflexive source role seed",
+    "SET filters only set_option; INHERIT filters only inherit_option; MEMBER ignores both",
+    "Every reached current database owner has implicit pg_database_owner membership in all three traversals",
+    "Implicit membership is not an explicit row/admin_option grant",
+    "ADMIN examines explicit admin_option rows from MEMBER closure, preserving grantors/parallel rows",
+    "No arbitrary recursion cap; visited roles terminate finite cycles"
+  ],
+  "scope": "Boolean closure/ADMIN property on validated consumed graph operands. Not general can_set_role/has_privs wrappers, full scalar encoding/ACL validation, source exhaustiveness or canonical qualification."
+}

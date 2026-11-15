@@ -1,0 +1,944 @@
+FLOOOW — PACKAGE-0090 / B01 / V2 / R5N.2 / A5.3 / C5M
+BOUNDED STATIC BINDING SOURCE RECOVERY
+CANONICAL SOURCE DISCOVERY + ROOT-CAUSE COMPRESSION
+
+MODE=FAIL_CLOSED
+
+REPOSITORY=C:\Projects\flooow-genesis-git
+BRANCH=checkpoint/package-0090-cloud-handoff
+
+FROZEN_IMPLEMENTATION_BASELINE=
+cbc284f62d9bd09b7169b55c8d66a3c51a68c6cb
+
+DOCUMENTARY_PRESERVATION_HEAD=
+451265ff5b3d286eb4d27c4b3817c2f558f30123
+
+IMPLEMENTATION=NO
+PRODUCTION_CODE_CHANGE=NO
+
+SHARED_DB=FORBIDDEN
+PRODUCTION_DB=FORBIDDEN
+EXISTING_LOCAL_DB=FORBIDDEN
+NETWORK_CONTACT_FOR_PROOF=NO
+
+V043_EXECUTION=NO
+B02_EXECUTION=NO
+
+GIT_ADD=NO
+COMMIT=NO
+PUSH=NO
+
+======================================================================
+1. FROZEN C5L INPUT
+======================================================================
+
+Treat C5L as frozen evidence.
+
+Expected state:
+
+SELECTED_OUTCOME=E_STATIC_BINDING_GAPS_REMAIN
+
+LOCAL_FUNCTIONS_REQUIRED=49
+LOCAL_FUNCTIONS_AVAILABLE=49
+LOCAL_FUNCTIONS_STRICT_CERTIFIED=8
+
+CANONICAL_INPUT_BINDINGS_REQUIRED=1526
+CANONICAL_INPUT_BINDINGS_COMPLETE=294
+
+AMBIGUOUS_INPUT_BINDINGS_BEFORE_C5L=595
+AMBIGUOUS_INPUT_BINDINGS_RESOLVED_C5L=84
+AMBIGUOUS_INPUT_BINDINGS_REMAINING=511
+
+CANONICAL_OUTPUT_BINDINGS_REQUIRED=350
+CANONICAL_OUTPUT_BINDINGS_COMPLETE=63
+
+COMPOSITION_EDGES_REQUIRED=714
+COMPOSITION_EDGES_COMPLETE=77
+COMPOSITION_CYCLES=0
+
+COMPLETE_CANONICAL_DECISION_EVALUATORS=0
+
+CANONICAL_CASES_TOTAL=350
+STATICALLY_PROVEN=0
+STATICALLY_DISPROVEN=0
+UNKNOWN=350
+CONTRADICTED=0
+
+N1_SUBSTITUTION_STATIC_WITNESSES=OPEN
+N1_DECISIONS_REQUIRED=12
+N1_DECISIONS_CLOSED=11
+N1_DECISIONS_OPEN=1
+
+V2_NATIVE_STATIC_DESIGN_PROOF=FAIL
+V2_NATIVE_STATUS=BLOCKED
+
+HISTORICAL_HASHES_VALIDATED=9393
+
+No proof was executed in C5L.
+
+Do not reinterpret structural/parametric closure as witness proof.
+
+======================================================================
+2. PREFLIGHT
+======================================================================
+
+Verify:
+
+- exact repository;
+- exact branch;
+- exact HEAD =
+  451265ff5b3d286eb4d27c4b3817c2f558f30123;
+
+- tracked dirty=0;
+- staged=0;
+
+- C5L final-return exists and validates;
+- C5L final-summary exists and validates;
+- C5L SHA256 manifest validates;
+
+- all 9393 historical hashes remain valid;
+
+- C5L source-recovery relevant artifacts are recoverable;
+
+- all unresolved input/output/composition obligations are uniquely
+  recoverable;
+
+- historical C5A-C5L evidence remains byte-preserved;
+
+- no DB/network/protected execution occurred.
+
+If integrity fails:
+
+OUTCOME=H_PREFLIGHT_STOP
+STOP FAIL-CLOSED.
+
+Do not repair historical evidence.
+
+======================================================================
+3. PRIMARY OBJECTIVE
+======================================================================
+
+Recover the canonical STATIC SOURCES required to close the remaining
+bindings.
+
+Do NOT start by generating more bindings.
+
+For every unresolved binding determine:
+
+WHAT canonical fact/source is required?
+
+DOES that source already exist?
+
+WHERE is its authoritative static representation?
+
+CAN it be deterministically derived?
+
+IS it only missing from the current registry?
+
+IS the source identity ambiguous?
+
+IS the source cardinality unresolved?
+
+DOES it actually require new authority?
+
+The target is root-cause recovery, not projected symptom expansion.
+
+======================================================================
+4. SOURCE REQUIREMENT REGISTRY
+======================================================================
+
+For every unresolved canonical binding produce a source requirement:
+
+SOURCE_REQUIREMENT_ID
+
+AFFECTED_BINDING_IDS
+
+SEMANTIC_OBJECT
+
+DOMAIN
+
+STAGE
+
+REQUIRED_TYPE
+
+REQUIRED_IDENTITY
+
+REQUIRED_CARDINALITY
+
+REQUIRED_AUTHORITY_CLASS
+
+EXPECTED_SOURCE_KIND
+
+KNOWN_CANDIDATE_SOURCES
+
+SOURCE_PRESENT
+
+SOURCE_REGISTERED
+
+SOURCE_DERIVABLE
+
+SOURCE_AMBIGUOUS
+
+CARDINALITY_RESOLVED
+
+AUTHORITY_SUFFICIENT
+
+ROOT_CAUSE_ID
+
+Do not create one root cause per projected binding unless they are
+semantically distinct.
+
+======================================================================
+5. ROOT-CAUSE COMPRESSION
+======================================================================
+
+Collapse unresolved projected bindings into canonical root causes.
+
+Each ROOT_CAUSE must contain:
+
+ROOT_CAUSE_ID
+
+ROOT_CAUSE_CLASS
+
+SEMANTIC_OBJECT
+
+DOMAIN
+
+STAGE
+
+CANONICAL_REQUIREMENT
+
+WHY_CURRENT_MODEL_CANNOT_BIND
+
+AFFECTED_INPUT_BINDINGS
+
+AFFECTED_OUTPUT_BINDINGS
+
+AFFECTED_COMPOSITION_EDGES
+
+AFFECTED_FUNCTIONS
+
+AFFECTED_WITNESSES
+
+CANDIDATE_RECOVERY_SOURCES
+
+MINIMUM_RECOVERY_ACTION
+
+Allowed ROOT_CAUSE_CLASS:
+
+SOURCE_EXISTS_NOT_REGISTERED
+
+SOURCE_EXISTS_BINDING_NOT_PROJECTED
+
+SOURCE_DERIVABLE
+
+SOURCE_IDENTITY_AMBIGUOUS
+
+SOURCE_CARDINALITY_UNRESOLVED
+
+SOURCE_AUTHORITY_UNRESOLVED
+
+SOURCE_NOT_ESTABLISHED
+
+COMPOSITION_SOURCE_GAP
+
+CONTRADICTED
+
+Report:
+
+UNRESOLVED_PROJECTED_BINDINGS_TOTAL=
+
+CANONICAL_ROOT_CAUSES_TOTAL=
+
+ROOT_CAUSE_COMPRESSION_RATIO=
+
+Do not use the compression ratio as evidence of correctness.
+
+======================================================================
+6. STATIC SOURCE SEARCH BOUNDARY
+======================================================================
+
+Search only authorized static surfaces:
+
+- frozen repository source;
+- frozen ADR/SPEC;
+- migrations as immutable text only;
+- existing tests as immutable evidence only;
+- C5A-C5L authorized evidence;
+- canonical registries already created;
+- frozen configuration contracts;
+- frozen identity/authority contracts.
+
+Do NOT:
+
+- execute migrations;
+- contact DB;
+- start containers;
+- contact network;
+- query production;
+- query shared infrastructure;
+- infer runtime state from source code;
+- mutate production code.
+
+Source code may establish declared semantics.
+
+It does not establish runtime behavior unless separately proven.
+
+======================================================================
+7. SOURCE CANDIDATE QUALIFICATION
+======================================================================
+
+Every candidate source must be qualified independently.
+
+Record:
+
+SOURCE_ID
+
+SOURCE_PATH_OR_EVIDENCE_ID
+
+SOURCE_HASH
+
+SEMANTIC_OBJECT
+
+DOMAIN
+
+STAGE
+
+IDENTITY
+
+TYPE
+
+CARDINALITY
+
+AUTHORITY_CLASS
+
+PROVENANCE
+
+IMMUTABLE_FOR_GATE
+
+QUALIFICATION_STATUS
+
+Allowed:
+
+QUALIFIED
+
+PARTIALLY_QUALIFIED
+
+AMBIGUOUS
+
+AUTHORITY_INSUFFICIENT
+
+CARDINALITY_INSUFFICIENT
+
+NOT_APPLICABLE
+
+CONTRADICTED
+
+A source is not QUALIFIED merely because its field/type name matches.
+
+======================================================================
+8. RECOVER UNREGISTERED SOURCES
+======================================================================
+
+For ROOT_CAUSE_CLASS:
+
+SOURCE_EXISTS_NOT_REGISTERED
+
+or:
+
+SOURCE_EXISTS_BINDING_NOT_PROJECTED
+
+create C5M evidence-only canonical source registry entries.
+
+Do not modify production registries.
+
+Every recovered entry must contain:
+
+CANONICAL_SOURCE_ID
+
+SOURCE_PROVENANCE
+
+SOURCE_HASH
+
+SEMANTIC_IDENTITY
+
+AUTHORITY_BINDING
+
+TYPE_BINDING
+
+CARDINALITY_BINDING
+
+DERIVATION_IF_ANY
+
+DEPENDENT_BINDING_CLASSES
+
+Do not duplicate an existing canonical source.
+
+======================================================================
+9. DERIVED SOURCES
+======================================================================
+
+For SOURCE_DERIVABLE root causes, derive a source only if:
+
+- all inputs are established;
+- transformation semantics are frozen;
+- authority permits the derivation;
+- cardinality is established sufficiently;
+- derivation is deterministic;
+- no expected witness result is consumed.
+
+Record:
+
+DERIVED_SOURCE_ID
+
+INPUT_SOURCE_IDS
+
+DERIVATION_RULE
+
+DERIVATION_AUTHORITY
+
+DERIVATION_HASH
+
+OUTPUT_IDENTITY
+
+OUTPUT_TYPE
+
+OUTPUT_CARDINALITY
+
+Do not derive authority from data.
+
+======================================================================
+10. 511 REMAINING AMBIGUITIES
+======================================================================
+
+Revisit the 511 remaining ambiguous input bindings only after source
+recovery.
+
+For each:
+
+- recover candidate sources;
+- qualify candidates;
+- eliminate only semantically impossible candidates;
+- preserve all non-dominated survivors.
+
+Report:
+
+AMBIGUOUS_INPUT_BINDINGS_START=511
+
+RESOLVED_BY_SOURCE_RECOVERY=
+
+RESOLVED_BY_IDENTITY_QUALIFICATION=
+
+RESOLVED_BY_TYPE_QUALIFICATION=
+
+RESOLVED_BY_STAGE_QUALIFICATION=
+
+RESOLVED_BY_CARDINALITY_QUALIFICATION=
+
+AMBIGUOUS_INPUT_BINDINGS_REMAINING=
+
+Do not choose by naming similarity or convenience.
+
+======================================================================
+11. BINDING RECOMPUTATION
+======================================================================
+
+After source recovery, recompute all canonical bindings from the
+recovered canonical source registry.
+
+Do not patch only the previously missing rows.
+
+Report:
+
+CANONICAL_INPUT_BINDINGS_REQUIRED=1526
+CANONICAL_INPUT_BINDINGS_COMPLETE=
+CANONICAL_INPUT_BINDINGS_MISSING=
+CANONICAL_INPUT_BINDINGS_AMBIGUOUS=
+CANONICAL_INPUT_BINDINGS_CONTRADICTED=
+
+CANONICAL_OUTPUT_BINDINGS_REQUIRED=350
+CANONICAL_OUTPUT_BINDINGS_COMPLETE=
+CANONICAL_OUTPUT_BINDINGS_MISSING=
+CANONICAL_OUTPUT_BINDINGS_AMBIGUOUS=
+CANONICAL_OUTPUT_BINDINGS_CONTRADICTED=
+
+No denominator drift.
+
+======================================================================
+12. FUNCTION CERTIFICATION RECOMPUTATION
+======================================================================
+
+Recompute all 49 strict certifications.
+
+Report:
+
+LOCAL_FUNCTIONS_REQUIRED=49
+LOCAL_FUNCTIONS_AVAILABLE=49
+
+LOCAL_FUNCTIONS_STRICT_CERTIFIED=
+LOCAL_FUNCTIONS_NOT_CERTIFIED=
+ALGORITHM_DISPROVEN=
+
+Do not equate NOT_CERTIFIED with algorithm failure.
+
+======================================================================
+13. COMPOSITION RECOMPUTATION
+======================================================================
+
+Recompute all 714 required composition edges.
+
+Report:
+
+COMPOSITION_EDGES_REQUIRED=714
+COMPOSITION_EDGES_COMPLETE=
+COMPOSITION_EDGES_MISSING=
+COMPOSITION_EDGES_AMBIGUOUS=
+COMPOSITION_EDGES_CONTRADICTED=
+COMPOSITION_CYCLES=
+
+Preserve zero cycles unless new evidence proves otherwise.
+
+======================================================================
+14. CANONICAL DAG + EVALUATOR
+======================================================================
+
+Recompute:
+
+CANONICAL_DECISION_DAG_STATUS=
+
+CANONICAL_DECISION_NODES=
+
+CANONICAL_DECISION_EDGES=
+
+UNBOUND_DECISION_INPUTS=
+
+UNBOUND_DECISION_OUTPUTS=
+
+AMBIGUOUS_DECISION_RELATIONS=
+
+CYCLES_DETECTED=
+
+If all prerequisites become complete, attempt evidence-only canonical
+evaluator assembly.
+
+Report:
+
+COMPLETE_CANONICAL_DECISION_EVALUATORS=
+
+Do not consume expected witness results.
+
+If evaluator count remains zero, identify the minimum canonical blocker
+set after source recovery.
+
+======================================================================
+15. AUTHORITY / CARDINALITY ESCALATION
+======================================================================
+
+If source recovery demonstrates that a remaining root cause requires a
+normative choice, stop expanding projected symptoms.
+
+Create bounded authority questions.
+
+For each:
+
+QUESTION_ID
+
+ROOT_CAUSE_ID
+
+OBJECT
+
+DOMAIN
+
+STAGE
+
+QUESTION
+
+AVAILABLE_ALTERNATIVES
+
+NONDOMINATED_ALTERNATIVES
+
+AFFECTED_BINDINGS
+
+AFFECTED_FUNCTIONS
+
+AFFECTED_WITNESSES
+
+MINIMUM_DECISION_REQUIRED
+
+Likewise, if the blocker is cardinality, create bounded cardinality
+questions rather than inventing rows.
+
+======================================================================
+16. ARCHITECTURAL FREEZE
+======================================================================
+
+Do not opportunistically resolve:
+
+POSTMASTER_CONTEXT_BINDING_RESOLVED=NO
+
+INTERNAL_SCOPE_RESOLVED=NO
+
+ATOMIC_BOUNDARY_RESOLVED=NO
+
+CANONICAL_INTERNAL_OBLIGATION_UNIVERSE_ESTABLISHED=NO
+
+If one becomes the proven root cause, expose it.
+
+Do not select its answer.
+
+======================================================================
+17. T8 / I13 / UNKNOWN-REJECT
+======================================================================
+
+Preserve:
+
+PROJECT_AUTHORITY_TRANSITION=T8
+
+EVENT=FRESH_GENERATION_LEDGER_SUCCESSION
+
+SOURCE_GENERATION_CREDENTIAL_AUTHORITY_DOES_NOT_AUTOMATICALLY_TRANSFER_TO_TARGET_GENERATION
+
+Preserve I13 in full.
+
+Preserve UNKNOWN != REJECT.
+
+Preserve the exact seven-case catalog_row_omission mapping only.
+
+No semantic expansion.
+
+======================================================================
+18. WITNESS PROOF RULE
+======================================================================
+
+If:
+
+COMPLETE_CANONICAL_DECISION_EVALUATORS=0
+
+do not execute witness proof.
+
+Preserve:
+
+CANONICAL_CASES_TOTAL=350
+STATICALLY_PROVEN=0
+STATICALLY_DISPROVEN=0
+UNKNOWN=350
+CONTRADICTED=0
+
+If a complete evaluator appears, do NOT automatically execute all 350
+inside C5M.
+
+Record evaluator completion and route to the dedicated witness proof
+gate.
+
+======================================================================
+19. N1 / V2
+======================================================================
+
+Until 350 witnesses are independently proven:
+
+N1_SUBSTITUTION_STATIC_WITNESSES=OPEN
+
+N1_DECISIONS_REQUIRED=12
+N1_DECISIONS_CLOSED=11
+N1_DECISIONS_OPEN=1
+
+V2_NATIVE_STATIC_DESIGN_PROOF=FAIL
+V2_NATIVE_STATUS=BLOCKED
+
+No premature promotion.
+
+======================================================================
+20. OUTCOMES
+======================================================================
+
+A — STATIC_SOURCE_RECOVERY_COMPLETE_EVALUATOR_COMPLETE
+
+Canonical sources/bindings/composition sufficient and at least one
+complete canonical evaluator exists.
+
+NEXT_GATE=
+CANONICAL_WITNESS_STATIC_PROOF_EXECUTION
+
+--------------------------------------------------
+
+B — STATIC_SOURCE_RECOVERY_COMPLETE_EVALUATOR_BLOCKED
+
+Source recovery/binding complete but evaluator remains blocked by
+another bounded static cause.
+
+NEXT_GATE=
+BOUNDED_CANONICAL_EVALUATOR_CLOSURE
+
+--------------------------------------------------
+
+C — PROJECT_AUTHORITY_REQUIRED
+
+Remaining root causes require bounded normative decisions.
+
+NEXT_GATE=
+BOUNDED_PROJECT_AUTHORITY_BINDING_DECISION_DOSSIER
+
+--------------------------------------------------
+
+D — CARDINALITY_AUTHORITY_REQUIRED
+
+Remaining source/binding closure requires bounded cardinality
+decisions.
+
+NEXT_GATE=
+BOUNDED_CARDINALITY_AUTHORITY_ANALYSIS
+
+--------------------------------------------------
+
+E — STATIC_SOURCE_RECOVERY_PARTIAL
+
+Additional recoverable static source gaps remain.
+
+NEXT_GATE=
+BOUNDED_STATIC_SOURCE_RECOVERY_CONTINUATION
+
+--------------------------------------------------
+
+F — ARCHITECTURAL_FROZEN_DECISION_BLOCKER
+
+One or more explicitly frozen architectural questions are now proven
+to be the minimum blocker.
+
+NEXT_GATE=
+BOUNDED_ARCHITECTURAL_DECISION_DOSSIER
+
+--------------------------------------------------
+
+G — CONTRADICTION
+
+STOP FAIL-CLOSED.
+
+--------------------------------------------------
+
+H — PREFLIGHT_STOP
+
+STOP FAIL-CLOSED.
+
+Choose exactly one.
+
+======================================================================
+21. TWO INDEPENDENT ADVERSARIAL REVIEWS
+======================================================================
+
+Run two independent reviews.
+
+Attempt to falsify:
+
+- C5L integrity;
+- 9393 historical hash integrity;
+- source-requirement registry;
+- root-cause compression;
+- canonical source identity;
+- source qualification;
+- derived-source legitimacy;
+- 511 ambiguity handling;
+- binding recomputation;
+- function recertification;
+- composition recomputation;
+- DAG recomputation;
+- evaluator independence;
+- authority escalation;
+- cardinality escalation;
+- architectural freeze;
+- T8 preservation;
+- I13 preservation;
+- UNKNOWN/REJECT separation;
+- witness non-execution;
+- N1 non-closure;
+- V2 non-promotion;
+- no DB/network contact;
+- historical preservation;
+- no git action.
+
+Agreement does not create proof.
+
+======================================================================
+22. FROZEN ACCOUNTING
+======================================================================
+
+Preserve:
+
+CANONICAL_CASES_TOTAL=350
+
+ATOMIC_NORMATIVE_CANDIDATES_TOTAL=108
+
+AMBIGUOUS_CANDIDATES_PRESERVED=105
+
+CANONICAL_ATTACK_DENOMINATOR=350
+
+DENOMINATOR_CHANGED=NO
+
+ATTACKS_MATERIALIZED_THIS_GATE=0
+ATTACKS_EVALUATED_THIS_GATE=0
+
+SHARED_DB_CONTACTED=NO
+PRODUCTION_CONTACTED=NO
+EXISTING_LOCAL_DB_CONTACTED=NO
+NETWORK_CONTACT_FOR_PROOF=NO
+
+V043_EXECUTED=NO
+V043_CHANGED=NO
+B02_EXECUTED=NO
+
+GIT_ADD=NO
+COMMIT=NO
+PUSH=NO
+
+======================================================================
+23. EVIDENCE
+======================================================================
+
+Create C5M-specific evidence only.
+
+Do not modify C5A-C5L.
+
+Produce at minimum:
+
+- preflight
+- c5l-input-integrity
+- source-requirement-registry
+- root-cause-registry
+- root-cause-compression
+- static-source-candidate-inventory
+- static-source-qualification
+- recovered-source-registry
+- derived-source-registry
+- remaining-ambiguity-analysis
+- binding-recomputation
+- all-49-certification-recomputation
+- composition-recomputation
+- canonical-dag-recomputation
+- canonical-evaluator-analysis
+- minimum-remaining-blocker-set
+- authority-cardinality-escalation
+- coverage-accounting
+- primary-result
+- independent-review-1
+- independent-review-2
+- SHA256-MANIFEST
+- final-summary
+
+======================================================================
+24. FINAL RETURN
+======================================================================
+
+Return compactly:
+
+BRANCH=
+BASELINE_HEAD=
+CURRENT_HEAD=
+
+TRACKED_DIRTY_COUNT=
+STAGED_COUNT=
+AUTHORIZED_UNTRACKED_FILES_BEFORE=
+UNTRACKED_FILES_AFTER=
+UNAUTHORIZED_UNTRACKED_COUNT=
+
+C5L_INPUT_INTEGRITY=
+HISTORICAL_HASHES_VALIDATED=
+
+CANONICAL_CASES_TOTAL=350
+
+UNRESOLVED_PROJECTED_BINDINGS_TOTAL=
+CANONICAL_ROOT_CAUSES_TOTAL=
+ROOT_CAUSE_COMPRESSION_RATIO=
+
+SOURCE_REQUIREMENTS_TOTAL=
+QUALIFIED_STATIC_SOURCES=
+PARTIALLY_QUALIFIED_STATIC_SOURCES=
+AMBIGUOUS_STATIC_SOURCES=
+AUTHORITY_INSUFFICIENT_STATIC_SOURCES=
+CARDINALITY_INSUFFICIENT_STATIC_SOURCES=
+CONTRADICTED_STATIC_SOURCES=
+
+RECOVERED_CANONICAL_SOURCES=
+DERIVED_CANONICAL_SOURCES=
+
+AMBIGUOUS_INPUT_BINDINGS_START=511
+AMBIGUOUS_INPUT_BINDINGS_RESOLVED=
+AMBIGUOUS_INPUT_BINDINGS_REMAINING=
+
+CANONICAL_INPUT_BINDINGS_REQUIRED=1526
+CANONICAL_INPUT_BINDINGS_COMPLETE=
+CANONICAL_INPUT_BINDINGS_MISSING=
+CANONICAL_INPUT_BINDINGS_AMBIGUOUS=
+CANONICAL_INPUT_BINDINGS_CONTRADICTED=
+
+CANONICAL_OUTPUT_BINDINGS_REQUIRED=350
+CANONICAL_OUTPUT_BINDINGS_COMPLETE=
+CANONICAL_OUTPUT_BINDINGS_MISSING=
+CANONICAL_OUTPUT_BINDINGS_AMBIGUOUS=
+CANONICAL_OUTPUT_BINDINGS_CONTRADICTED=
+
+LOCAL_FUNCTIONS_REQUIRED=49
+LOCAL_FUNCTIONS_AVAILABLE=49
+LOCAL_FUNCTIONS_STRICT_CERTIFIED=
+LOCAL_FUNCTIONS_NOT_CERTIFIED=
+ALGORITHM_DISPROVEN=
+
+COMPOSITION_EDGES_REQUIRED=714
+COMPOSITION_EDGES_COMPLETE=
+COMPOSITION_EDGES_MISSING=
+COMPOSITION_EDGES_AMBIGUOUS=
+COMPOSITION_EDGES_CONTRADICTED=
+COMPOSITION_CYCLES=
+
+CANONICAL_DECISION_DAG_STATUS=
+UNBOUND_DECISION_INPUTS=
+UNBOUND_DECISION_OUTPUTS=
+AMBIGUOUS_DECISION_RELATIONS=
+CYCLES_DETECTED=
+
+MINIMUM_REMAINING_ROOT_CAUSES=
+AUTHORITY_QUESTIONS_REQUIRED=
+CARDINALITY_QUESTIONS_REQUIRED=
+
+COMPLETE_CANONICAL_DECISION_EVALUATORS=
+
+STATICALLY_PROVEN=0
+STATICALLY_DISPROVEN=0
+UNKNOWN=350
+CONTRADICTED=0
+
+N1_SUBSTITUTION_STATIC_WITNESSES=OPEN
+N1_DECISIONS_REQUIRED=12
+N1_DECISIONS_CLOSED=11
+N1_DECISIONS_OPEN=1
+
+V2_NATIVE_STATIC_DESIGN_PROOF=FAIL
+V2_NATIVE_STATUS=BLOCKED
+
+POSTMASTER_CONTEXT_BINDING_RESOLVED=NO
+INTERNAL_SCOPE_RESOLVED=NO
+ATOMIC_BOUNDARY_RESOLVED=NO
+CANONICAL_INTERNAL_OBLIGATION_UNIVERSE_ESTABLISHED=NO
+
+ATOMIC_NORMATIVE_CANDIDATES_TOTAL=108
+AMBIGUOUS_CANDIDATES_PRESERVED=105
+CANONICAL_ATTACK_DENOMINATOR=350
+DENOMINATOR_CHANGED=NO
+
+SHARED_DB_CONTACTED=NO
+PRODUCTION_CONTACTED=NO
+EXISTING_LOCAL_DB_CONTACTED=NO
+NETWORK_CONTACT_FOR_PROOF=NO
+
+V043_EXECUTED=NO
+V043_CHANGED=NO
+B02_EXECUTED=NO
+
+GIT_ADD=NO
+COMMIT=NO
+PUSH=NO
+
+INDEPENDENT_REVIEW_1=
+INDEPENDENT_REVIEW_2=
+
+SELECTED_OUTCOME=
+NEXT_EXECUTED=false
+NEXT_GATE=

@@ -1,0 +1,1541 @@
+{
+  "cases": [
+    {
+      "WITNESS_ID": "POSTMASTER/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/POSTMASTER/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/POSTMASTER/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/POSTMASTER/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "POSTMASTER/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "POSTMASTER/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/173",
+            "canonical_fact_sha256": "0282d7a991c7fb4b4ecde17255e1972768231de51cf11b83960b832e5dd576f0",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/0",
+            "canonical_fact_sha256": "9b7abfbbbba55aaa570fb00bca3d1143ef52c3f62f5f3f2394d8b8575fac0622",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/0/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/0/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "POSTMASTER/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    },
+    {
+      "WITNESS_ID": "SUPERVISOR/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/SUPERVISOR/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/SUPERVISOR/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/SUPERVISOR/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "SUPERVISOR/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "SUPERVISOR/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/199",
+            "canonical_fact_sha256": "a77c469e37b6c6db6068849e98192533dee2be2b21bf8ad34c7f27034218403b",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/1",
+            "canonical_fact_sha256": "ac5901a7a01527411a964d4b8d0f3b014812a62f048ea3f670d8cefac50321d1",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/1/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/1/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "SUPERVISOR/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    },
+    {
+      "WITNESS_ID": "RECEIVER/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/RECEIVER/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/RECEIVER/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/RECEIVER/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "RECEIVER/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "RECEIVER/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/225",
+            "canonical_fact_sha256": "3d2a5968a38e7c7a7b65b4e3306b68be47e04b67dbc206fe80e57ca94a5b0f10",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/2",
+            "canonical_fact_sha256": "3f2ae3ec42236fdb723f486db4a25f7f7b20690595e1d5ea4ebef92535279831",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/2/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/2/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "RECEIVER/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    },
+    {
+      "WITNESS_ID": "CENSUS_OBSERVER/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/CENSUS_OBSERVER/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/CENSUS_OBSERVER/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/CENSUS_OBSERVER/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "CENSUS_OBSERVER/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "CENSUS_OBSERVER/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/251",
+            "canonical_fact_sha256": "eff9cf5ab2a65851085a1453e2779ffe4052490c762d1b6e78a4cb4b11ff8414",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/3",
+            "canonical_fact_sha256": "0f271a928e2224ef0ed7bf456f135205e5867dc16e0ab1efcae0cc60515dc7c7",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/3/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/3/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "CENSUS_OBSERVER/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    },
+    {
+      "WITNESS_ID": "APPROVAL_PRODUCER/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/APPROVAL_PRODUCER/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/APPROVAL_PRODUCER/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/APPROVAL_PRODUCER/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "APPROVAL_PRODUCER/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "APPROVAL_PRODUCER/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/277",
+            "canonical_fact_sha256": "0738bd5327002bdc8929116ae4b4f033b6f1d62ff720c7fb13b6939c61fb6e97",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/4",
+            "canonical_fact_sha256": "9ceac8f7e6c9c49b6726e2fa7c0aa871eb54ac660fdf0101d042890d2d878868",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/4/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/4/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "APPROVAL_PRODUCER/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    },
+    {
+      "WITNESS_ID": "APPROVAL_CONSUMER/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/APPROVAL_CONSUMER/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/APPROVAL_CONSUMER/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/APPROVAL_CONSUMER/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "APPROVAL_CONSUMER/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "APPROVAL_CONSUMER/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/303",
+            "canonical_fact_sha256": "9917a714229077ce07b2c0c685f37e135606761e0aaa02c07f360e5cf6611e84",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/5",
+            "canonical_fact_sha256": "0de54b5661c0e40020fd1a56af4294c2ed3489a08883e165230121a5b1585457",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/5/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/5/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "APPROVAL_CONSUMER/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    },
+    {
+      "WITNESS_ID": "ENFORCEMENT_WORKER/catalog_row_omission",
+      "BASELINE": {
+        "stable_id": "BASELINE/ENFORCEMENT_WORKER/catalog_row_omission/V1",
+        "library_model_id": "BASELINE/ENFORCEMENT_WORKER/V1",
+        "library": "baseline-models.json",
+        "selected_view": "SNAPSHOT_APPLICABILITY",
+        "exact_variant_state": {
+          "reader": "S01/S02/S04/S05 exact fixed Reader R session and owned backend; no substitution by S03 LOGIN bridge",
+          "source_rows": "All19 declared source collections are fully typed symbolic multisets, one natural-key occurrence before mutation, exact source count/order/bounds/field and null semantics",
+          "coherence": "One SID_A/backend_A/native barrier_A/current generation before mutation; original pending attempt retained for reconnect/restart. Known stale or inconsistent applicability remains UNKNOWN.",
+          "role_omission_anchor": "Exact source pg_roles natural key for expected Reader SQL role R; no invented SQL role for native subject P",
+          "injection_row": "Every pg_roles field has its declared type. Injected OID is fresh; its name deliberately aliases exact protected Reader NAME_R, so protected selection by expected OID OR name cannot filter it out. This is hostile snapshot data, not a claim that PostgreSQL admits duplicate role names."
+        },
+        "tuple_binding_rule": "For each selected view, every relevant source-schema field has a typed named symbol and every referenced hash equals its complete tuple canonical hash. Nonselected declarations are not secretly assumed TRUE.",
+        "family_variant_constraints": [],
+        "complete_parameter_schema": true,
+        "instantiated_values_present": false
+      },
+      "MUTATION": {
+        "descriptor_id": "FAMILY/catalog_row_omission",
+        "definition": {
+          "operation": "REPLACE_EXACT_MODEL_COMPONENT",
+          "selector": "observed_snapshot.pg_catalog.pg_roles row multiset",
+          "before": "complete declared roster including exact Reader natural key r",
+          "after": "DELETE_ONE_EXACT_ROW(r); retain complete capture/other-source identities; no query failure is fabricated",
+          "unchanged": "Every other explicitly declared component unless a named dependent digest/encoding must be recomputed by its source canonical rule",
+          "violation_predicate": "MISSING(expected_reader_identity_row)",
+          "source_decision": "UNKNOWN",
+          "additional_baseline": [],
+          "family": "catalog_row_omission",
+          "new_C5D_design_not_historical_fixture": true,
+          "before_after_relation_is_symbolic_specification_only": true
+        },
+        "model_only_no_fixture_materialized": true
+      },
+      "STAGE_1_OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+      "STAGE_1_RESULT": "UNKNOWN",
+      "STAGE_1": {
+        "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+        "DOMAIN": "EVIDENCE_AVAILABILITY",
+        "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+        "RESULT": "UNKNOWN",
+        "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+      },
+      "STAGE_2_OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+      "STAGE_2_RESULT": "REJECT",
+      "STAGE_2": {
+        "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+        "DOMAIN": "QUALIFICATION_DECISION",
+        "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+        "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+        "RESULT": "REJECT",
+        "result_scope": "Terminal target-generation credential-authority qualification decision only"
+      },
+      "ORDERING": [
+        "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+        "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE"
+      ],
+      "DECISION_PREDICATE": {
+        "input_model": "BASELINE/ENFORCEMENT_WORKER/catalog_row_omission/V1",
+        "scope_exact_WITNESS_ID": "ENFORCEMENT_WORKER/catalog_row_omission",
+        "stage_1": {
+          "OBJECT": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+          "DOMAIN": "EVIDENCE_AVAILABILITY",
+          "STAGE": "CATALOG_IDENTITY_EVIDENCE_RESOLUTION",
+          "condition": "Required exact Reader catalog identity row evidence is absent or unresolvable for this fixed C5D witness",
+          "RESULT": "UNKNOWN",
+          "result_scope": "Prescribed specification result under the condition, not an observed or evaluated value"
+        },
+        "stage_2": {
+          "OBJECT": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+          "DOMAIN": "QUALIFICATION_DECISION",
+          "STAGE": "POST_EVIDENCE_RESOLUTION_QUALIFICATION_GATE",
+          "condition": "Stage1 result is UNKNOWN for this exact in-scope witness; mandatory evidence prerequisite cannot support positive qualification",
+          "RESULT": "REJECT",
+          "result_scope": "Terminal target-generation credential-authority qualification decision only"
+        },
+        "ordered_rule": {
+          "antecedent": {
+            "WITNESS_ID": "ENFORCEMENT_WORKER/catalog_row_omission",
+            "required_evidence_availability": "UNKNOWN"
+          },
+          "consequent": {
+            "target_generation_credential_authority_qualification": "REJECT"
+          },
+          "mapping": "FAIL_CLOSED_QUALIFICATION_MAPPING",
+          "order": "Resolve evidence availability first, then apply target-generation qualification gate"
+        },
+        "typed_output_schema": {
+          "stage_1_result": {
+            "object": "REQUIRED_CATALOG_IDENTITY_ROW_EVIDENCE",
+            "domain": "EVIDENCE_AVAILABILITY",
+            "value_domain": "SOURCE_EVIDENCE_AVAILABILITY",
+            "expected_for_bounded_omission": "UNKNOWN"
+          },
+          "stage_2_result": {
+            "object": "TARGET_GENERATION_CREDENTIAL_AUTHORITY_QUALIFICATION",
+            "domain": "QUALIFICATION_DECISION",
+            "value_domain": "QUALIFICATION_DECISION",
+            "expected_for_bounded_omission": "REJECT"
+          },
+          "unknown_equals_reject": false,
+          "native_wire_code": "NOT_SELECTED_BY_THIS_QUALIFICATION_MAPPING"
+        },
+        "canonical_case_required_outcome_preserved": "REJECT",
+        "source_missing_row_result_preserved": "UNKNOWN",
+        "PASS": "After later authorized static proof materialization only: exact ID/baseline/mutation and every required typed source binding are present; evidence-resolution rule yields stage1 UNKNOWN; ordered mapping yields stage2 qualification REJECT; uncertainty retained and no unsupported positive qualification granted.",
+        "FAIL": "After later authorized static evaluation with complete inputs: the resulting typed stage pair or its required order contradicts the authorized rule, or positive target authority is granted while required evidence is UNKNOWN.",
+        "UNKNOWN_NOT_EVALUABLE": "Missing/inconsistent test bindings, wrong witness scope, absent required source provenance or incomplete calculation trace => no witness proof. Do not conflate evidence UNKNOWN with proof evaluability.",
+        "material_validity": "NOT_INFERRED",
+        "maliciousness": "NOT_INFERRED",
+        "native_wire_result_code_mapping_defined": false,
+        "outside_condition": "No default mapping for a different witness or a non-UNKNOWN evidence state. Such input is outside this bounded omission variant; do not use the new rule to grant or reject unrelated authority.",
+        "decision_spec_complete": true,
+        "no_predicate_executed": true
+      },
+      "AUTHORITY_CHAIN": {
+        "existing_sources": [
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5d/canonical-350-registry.json",
+            "sha256": "718f96817cda08cf67abb9e7b926ffef2b851c68d9121791ae6f63d02be71f1b",
+            "pointer": "/case_records/329",
+            "canonical_fact_sha256": "6bbc16bbb9b10350353926b902fcc720c0ed0e8151193001322cd33514882548",
+            "semantic_proposition": "Unchanged exact baseline/mutation and original incomplete classification for this ID",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5e/seven-case-inventory.json",
+            "sha256": "5c26a329ba95a097eeafc71331e5760ab704fcf867b5b964e33a4dc4d3c7a1f2",
+            "pointer": "/cases/6",
+            "canonical_fact_sha256": "2e5ac79b5b89718e2357318b667e7ff0fecc865a486a1d7c251f1a85a76bf407",
+            "semantic_proposition": "Historical semantic gap retained; no claim C5E entailed the new mapping",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/catalog-projection.json",
+            "sha256": "908564a709f069233f77faa06d4b869566a19344d05009d1616d68c056b11e55",
+            "pointer": "/sources/0/MISSING_ROW_SEMANTICS",
+            "canonical_fact_sha256": "4ef170aa9347490dcf2925ea1a33e9c85c5669beb914ee609da68d6948485df3",
+            "semantic_proposition": "Missing required expected catalog identity/source row retains UNKNOWN",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/6/qualification",
+            "canonical_fact_sha256": "d1dd8cf367e183851a7da0f01ed3238fc6494bbd48cd8048827c2ea1dbb2b210",
+            "semantic_proposition": "Existing ALL_KNOWN_TRUE qualification inputs; the new seven-case authority supplies explicit terminal meaning",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n1/participant-qualification.json",
+            "sha256": "e785053b8cb5b6f55cc0aa9143c7a679ae75c7a4f00767c4d92a4b83166ed2ce",
+            "pointer": "/matrix/6/UNKNOWN",
+            "canonical_fact_sha256": "a40a857d04b208003af017c95c5ff7b3cb3f946dc3d0c135ab684f0ebfd87eb3",
+            "semantic_proposition": "Unknown qualification input does not qualify the subject",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n/native-message-abi.json",
+            "sha256": "722de518003a33d4ba348f261c8eb99586e8e8f005fba03e37d925b7b93d8fe1",
+            "pointer": "/encoding/result_codes",
+            "canonical_fact_sha256": "378cdff3124573158376e9ef0a0cfd4903faf8f62a61e4798274fa6b195138e2",
+            "semantic_proposition": "Wire REJECTED/UNKNOWN codes remain distinct; this mapping is not a wire-code conversion",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          },
+          {
+            "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5c/prospective-authority-record.json",
+            "sha256": "c507b3f52fd0f9e7cd3057f908a5ff6eafc8afde040684109895deb5dade103c",
+            "pointer": "",
+            "canonical_fact_sha256": "5cee919fab3822810e661792df7495c137920e23a954850a02591d8fbfa8c95c",
+            "semantic_proposition": "Preserved prospective T8 no-automatic-authority-transfer rule",
+            "authority_class": "FROZEN_ACCEPTED_STATIC_AUTHORITY_OR_EVIDENCE",
+            "direct_or_derived": "DIRECT_SOURCE_SELECTION"
+          }
+        ],
+        "new_prospective_rule": {
+          "path": "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5f/project-authority-input.txt",
+          "sha256": "77ca396da86ced3a1651e1389a8cd17d8dc0ead3c5e21964ea85111e7cf76903",
+          "section": "§§1–5 Project authority decision, deterministic relation and evaluation order",
+          "authority_class": "EXPLICIT_PROSPECTIVE_PROJECT_AUTHORITY",
+          "authority_id": "PACKAGE-0090-CATALOG-ROW-OMISSION-RESULT-SEMANTICS-001",
+          "scope_WITNESS_ID": "ENFORCEMENT_WORKER/catalog_row_omission"
+        },
+        "typed_chain": [
+          "C5D expected Reader row omission specification",
+          "Frozen missing-row rule: evidence UNKNOWN",
+          "New explicit scoped authority: mandatory qualification prerequisite unavailable",
+          "New explicit ordered terminal qualification decision REJECT"
+        ],
+        "no_historical_reinterpretation": true,
+        "complete_for_specification_only": true
+      },
+      "T8_COMPATIBILITY": "Target-generation authority still requires qualification; source-generation authority never automatically supplies it. Required evidence UNKNOWN cannot establish positive target qualification.",
+      "I13_COMPATIBILITY": "Full mandatory external seven-slot/21-pair concurrent-principal plus auxiliary separation remains unchanged; neither stage merges principals.",
+      "SPEC_STATUS": "SPEC_COMPLETE_NOT_EVALUATED",
+      "closure_checklist": {
+        "exact_identity_preserved": true,
+        "baseline_complete": true,
+        "mutation_complete": true,
+        "UNKNOWN_typed": true,
+        "REJECT_typed": true,
+        "ordering_established": true,
+        "deterministic_mapping_authorized_for_this_ID": true,
+        "authority_chain_complete": true,
+        "T8_preserved": true,
+        "contradiction_found": false
+      },
+      "calculated_or_observed_result_claimed": false,
+      "new_authority_not_a_witness_proof": true
+    }
+  ],
+  "total": 7,
+  "scope_loaded_from_C5E": true,
+  "every_stage_result_is_prescribed_not_evaluated": true,
+  "historical_entailment_claimed": false
+}
