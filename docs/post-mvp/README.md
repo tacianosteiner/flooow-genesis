@@ -56,3 +56,39 @@ POST-MVP research documents must not silently modify:
 - production behavior
 
 Research → implementation requires explicit promotion.
+
+<!-- BEGIN FLOOOW POST-MVP CANONICAL INDEX V1 -->
+
+## Canonical P0-P10 preparation set
+
+The post-MVP preparation set now includes:
+
+- `FLOOOW-POST-MVP-ACCELERATION-ROADMAP.md`
+  - P0-P10 strategic roadmap and canonical execution overlay.
+
+- `FLOOOW-POST-MVP-ANCESTRY-AND-EXECUTION-MAP.md`
+  - REUSE / EVOLVE / SUPERSEDE / NO-OP / CONFLICT / BUILD / COMPOSE
+    classifications and dependency DAG.
+
+- `FLOOOW-POST-MVP-BLOCK-CATALOG.md`
+  - governed future sequence BLOCK-POST-MVP-0001 through 0016.
+
+- `FLOOOW-REA-X-ECONOMIC-EPISTEMIC-CONTROL-PLANE.md`
+  - economic epistemic qualification and proof-bearing control plane.
+
+- `FLOOOW-GLOBAL-ECONOMIC-COMMERCE-GRAPH-RESEARCH.md`
+  - governed economic-commerce topology research.
+
+- `FLOOOW-LIVING-ECONOMIC-WORLD-MODEL.md`
+  - P8 world-signal, regime, competing-hypothesis and scenario-context
+    architecture.
+
+These documents are post-MVP preparation artifacts.
+
+They do not authorize runtime implementation.
+
+They do not modify PACKAGE-0090.
+
+They do not create an MVP dependency.
+
+<!-- END FLOOOW POST-MVP CANONICAL INDEX V1 -->

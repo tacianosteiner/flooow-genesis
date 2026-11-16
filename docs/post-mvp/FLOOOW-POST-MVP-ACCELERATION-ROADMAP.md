@@ -101,3 +101,138 @@ Everything remains research until explicitly promoted after MVP
 stability, empirical runtime evidence, overlap analysis, threat
 modeling, deterministic tests, adversarial review, rollback design,
 bounded authority and measurable expected value.
+
+<!-- BEGIN FLOOOW POST-MVP EXECUTION OVERLAY V1 -->
+
+# Canonical Execution Overlay V1
+
+This overlay preserves the original roadmap and adds the governed execution
+model required for future implementation.
+
+It does not authorize implementation.
+
+## Phase classification
+
+| Phase | Capability | Classification |
+|---|---|---|
+| P0 | Runtime Evidence Harvest | EVOLVE |
+| P1 | REA-X / Economic Epistemic Control Plane | EVOLVE |
+| P2 | Global Economic Commerce Graph | EVOLVE + BUILD |
+| P3 | Commerce Signal Intelligence | EVOLVE |
+| P4 | Agentic Commerce Interoperability | EVOLVE |
+| P5 | Governed Agent Skills Supply Chain | BUILD |
+| P6 | Agent Identity, Delegation & Economic Authority | EVOLVE |
+| P7 | Decision-to-Execution Plane | EVOLVE |
+| P8 | Living Economic World Model | EVOLVE + BUILD |
+| P9 | Causally Qualified Learning | EVOLVE |
+| P10 | Autonomous Economic Operating System | COMPOSE |
+
+## Canonical preparation DAG
+
+P0 → P1 → P2
+
+P2 → P3
+
+P2 → P8
+
+P4 → P5 → P6 → P7
+
+P3 + P7 + P8 → P9
+
+P9 → P10
+
+P1 remains an epistemic-governance constraint across downstream phases.
+
+P6 remains an authority constraint across executable downstream capabilities.
+
+## Implementation unit
+
+A phase is not an implementation instruction.
+
+Future implementation proceeds only through:
+
+BLOCK-POST-MVP-0001
+through
+BLOCK-POST-MVP-0016
+
+as defined in:
+
+`FLOOOW-POST-MVP-BLOCK-CATALOG.md`
+
+## Ancestry rule
+
+Every block must classify prior FLOOOW work as:
+
+REUSE
+EVOLVE
+SUPERSEDE
+NO-OP
+CONFLICT
+BUILD
+COMPOSE
+
+before implementation.
+
+External prior art is:
+
+ADOPT
+ADAPT
+REJECT
+
+## Constitutional chain
+
+Evidence
+→ Truth
+→ Decision
+→ Authority
+→ Execution
+→ Outcome
+→ Learning
+
+No downstream phase may collapse these distinctions.
+
+## Source documents
+
+Execution ancestry and classifications:
+
+`FLOOOW-POST-MVP-ANCESTRY-AND-EXECUTION-MAP.md`
+
+REA-X:
+
+`FLOOOW-REA-X-ECONOMIC-EPISTEMIC-CONTROL-PLANE.md`
+
+GECG:
+
+`FLOOOW-GLOBAL-ECONOMIC-COMMERCE-GRAPH-RESEARCH.md`
+
+LEWM:
+
+`FLOOOW-LIVING-ECONOMIC-WORLD-MODEL.md`
+
+Governed blocks:
+
+`FLOOOW-POST-MVP-BLOCK-CATALOG.md`
+
+## Boundary
+
+POST_MVP_IMPLEMENTATION_AUTHORIZED=NO
+
+MVP_DEPENDENCY=NONE
+
+MVP_CRITICAL_PATH_MUTATION=PROHIBITED
+
+ECONOMIC_TRUTH_REPLACEMENT=PROHIBITED
+
+SECOND_LEDGER=PROHIBITED
+
+SECOND_RECONCILIATION_ENGINE=PROHIBITED
+
+PARALLEL_BELIEF_ENGINE=PROHIBITED
+
+LEWM_AS_ECONOMIC_TRUTH=PROHIBITED
+
+RECOMMENDATION_AS_AUTHORITY=PROHIBITED
+
+OUTCOME_AS_CAUSATION=PROHIBITED
+
+<!-- END FLOOOW POST-MVP EXECUTION OVERLAY V1 -->
