@@ -1,4 +1,4 @@
-# FLOOOW --- Post-MVP Acceleration Roadmap
+﻿# FLOOOW --- Post-MVP Acceleration Roadmap
 
 Status: PREPARED_POST_MVP_RESEARCH Implementation authority: NONE MVP
 critical path impact: NONE Promotion: EXPLICIT PROJECT-AUTHORITY
@@ -22,8 +22,8 @@ interventions. Exit: representative runtime corpus and failure taxonomy.
 
 ### P1 --- REA-X / Economic Epistemic Control Plane
 
-Formalize Evidence → Admissible Evidence → Economic Claim → Economic
-Truth → Decision → Authorized Action → Outcome → Learning Evidence.
+Formalize Evidence â†’ Admissible Evidence â†’ Economic Claim â†’ Economic
+Truth â†’ Decision â†’ Authorized Action â†’ Outcome â†’ Learning Evidence.
 Exit: typed authority, temporal invalidation, completeness/contradiction
 propagation and threat model.
 
@@ -40,8 +40,8 @@ economic truth.
 
 Connect Amazon, Mercado Livre, TikTok Shop, SmartScout, FastMoss,
 Kalodata, EchoTik, ChanMama, Feigua, Shoplus, PiPiADS, Minea, FindNiche,
-ImportYeti and future qualified sources through Raw Signal → Provenance
-→ Identity Resolution → Freshness → Contradiction → Belief → Economic
+ImportYeti and future qualified sources through Raw Signal â†’ Provenance
+â†’ Identity Resolution â†’ Freshness â†’ Contradiction â†’ Belief â†’ Economic
 admissibility.
 
 ### P4 --- Agentic Commerce Interoperability
@@ -52,9 +52,9 @@ success != FLOOOW authority.
 
 ### P5 --- Governed Agent Skills Supply Chain
 
-Discover → Fetch → Provenance → Integrity → Security Scan → Capability
-Classification → Version/Lock → Sandbox → Evaluation → Qualification →
-Promotion → Revocation. Prepare multi-registry discovery,
+Discover â†’ Fetch â†’ Provenance â†’ Integrity â†’ Security Scan â†’ Capability
+Classification â†’ Version/Lock â†’ Sandbox â†’ Evaluation â†’ Qualification â†’
+Promotion â†’ Revocation. Prepare multi-registry discovery,
 packaging/versioning, signatures, SBOM, scanner benchmarks and sandbox
 policy.
 
@@ -84,8 +84,8 @@ evaluation, learning-admissibility gates and rollback.
 
 ### P10 --- Autonomous Economic Operating System
 
-Sense → Reconcile → Know → Decide → Authorize → Act → Observe →
-Attribute → Learn. Increase autonomy only with demonstrated evidence
+Sense â†’ Reconcile â†’ Know â†’ Decide â†’ Authorize â†’ Act â†’ Observe â†’
+Attribute â†’ Learn. Increase autonomy only with demonstrated evidence
 quality, bounded authority, reversible execution and measured outcomes.
 
 ## Prepared-first package for every phase
@@ -129,17 +129,17 @@ It does not authorize implementation.
 
 ## Canonical preparation DAG
 
-P0 → P1 → P2
+P0 â†’ P1 â†’ P2
 
-P2 → P3
+P2 â†’ P3
 
-P2 → P8
+P2 â†’ P8
 
-P4 → P5 → P6 → P7
+P4 â†’ P5 â†’ P6 â†’ P7
 
-P3 + P7 + P8 → P9
+P3 + P7 + P8 â†’ P9
 
-P9 → P10
+P9 â†’ P10
 
 P1 remains an epistemic-governance constraint across downstream phases.
 
@@ -153,7 +153,7 @@ Future implementation proceeds only through:
 
 BLOCK-POST-MVP-0001
 through
-BLOCK-POST-MVP-0016
+BLOCK-POST-MVP-0020
 
 as defined in:
 
@@ -182,12 +182,12 @@ REJECT
 ## Constitutional chain
 
 Evidence
-→ Truth
-→ Decision
-→ Authority
-→ Execution
-→ Outcome
-→ Learning
+â†’ Truth
+â†’ Decision
+â†’ Authority
+â†’ Execution
+â†’ Outcome
+â†’ Learning
 
 No downstream phase may collapse these distinctions.
 
@@ -249,17 +249,17 @@ EVOLVE Opportunity Capital Foundry
 Canonical chain:
 
 Economic Truth
-→ Opportunity
-→ Economic Scenario & Capital Context
-→ Opportunity Capital Economics
-→ Capital Efficiency Frontier
-→ Investment Readiness
-→ Capital Structure Candidate
-→ Governed Capital Decision
-→ Capital Trace
-→ Outcome
-→ Causal Qualification
-→ Capital Performance Memory
+â†’ Opportunity
+â†’ Economic Scenario & Capital Context
+â†’ Opportunity Capital Economics
+â†’ Capital Efficiency Frontier
+â†’ Investment Readiness
+â†’ Capital Structure Candidate
+â†’ Governed Capital Decision
+â†’ Capital Trace
+â†’ Outcome
+â†’ Causal Qualification
+â†’ Capital Performance Memory
 
 Primary phase bindings:
 
@@ -295,3 +295,142 @@ INVESTOR_MATCHING_AUTHORIZED=NO
 LEGAL_VEHICLE_SELECTED=NO
 
 <!-- END FLOOOW OPPORTUNITY CAPITAL INTELLIGENCE OVERLAY V1 -->
+
+<!-- BEGIN FLOOOW P0-P10 CAPITAL RESPONSIBILITY MAP V1 -->
+
+# P0-P10 Capital Responsibility Map V1
+
+Opportunity Capital Intelligence is a transversal responsibility of the
+existing P0-P10 architecture.
+
+It does NOT create P11 and does NOT create a parallel capital platform.
+
+| Phase | Capital responsibility | Governing role |
+|---|---|---|
+| P0 | Runtime economic, capital and outcome evidence | INPUT |
+| P1 | Epistemic qualification of financial/economic evidence | QUALIFY |
+| P2 | Capital/opportunity/entity relationships, provenance, authority and time | RELATE |
+| P3 | Governed opportunity and demand discovery | DISCOVER |
+| P4 | Protocol-neutral access to qualified external capabilities and sources | CONNECT |
+| P5 | Qualified analytical/execution skills supply chain | CAPABILITY |
+| P6 | Investor/operator/principal identity, delegation and economic authority | AUTHORIZE |
+| P7 | Investment Readiness, governed capital decision, Capital Trace and receipts | DECIDE / TRACE |
+| P8 | Economic Scenario & Capital Context, regime and forecast hypotheses | SCENARIO / PRICE CAPITAL |
+| P9 | Expected-vs-actual capital outcomes, causal qualification and Capital Performance Memory | MEASURE / LEARN |
+| P10 | Governed composition for bounded capital allocation | ALLOCATE |
+
+## Capital decision chain
+
+P3 Opportunity Discovery
+→ P8 Economic Scenario & Capital Context
+→ P1 Epistemic Qualification
+→ P2 Economic/Capital Relationship Binding
+→ P7 Capital Decision + Capital Trace
+→ P9 Capital Outcome + Causal Learning
+→ P10 Governed Capital Allocation
+
+This chain is constrained, not merely sequential.
+
+P0 supplies empirical evidence and observed outcomes.
+
+P1 epistemic rules apply throughout.
+
+P4 and P5 supply qualified connectivity and capabilities without becoming
+economic authority.
+
+P6 authority rules apply before executable capital action.
+
+## P10 economic allocation question
+
+P10 may eventually answer, only inside bounded and revocable authority:
+
+"Given the governed opportunity universe, where should the next marginal
+unit of capital be allocated, how much should be allocated, under which
+qualified structure, for how long, with what downside, and under whose
+authority?"
+
+This is a composition target.
+
+It is NOT current implementation authority.
+
+## Governed block bindings
+
+BLOCK-POST-MVP-0017
+Economic Scenario and Capital Context
+
+Primary:
+P8
+
+Constraints:
+P1 + P2
+
+---
+
+BLOCK-POST-MVP-0018
+Opportunity Capital Economics and Capital Efficiency Frontier
+
+Primary:
+P3 + P8
+
+Constraints:
+P1 + P2
+
+---
+
+BLOCK-POST-MVP-0019
+Investment Readiness and Capital Trace
+
+Primary:
+P7
+
+Constraints:
+P6 + existing evidence/ledger/reconciliation ancestry
+
+---
+
+BLOCK-POST-MVP-0020
+Capital Performance Memory and Causal Return Learning
+
+Primary:
+P9
+
+Output:
+governed learning eligible for future P10 composition
+
+## Constitutional boundaries
+
+P11_CREATED=NO
+
+SECOND_CAPITAL_PLATFORM=NO
+
+SECOND_LEDGER=NO
+
+SECOND_ECONOMIC_TRUTH=NO
+
+PARALLEL_AUTHORITY_SYSTEM=NO
+
+PARALLEL_BELIEF_ENGINE=NO
+
+FORECAST_AS_ECONOMIC_TRUTH=NO
+
+SCENARIO_AS_AUTHORITY=NO
+
+INVESTMENT_READINESS_AS_SOLICITATION_AUTHORITY=NO
+
+POST_MVP_IMPLEMENTATION_AUTHORIZED=NO
+
+MVP_DEPENDENCY=NONE
+
+MVP_CRITICAL_PATH_MUTATION=PROHIBITED
+
+INVESTMENT_SOLICITATION_AUTHORIZED=NO
+
+PUBLIC_OFFERING_AUTHORIZED=NO
+
+CAPITAL_CUSTODY_AUTHORIZED=NO
+
+INVESTOR_MATCHING_AUTHORIZED=NO
+
+LEGAL_VEHICLE_SELECTED=NO
+
+<!-- END FLOOOW P0-P10 CAPITAL RESPONSIBILITY MAP V1 -->
