@@ -236,3 +236,62 @@ RECOMMENDATION_AS_AUTHORITY=PROHIBITED
 OUTCOME_AS_CAUSATION=PROHIBITED
 
 <!-- END FLOOOW POST-MVP EXECUTION OVERLAY V1 -->
+
+<!-- BEGIN FLOOOW OPPORTUNITY CAPITAL INTELLIGENCE OVERLAY V1 -->
+
+# Opportunity Capital Intelligence Overlay V1
+
+Classification:
+
+EVOLVE Opportunity Capital Foundry
++ COMPOSE P1 / P2 / P3 / P7 / P8 / P9.
+
+Canonical chain:
+
+Economic Truth
+→ Opportunity
+→ Economic Scenario & Capital Context
+→ Opportunity Capital Economics
+→ Capital Efficiency Frontier
+→ Investment Readiness
+→ Capital Structure Candidate
+→ Governed Capital Decision
+→ Capital Trace
+→ Outcome
+→ Causal Qualification
+→ Capital Performance Memory
+
+Primary phase bindings:
+
+P1 REA-X:
+qualifies economic and financial evidence.
+
+P2 GECG:
+binds opportunity/capital relationships to identity, provenance,
+authority and time.
+
+P3 Commerce Intelligence:
+supplies governed opportunity and demand evidence.
+
+P7 Decision-to-Execution:
+governs authorized capital-related actions and receipts.
+
+P8 LEWM:
+supplies scenario/regime/forecast context without becoming Economic Truth.
+
+P9 Causal Learning:
+qualifies expected-vs-actual capital outcomes and learning.
+
+Source document:
+
+`FLOOOW-OPPORTUNITY-CAPITAL-INTELLIGENCE.md`
+
+Boundaries:
+
+INVESTMENT_SOLICITATION_AUTHORIZED=NO
+PUBLIC_OFFERING_AUTHORIZED=NO
+CAPITAL_CUSTODY_AUTHORIZED=NO
+INVESTOR_MATCHING_AUTHORIZED=NO
+LEGAL_VEHICLE_SELECTED=NO
+
+<!-- END FLOOOW OPPORTUNITY CAPITAL INTELLIGENCE OVERLAY V1 -->

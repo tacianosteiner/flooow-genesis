@@ -350,7 +350,98 @@ Only then may implementation authority be considered.
 
 ## 3. Current catalog state
 
-BLOCKS_DEFINED=16
+BLOCKS_DEFINED=20
 BLOCKS_IMPLEMENTATION_AUTHORIZED=0
 MVP_DEPENDENCY_CREATED=NO
 POST_MVP_RUNTIME_MUTATION=NO
+
+## BLOCK-POST-MVP-0017
+
+Phase: P8 + cross-phase capital context
+Title: Economic Scenario and Capital Context
+
+Depends on:
+- 0004;
+- 0011;
+- 0012.
+
+Mission:
+- bind realized macro/financial evidence separately from forecasts;
+- define benchmark and cost-of-capital context;
+- define base/upside/downside/stress scenario provenance;
+- define sensitivity and break-even contracts.
+
+Exit gate:
+- forecast != Economic Truth;
+- scenario != authority;
+- realized and expected state cannot collapse into one truth class;
+- deterministic financial math tests prepared.
+
+## BLOCK-POST-MVP-0018
+
+Phase: P3 + P8
+Title: Opportunity Capital Economics and Capital Efficiency Frontier
+
+Depends on:
+- 0005;
+- 0017.
+
+Mission:
+- calculate capital required, optimal and maximum defensible;
+- calculate MOIC, IRR/TIR, NPV/VPL, payback and capital duration;
+- calculate benchmark excess return and risk-adjusted economics;
+- define marginal capital efficiency;
+- define break-even and stress thresholds.
+
+Exit gate:
+- no opaque investment score;
+- requested capital may be rejected;
+- more capital cannot be assumed to create more value.
+
+## BLOCK-POST-MVP-0019
+
+Phase: P7
+Title: Investment Readiness and Capital Trace
+
+Depends on:
+- 0010;
+- 0018.
+
+Mission:
+- define Investment Readiness states;
+- define Opportunity Capital Twin;
+- define candidate capital-structure comparison;
+- trace committed/called/deployed/returned capital;
+- preserve evidence, authority, time and reconciliation.
+
+Exit gate:
+- readiness != solicitation authority;
+- no second ledger;
+- no custody authority;
+- no investor matching;
+- no public offering authority;
+- legal vehicle remains unselected.
+
+## BLOCK-POST-MVP-0020
+
+Phase: P9
+Title: Capital Performance Memory and Causal Return Learning
+
+Depends on:
+- 0013;
+- 0014;
+- 0019.
+
+Mission:
+- reconcile expected and realized return/duration/FX/demand/margin/loss;
+- distinguish decision quality from luck and execution;
+- causally qualify capital outcomes;
+- feed qualified learning into existing belief revision.
+
+Exit gate:
+- outcome != decision quality;
+- correlation != causation;
+- no parallel belief engine;
+- no automatic Economic Truth rewrite.
+
+
