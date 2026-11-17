@@ -27,6 +27,8 @@ dependencies {
 
     testImplementation(kotlin("test"))
     testImplementation("io.ktor:ktor-server-test-host-jvm:3.5.1")
+    testImplementation("org.flywaydb:flyway-core:13.2.0")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
 }
 
 val forbiddenDirectKernelDependencies = configurations

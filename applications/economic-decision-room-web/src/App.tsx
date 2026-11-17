@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ApiError, demoModeEnabled, getCommerceIdentityHealth, getOrder, listOrders, listReconciliationCases, listSystemicDivergences, refreshOrders, type CommerceIdentityHealth, type EconomicState, type RefreshResult, type ReconciliationCase, type SalesOrder, type SystemicDivergenceSignal } from './api'
 import { demoOrders, demoPage, demoRefresh } from './demo'
 import './styles.css'
+import { DecisionRoomCase } from './DecisionRoomCase'
 
 const stateMeta: Record<EconomicState, { label: string; icon: string; tone: string; description: string }> = {
   UNRESOLVED: { label: 'Não resolvido', icon: '○', tone: 'red', description: 'A identidade ou evidência ainda não fecha.' },
@@ -27,8 +28,13 @@ function App() {
   const [lastRefresh, setLastRefresh] = useState<Date | undefined>()
   const [page, setPage] = useState(0)
   const [cases, setCases] = useState<ReconciliationCase[]>([])
+  const [selectedCaseId, setSelectedCaseId] = useState<string>()
   const [caseCursor, setCaseCursor] = useState<string | undefined>()
-  const [signals, setSignals] = useState<SystemicDivergenceSignal[]>([])
+  const [casesLoading, setCasesLoading] = useState(!demo)
+  const [caseError, setCaseError] = useState<string | undefined>(demo ? "Casos indisponíveis no modo demonstração." : undefined)
+  const [casePaging, setCasePaging] = useState(false)
+  const [caseReadAttempt, setCaseReadAttempt] = useState(0)
+  const [signals, setSignals] = useState<SystemicDivergenceSignal[] | undefined>()
   const [identityHealth, setIdentityHealth] = useState<CommerceIdentityHealth | undefined>()
 
   const load = useCallback(async (cursor?: string, background = false) => {
@@ -36,6 +42,7 @@ function App() {
     setError(undefined)
     try {
       const response = demo ? (await wait(260), demoPage) : await listOrders(cursor)
+      if (!Array.isArray(response.orders) || response.orders.some((order) => !Object.prototype.hasOwnProperty.call(stateMeta, order.state))) throw new Error("Resposta de pedidos inválida.")
       setOrders((current) => cursor ? [...current, ...response.orders] : response.orders)
       setNextCursor(response.nextCursor)
       if (!cursor && response.orders[0]) { setSelectedId(response.orders[0].marketplaceOrderId); setSelected(response.orders[0]) }
@@ -46,14 +53,21 @@ function App() {
   useEffect(() => { if (!demo) void load() }, [demo, load])
   useEffect(() => {
     if (demo) return
-    void listReconciliationCases().then((response) => { setCases(response.cases ?? []); setCaseCursor(response.nextCursor) }).catch(() => setCases([]))
-    void listSystemicDivergences().then((response) => setSignals(response.signals ?? [])).catch(() => setSignals([]))
+    void listReconciliationCases().then((response) => {
+      if (!Array.isArray(response.cases)) throw new Error("Resposta de casos inválida.")
+      setCases(response.cases); setCaseCursor(response.nextCursor); setCaseError(undefined)
+    }).catch(() => setCaseError("Casos indisponíveis. Não foi possível confirmar a reconciliação.")).finally(() => setCasesLoading(false))
+    void listSystemicDivergences().then((response) => {
+      if (!Array.isArray(response.signals)) throw new Error("Resposta de sinais inválida.")
+      setSignals(response.signals)
+    }).catch(() => setSignals(undefined))
     void getCommerceIdentityHealth().then(setIdentityHealth).catch(() => setIdentityHealth({ available: false }))
-  }, [demo])
+  }, [demo, caseReadAttempt])
 
   const select = async (order: SalesOrder) => {
     setSelectedId(order.marketplaceOrderId)
     setDetailLoading(true)
+    setSelected(undefined)
     setError(undefined)
     try { setSelected(demo ? (await wait(140), demoOrders.find((item) => item.marketplaceOrderId === order.marketplaceOrderId)) : await getOrder(order.marketplaceOrderId)) }
     catch (cause) { setError(cause instanceof ApiError ? cause.message : 'Não foi possível abrir o pedido.') }
@@ -87,16 +101,37 @@ function App() {
       {demo && <div className="demo-banner"><span>◈</span><b>Modo demonstração</b><span>Dados determinísticos locais. Nenhuma chamada ao backend é feita nesta sessão.</span></div>}
       {error && <div className="alert" role="alert"><span>!</span><div><b>Não foi possível concluir</b><span>{error}</span></div><button onClick={() => void load()} aria-label="Tentar novamente">Tentar novamente</button></div>}
       {refreshResult && <div className="refresh-result" role="status"><span className="success-icon">✓</span><div><b>Realidade atualizada com governança</b><span>{refreshResult.projection.processedChanges} mudanças processadas · fonte {refreshResult.source.status.toLowerCase()}</span></div><button onClick={() => setRefreshResult(undefined)} aria-label="Fechar resultado">×</button></div>}
-      <section className="reconciliation-panel panel"><div className="panel-heading"><div><div className="card-eyebrow">EVIDENCE → RECONCILIAÇÃO → CASE</div><h2>Reconciliação</h2></div><span className="result-count">{cases.length} casos visíveis</span></div><div className="reconciliation-summary"><span className="state-badge red"><i>○</i>Divergência detectada</span><b>{cases.length}</b><span>memória operacional durável</span><span className="future-capability">Recuperação futura · sem autoridade nesta versão</span></div>{cases.length ? <div className="case-list">{cases.map((item) => <div className="case-row" key={item.caseId}><div><b>{item.caseId}</b><small>Pedido {item.marketplaceOrderId}</small></div><span className={`state-badge ${item.status === 'RESOLVED' ? 'green' : 'red'}`}><i>{item.status === 'RESOLVED' ? '●' : '○'}</i>{item.status === 'RESOLVED' ? 'Resolvido' : 'Divergência detectada'}</span><strong>{item.absoluteDifferenceSummary.currency} {item.absoluteDifferenceSummary.amount}</strong></div>)}</div> : <div className="empty-state compact"><b>Nenhuma divergência persistida</b><small>Dentro da tolerância não cria caso. A evidência permanece inalterada.</small></div>}{caseCursor && <button className="secondary-button" onClick={() => void listReconciliationCases(caseCursor).then((response) => { setCases((current) => [...current, ...response.cases]); setCaseCursor(response.nextCursor) })}>Próxima página</button>}</section>
-      <section className="status-grid"><StatusCard label="Não resolvido" value={counts.UNRESOLVED} tone="red" detail="identidade ou evidência pendente" /><StatusCard label="Calculado · Incompleto" value={counts.CALCULATED_INCOMPLETE} tone="amber" detail="componentes econômicos ausentes" /><StatusCard label="Calculado · Completo" value={counts.CALCULATED_COMPLETE} tone="green" detail="pronto para análise econômica" /><div className="coverage-card"><div className="card-eyebrow">COBERTURA DA PROJEÇÃO <span>ⓘ</span></div><div className="coverage-value">{orders.length ? Math.round((counts.CALCULATED_COMPLETE / orders.length) * 100) : 0}<small>%</small></div><div className="coverage-bar"><i style={{ width: `${orders.length ? (counts.CALCULATED_COMPLETE / orders.length) * 100 : 0}%` }} /></div><div className="coverage-foot"><span>completa</span><span>{orders.length} pedidos visíveis</span></div></div></section>
-      <div className="content-grid"><section className="orders-panel panel"><div className="panel-heading"><div><div className="card-eyebrow">LEITURA DERIVADA <span className="blue-dot" /></div><h2>Pedidos econômicos</h2></div><span className="result-count">{orders.length} nesta página</span></div>{loading ? <LoadingRows /> : orders.length === 0 ? <EmptyState /> : <><div className="table-wrap"><table><thead><tr><th>Pedido</th><th>Estado econômico</th><th>Receita bruta</th><th>Contribuição</th><th>Projetado em</th><th><span className="sr-only">Abrir</span></th></tr></thead><tbody>{orders.map((order) => <OrderRow key={order.marketplaceOrderId} order={order} selected={selectedId === order.marketplaceOrderId} onSelect={() => void select(order)} />)}</tbody></table></div><div className="pagination"><button disabled={page === 0} onClick={() => { setPage(0); void load() }}>← Anterior</button><span>Página {page + 1}</span><button disabled={!nextCursor} onClick={() => { setPage((current) => current + 1); void load(nextCursor) }}>Próxima →</button></div></>}</section><DetailPanel order={selected} loading={detailLoading} /></div>
+      <section className="reconciliation-panel panel">
+        <div className="panel-heading"><div><div className="card-eyebrow">EVIDENCE → RECONCILIAÇÃO → CASE</div><h2>Reconcilia??o</h2></div>
+          <span className="result-count">{casesLoading ? 'Consultando casos…' : caseError ? 'Disponibilidade não estabelecida' : `${cases.length} casos visíveis`}</span></div>
+        {casesLoading ? <p role="status">Consultando casos de reconciliação?</p>
+          : caseError ? <div role="alert"><p>{caseError}</p>{!demo && <button className="secondary-button" onClick={() => { setCaseError(undefined); setCasesLoading(true); setCaseReadAttempt((value) => value + 1) }}>Tentar consultar casos novamente</button>}</div>
+            : cases.length ? <div className="case-list">{cases.map((item) => <div className="case-row" key={item.caseId}>
+              <div><b>{item.caseId}</b><small>Pedido {item.marketplaceOrderId}</small></div>
+              <span className={`state-badge ${item.status === 'RESOLVED' ? 'green' : 'red'}`}><i>{item.status === 'RESOLVED' ? '●' : '○'}</i>{item.status === 'RESOLVED' ? 'Resolvido' : 'Divergência detectada'}</span>
+              <strong>{item.absoluteDifferenceSummary.currency} {item.absoluteDifferenceSummary.amount}</strong>
+              <button className="secondary-button" onClick={() => setSelectedCaseId(item.caseId)}>Inspecionar caso {item.caseId}</button>
+            </div>)}</div>
+              : <div className="empty-state compact"><b>Nenhuma divergência persistida</b><small>A consulta retornou uma lista vazia. A evid?ncia permanece inalterada.</small></div>}
+        {!caseError && caseCursor && <button className="secondary-button" disabled={casePaging} onClick={() => {
+          setCasePaging(true)
+          void listReconciliationCases(caseCursor).then((response) => {
+            if (!Array.isArray(response.cases)) throw new Error("Resposta de casos inválida.")
+            setCases((current) => [...current, ...response.cases]); setCaseCursor(response.nextCursor)
+          }).catch(() => setCaseError("Próxima página indisponível. A lista completa não está estabelecida.")).finally(() => setCasePaging(false))
+        }}>Próxima página</button>}
+      </section>
+      {!demo && selectedCaseId && <DecisionRoomCase key={`${selectedCaseId}:${cases.find((item) => item.caseId === selectedCaseId)?.revision ?? "missing"}`} caseId={selectedCaseId} />}
+      <section className="status-grid"><StatusCard label="Não resolvido" value={loading || error ? undefined : counts.UNRESOLVED} tone="red" detail="identidade ou evidência pendente" /><StatusCard label="Calculado · Incompleto" value={loading || error ? undefined : counts.CALCULATED_INCOMPLETE} tone="amber" detail="componentes econômicos ausentes" /><StatusCard label="Calculado · Completo" value={loading || error ? undefined : counts.CALCULATED_COMPLETE} tone="green" detail="pronto para análise econômica" /><div className="coverage-card"><div className="card-eyebrow">COBERTURA DA PROJEÇÃO <span>ⓘ</span></div><div className="coverage-value">{loading || error ? '—' : orders.length ? Math.round((counts.CALCULATED_COMPLETE / orders.length) * 100) : 0}<small>%</small></div><div className="coverage-bar"><i style={{ width: `${orders.length ? (counts.CALCULATED_COMPLETE / orders.length) * 100 : 0}%` }} /></div><div className="coverage-foot"><span>completa</span><span>{orders.length} pedidos visíveis</span></div></div></section>
+      <div className="content-grid"><section className="orders-panel panel"><div className="panel-heading"><div><div className="card-eyebrow">LEITURA DERIVADA <span className="blue-dot" /></div><h2>Pedidos econômicos</h2></div><span className="result-count">{loading || error ? 'Disponibilidade não estabelecida' : `${orders.length} nesta página`}</span></div>{loading ? <LoadingRows /> : error ? <p>Pedidos indisponíveis. A ausência de resposta não confirma uma lista vazia.</p> : orders.length === 0 ? <EmptyState /> : <><div className="table-wrap"><table><thead><tr><th>Pedido</th><th>Estado econômico</th><th>Receita bruta</th><th>Contribuição</th><th>Projetado em</th><th><span className="sr-only">Abrir</span></th></tr></thead><tbody>{orders.map((order) => <OrderRow key={order.marketplaceOrderId} order={order} selected={selectedId === order.marketplaceOrderId} onSelect={() => void select(order)} />)}</tbody></table></div><div className="pagination"><button disabled={page === 0} onClick={() => { setPage(0); void load() }}>← Anterior</button><span>Página {page + 1}</span><button disabled={!nextCursor} onClick={() => { setPage((current) => current + 1); void load(nextCursor) }}>Próxima →</button></div></>}</section><DetailPanel order={selected} loading={detailLoading} /></div>
       <section className="trust-strip"><div className="trust-title"><span className="trust-icon">◒</span><div><b>Como este número é governado?</b><small>Uma linha clara entre fato, interpretação e decisão.</small></div></div><TrustStep tone="blue" title="Economic Truth" text="autoridade canônica" /><span className="trust-arrow">→</span><TrustStep tone="purple" title="Sales Intelligence" text="leitura derivada" /><span className="trust-arrow">→</span><TrustStep tone="green" title="Decision Surface" text="você decide" /></section>
       <footer><span>FLOOOW / SALA DE DECISÃO ECONÔMICA</span><span>Projection policy v1 · <b>Sem autoridade de execução</b></span></footer>
     </main>
   </div></>
 }
 
-function SystemicPanel({ signals }: { signals: SystemicDivergenceSignal[] }) {
+function SystemicPanel({ signals }: { signals?: SystemicDivergenceSignal[] }) {
+  if (!signals) return <section className="reconciliation-panel panel systemic-panel"><h2>Padrões sistêmicos indisponíveis</h2><p>A ausência de resposta não confirma ausência de sinais.</p></section>
   return <section className="reconciliation-panel panel systemic-panel"><div className="panel-heading"><div><div className="card-eyebrow">SYSTEMIC ANALYSIS</div><h2>Padrão sistêmico detectado</h2></div><span className="result-count">{signals.length} sinais</span></div>{signals.length ? signals.map((signal) => <div className="case-row" key={signal.signalId}><div><b>{signal.stage}</b><small>{signal.occurrenceCount} casos · policy {signal.policyVersion}</small></div><strong>{signal.absoluteDifference.currency} {signal.absoluteDifference.amount}</strong><span className="future-capability">Detecção não representa valor recuperável nem autoriza recuperação</span></div>) : <div className="empty-state compact"><b>Nenhum padrão sistêmico detectado</b><small>Policy, janela e limiar são explícitos e determinísticos.</small></div>}</section>
 }
 function IdentityHealthPanel({ health }: { health?: CommerceIdentityHealth }) {
@@ -105,7 +140,7 @@ function IdentityHealthPanel({ health }: { health?: CommerceIdentityHealth }) {
 }
 
 function NavItem({ icon, label, active = false }: { icon: string; label: string; active?: boolean }) { return <button className={`nav-item ${active ? 'active' : ''}`}><span>{icon}</span>{label}{active && <i />}</button> }
-function StatusCard({ label, value, tone, detail }: { label: string; value: number; tone: string; detail: string }) { return <div className={`status-card ${tone}`}><div className="status-top"><span className="state-symbol">{tone === 'green' ? '●' : tone === 'amber' ? '△' : '○'}</span><span>{label}</span><span className="info">ⓘ</span></div><strong>{value.toString().padStart(2, '0')}</strong><small>{detail}</small></div> }
+function StatusCard({ label, value, tone, detail }: { label: string; value?: number; tone: string; detail: string }) { return <div className={`status-card ${tone}`}><div className="status-top"><span className="state-symbol">{tone === 'green' ? '●' : tone === 'amber' ? '△' : '○'}</span><span>{label}</span><span className="info">ⓘ</span></div><strong>{value === undefined ? '—' : value.toString().padStart(2, '0')}</strong><small>{detail}</small></div> }
 function OrderRow({ order, selected, onSelect }: { order: SalesOrder; selected: boolean; onSelect: () => void }) { const state = stateMeta[order.state]; return <tr className={selected ? 'selected' : ''} onClick={onSelect}><td><div className="order-id"><span className="order-glyph">⌁</span><div><b>#{order.marketplaceOrderId.slice(0, 8).toUpperCase()}</b><small>{order.marketplaceOrderId}</small></div></div></td><td><span className={`state-badge ${state.tone}`}><i>{state.icon}</i>{state.label}</span></td><td>{order.economicResult ? money(order.economicResult.grossRevenue, order.economicResult.currency) : <span className="missing">Não disponível</span>}</td><td>{order.economicResult ? money(order.economicResult.contribution, order.economicResult.currency) : <span className="missing">—</span>}</td><td><span className="date-cell">{date(order.projectedAt)}</span></td><td><button className="row-arrow" aria-label={`Abrir pedido ${order.marketplaceOrderId}`}>→</button></td></tr> }
 function DetailPanel({ order, loading }: { order?: SalesOrder; loading: boolean }) { if (loading) return <aside className="detail-panel panel"><LoadingRows count={3} /></aside>; if (!order) return <aside className="detail-panel panel"><EmptyState /></aside>; const state = stateMeta[order.state]; const result = order.economicResult; return <aside className="detail-panel panel"><div className="panel-heading"><div><div className="card-eyebrow">INSPEÇÃO DO REGISTRO</div><h2>Detalhe do pedido</h2></div><span className={`state-badge ${state.tone}`}><i>{state.icon}</i>{state.label}</span></div><div className="detail-id"><span className="order-glyph large">⌁</span><div><small>MARKETPLACE ORDER ID</small><b>{order.marketplaceOrderId}</b></div></div><div className="detail-callout"><span className={`callout-icon ${state.tone}`}>{state.icon}</span><div><b>{state.label === 'Calculado · Completo' ? 'Pronto para análise econômica' : state.label === 'Calculado · Incompleto' ? 'Evidência econômica ausente' : 'Identidade ou evidência não resolvida'}</b><span>{state.description}</span></div></div>{result ? <div className="metrics"><Metric label="Receita bruta" value={money(result.grossRevenue, result.currency)} /><Metric label="Contribuição" value={money(result.contribution, result.currency)} /><Metric label="Margem de contribuição" value={result.contributionMargin ? `${(Number(result.contributionMargin) * 100).toFixed(1)}%` : 'Não disponível'} /></div> : <div className="missing-block"><b>Valor econômico não disponível</b><span>{order.missingComponentTypes?.length ? `Ausências: ${order.missingComponentTypes.join(', ')}` : 'A projeção ainda não possui um resultado calculável.'}</span></div>}<div className="detail-list"><DetailLine label="Estado da projeção" value="Derivado · não canônico" /><DetailLine label="Evidência de origem" value={order.sourceEvidenceVersion} /><DetailLine label="Projetado em" value={date(order.projectedAt)} /><DetailLine label="Política" value={order.assemblyPolicyVersion} /></div><div className="detail-footer"><span>◈</span> Economic Truth permanece a autoridade upstream</div></aside> }
 function Metric({ label, value }: { label: string; value: string }) { return <div><small>{label}</small><b>{value}</b></div> }

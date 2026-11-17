@@ -73,7 +73,7 @@ describe('Decision Room', () => {
     render(<App />)
     const button = await screen.findByRole('button', { name: /Atualizar realidade/ })
     await userEvent.click(button)
-    expect(await screen.findByRole('alert')).toHaveTextContent('O backend está indisponível')
+    expect(await screen.findByText('O backend está indisponível ou falhou com segurança.')).toBeInTheDocument()
     expect(screen.queryByText('Realidade atualizada com governança')).not.toBeInTheDocument()
   })
 
@@ -81,5 +81,68 @@ describe('Decision Room', () => {
     render(<App />)
     expect(await screen.findByText(/DECISION ROOM/)).toBeInTheDocument()
     expect(screen.queryByText('Modo demonstração')).not.toBeInTheDocument()
+  })
+})
+
+
+describe('Reconciliation availability', () => {
+  it('opens the existing governed projection from a listed case without granting authority', async () => {
+    const id = '44444444-4444-4444-8444-444444444444'
+    const orderId = '55555555-5555-4555-8555-555555555555'
+    const traceId = '66666666-6666-4666-8666-666666666666'
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL) => {
+      const path = new URL(String(input)).pathname
+      if (path === '/v1/sales-intelligence/orders') return new Response(JSON.stringify({ orders: [] }), { status: 200 })
+      if (path === '/v1/reconciliation/cases') return new Response(JSON.stringify({ cases: [{
+        caseId: id, marketplaceOrderId: orderId, financialTraceId: traceId, policyVersion: 'synthetic/1',
+        currency: 'BRL', status: 'OPEN', revision: 1, openedAt: '2026-01-01T00:00:00Z',
+        lastObservedAt: '2026-01-01T00:00:00Z', absoluteDifferenceSummary: { currency: 'BRL', amount: '25.00' },
+        evidenceEntryIds: [], stages: [],
+      }] }), { status: 200 })
+      if (path === `/v1/economic-decision-room/reconciliation/${id}`) return new Response(JSON.stringify({
+        caseId: id, marketplaceOrderId: orderId, financialTraceId: traceId, policyVersion: 'synthetic/1',
+        currency: 'BRL', reconciliationCaseStatus: 'OPEN', reconciliationRevision: 1,
+        lastObservedAt: '2026-01-01T00:00:00Z', projectionStatus: 'BLOCKED', authorityStatus: 'NOT_ASSEMBLED',
+        governancePermitted: false, authorityBlockingReasons: ['AUTHORITY_UNAVAILABLE'], governanceBlockingReasons: [],
+        projectionBlockingReasons: ['RECONCILIATION_ASSESSMENT_UNAVAILABLE'], totalQuantifiedLeakage: null,
+        evidenceReferences: [], stages: [],
+      }), { status: 200 })
+      return new Response('{}', { status: 503 })
+    }))
+    render(<App />)
+    await userEvent.click(await screen.findByRole('button', { name: `Inspecionar caso ${id}` }))
+    expect(await screen.findByText('BLOCKED')).toBeInTheDocument()
+    expect(screen.getByText('NOT_ASSEMBLED')).toBeInTheDocument()
+    expect(screen.getByText(/Perda total quantificada:/)).toHaveTextContent('Não quantificado')
+    expect(screen.queryByText('READY')).not.toBeInTheDocument()
+    expect(vi.mocked(fetch).mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true)
+  })
+
+  it('does not report empty cases or zero systemic signals when dependencies fail', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL) => {
+      const path = new URL(String(input)).pathname
+      if (path === '/v1/sales-intelligence/orders') return new Response(JSON.stringify({ orders: [] }), { status: 200 })
+      return new Response('{}', { status: 503 })
+    }))
+    render(<App />)
+    expect(await screen.findByText('Casos indisponíveis. Não foi possível confirmar a reconciliação.')).toBeInTheDocument()
+    expect(screen.getByText('Padrões sistêmicos indisponíveis')).toBeInTheDocument()
+    expect(screen.queryByText('Nenhuma divergência persistida')).not.toBeInTheDocument()
+    expect(screen.queryByText('Nenhum padrão sistêmico detectado')).not.toBeInTheDocument()
+    expect(screen.queryByText('0 casos visíveis')).not.toBeInTheDocument()
+  })
+
+  it('distinguishes a confirmed empty response from an unavailable dependency', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (input: string | URL) => {
+      const path = new URL(String(input)).pathname
+      if (path === '/v1/sales-intelligence/orders') return new Response(JSON.stringify({ orders: [] }), { status: 200 })
+      if (path === '/v1/reconciliation/cases') return new Response(JSON.stringify({ cases: [] }), { status: 200 })
+      if (path === '/v1/reconciliation/systemic-divergences') return new Response(JSON.stringify({ signals: [] }), { status: 200 })
+      return new Response('{}', { status: 404 })
+    }))
+    render(<App />)
+    expect(await screen.findByText('Nenhuma divergência persistida')).toBeInTheDocument()
+    expect(screen.getByText('0 casos visíveis')).toBeInTheDocument()
+    expect(await screen.findByText('Nenhum padrão sistêmico detectado')).toBeInTheDocument()
   })
 })

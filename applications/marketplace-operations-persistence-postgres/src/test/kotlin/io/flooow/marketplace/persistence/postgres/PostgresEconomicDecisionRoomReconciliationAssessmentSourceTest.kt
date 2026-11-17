@@ -31,10 +31,13 @@ class PostgresEconomicDecisionRoomReconciliationAssessmentSourceTest {
 
     @BeforeTest
     fun start() {
-        postgres = PostgreSQLContainer("postgres:18.4").also { it.start() }
+        postgres = decisionRoomDisposablePostgres()
+        postgres.start()
         configuration = PostgresConfiguration(postgres.jdbcUrl, postgres.username, postgres.password)
         dataSource = PostgresDataSources.create(configuration)
         Flyway.configure().dataSource(configuration.url, configuration.user, configuration.password)
+            // This reader needs V001-V042 only. V043 remains present and fenced.
+            .target("42")
             .load().migrate()
     }
 
