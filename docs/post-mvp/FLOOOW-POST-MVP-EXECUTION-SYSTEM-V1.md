@@ -26,7 +26,9 @@ SCHEMA_VERSION / SEMANTIC_HASH / PRODUCER_BLOCK / AUTHORITY_CLASS / PROVENANCE /
 ## No-Frankenstein
 REUSE â†’ EVOLVE â†’ COMPOSE â†’ BUILD only for demonstrated gap. No P11, second Economic Truth, second ledger, second reconciliation, parallel identity/authority/belief system or shadow PACKAGE-0090.
 
+P11_CREATED=NO
 POST_MVP_IMPLEMENTATION_AUTHORIZED=NO
 MVP_DEPENDENCY_CREATED=NO
 MVP_REPOSITORY_MUTATION=NO
 PACKAGE_0090_AUTHORITY_CHANGED=NO
+
