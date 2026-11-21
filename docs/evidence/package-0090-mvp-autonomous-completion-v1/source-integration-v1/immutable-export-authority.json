@@ -1,0 +1,27 @@
+{
+  "parent": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+  "parent_receipt_sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606",
+  "purpose": "Kernel-enforced immutable private export candidate",
+  "scope": "Offline disposable own process/child; synthetic bytes only",
+  "inputs": {
+    "immutable_export.c": "06443256c4b9cd4accdbe1b41a8096e908381cd6151c55e25e162222e2092673",
+    "test_immutable_export.c": "537bdc073e955a8ea96df36f3461da3be31bd1e6db311340d8ef160d7d733084"
+  },
+  "effects": [
+    "compile in disposable tmpfs",
+    "memfd seals",
+    "fork own child",
+    "read own proc fd"
+  ],
+  "prohibited": [
+    "DB",
+    "network",
+    "V043",
+    "B02",
+    "source acceptance",
+    "issuer creation"
+  ],
+  "preconditions": "Pinned existing image; all input mounts read-only; no capabilities; no host process namespace",
+  "exit": "Record test outcome; no owner, authentication or source acceptance claim",
+  "termination": "Own disposable container exit"
+}

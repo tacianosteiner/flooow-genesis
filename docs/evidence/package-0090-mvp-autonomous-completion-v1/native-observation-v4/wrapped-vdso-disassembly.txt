@@ -1,0 +1,985 @@
+
+/probe/vdso.bin:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000000770 <__vdso_gettimeofday@@LINUX_2.6-0xf0>:
+     770:	48 8d 3d 89 e8 ff ff 	lea    -0x1777(%rip),%rdi        # fffffffffffff000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffdb70>
+     777:	eb 19                	jmp    792 <LINUX_2.6@@LINUX_2.6+0x792>
+     779:	4c 8b 0d 88 e8 ff ff 	mov    -0x1778(%rip),%r9        # fffffffffffff008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffdb78>
+     780:	4c 8b 05 89 e8 ff ff 	mov    -0x1777(%rip),%r8        # fffffffffffff010 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffdb80>
+     787:	0f 01 f9             	rdtscp
+     78a:	66 90                	xchg   %ax,%ax
+     78c:	8b 0f                	mov    (%rdi),%ecx
+     78e:	39 ce                	cmp    %ecx,%esi
+     790:	74 0e                	je     7a0 <LINUX_2.6@@LINUX_2.6+0x7a0>
+     792:	8b 37                	mov    (%rdi),%esi
+     794:	85 f6                	test   %esi,%esi
+     796:	75 e1                	jne    779 <LINUX_2.6@@LINUX_2.6+0x779>
+     798:	48 c7 c0 ff ff ff ff 	mov    $0xffffffffffffffff,%rax
+     79f:	c3                   	ret
+     7a0:	48 c1 e2 20          	shl    $0x20,%rdx
+     7a4:	48 09 c2             	or     %rax,%rdx
+     7a7:	48 89 d0             	mov    %rdx,%rax
+     7aa:	49 f7 e1             	mul    %r9
+     7ad:	49 8d 04 10          	lea    (%r8,%rdx,1),%rax
+     7b1:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     7b6:	c3                   	ret
+     7b7:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+     7be:	00 00 
+     7c0:	83 ff 01             	cmp    $0x1,%edi
+     7c3:	75 15                	jne    7da <LINUX_2.6@@LINUX_2.6+0x7da>
+     7c5:	0f 01 f9             	rdtscp
+     7c8:	66 90                	xchg   %ax,%ax
+     7ca:	48 c1 e2 20          	shl    $0x20,%rdx
+     7ce:	48 09 c2             	or     %rax,%rdx
+     7d1:	48 89 d0             	mov    %rdx,%rax
+     7d4:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     7d9:	c3                   	ret
+     7da:	83 ff 02             	cmp    $0x2,%edi
+     7dd:	74 0f                	je     7ee <LINUX_2.6@@LINUX_2.6+0x7ee>
+     7df:	83 ff 03             	cmp    $0x3,%edi
+     7e2:	74 08                	je     7ec <LINUX_2.6@@LINUX_2.6+0x7ec>
+     7e4:	48 c7 c0 ff ff ff ff 	mov    $0xffffffffffffffff,%rax
+     7eb:	c3                   	ret
+     7ec:	eb 82                	jmp    770 <LINUX_2.6@@LINUX_2.6+0x770>
+     7ee:	8b 15 0c d8 ff ff    	mov    -0x27f4(%rip),%edx        # ffffffffffffe000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb70>
+     7f4:	48 8d 3d 05 d8 ff ff 	lea    -0x27fb(%rip),%rdi        # ffffffffffffe000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb70>
+     7fb:	89 d6                	mov    %edx,%esi
+     7fd:	83 e6 fe             	and    $0xfffffffe,%esi
+     800:	f6 05 16 d8 ff ff 01 	testb  $0x1,-0x27ea(%rip)        # ffffffffffffe01d <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb8d>
+     807:	74 db                	je     7e4 <LINUX_2.6@@LINUX_2.6+0x7e4>
+     809:	0f 01 f9             	rdtscp
+     80c:	66 90                	xchg   %ax,%ax
+     80e:	48 c1 e2 20          	shl    $0x20,%rdx
+     812:	48 09 c2             	or     %rax,%rdx
+     815:	48 89 d0             	mov    %rdx,%rax
+     818:	0f be 15 fd d7 ff ff 	movsbl -0x2803(%rip),%edx        # ffffffffffffe01c <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb8c>
+     81f:	48 2b 05 e2 d7 ff ff 	sub    -0x281e(%rip),%rax        # ffffffffffffe008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb78>
+     826:	49 89 c0             	mov    %rax,%r8
+     829:	89 d1                	mov    %edx,%ecx
+     82b:	f7 d9                	neg    %ecx
+     82d:	49 d3 e8             	shr    %cl,%r8
+     830:	89 d1                	mov    %edx,%ecx
+     832:	48 d3 e0             	shl    %cl,%rax
+     835:	85 d2                	test   %edx,%edx
+     837:	48 8b 0d d2 d7 ff ff 	mov    -0x282e(%rip),%rcx        # ffffffffffffe010 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb80>
+     83e:	8b 15 d4 d7 ff ff    	mov    -0x282c(%rip),%edx        # ffffffffffffe018 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb88>
+     844:	49 0f 48 c0          	cmovs  %r8,%rax
+     848:	48 f7 e2             	mul    %rdx
+     84b:	48 0f ac d0 20       	shrd   $0x20,%rdx,%rax
+     850:	8b 17                	mov    (%rdi),%edx
+     852:	39 d6                	cmp    %edx,%esi
+     854:	75 a5                	jne    7fb <LINUX_2.6@@LINUX_2.6+0x7fb>
+     856:	48 01 c8             	add    %rcx,%rax
+     859:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     85e:	c3                   	ret
+     85f:	90                   	nop
+
+0000000000000860 <__vdso_gettimeofday@@LINUX_2.6>:
+     860:	f3 0f 1e fa          	endbr64
+     864:	55                   	push   %rbp
+     865:	49 89 fa             	mov    %rdi,%r10
+     868:	49 89 f3             	mov    %rsi,%r11
+     86b:	48 89 e5             	mov    %rsp,%rbp
+     86e:	41 54                	push   %r12
+     870:	4c 8d 25 89 97 ff ff 	lea    -0x6877(%rip),%r12        # ffffffffffffa000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b70>
+     877:	53                   	push   %rbx
+     878:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+     87c:	48 85 ff             	test   %rdi,%rdi
+     87f:	0f 84 a1 00 00 00    	je     926 <__vdso_gettimeofday@@LINUX_2.6+0xc6>
+     885:	41 8b 1c 24          	mov    (%r12),%ebx
+     889:	f6 c3 01             	test   $0x1,%bl
+     88c:	0f 85 d5 00 00 00    	jne    967 <__vdso_gettimeofday@@LINUX_2.6+0x107>
+     892:	8b 05 6c 97 ff ff    	mov    -0x6894(%rip),%eax        # ffffffffffffa004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b74>
+     898:	83 f8 01             	cmp    $0x1,%eax
+     89b:	0f 85 d9 00 00 00    	jne    97a <__vdso_gettimeofday@@LINUX_2.6+0x11a>
+     8a1:	0f 01 f9             	rdtscp
+     8a4:	66 90                	xchg   %ax,%ax
+     8a6:	48 c1 e2 20          	shl    $0x20,%rdx
+     8aa:	48 09 c2             	or     %rax,%rdx
+     8ad:	48 0f ba f2 3f       	btr    $0x3f,%rdx
+     8b2:	48 2b 15 4f 97 ff ff 	sub    -0x68b1(%rip),%rdx        # ffffffffffffa008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b78>
+     8b9:	48 39 15 50 97 ff ff 	cmp    %rdx,-0x68b0(%rip)        # ffffffffffffa010 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b80>
+     8c0:	48 8b 35 69 97 ff ff 	mov    -0x6897(%rip),%rsi        # ffffffffffffa030 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8ba0>
+     8c7:	8b 0d 57 97 ff ff    	mov    -0x68a9(%rip),%ecx        # ffffffffffffa024 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b94>
+     8cd:	0f 82 c8 00 00 00    	jb     99b <__vdso_gettimeofday@@LINUX_2.6+0x13b>
+     8d3:	8b 05 47 97 ff ff    	mov    -0x68b9(%rip),%eax        # ffffffffffffa020 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b90>
+     8d9:	48 0f af c2          	imul   %rdx,%rax
+     8dd:	48 01 f0             	add    %rsi,%rax
+     8e0:	48 d3 e8             	shr    %cl,%rax
+     8e3:	48 8b 0d 3e 97 ff ff 	mov    -0x68c2(%rip),%rcx        # ffffffffffffa028 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b98>
+     8ea:	41 8b 14 24          	mov    (%r12),%edx
+     8ee:	39 d3                	cmp    %edx,%ebx
+     8f0:	75 93                	jne    885 <__vdso_gettimeofday@@LINUX_2.6+0x25>
+     8f2:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     8f8:	76 16                	jbe    910 <__vdso_gettimeofday@@LINUX_2.6+0xb0>
+     8fa:	31 d2                	xor    %edx,%edx
+     8fc:	48 2d 00 ca 9a 3b    	sub    $0x3b9aca00,%rax
+     902:	83 c2 01             	add    $0x1,%edx
+     905:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     90b:	77 ef                	ja     8fc <__vdso_gettimeofday@@LINUX_2.6+0x9c>
+     90d:	48 01 d1             	add    %rdx,%rcx
+     910:	89 c0                	mov    %eax,%eax
+     912:	49 89 0a             	mov    %rcx,(%r10)
+     915:	48 69 c0 d3 4d 62 10 	imul   $0x10624dd3,%rax,%rax
+     91c:	48 c1 e8 26          	shr    $0x26,%rax
+     920:	89 c0                	mov    %eax,%eax
+     922:	49 89 42 08          	mov    %rax,0x8(%r10)
+     926:	4d 85 db             	test   %r11,%r11
+     929:	75 0b                	jne    936 <__vdso_gettimeofday@@LINUX_2.6+0xd6>
+     92b:	31 c0                	xor    %eax,%eax
+     92d:	48 8d 65 f0          	lea    -0x10(%rbp),%rsp
+     931:	5b                   	pop    %rbx
+     932:	41 5c                	pop    %r12
+     934:	5d                   	pop    %rbp
+     935:	c3                   	ret
+     936:	48 8d 05 c3 a6 ff ff 	lea    -0x593d(%rip),%rax        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     93d:	81 3d bd 96 ff ff ff 	cmpl   $0x7fffffff,-0x6943(%rip)        # ffffffffffffa004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b74>
+     944:	ff ff 7f 
+     947:	48 8d 90 00 f0 ff ff 	lea    -0x1000(%rax),%rdx
+     94e:	48 0f 45 c2          	cmovne %rdx,%rax
+     952:	8b 90 10 09 00 00    	mov    0x910(%rax),%edx
+     958:	41 89 13             	mov    %edx,(%r11)
+     95b:	8b 80 14 09 00 00    	mov    0x914(%rax),%eax
+     961:	41 89 43 04          	mov    %eax,0x4(%r11)
+     965:	eb c4                	jmp    92b <__vdso_gettimeofday@@LINUX_2.6+0xcb>
+     967:	81 3d 93 96 ff ff ff 	cmpl   $0x7fffffff,-0x696d(%rip)        # ffffffffffffa004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b74>
+     96e:	ff ff 7f 
+     971:	74 67                	je     9da <__vdso_gettimeofday@@LINUX_2.6+0x17a>
+     973:	f3 90                	pause
+     975:	e9 0b ff ff ff       	jmp    885 <__vdso_gettimeofday@@LINUX_2.6+0x25>
+     97a:	83 f8 02             	cmp    $0x2,%eax
+     97d:	0f 84 00 01 00 00    	je     a83 <__vdso_gettimeofday@@LINUX_2.6+0x223>
+     983:	83 f8 03             	cmp    $0x3,%eax
+     986:	0f 84 e1 00 00 00    	je     a6d <__vdso_gettimeofday@@LINUX_2.6+0x20d>
+     98c:	b8 60 00 00 00       	mov    $0x60,%eax
+     991:	4c 89 d7             	mov    %r10,%rdi
+     994:	4c 89 de             	mov    %r11,%rsi
+     997:	0f 05                	syscall
+     999:	eb 92                	jmp    92d <__vdso_gettimeofday@@LINUX_2.6+0xcd>
+     99b:	48 0f ba e2 3e       	bt     $0x3e,%rdx
+     9a0:	73 0b                	jae    9ad <__vdso_gettimeofday@@LINUX_2.6+0x14d>
+     9a2:	48 89 f0             	mov    %rsi,%rax
+     9a5:	48 d3 e8             	shr    %cl,%rax
+     9a8:	e9 36 ff ff ff       	jmp    8e3 <__vdso_gettimeofday@@LINUX_2.6+0x83>
+     9ad:	48 89 d0             	mov    %rdx,%rax
+     9b0:	8b 15 6a 96 ff ff    	mov    -0x6996(%rip),%edx        # ffffffffffffa020 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b90>
+     9b6:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     9bb:	48 f7 e2             	mul    %rdx
+     9be:	48 01 f0             	add    %rsi,%rax
+     9c1:	48 83 d2 00          	adc    $0x0,%rdx
+     9c5:	48 0f ad d0          	shrd   %cl,%rdx,%rax
+     9c9:	48 d3 ea             	shr    %cl,%rdx
+     9cc:	83 e1 40             	and    $0x40,%ecx
+     9cf:	48 0f 45 c2          	cmovne %rdx,%rax
+     9d3:	e9 0b ff ff ff       	jmp    8e3 <__vdso_gettimeofday@@LINUX_2.6+0x83>
+     9d8:	f3 90                	pause
+     9da:	8b 1d 20 a6 ff ff    	mov    -0x59e0(%rip),%ebx        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     9e0:	f6 c3 01             	test   $0x1,%bl
+     9e3:	75 f3                	jne    9d8 <__vdso_gettimeofday@@LINUX_2.6+0x178>
+     9e5:	8b 3d 19 a6 ff ff    	mov    -0x59e7(%rip),%edi        # ffffffffffffb004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b74>
+     9eb:	e8 d0 fd ff ff       	call   7c0 <LINUX_2.6@@LINUX_2.6+0x7c0>
+     9f0:	48 89 c2             	mov    %rax,%rdx
+     9f3:	48 85 c0             	test   %rax,%rax
+     9f6:	78 94                	js     98c <__vdso_gettimeofday@@LINUX_2.6+0x12c>
+     9f8:	48 2b 15 09 a6 ff ff 	sub    -0x59f7(%rip),%rdx        # ffffffffffffb008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b78>
+     9ff:	48 39 15 0a a6 ff ff 	cmp    %rdx,-0x59f6(%rip)        # ffffffffffffb010 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b80>
+     a06:	48 8b 35 23 a6 ff ff 	mov    -0x59dd(%rip),%rsi        # ffffffffffffb030 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9ba0>
+     a0d:	8b 0d 11 a6 ff ff    	mov    -0x59ef(%rip),%ecx        # ffffffffffffb024 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b94>
+     a13:	0f 82 e4 00 00 00    	jb     afd <__vdso_gettimeofday@@LINUX_2.6+0x29d>
+     a19:	8b 05 01 a6 ff ff    	mov    -0x59ff(%rip),%eax        # ffffffffffffb020 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b90>
+     a1f:	48 0f af c2          	imul   %rdx,%rax
+     a23:	48 01 f0             	add    %rsi,%rax
+     a26:	48 d3 e8             	shr    %cl,%rax
+     a29:	48 8b 35 f8 a5 ff ff 	mov    -0x5a08(%rip),%rsi        # ffffffffffffb028 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b98>
+     a30:	8b 15 ca a5 ff ff    	mov    -0x5a36(%rip),%edx        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     a36:	39 da                	cmp    %ebx,%edx
+     a38:	75 a0                	jne    9da <__vdso_gettimeofday@@LINUX_2.6+0x17a>
+     a3a:	48 03 05 ef 95 ff ff 	add    -0x6a11(%rip),%rax        # ffffffffffffa030 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8ba0>
+     a41:	48 03 35 e0 95 ff ff 	add    -0x6a20(%rip),%rsi        # ffffffffffffa028 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b98>
+     a48:	31 d2                	xor    %edx,%edx
+     a4a:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     a50:	76 11                	jbe    a63 <__vdso_gettimeofday@@LINUX_2.6+0x203>
+     a52:	48 2d 00 ca 9a 3b    	sub    $0x3b9aca00,%rax
+     a58:	83 c2 01             	add    $0x1,%edx
+     a5b:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     a61:	77 ef                	ja     a52 <__vdso_gettimeofday@@LINUX_2.6+0x1f2>
+     a63:	89 d1                	mov    %edx,%ecx
+     a65:	48 01 f1             	add    %rsi,%rcx
+     a68:	e9 a3 fe ff ff       	jmp    910 <__vdso_gettimeofday@@LINUX_2.6+0xb0>
+     a6d:	e8 fe fc ff ff       	call   770 <LINUX_2.6@@LINUX_2.6+0x770>
+     a72:	48 89 c2             	mov    %rax,%rdx
+     a75:	48 85 c0             	test   %rax,%rax
+     a78:	0f 89 34 fe ff ff    	jns    8b2 <__vdso_gettimeofday@@LINUX_2.6+0x52>
+     a7e:	e9 09 ff ff ff       	jmp    98c <__vdso_gettimeofday@@LINUX_2.6+0x12c>
+     a83:	8b 15 77 d5 ff ff    	mov    -0x2a89(%rip),%edx        # ffffffffffffe000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb70>
+     a89:	48 8d 35 70 d5 ff ff 	lea    -0x2a90(%rip),%rsi        # ffffffffffffe000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb70>
+     a90:	89 d7                	mov    %edx,%edi
+     a92:	83 e7 fe             	and    $0xfffffffe,%edi
+     a95:	f6 05 81 d5 ff ff 01 	testb  $0x1,-0x2a7f(%rip)        # ffffffffffffe01d <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb8d>
+     a9c:	0f 84 ea fe ff ff    	je     98c <__vdso_gettimeofday@@LINUX_2.6+0x12c>
+     aa2:	0f 01 f9             	rdtscp
+     aa5:	66 90                	xchg   %ax,%ax
+     aa7:	48 c1 e2 20          	shl    $0x20,%rdx
+     aab:	48 09 c2             	or     %rax,%rdx
+     aae:	48 89 d0             	mov    %rdx,%rax
+     ab1:	0f be 15 64 d5 ff ff 	movsbl -0x2a9c(%rip),%edx        # ffffffffffffe01c <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb8c>
+     ab8:	48 2b 05 49 d5 ff ff 	sub    -0x2ab7(%rip),%rax        # ffffffffffffe008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb78>
+     abf:	49 89 c0             	mov    %rax,%r8
+     ac2:	89 d1                	mov    %edx,%ecx
+     ac4:	f7 d9                	neg    %ecx
+     ac6:	49 d3 e8             	shr    %cl,%r8
+     ac9:	89 d1                	mov    %edx,%ecx
+     acb:	48 d3 e0             	shl    %cl,%rax
+     ace:	85 d2                	test   %edx,%edx
+     ad0:	48 8b 0d 39 d5 ff ff 	mov    -0x2ac7(%rip),%rcx        # ffffffffffffe010 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb80>
+     ad7:	8b 15 3b d5 ff ff    	mov    -0x2ac5(%rip),%edx        # ffffffffffffe018 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb88>
+     add:	49 0f 48 c0          	cmovs  %r8,%rax
+     ae1:	48 f7 e2             	mul    %rdx
+     ae4:	48 0f ac d0 20       	shrd   $0x20,%rdx,%rax
+     ae9:	8b 16                	mov    (%rsi),%edx
+     aeb:	39 d7                	cmp    %edx,%edi
+     aed:	75 a1                	jne    a90 <__vdso_gettimeofday@@LINUX_2.6+0x230>
+     aef:	48 8d 14 08          	lea    (%rax,%rcx,1),%rdx
+     af3:	48 0f ba f2 3f       	btr    $0x3f,%rdx
+     af8:	e9 b5 fd ff ff       	jmp    8b2 <__vdso_gettimeofday@@LINUX_2.6+0x52>
+     afd:	48 0f ba e2 3e       	bt     $0x3e,%rdx
+     b02:	73 0b                	jae    b0f <__vdso_gettimeofday@@LINUX_2.6+0x2af>
+     b04:	48 89 f0             	mov    %rsi,%rax
+     b07:	48 d3 e8             	shr    %cl,%rax
+     b0a:	e9 1a ff ff ff       	jmp    a29 <__vdso_gettimeofday@@LINUX_2.6+0x1c9>
+     b0f:	48 89 d0             	mov    %rdx,%rax
+     b12:	8b 15 08 a5 ff ff    	mov    -0x5af8(%rip),%edx        # ffffffffffffb020 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b90>
+     b18:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     b1d:	48 f7 e2             	mul    %rdx
+     b20:	48 01 f0             	add    %rsi,%rax
+     b23:	48 83 d2 00          	adc    $0x0,%rdx
+     b27:	48 0f ad d0          	shrd   %cl,%rdx,%rax
+     b2b:	48 d3 ea             	shr    %cl,%rdx
+     b2e:	80 e1 40             	and    $0x40,%cl
+     b31:	48 0f 45 c2          	cmovne %rdx,%rax
+     b35:	e9 ef fe ff ff       	jmp    a29 <__vdso_gettimeofday@@LINUX_2.6+0x1c9>
+     b3a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+0000000000000b40 <__vdso_time@@LINUX_2.6>:
+     b40:	f3 0f 1e fa          	endbr64
+     b44:	48 8d 05 b5 a4 ff ff 	lea    -0x5b4b(%rip),%rax        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     b4b:	81 3d af 94 ff ff ff 	cmpl   $0x7fffffff,-0x6b51(%rip)        # ffffffffffffa004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b74>
+     b52:	ff ff 7f 
+     b55:	48 8d 90 00 f0 ff ff 	lea    -0x1000(%rax),%rdx
+     b5c:	48 0f 45 c2          	cmovne %rdx,%rax
+     b60:	48 8b 40 28          	mov    0x28(%rax),%rax
+     b64:	48 85 ff             	test   %rdi,%rdi
+     b67:	74 03                	je     b6c <__vdso_time@@LINUX_2.6+0x2c>
+     b69:	48 89 07             	mov    %rax,(%rdi)
+     b6c:	c3                   	ret
+     b6d:	0f 1f 00             	nopl   (%rax)
+
+0000000000000b70 <__vdso_clock_gettime@@LINUX_2.6>:
+     b70:	f3 0f 1e fa          	endbr64
+     b74:	55                   	push   %rbp
+     b75:	48 89 e5             	mov    %rsp,%rbp
+     b78:	41 54                	push   %r12
+     b7a:	53                   	push   %rbx
+     b7b:	89 fb                	mov    %edi,%ebx
+     b7d:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+     b81:	48 83 ec 10          	sub    $0x10,%rsp
+     b85:	83 ff 17             	cmp    $0x17,%edi
+     b88:	0f 87 bd 00 00 00    	ja     c4b <__vdso_clock_gettime@@LINUX_2.6+0xdb>
+     b8e:	b8 01 00 00 00       	mov    $0x1,%eax
+     b93:	89 f9                	mov    %edi,%ecx
+     b95:	4c 8d 15 64 94 ff ff 	lea    -0x6b9c(%rip),%r10        # ffffffffffffa000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b70>
+     b9c:	d3 e0                	shl    %cl,%eax
+     b9e:	89 c2                	mov    %eax,%edx
+     ba0:	81 e2 83 08 00 00    	and    $0x883,%edx
+     ba6:	0f 84 c6 00 00 00    	je     c72 <__vdso_clock_gettime@@LINUX_2.6+0x102>
+     bac:	45 8b 1a             	mov    (%r10),%r11d
+     baf:	41 f6 c3 01          	test   $0x1,%r11b
+     bb3:	0f 85 a4 00 00 00    	jne    c5d <__vdso_clock_gettime@@LINUX_2.6+0xed>
+     bb9:	41 8b 42 04          	mov    0x4(%r10),%eax
+     bbd:	83 f8 01             	cmp    $0x1,%eax
+     bc0:	75 7b                	jne    c3d <__vdso_clock_gettime@@LINUX_2.6+0xcd>
+     bc2:	0f 01 f9             	rdtscp
+     bc5:	66 90                	xchg   %ax,%ax
+     bc7:	48 c1 e2 20          	shl    $0x20,%rdx
+     bcb:	48 09 c2             	or     %rax,%rdx
+     bce:	48 0f ba f2 3f       	btr    $0x3f,%rdx
+     bd3:	48 63 fb             	movslq %ebx,%rdi
+     bd6:	41 8b 4a 24          	mov    0x24(%r10),%ecx
+     bda:	49 2b 52 08          	sub    0x8(%r10),%rdx
+     bde:	48 c1 e7 04          	shl    $0x4,%rdi
+     be2:	4c 01 d7             	add    %r10,%rdi
+     be5:	4c 8b 47 30          	mov    0x30(%rdi),%r8
+     be9:	49 39 52 10          	cmp    %rdx,0x10(%r10)
+     bed:	0f 82 95 00 00 00    	jb     c88 <__vdso_clock_gettime@@LINUX_2.6+0x118>
+     bf3:	41 8b 42 20          	mov    0x20(%r10),%eax
+     bf7:	48 0f af c2          	imul   %rdx,%rax
+     bfb:	4c 01 c0             	add    %r8,%rax
+     bfe:	48 d3 e8             	shr    %cl,%rax
+     c01:	48 8b 4f 28          	mov    0x28(%rdi),%rcx
+     c05:	41 8b 12             	mov    (%r10),%edx
+     c08:	41 39 d3             	cmp    %edx,%r11d
+     c0b:	75 9f                	jne    bac <__vdso_clock_gettime@@LINUX_2.6+0x3c>
+     c0d:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     c13:	76 16                	jbe    c2b <__vdso_clock_gettime@@LINUX_2.6+0xbb>
+     c15:	31 d2                	xor    %edx,%edx
+     c17:	48 2d 00 ca 9a 3b    	sub    $0x3b9aca00,%rax
+     c1d:	83 c2 01             	add    $0x1,%edx
+     c20:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     c26:	77 ef                	ja     c17 <__vdso_clock_gettime@@LINUX_2.6+0xa7>
+     c28:	48 01 d1             	add    %rdx,%rcx
+     c2b:	48 89 0e             	mov    %rcx,(%rsi)
+     c2e:	48 89 46 08          	mov    %rax,0x8(%rsi)
+     c32:	48 8d 65 f0          	lea    -0x10(%rbp),%rsp
+     c36:	31 c0                	xor    %eax,%eax
+     c38:	5b                   	pop    %rbx
+     c39:	41 5c                	pop    %r12
+     c3b:	5d                   	pop    %rbp
+     c3c:	c3                   	ret
+     c3d:	83 f8 02             	cmp    $0x2,%eax
+     c40:	0f 84 e4 00 00 00    	je     d2a <__vdso_clock_gettime@@LINUX_2.6+0x1ba>
+     c46:	83 f8 03             	cmp    $0x3,%eax
+     c49:	74 78                	je     cc3 <__vdso_clock_gettime@@LINUX_2.6+0x153>
+     c4b:	89 df                	mov    %ebx,%edi
+     c4d:	b8 e4 00 00 00       	mov    $0xe4,%eax
+     c52:	0f 05                	syscall
+     c54:	48 8d 65 f0          	lea    -0x10(%rbp),%rsp
+     c58:	5b                   	pop    %rbx
+     c59:	41 5c                	pop    %r12
+     c5b:	5d                   	pop    %rbp
+     c5c:	c3                   	ret
+     c5d:	41 81 7a 04 ff ff ff 	cmpl   $0x7fffffff,0x4(%r10)
+     c64:	7f 
+     c65:	0f 84 3b 01 00 00    	je     da6 <__vdso_clock_gettime@@LINUX_2.6+0x236>
+     c6b:	f3 90                	pause
+     c6d:	e9 3a ff ff ff       	jmp    bac <__vdso_clock_gettime@@LINUX_2.6+0x3c>
+     c72:	a8 60                	test   $0x60,%al
+     c74:	75 6d                	jne    ce3 <__vdso_clock_gettime@@LINUX_2.6+0x173>
+     c76:	4c 8d 15 6b 94 ff ff 	lea    -0x6b95(%rip),%r10        # ffffffffffffa0e8 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8c58>
+     c7d:	83 ff 04             	cmp    $0x4,%edi
+     c80:	0f 84 26 ff ff ff    	je     bac <__vdso_clock_gettime@@LINUX_2.6+0x3c>
+     c86:	eb c3                	jmp    c4b <__vdso_clock_gettime@@LINUX_2.6+0xdb>
+     c88:	48 0f ba e2 3e       	bt     $0x3e,%rdx
+     c8d:	73 0b                	jae    c9a <__vdso_clock_gettime@@LINUX_2.6+0x12a>
+     c8f:	4c 89 c0             	mov    %r8,%rax
+     c92:	48 d3 e8             	shr    %cl,%rax
+     c95:	e9 67 ff ff ff       	jmp    c01 <__vdso_clock_gettime@@LINUX_2.6+0x91>
+     c9a:	48 89 d0             	mov    %rdx,%rax
+     c9d:	41 8b 52 20          	mov    0x20(%r10),%edx
+     ca1:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     ca6:	48 f7 e2             	mul    %rdx
+     ca9:	4c 01 c0             	add    %r8,%rax
+     cac:	48 83 d2 00          	adc    $0x0,%rdx
+     cb0:	48 0f ad d0          	shrd   %cl,%rdx,%rax
+     cb4:	48 d3 ea             	shr    %cl,%rdx
+     cb7:	83 e1 40             	and    $0x40,%ecx
+     cba:	48 0f 45 c2          	cmovne %rdx,%rax
+     cbe:	e9 3e ff ff ff       	jmp    c01 <__vdso_clock_gettime@@LINUX_2.6+0x91>
+     cc3:	48 89 74 24 08       	mov    %rsi,0x8(%rsp)
+     cc8:	e8 a3 fa ff ff       	call   770 <LINUX_2.6@@LINUX_2.6+0x770>
+     ccd:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+     cd2:	48 85 c0             	test   %rax,%rax
+     cd5:	48 89 c2             	mov    %rax,%rdx
+     cd8:	0f 89 f5 fe ff ff    	jns    bd3 <__vdso_clock_gettime@@LINUX_2.6+0x63>
+     cde:	e9 68 ff ff ff       	jmp    c4b <__vdso_clock_gettime@@LINUX_2.6+0xdb>
+     ce3:	48 63 ff             	movslq %edi,%rdi
+     ce6:	48 8d 47 02          	lea    0x2(%rdi),%rax
+     cea:	48 c1 e0 04          	shl    $0x4,%rax
+     cee:	4c 01 d0             	add    %r10,%rax
+     cf1:	41 8b 0a             	mov    (%r10),%ecx
+     cf4:	f6 c1 01             	test   $0x1,%cl
+     cf7:	75 1d                	jne    d16 <__vdso_clock_gettime@@LINUX_2.6+0x1a6>
+     cf9:	4c 8b 40 08          	mov    0x8(%rax),%r8
+     cfd:	4c 89 06             	mov    %r8,(%rsi)
+     d00:	4c 8b 40 10          	mov    0x10(%rax),%r8
+     d04:	4c 89 46 08          	mov    %r8,0x8(%rsi)
+     d08:	45 8b 02             	mov    (%r10),%r8d
+     d0b:	44 39 c1             	cmp    %r8d,%ecx
+     d0e:	0f 84 1e ff ff ff    	je     c32 <__vdso_clock_gettime@@LINUX_2.6+0xc2>
+     d14:	eb db                	jmp    cf1 <__vdso_clock_gettime@@LINUX_2.6+0x181>
+     d16:	81 3d e4 92 ff ff ff 	cmpl   $0x7fffffff,-0x6d1c(%rip)        # ffffffffffffa004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b74>
+     d1d:	ff ff 7f 
+     d20:	0f 84 3c 01 00 00    	je     e62 <__vdso_clock_gettime@@LINUX_2.6+0x2f2>
+     d26:	f3 90                	pause
+     d28:	eb c7                	jmp    cf1 <__vdso_clock_gettime@@LINUX_2.6+0x181>
+     d2a:	8b 15 d0 d2 ff ff    	mov    -0x2d30(%rip),%edx        # ffffffffffffe000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb70>
+     d30:	48 8d 3d c9 d2 ff ff 	lea    -0x2d37(%rip),%rdi        # ffffffffffffe000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb70>
+     d37:	83 e2 fe             	and    $0xfffffffe,%edx
+     d3a:	41 89 d0             	mov    %edx,%r8d
+     d3d:	f6 05 d9 d2 ff ff 01 	testb  $0x1,-0x2d27(%rip)        # ffffffffffffe01d <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb8d>
+     d44:	0f 84 01 ff ff ff    	je     c4b <__vdso_clock_gettime@@LINUX_2.6+0xdb>
+     d4a:	0f 01 f9             	rdtscp
+     d4d:	66 90                	xchg   %ax,%ax
+     d4f:	48 c1 e2 20          	shl    $0x20,%rdx
+     d53:	48 09 c2             	or     %rax,%rdx
+     d56:	48 89 d0             	mov    %rdx,%rax
+     d59:	0f be 15 bc d2 ff ff 	movsbl -0x2d44(%rip),%edx        # ffffffffffffe01c <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb8c>
+     d60:	48 2b 05 a1 d2 ff ff 	sub    -0x2d5f(%rip),%rax        # ffffffffffffe008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb78>
+     d67:	49 89 c1             	mov    %rax,%r9
+     d6a:	89 d1                	mov    %edx,%ecx
+     d6c:	f7 d9                	neg    %ecx
+     d6e:	49 d3 e9             	shr    %cl,%r9
+     d71:	89 d1                	mov    %edx,%ecx
+     d73:	48 d3 e0             	shl    %cl,%rax
+     d76:	85 d2                	test   %edx,%edx
+     d78:	48 8b 0d 91 d2 ff ff 	mov    -0x2d6f(%rip),%rcx        # ffffffffffffe010 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb80>
+     d7f:	8b 15 93 d2 ff ff    	mov    -0x2d6d(%rip),%edx        # ffffffffffffe018 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffcb88>
+     d85:	49 0f 48 c1          	cmovs  %r9,%rax
+     d89:	48 f7 e2             	mul    %rdx
+     d8c:	48 0f ac d0 20       	shrd   $0x20,%rdx,%rax
+     d91:	8b 17                	mov    (%rdi),%edx
+     d93:	41 39 d0             	cmp    %edx,%r8d
+     d96:	75 9f                	jne    d37 <__vdso_clock_gettime@@LINUX_2.6+0x1c7>
+     d98:	48 8d 14 08          	lea    (%rax,%rcx,1),%rdx
+     d9c:	48 0f ba f2 3f       	btr    $0x3f,%rdx
+     da1:	e9 2d fe ff ff       	jmp    bd3 <__vdso_clock_gettime@@LINUX_2.6+0x63>
+     da6:	4c 8d 1d 3b a3 ff ff 	lea    -0x5cc5(%rip),%r11        # ffffffffffffb0e8 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9c58>
+     dad:	83 fb 04             	cmp    $0x4,%ebx
+     db0:	49 8d 83 18 ff ff ff 	lea    -0xe8(%r11),%rax
+     db7:	4c 0f 45 d8          	cmovne %rax,%r11
+     dbb:	45 8b 23             	mov    (%r11),%r12d
+     dbe:	41 f6 c4 01          	test   $0x1,%r12b
+     dc2:	0f 85 fe 00 00 00    	jne    ec6 <__vdso_clock_gettime@@LINUX_2.6+0x356>
+     dc8:	48 89 74 24 08       	mov    %rsi,0x8(%rsp)
+     dcd:	41 8b 7b 04          	mov    0x4(%r11),%edi
+     dd1:	e8 ea f9 ff ff       	call   7c0 <LINUX_2.6@@LINUX_2.6+0x7c0>
+     dd6:	48 8b 74 24 08       	mov    0x8(%rsp),%rsi
+     ddb:	48 85 c0             	test   %rax,%rax
+     dde:	48 89 c2             	mov    %rax,%rdx
+     de1:	0f 88 64 fe ff ff    	js     c4b <__vdso_clock_gettime@@LINUX_2.6+0xdb>
+     de7:	48 63 fb             	movslq %ebx,%rdi
+     dea:	41 8b 4b 24          	mov    0x24(%r11),%ecx
+     dee:	49 2b 53 08          	sub    0x8(%r11),%rdx
+     df2:	48 89 f8             	mov    %rdi,%rax
+     df5:	48 c1 e0 04          	shl    $0x4,%rax
+     df9:	4d 8d 0c 03          	lea    (%r11,%rax,1),%r9
+     dfd:	4d 8b 41 30          	mov    0x30(%r9),%r8
+     e01:	49 39 53 10          	cmp    %rdx,0x10(%r11)
+     e05:	0f 82 c6 00 00 00    	jb     ed1 <__vdso_clock_gettime@@LINUX_2.6+0x361>
+     e0b:	41 8b 43 20          	mov    0x20(%r11),%eax
+     e0f:	48 0f af c2          	imul   %rdx,%rax
+     e13:	4c 01 c0             	add    %r8,%rax
+     e16:	48 d3 e8             	shr    %cl,%rax
+     e19:	49 8b 49 28          	mov    0x28(%r9),%rcx
+     e1d:	41 8b 13             	mov    (%r11),%edx
+     e20:	44 39 e2             	cmp    %r12d,%edx
+     e23:	75 96                	jne    dbb <__vdso_clock_gettime@@LINUX_2.6+0x24b>
+     e25:	48 c1 e7 04          	shl    $0x4,%rdi
+     e29:	49 01 fa             	add    %rdi,%r10
+     e2c:	49 03 42 30          	add    0x30(%r10),%rax
+     e30:	49 03 4a 28          	add    0x28(%r10),%rcx
+     e34:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     e3a:	0f 86 8d 00 00 00    	jbe    ecd <__vdso_clock_gettime@@LINUX_2.6+0x35d>
+     e40:	31 d2                	xor    %edx,%edx
+     e42:	48 2d 00 ca 9a 3b    	sub    $0x3b9aca00,%rax
+     e48:	83 c2 01             	add    $0x1,%edx
+     e4b:	48 3d ff c9 9a 3b    	cmp    $0x3b9ac9ff,%rax
+     e51:	77 ef                	ja     e42 <__vdso_clock_gettime@@LINUX_2.6+0x2d2>
+     e53:	48 01 ca             	add    %rcx,%rdx
+     e56:	48 89 46 08          	mov    %rax,0x8(%rsi)
+     e5a:	48 89 16             	mov    %rdx,(%rsi)
+     e5d:	e9 d0 fd ff ff       	jmp    c32 <__vdso_clock_gettime@@LINUX_2.6+0xc2>
+     e62:	48 8d 47 02          	lea    0x2(%rdi),%rax
+     e66:	48 c1 e0 04          	shl    $0x4,%rax
+     e6a:	49 01 c2             	add    %rax,%r10
+     e6d:	8b 05 8d a1 ff ff    	mov    -0x5e73(%rip),%eax        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     e73:	a8 01                	test   $0x1,%al
+     e75:	75 6c                	jne    ee3 <__vdso_clock_gettime@@LINUX_2.6+0x373>
+     e77:	49 8b ba 08 10 00 00 	mov    0x1008(%r10),%rdi
+     e7e:	49 8b 8a 10 10 00 00 	mov    0x1010(%r10),%rcx
+     e85:	44 8b 05 74 a1 ff ff 	mov    -0x5e8c(%rip),%r8d        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     e8c:	41 39 c0             	cmp    %eax,%r8d
+     e8f:	75 dc                	jne    e6d <__vdso_clock_gettime@@LINUX_2.6+0x2fd>
+     e91:	49 03 4a 10          	add    0x10(%r10),%rcx
+     e95:	49 03 7a 08          	add    0x8(%r10),%rdi
+     e99:	48 81 f9 ff c9 9a 3b 	cmp    $0x3b9ac9ff,%rcx
+     ea0:	76 13                	jbe    eb5 <__vdso_clock_gettime@@LINUX_2.6+0x345>
+     ea2:	48 81 e9 00 ca 9a 3b 	sub    $0x3b9aca00,%rcx
+     ea9:	83 c2 01             	add    $0x1,%edx
+     eac:	48 81 f9 ff c9 9a 3b 	cmp    $0x3b9ac9ff,%rcx
+     eb3:	77 ed                	ja     ea2 <__vdso_clock_gettime@@LINUX_2.6+0x332>
+     eb5:	89 d0                	mov    %edx,%eax
+     eb7:	48 89 4e 08          	mov    %rcx,0x8(%rsi)
+     ebb:	48 01 f8             	add    %rdi,%rax
+     ebe:	48 89 06             	mov    %rax,(%rsi)
+     ec1:	e9 6c fd ff ff       	jmp    c32 <__vdso_clock_gettime@@LINUX_2.6+0xc2>
+     ec6:	f3 90                	pause
+     ec8:	e9 ee fe ff ff       	jmp    dbb <__vdso_clock_gettime@@LINUX_2.6+0x24b>
+     ecd:	31 d2                	xor    %edx,%edx
+     ecf:	eb 82                	jmp    e53 <__vdso_clock_gettime@@LINUX_2.6+0x2e3>
+     ed1:	48 0f ba e2 3e       	bt     $0x3e,%rdx
+     ed6:	73 0f                	jae    ee7 <__vdso_clock_gettime@@LINUX_2.6+0x377>
+     ed8:	4c 89 c0             	mov    %r8,%rax
+     edb:	48 d3 e8             	shr    %cl,%rax
+     ede:	e9 36 ff ff ff       	jmp    e19 <__vdso_clock_gettime@@LINUX_2.6+0x2a9>
+     ee3:	f3 90                	pause
+     ee5:	eb 86                	jmp    e6d <__vdso_clock_gettime@@LINUX_2.6+0x2fd>
+     ee7:	48 89 d0             	mov    %rdx,%rax
+     eea:	41 8b 53 20          	mov    0x20(%r11),%edx
+     eee:	48 0f ba f0 3f       	btr    $0x3f,%rax
+     ef3:	48 f7 e2             	mul    %rdx
+     ef6:	4c 01 c0             	add    %r8,%rax
+     ef9:	48 83 d2 00          	adc    $0x0,%rdx
+     efd:	48 0f ad d0          	shrd   %cl,%rdx,%rax
+     f01:	48 d3 ea             	shr    %cl,%rdx
+     f04:	80 e1 40             	and    $0x40,%cl
+     f07:	48 0f 45 c2          	cmovne %rdx,%rax
+     f0b:	e9 09 ff ff ff       	jmp    e19 <__vdso_clock_gettime@@LINUX_2.6+0x2a9>
+
+0000000000000f10 <__vdso_clock_getres@@LINUX_2.6>:
+     f10:	f3 0f 1e fa          	endbr64
+     f14:	83 ff 17             	cmp    $0x17,%edi
+     f17:	77 5e                	ja     f77 <__vdso_clock_getres@@LINUX_2.6+0x67>
+     f19:	48 8d 05 e0 a0 ff ff 	lea    -0x5f20(%rip),%rax        # ffffffffffffb000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff9b70>
+     f20:	89 f9                	mov    %edi,%ecx
+     f22:	81 3d d8 90 ff ff ff 	cmpl   $0x7fffffff,-0x6f28(%rip)        # ffffffffffffa004 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffff8b74>
+     f29:	ff ff 7f 
+     f2c:	48 8d 90 00 f0 ff ff 	lea    -0x1000(%rax),%rdx
+     f33:	48 0f 44 d0          	cmove  %rax,%rdx
+     f37:	b8 01 00 00 00       	mov    $0x1,%eax
+     f3c:	d3 e0                	shl    %cl,%eax
+     f3e:	a9 93 08 00 00       	test   $0x893,%eax
+     f43:	74 19                	je     f5e <__vdso_clock_getres@@LINUX_2.6+0x4e>
+     f45:	8b 82 18 09 00 00    	mov    0x918(%rdx),%eax
+     f4b:	48 85 f6             	test   %rsi,%rsi
+     f4e:	74 0b                	je     f5b <__vdso_clock_getres@@LINUX_2.6+0x4b>
+     f50:	48 c7 06 00 00 00 00 	movq   $0x0,(%rsi)
+     f57:	48 89 46 08          	mov    %rax,0x8(%rsi)
+     f5b:	31 c0                	xor    %eax,%eax
+     f5d:	c3                   	ret
+     f5e:	a8 60                	test   $0x60,%al
+     f60:	75 0e                	jne    f70 <__vdso_clock_getres@@LINUX_2.6+0x60>
+     f62:	a9 00 00 ff 00       	test   $0xff0000,%eax
+     f67:	74 0e                	je     f77 <__vdso_clock_getres@@LINUX_2.6+0x67>
+     f69:	b8 01 00 00 00       	mov    $0x1,%eax
+     f6e:	eb db                	jmp    f4b <__vdso_clock_getres@@LINUX_2.6+0x3b>
+     f70:	b8 00 09 3d 00       	mov    $0x3d0900,%eax
+     f75:	eb d4                	jmp    f4b <__vdso_clock_getres@@LINUX_2.6+0x3b>
+     f77:	b8 e5 00 00 00       	mov    $0xe5,%eax
+     f7c:	0f 05                	syscall
+     f7e:	c3                   	ret
+     f7f:	90                   	nop
+
+0000000000000f80 <__vdso_getcpu@@LINUX_2.6>:
+     f80:	f3 0f 1e fa          	endbr64
+     f84:	b8 7b 00 00 00       	mov    $0x7b,%eax
+     f89:	f3 0f c7 f8          	rdpid  %rax
+     f8d:	48 85 ff             	test   %rdi,%rdi
+     f90:	74 0a                	je     f9c <__vdso_getcpu@@LINUX_2.6+0x1c>
+     f92:	89 c2                	mov    %eax,%edx
+     f94:	81 e2 ff 0f 00 00    	and    $0xfff,%edx
+     f9a:	89 17                	mov    %edx,(%rdi)
+     f9c:	48 85 f6             	test   %rsi,%rsi
+     f9f:	74 06                	je     fa7 <__vdso_getcpu@@LINUX_2.6+0x27>
+     fa1:	48 c1 e8 0c          	shr    $0xc,%rax
+     fa5:	89 06                	mov    %eax,(%rsi)
+     fa7:	31 c0                	xor    %eax,%eax
+     fa9:	c3                   	ret
+     faa:	90                   	nop
+     fab:	90                   	nop
+     fac:	90                   	nop
+     fad:	90                   	nop
+     fae:	90                   	nop
+     faf:	90                   	nop
+
+0000000000000fb0 <__vdso_getrandom@@LINUX_2.6>:
+     fb0:	f3 0f 1e fa          	endbr64
+     fb4:	55                   	push   %rbp
+     fb5:	48 89 e5             	mov    %rsp,%rbp
+     fb8:	41 57                	push   %r15
+     fba:	49 89 ff             	mov    %rdi,%r15
+     fbd:	41 56                	push   %r14
+     fbf:	49 89 f6             	mov    %rsi,%r14
+     fc2:	41 55                	push   %r13
+     fc4:	41 54                	push   %r12
+     fc6:	41 89 d4             	mov    %edx,%r12d
+     fc9:	53                   	push   %rbx
+     fca:	48 89 cb             	mov    %rcx,%rbx
+     fcd:	48 83 ec 30          	sub    $0x30,%rsp
+     fd1:	48 c7 45 d0 00 00 00 	movq   $0x0,-0x30(%rbp)
+     fd8:	00 
+     fd9:	49 83 f8 ff          	cmp    $0xffffffffffffffff,%r8
+     fdd:	75 09                	jne    fe8 <__vdso_getrandom@@LINUX_2.6+0x38>
+     fdf:	48 85 ff             	test   %rdi,%rdi
+     fe2:	0f 84 00 02 00 00    	je     11e8 <__vdso_getrandom@@LINUX_2.6+0x238>
+     fe8:	48 89 d8             	mov    %rbx,%rax
+     feb:	25 ff 0f 00 00       	and    $0xfff,%eax
+     ff0:	48 05 90 00 00 00    	add    $0x90,%rax
+     ff6:	48 3d 00 10 00 00    	cmp    $0x1000,%rax
+     ffc:	0f 87 5b 02 00 00    	ja     125d <__vdso_getrandom@@LINUX_2.6+0x2ad>
+    1002:	41 83 fc 07          	cmp    $0x7,%r12d
+    1006:	0f 87 fe 01 00 00    	ja     120a <__vdso_getrandom@@LINUX_2.6+0x25a>
+    100c:	49 81 f8 90 00 00 00 	cmp    $0x90,%r8
+    1013:	0f 85 f1 01 00 00    	jne    120a <__vdso_getrandom@@LINUX_2.6+0x25a>
+    1019:	0f b6 05 e8 af ff ff 	movzbl -0x5018(%rip),%eax        # ffffffffffffc008 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffab78>
+    1020:	84 c0                	test   %al,%al
+    1022:	0f 84 e2 01 00 00    	je     120a <__vdso_getrandom@@LINUX_2.6+0x25a>
+    1028:	4d 85 f6             	test   %r14,%r14
+    102b:	0f 84 7f 02 00 00    	je     12b0 <__vdso_getrandom@@LINUX_2.6+0x300>
+    1031:	0f b6 83 89 00 00 00 	movzbl 0x89(%rbx),%eax
+    1038:	84 c0                	test   %al,%al
+    103a:	0f 85 ca 01 00 00    	jne    120a <__vdso_getrandom@@LINUX_2.6+0x25a>
+    1040:	b8 00 f0 ff 7f       	mov    $0x7ffff000,%eax
+    1045:	4c 89 7d b8          	mov    %r15,-0x48(%rbp)
+    1049:	41 bd 60 00 00 00    	mov    $0x60,%r13d
+    104f:	49 39 c6             	cmp    %rax,%r14
+    1052:	c6 83 89 00 00 00 01 	movb   $0x1,0x89(%rbx)
+    1059:	49 0f 46 c6          	cmovbe %r14,%rax
+    105d:	c7 45 b4 02 00 00 00 	movl   $0x2,-0x4c(%rbp)
+    1064:	4c 89 75 a8          	mov    %r14,-0x58(%rbp)
+    1068:	44 89 65 b0          	mov    %r12d,-0x50(%rbp)
+    106c:	49 89 c4             	mov    %rax,%r12
+    106f:	48 8d 05 8a af ff ff 	lea    -0x5076(%rip),%rax        # ffffffffffffc000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffab70>
+    1076:	48 8b 00             	mov    (%rax),%rax
+    1079:	48 3b 83 80 00 00 00 	cmp    0x80(%rbx),%rax
+    1080:	0f 85 a3 01 00 00    	jne    1229 <__vdso_getrandom@@LINUX_2.6+0x279>
+    1086:	0f b6 83 88 00 00 00 	movzbl 0x88(%rbx),%eax
+    108d:	4c 8b 75 b8          	mov    -0x48(%rbp),%r14
+    1091:	4d 89 e7             	mov    %r12,%r15
+    1094:	eb 31                	jmp    10c7 <__vdso_getrandom@@LINUX_2.6+0x117>
+    1096:	4d 85 ff             	test   %r15,%r15
+    1099:	0f 84 e4 00 00 00    	je     1183 <__vdso_getrandom@@LINUX_2.6+0x1d3>
+    109f:	48 8d 73 60          	lea    0x60(%rbx),%rsi
+    10a3:	48 8d 55 d0          	lea    -0x30(%rbp),%rdx
+    10a7:	49 83 ff 3f          	cmp    $0x3f,%r15
+    10ab:	0f 87 05 01 00 00    	ja     11b6 <__vdso_getrandom@@LINUX_2.6+0x206>
+    10b1:	b9 02 00 00 00       	mov    $0x2,%ecx
+    10b6:	48 89 df             	mov    %rbx,%rdi
+    10b9:	e8 52 02 00 00       	call   1310 <__vdso_getrandom@@LINUX_2.6+0x360>
+    10be:	c6 83 88 00 00 00 00 	movb   $0x0,0x88(%rbx)
+    10c5:	31 c0                	xor    %eax,%eax
+    10c7:	4c 89 ef             	mov    %r13,%rdi
+    10ca:	48 29 c7             	sub    %rax,%rdi
+    10cd:	4c 39 ff             	cmp    %r15,%rdi
+    10d0:	49 0f 47 ff          	cmova  %r15,%rdi
+    10d4:	48 85 ff             	test   %rdi,%rdi
+    10d7:	74 bd                	je     1096 <__vdso_getrandom@@LINUX_2.6+0xe6>
+    10d9:	48 01 d8             	add    %rbx,%rax
+    10dc:	48 83 ff 07          	cmp    $0x7,%rdi
+    10e0:	0f 86 83 01 00 00    	jbe    1269 <__vdso_getrandom@@LINUX_2.6+0x2b9>
+    10e6:	48 8d 57 f8          	lea    -0x8(%rdi),%rdx
+    10ea:	48 c1 ea 03          	shr    $0x3,%rdx
+    10ee:	4c 8d 04 d5 08 00 00 	lea    0x8(,%rdx,8),%r8
+    10f5:	00 
+    10f6:	4c 89 f2             	mov    %r14,%rdx
+    10f9:	4a 8d 34 00          	lea    (%rax,%r8,1),%rsi
+    10fd:	48 8b 08             	mov    (%rax),%rcx
+    1100:	48 83 c0 08          	add    $0x8,%rax
+    1104:	48 83 c2 08          	add    $0x8,%rdx
+    1108:	48 89 4a f8          	mov    %rcx,-0x8(%rdx)
+    110c:	48 c7 40 f8 00 00 00 	movq   $0x0,-0x8(%rax)
+    1113:	00 
+    1114:	48 39 c6             	cmp    %rax,%rsi
+    1117:	75 e4                	jne    10fd <__vdso_getrandom@@LINUX_2.6+0x14d>
+    1119:	48 89 f9             	mov    %rdi,%rcx
+    111c:	4b 8d 14 06          	lea    (%r14,%r8,1),%rdx
+    1120:	83 e1 07             	and    $0x7,%ecx
+    1123:	48 83 f9 03          	cmp    $0x3,%rcx
+    1127:	76 18                	jbe    1141 <__vdso_getrandom@@LINUX_2.6+0x191>
+    1129:	8b 06                	mov    (%rsi),%eax
+    112b:	48 83 c2 04          	add    $0x4,%rdx
+    112f:	48 83 c6 04          	add    $0x4,%rsi
+    1133:	48 83 e9 04          	sub    $0x4,%rcx
+    1137:	89 42 fc             	mov    %eax,-0x4(%rdx)
+    113a:	c7 46 fc 00 00 00 00 	movl   $0x0,-0x4(%rsi)
+    1141:	48 83 f9 01          	cmp    $0x1,%rcx
+    1145:	76 19                	jbe    1160 <__vdso_getrandom@@LINUX_2.6+0x1b0>
+    1147:	0f b7 06             	movzwl (%rsi),%eax
+    114a:	48 83 c2 02          	add    $0x2,%rdx
+    114e:	48 83 c6 02          	add    $0x2,%rsi
+    1152:	48 83 e9 02          	sub    $0x2,%rcx
+    1156:	66 89 42 fe          	mov    %ax,-0x2(%rdx)
+    115a:	31 c0                	xor    %eax,%eax
+    115c:	66 89 46 fe          	mov    %ax,-0x2(%rsi)
+    1160:	48 85 c9             	test   %rcx,%rcx
+    1163:	74 08                	je     116d <__vdso_getrandom@@LINUX_2.6+0x1bd>
+    1165:	0f b6 06             	movzbl (%rsi),%eax
+    1168:	88 02                	mov    %al,(%rdx)
+    116a:	c6 06 00             	movb   $0x0,(%rsi)
+    116d:	49 29 ff             	sub    %rdi,%r15
+    1170:	40 00 bb 88 00 00 00 	add    %dil,0x88(%rbx)
+    1177:	49 01 fe             	add    %rdi,%r14
+    117a:	4d 85 ff             	test   %r15,%r15
+    117d:	0f 85 1c ff ff ff    	jne    109f <__vdso_getrandom@@LINUX_2.6+0xef>
+    1183:	48 8d 05 76 ae ff ff 	lea    -0x518a(%rip),%rax        # ffffffffffffc000 <__vdso_sgx_enter_enclave@@LINUX_2.6+0xffffffffffffab70>
+    118a:	48 8b 93 80 00 00 00 	mov    0x80(%rbx),%rdx
+    1191:	48 8b 00             	mov    (%rax),%rax
+    1194:	48 39 c2             	cmp    %rax,%rdx
+    1197:	0f 85 1a 01 00 00    	jne    12b7 <__vdso_getrandom@@LINUX_2.6+0x307>
+    119d:	c6 83 89 00 00 00 00 	movb   $0x0,0x89(%rbx)
+    11a4:	4c 89 e0             	mov    %r12,%rax
+    11a7:	48 83 c4 30          	add    $0x30,%rsp
+    11ab:	5b                   	pop    %rbx
+    11ac:	41 5c                	pop    %r12
+    11ae:	41 5d                	pop    %r13
+    11b0:	41 5e                	pop    %r14
+    11b2:	41 5f                	pop    %r15
+    11b4:	5d                   	pop    %rbp
+    11b5:	c3                   	ret
+    11b6:	4c 89 f9             	mov    %r15,%rcx
+    11b9:	4c 89 f7             	mov    %r14,%rdi
+    11bc:	48 89 55 c0          	mov    %rdx,-0x40(%rbp)
+    11c0:	48 c1 e9 06          	shr    $0x6,%rcx
+    11c4:	48 89 75 c8          	mov    %rsi,-0x38(%rbp)
+    11c8:	e8 43 01 00 00       	call   1310 <__vdso_getrandom@@LINUX_2.6+0x360>
+    11cd:	4c 89 f8             	mov    %r15,%rax
+    11d0:	48 8b 55 c0          	mov    -0x40(%rbp),%rdx
+    11d4:	48 8b 75 c8          	mov    -0x38(%rbp),%rsi
+    11d8:	48 83 e0 c0          	and    $0xffffffffffffffc0,%rax
+    11dc:	41 83 e7 3f          	and    $0x3f,%r15d
+    11e0:	49 01 c6             	add    %rax,%r14
+    11e3:	e9 c9 fe ff ff       	jmp    10b1 <__vdso_getrandom@@LINUX_2.6+0x101>
+    11e8:	48 85 f6             	test   %rsi,%rsi
+    11eb:	75 08                	jne    11f5 <__vdso_getrandom@@LINUX_2.6+0x245>
+    11ed:	85 d2                	test   %edx,%edx
+    11ef:	0f 84 82 00 00 00    	je     1277 <__vdso_getrandom@@LINUX_2.6+0x2c7>
+    11f5:	81 e3 ff 0f 00 00    	and    $0xfff,%ebx
+    11fb:	48 8d 83 90 00 00 00 	lea    0x90(%rbx),%rax
+    1202:	48 3d 00 10 00 00    	cmp    $0x1000,%rax
+    1208:	77 53                	ja     125d <__vdso_getrandom@@LINUX_2.6+0x2ad>
+    120a:	4c 89 ff             	mov    %r15,%rdi
+    120d:	4c 89 f6             	mov    %r14,%rsi
+    1210:	44 89 e2             	mov    %r12d,%edx
+    1213:	b8 3e 01 00 00       	mov    $0x13e,%eax
+    1218:	0f 05                	syscall
+    121a:	48 83 c4 30          	add    $0x30,%rsp
+    121e:	5b                   	pop    %rbx
+    121f:	41 5c                	pop    %r12
+    1221:	41 5d                	pop    %r13
+    1223:	41 5e                	pop    %r14
+    1225:	41 5f                	pop    %r15
+    1227:	5d                   	pop    %rbp
+    1228:	c3                   	ret
+    1229:	48 89 83 80 00 00 00 	mov    %rax,0x80(%rbx)
+    1230:	b8 3e 01 00 00       	mov    $0x13e,%eax
+    1235:	48 8d 7b 60          	lea    0x60(%rbx),%rdi
+    1239:	be 20 00 00 00       	mov    $0x20,%esi
+    123e:	31 d2                	xor    %edx,%edx
+    1240:	0f 05                	syscall
+    1242:	48 83 f8 20          	cmp    $0x20,%rax
+    1246:	0f 85 95 00 00 00    	jne    12e1 <__vdso_getrandom@@LINUX_2.6+0x331>
+    124c:	c6 83 88 00 00 00 60 	movb   $0x60,0x88(%rbx)
+    1253:	b8 60 00 00 00       	mov    $0x60,%eax
+    1258:	e9 30 fe ff ff       	jmp    108d <__vdso_getrandom@@LINUX_2.6+0xdd>
+    125d:	48 c7 c0 f2 ff ff ff 	mov    $0xfffffffffffffff2,%rax
+    1264:	e9 3e ff ff ff       	jmp    11a7 <__vdso_getrandom@@LINUX_2.6+0x1f7>
+    1269:	48 89 f9             	mov    %rdi,%rcx
+    126c:	4c 89 f2             	mov    %r14,%rdx
+    126f:	48 89 c6             	mov    %rax,%rsi
+    1272:	e9 ac fe ff ff       	jmp    1123 <__vdso_getrandom@@LINUX_2.6+0x173>
+    1277:	48 8d 79 14          	lea    0x14(%rcx),%rdi
+    127b:	c7 41 08 28 00 00 00 	movl   $0x28,0x8(%rcx)
+    1282:	48 b8 90 00 00 00 03 	movabs $0x300000090,%rax
+    1289:	00 00 00 
+    128c:	48 83 e7 f8          	and    $0xfffffffffffffff8,%rdi
+    1290:	48 89 01             	mov    %rax,(%rcx)
+    1293:	31 c0                	xor    %eax,%eax
+    1295:	29 fb                	sub    %edi,%ebx
+    1297:	48 c7 41 0c 00 00 00 	movq   $0x0,0xc(%rcx)
+    129e:	00 
+    129f:	48 c7 41 38 00 00 00 	movq   $0x0,0x38(%rcx)
+    12a6:	00 
+    12a7:	8d 4b 40             	lea    0x40(%rbx),%ecx
+    12aa:	c1 e9 03             	shr    $0x3,%ecx
+    12ad:	f3 48 ab             	rep stos %rax,%es:(%rdi)
+    12b0:	31 c0                	xor    %eax,%eax
+    12b2:	e9 f0 fe ff ff       	jmp    11a7 <__vdso_getrandom@@LINUX_2.6+0x1f7>
+    12b7:	83 7d b4 01          	cmpl   $0x1,-0x4c(%rbp)
+    12bb:	75 18                	jne    12d5 <__vdso_getrandom@@LINUX_2.6+0x325>
+    12bd:	4c 8b 7d b8          	mov    -0x48(%rbp),%r15
+    12c1:	4c 8b 75 a8          	mov    -0x58(%rbp),%r14
+    12c5:	44 8b 65 b0          	mov    -0x50(%rbp),%r12d
+    12c9:	c6 83 89 00 00 00 00 	movb   $0x0,0x89(%rbx)
+    12d0:	e9 35 ff ff ff       	jmp    120a <__vdso_getrandom@@LINUX_2.6+0x25a>
+    12d5:	c7 45 b4 01 00 00 00 	movl   $0x1,-0x4c(%rbp)
+    12dc:	e9 8e fd ff ff       	jmp    106f <__vdso_getrandom@@LINUX_2.6+0xbf>
+    12e1:	48 c7 83 80 00 00 00 	movq   $0x0,0x80(%rbx)
+    12e8:	00 00 00 00 
+    12ec:	4c 8b 7d b8          	mov    -0x48(%rbp),%r15
+    12f0:	4c 8b 75 a8          	mov    -0x58(%rbp),%r14
+    12f4:	44 8b 65 b0          	mov    -0x50(%rbp),%r12d
+    12f8:	c6 83 89 00 00 00 00 	movb   $0x0,0x89(%rbx)
+    12ff:	e9 06 ff ff ff       	jmp    120a <__vdso_getrandom@@LINUX_2.6+0x25a>
+    1304:	90                   	nop
+    1305:	90                   	nop
+    1306:	90                   	nop
+    1307:	90                   	nop
+    1308:	90                   	nop
+    1309:	90                   	nop
+    130a:	90                   	nop
+    130b:	90                   	nop
+    130c:	90                   	nop
+    130d:	90                   	nop
+    130e:	90                   	nop
+    130f:	90                   	nop
+    1310:	0f 28 2d 39 f2 ff ff 	movaps -0xdc7(%rip),%xmm5        # 550 <LINUX_2.6@@LINUX_2.6+0x550>
+    1317:	0f 10 36             	movups (%rsi),%xmm6
+    131a:	0f 10 7e 10          	movups 0x10(%rsi),%xmm7
+    131e:	f3 44 0f 7e 02       	movq   (%rdx),%xmm8
+    1323:	48 c7 c0 01 00 00 00 	mov    $0x1,%rax
+    132a:	66 4c 0f 6e c8       	movq   %rax,%xmm9
+    132f:	66 0f 6f cd          	movdqa %xmm5,%xmm1
+    1333:	66 0f 6f d6          	movdqa %xmm6,%xmm2
+    1337:	66 0f 6f df          	movdqa %xmm7,%xmm3
+    133b:	66 41 0f 6f e0       	movdqa %xmm8,%xmm4
+    1340:	b0 0a                	mov    $0xa,%al
+    1342:	66 0f fe ca          	paddd  %xmm2,%xmm1
+    1346:	66 0f ef e1          	pxor   %xmm1,%xmm4
+    134a:	66 0f 6f c4          	movdqa %xmm4,%xmm0
+    134e:	66 0f 72 f0 10       	pslld  $0x10,%xmm0
+    1353:	66 0f 72 d4 10       	psrld  $0x10,%xmm4
+    1358:	66 0f eb e0          	por    %xmm0,%xmm4
+    135c:	66 0f fe dc          	paddd  %xmm4,%xmm3
+    1360:	66 0f ef d3          	pxor   %xmm3,%xmm2
+    1364:	66 0f 6f c2          	movdqa %xmm2,%xmm0
+    1368:	66 0f 72 f0 0c       	pslld  $0xc,%xmm0
+    136d:	66 0f 72 d2 14       	psrld  $0x14,%xmm2
+    1372:	66 0f eb d0          	por    %xmm0,%xmm2
+    1376:	66 0f fe ca          	paddd  %xmm2,%xmm1
+    137a:	66 0f ef e1          	pxor   %xmm1,%xmm4
+    137e:	66 0f 6f c4          	movdqa %xmm4,%xmm0
+    1382:	66 0f 72 f0 08       	pslld  $0x8,%xmm0
+    1387:	66 0f 72 d4 18       	psrld  $0x18,%xmm4
+    138c:	66 0f eb e0          	por    %xmm0,%xmm4
+    1390:	66 0f fe dc          	paddd  %xmm4,%xmm3
+    1394:	66 0f ef d3          	pxor   %xmm3,%xmm2
+    1398:	66 0f 6f c2          	movdqa %xmm2,%xmm0
+    139c:	66 0f 72 f0 07       	pslld  $0x7,%xmm0
+    13a1:	66 0f 72 d2 19       	psrld  $0x19,%xmm2
+    13a6:	66 0f eb d0          	por    %xmm0,%xmm2
+    13aa:	66 0f 70 d2 39       	pshufd $0x39,%xmm2,%xmm2
+    13af:	66 0f 70 db 4e       	pshufd $0x4e,%xmm3,%xmm3
+    13b4:	66 0f 70 e4 93       	pshufd $0x93,%xmm4,%xmm4
+    13b9:	66 0f fe ca          	paddd  %xmm2,%xmm1
+    13bd:	66 0f ef e1          	pxor   %xmm1,%xmm4
+    13c1:	66 0f 6f c4          	movdqa %xmm4,%xmm0
+    13c5:	66 0f 72 f0 10       	pslld  $0x10,%xmm0
+    13ca:	66 0f 72 d4 10       	psrld  $0x10,%xmm4
+    13cf:	66 0f eb e0          	por    %xmm0,%xmm4
+    13d3:	66 0f fe dc          	paddd  %xmm4,%xmm3
+    13d7:	66 0f ef d3          	pxor   %xmm3,%xmm2
+    13db:	66 0f 6f c2          	movdqa %xmm2,%xmm0
+    13df:	66 0f 72 f0 0c       	pslld  $0xc,%xmm0
+    13e4:	66 0f 72 d2 14       	psrld  $0x14,%xmm2
+    13e9:	66 0f eb d0          	por    %xmm0,%xmm2
+    13ed:	66 0f fe ca          	paddd  %xmm2,%xmm1
+    13f1:	66 0f ef e1          	pxor   %xmm1,%xmm4
+    13f5:	66 0f 6f c4          	movdqa %xmm4,%xmm0
+    13f9:	66 0f 72 f0 08       	pslld  $0x8,%xmm0
+    13fe:	66 0f 72 d4 18       	psrld  $0x18,%xmm4
+    1403:	66 0f eb e0          	por    %xmm0,%xmm4
+    1407:	66 0f fe dc          	paddd  %xmm4,%xmm3
+    140b:	66 0f ef d3          	pxor   %xmm3,%xmm2
+    140f:	66 0f 6f c2          	movdqa %xmm2,%xmm0
+    1413:	66 0f 72 f0 07       	pslld  $0x7,%xmm0
+    1418:	66 0f 72 d2 19       	psrld  $0x19,%xmm2
+    141d:	66 0f eb d0          	por    %xmm0,%xmm2
+    1421:	66 0f 70 d2 93       	pshufd $0x93,%xmm2,%xmm2
+    1426:	66 0f 70 db 4e       	pshufd $0x4e,%xmm3,%xmm3
+    142b:	66 0f 70 e4 39       	pshufd $0x39,%xmm4,%xmm4
+    1430:	fe c8                	dec    %al
+    1432:	0f 85 0a ff ff ff    	jne    1342 <__vdso_getrandom@@LINUX_2.6+0x392>
+    1438:	66 0f fe cd          	paddd  %xmm5,%xmm1
+    143c:	0f 11 0f             	movups %xmm1,(%rdi)
+    143f:	66 0f fe d6          	paddd  %xmm6,%xmm2
+    1443:	0f 11 57 10          	movups %xmm2,0x10(%rdi)
+    1447:	66 0f fe df          	paddd  %xmm7,%xmm3
+    144b:	0f 11 5f 20          	movups %xmm3,0x20(%rdi)
+    144f:	66 41 0f fe e0       	paddd  %xmm8,%xmm4
+    1454:	0f 11 67 30          	movups %xmm4,0x30(%rdi)
+    1458:	66 45 0f d4 c1       	paddq  %xmm9,%xmm8
+    145d:	48 83 c7 40          	add    $0x40,%rdi
+    1461:	48 ff c9             	dec    %rcx
+    1464:	0f 85 c5 fe ff ff    	jne    132f <__vdso_getrandom@@LINUX_2.6+0x37f>
+    146a:	66 44 0f d6 02       	movq   %xmm8,(%rdx)
+    146f:	66 0f ef c9          	pxor   %xmm1,%xmm1
+    1473:	66 0f ef d2          	pxor   %xmm2,%xmm2
+    1477:	66 0f ef db          	pxor   %xmm3,%xmm3
+    147b:	66 0f ef e4          	pxor   %xmm4,%xmm4
+    147f:	66 0f ef f6          	pxor   %xmm6,%xmm6
+    1483:	66 0f ef ff          	pxor   %xmm7,%xmm7
+    1487:	66 0f ef c0          	pxor   %xmm0,%xmm0
+    148b:	c3                   	ret
+    148c:	90                   	nop
+    148d:	90                   	nop
+    148e:	90                   	nop
+    148f:	90                   	nop
+
+0000000000001490 <__vdso_sgx_enter_enclave@@LINUX_2.6>:
+    1490:	55                   	push   %rbp
+    1491:	48 89 e5             	mov    %rsp,%rbp
+    1494:	53                   	push   %rbx
+    1495:	89 c8                	mov    %ecx,%eax
+    1497:	83 f8 02             	cmp    $0x2,%eax
+    149a:	72 48                	jb     14e4 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x54>
+    149c:	83 f8 03             	cmp    $0x3,%eax
+    149f:	77 43                	ja     14e4 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x54>
+    14a1:	48 8b 4d 10          	mov    0x10(%rbp),%rcx
+    14a5:	48 c7 c3 28 00 00 00 	mov    $0x28,%rbx
+    14ac:	48 83 3c 19 00       	cmpq   $0x0,(%rcx,%rbx,1)
+    14b1:	75 31                	jne    14e4 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x54>
+    14b3:	48 83 c3 08          	add    $0x8,%rbx
+    14b7:	48 81 fb 00 01 00 00 	cmp    $0x100,%rbx
+    14be:	75 ec                	jne    14ac <__vdso_sgx_enter_enclave@@LINUX_2.6+0x1c>
+    14c0:	48 8b 19             	mov    (%rcx),%rbx
+    14c3:	48 8d 0d 00 00 00 00 	lea    0x0(%rip),%rcx        # 14ca <__vdso_sgx_enter_enclave@@LINUX_2.6+0x3a>
+    14ca:	0f 01 d7             	enclu
+    14cd:	48 8b 5d 10          	mov    0x10(%rbp),%rbx
+    14d1:	c7 43 08 04 00 00 00 	movl   $0x4,0x8(%rbx)
+    14d8:	48 83 7b 18 00       	cmpq   $0x0,0x18(%rbx)
+    14dd:	75 21                	jne    1500 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x70>
+    14df:	31 c0                	xor    %eax,%eax
+    14e1:	5b                   	pop    %rbx
+    14e2:	c9                   	leave
+    14e3:	c3                   	ret
+    14e4:	b8 ea ff ff ff       	mov    $0xffffffea,%eax
+    14e9:	eb f6                	jmp    14e1 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x51>
+    14eb:	48 8b 5d 10          	mov    0x10(%rbp),%rbx
+    14ef:	89 43 08             	mov    %eax,0x8(%rbx)
+    14f2:	66 89 7b 0c          	mov    %di,0xc(%rbx)
+    14f6:	66 89 73 0e          	mov    %si,0xe(%rbx)
+    14fa:	48 89 53 10          	mov    %rdx,0x10(%rbx)
+    14fe:	eb d8                	jmp    14d8 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x48>
+    1500:	48 89 e1             	mov    %rsp,%rcx
+    1503:	48 89 d8             	mov    %rbx,%rax
+    1506:	48 89 e3             	mov    %rsp,%rbx
+    1509:	48 83 e3 0f          	and    $0xf,%rbx
+    150d:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+    1511:	50                   	push   %rax
+    1512:	50                   	push   %rax
+    1513:	fc                   	cld
+    1514:	48 8b 40 18          	mov    0x18(%rax),%rax
+    1518:	0f ae e8             	lfence
+    151b:	ff d0                	call   *%rax
+    151d:	48 8d 64 1c 10       	lea    0x10(%rsp,%rbx,1),%rsp
+    1522:	83 f8 00             	cmp    $0x0,%eax
+    1525:	7e ba                	jle    14e1 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x51>
+    1527:	e9 6b ff ff ff       	jmp    1497 <__vdso_sgx_enter_enclave@@LINUX_2.6+0x7>
+
+Disassembly of section .altinstr_replacement:
+
+00000000000015fe <.altinstr_replacement>:
+    15fe:	0f ae e8             	lfence
+    1601:	0f 31                	rdtsc
+    1603:	0f 01 f9             	rdtscp
+    1606:	0f ae e8             	lfence
+    1609:	0f 31                	rdtsc
+    160b:	0f 01 f9             	rdtscp
+    160e:	0f ae e8             	lfence
+    1611:	0f 31                	rdtsc
+    1613:	0f 01 f9             	rdtscp
+    1616:	0f ae e8             	lfence
+    1619:	0f 31                	rdtsc
+    161b:	0f 01 f9             	rdtscp
+    161e:	0f ae e8             	lfence
+    1621:	0f 31                	rdtsc
+    1623:	0f 01 f9             	rdtscp
+    1626:	0f ae e8             	lfence
+    1629:	0f 31                	rdtsc
+    162b:	0f 01 f9             	rdtscp
+    162e:	0f ae e8             	lfence
+    1631:	0f 31                	rdtsc
+    1633:	0f 01 f9             	rdtscp
+    1636:	f3 0f c7 f8          	rdpid  %rax

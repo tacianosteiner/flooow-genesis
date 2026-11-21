@@ -1,0 +1,57 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "TWO_CONCRETE_CONSTRAINT_DEFECTS_REPRODUCED_AND_REPAIR_RECHECK_CONFIRMED",
+    "oracle":  "requirements.json; prior frozen requirements-baseline reused",
+    "independence":  "Own writer/fixtures from contract; creator test fixture not reused",
+    "original_execution":  "execution.jsonl",
+    "repaired_execution":  "execution-recheck.jsonl",
+    "original_hash_limitation":  "Original Python candidate digest not captured before concurrent creator repair. Original findings are execution observations without an exact original source digest; do not present them as hash-sealed original version.",
+    "current_hash":  "948db6d0822e2d562724f559d795f5461170aef1eef8d8e0fa4b1273addda198",
+    "findings":  [
+                     {
+                         "original":  "100frames consumed before cardinality rejection; infinite generator unbounded",
+                         "disposition":  "REPAIRED_ON_CURRENT_HASH",
+                         "basis":  "Bounded fixed two-role consumer; no need to decode unbounded input collection",
+                         "id":  "PAIR-RESOURCE-01",
+                         "repair":  "Exact tuple/list len2 checked before decode; independent generator probe consumes0"
+                     },
+                     {
+                         "original":  "One member ordinalUINT32_MAX still matching",
+                         "disposition":  "REPAIRED_ON_CURRENT_HASH",
+                         "basis":  "Native encoder retains original source ordinal in range count; exact typed provenance must survive",
+                         "id":  "PAIR-ORDINAL-02",
+                         "repair":  "Current hash returns ROLE_1_SOURCE_ORDINAL_OUT_OF_RANGE"
+                     },
+                     {
+                         "original":  "NFC role_name containingU+0085 accepted",
+                         "disposition":  "NO_MANDATORY_DEFECT_ASSIGNED",
+                         "basis":  "Historical protocol text_nfc rejects UnicodeC1; private decoder promises NFC and rejects ASCII controls only. Approved encoder applicability not established by logical observer contract; maintain explicit compatibility scope rather than invent normative rule.",
+                         "id":  "PAIR-C1-COMPATIBILITY"
+                     }
+                 ],
+    "tests":  {
+                  "runtime":  "Local Python -B; no DB/network/native/V043/B02; writes only independent-pair-review",
+                  "creator_suite_rerun":  "14tests pass; independent of own counterexamples",
+                  "own_cases":  "baseline, malformed ordinal, generator-bound, NFC C1 compatibility"
+              },
+    "interop_assessment":  {
+                               "scope":  "Supports private codec integration if hash-bound. Does not prove accepted source or independent channel/origin/current barrier; no interop acceptance granted by this review.",
+                               "claim":  "Two compiled C private-frame executions decoded with pre-call expected inputs; synthetic SourceRefs only",
+                               "file":  "actual-codec-interoperability.json"
+                           },
+    "remaining":  [
+                      "Independent actual expected bindings and protected source-root/prospective acceptance resolver",
+                      "Actual qualified channel/observer origins and independently controlled consumer publication",
+                      "Common mutation-barrier applicability covering combined original observations and consumer use",
+                      "Protected immutable owner lifecycle and unique global challenge ownership"
+                  ],
+    "claims":  {
+                   "observer_establishment_or_acceptance":  "NOT_GRANTED",
+                   "protected_integration":  "NOT_ESTABLISHED",
+                   "actual_channel_origin":  "NOT_ESTABLISHED",
+                   "global_replay":  "NOT_ESTABLISHED",
+                   "self_approval":  false,
+                   "source_acceptance":  "NOT_ESTABLISHED_BY_THIS_REVIEW"
+               },
+    "next":  "Integrate constraint checker only behind governed source/origin/owner boundary; no original denominator changed or synthetic gate promoted"
+}

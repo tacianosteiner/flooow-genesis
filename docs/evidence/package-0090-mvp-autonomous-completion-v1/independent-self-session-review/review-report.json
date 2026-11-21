@@ -1,0 +1,69 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "REAL_DISPOSABLE_PREPARATION_REPRODUCED_WITH_TWO_MATERIAL_CUSTODY_LIMITATIONS",
+    "requirements":  "../independent-proxy-scope-review/scope-review.json",
+    "candidate_hash_before_repair":  "c6b566bbd8998befe1947cf03686781c21ef59286d6ceed7c9a00bd6c5988861",
+    "sources":  "input-bindings-before-parent-repair.json",
+    "runtime":  {
+                    "exit_code":  0,
+                    "storage":  "NEW256MiB disposable/tmp tmpfs; no existing DB data",
+                    "user":  "999:999",
+                    "first_attempt":  "Reviewer script replacement also matched gcc -o output filename and failed compile before initdb; preserved initial script/log. Corrected exact standalone command replacement; no candidate defect attributed.",
+                    "postgres":  "NEW initdb no migrations no S03",
+                    "no_new_privileges":  true,
+                    "database_destroyed":  "pg_ctl stop observed; --rm container lifetime tmpfs",
+                    "command":  "docker-command.json",
+                    "cap_drop":  "ALL",
+                    "execution":  "execution-corrected.txt",
+                    "root":  "read-only",
+                    "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                    "source_mounts":  "readonly",
+                    "network":  "none"
+                },
+    "independent_observations":  [
+                                     "Creator preparation flow reproduced: child exec-ready before PQconnectdb, sealed4field self row checked, exact child fd inventory, parent /proc fd EACCES, retained backend",
+                                     "Separate process under sameUID999 used public synthetic password and same private socket to authenticate Reader and SELECT current_user/backend_pid successfully before probe run",
+                                     "Actual pg_hba_file_rules shows Reader scram-sha-256, postgres peer and all other local/host reject after reload"
+                                 ],
+    "findings":  [
+                     {
+                         "id":  "CUSTODY-REACQUISITION-01",
+                         "root_cause":  "Both owner and probe sameUID, socket permissions permit both, public secret embedded, no probe syscall confinement against connection/re-exec",
+                         "claim_limit":  "No SQL descriptor inherited after exec is demonstrated; cannot claim observer lacks capability to reacquire SQL. Did not modify/observe --probe to actually perform this attack.",
+                         "repair":  "Prospective bounded child syscall confinement against acquiring sockets/connections/exec and cross-process memory/FD access; independently test denied syscalls and immutable export readability. Preserve generation/source acceptance unknown.",
+                         "evidence":  "Independent sameUID psql login returned flooow_reader/backend49",
+                         "severity":  "MATERIAL_UNFINISHED_PROPERTY"
+                     },
+                     {
+                         "id":  "CUSTODY-ENV-02",
+                         "root_cause":  "Child env allowlist does not constrain owner libpq environment",
+                         "repair":  "Owner clearenv/fixed env and explicit relevant conninfo/require_auth; prove libpq startup callback/config/plugin/default effect inventory, not only connection success",
+                         "evidence":  "PQconnectdb explicit fields omit options/passfile/service-related defaults; parent environment not cleared; source comment says no environment defaults",
+                         "severity":  "IMPLEMENTATION_SCOPE_DEFECT",
+                         "status":  "Parent acknowledged upcoming prospective repair, not independently reviewed here"
+                     }
+                 ],
+    "compatible_scope":  [
+                             "Four fields originate rawPG self-session query, no protected backend_start/type projection",
+                             "No bridge registration or S03 semantics, no complete S02 roster claim",
+                             "Public synthetic credential labeled, credential custody explicitly NOT_ESTABLISHED",
+                             "Sealed export primitive publishes stable local bytes with no external writer during copy"
+                         ],
+    "strict_limitations":  [
+                               "SameUID raw kernel peers do not prove distinct approved role/principal identities",
+                               "SCRAM used-password flag alone not proof mechanism specifically SCRAM; current HBA corroborates test configuration, require_auth not yet set",
+                               "No immutable original observation interval/challenge/generation/acceptance lineage in4field byte payload",
+                               "No complete source/provider effect closure or exact PG query dependency expansion",
+                               "No owner uniqueness/global one-use/revocation/PAIR acceptance proof",
+                               "Process nondumpable and EACCES checked, but no universal memory/FD secrecy claim"
+                           ],
+    "claims":  {
+                   "self_approval":  false,
+                   "S03_bridge":  "NOT_IMPLEMENTED",
+                   "credential_custody":  "NOT_ESTABLISHED",
+                   "observers_accepted":  0,
+                   "S02_roster":  "NOT_ESTABLISHED",
+                   "source_acceptance":  "NOT_ESTABLISHED"
+               },
+    "next":  "Prospective environment hardening and bounded probe syscall confinement, then independent negative reacquisition tests; keep source qualification and acceptance separate."
+}

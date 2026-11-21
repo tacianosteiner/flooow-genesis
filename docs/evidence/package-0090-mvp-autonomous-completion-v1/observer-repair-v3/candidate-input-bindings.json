@@ -1,0 +1,118 @@
+{
+  "candidate_sha256": "ce43f8f53fb150b7f2f7af94a301bb3a07b366df111640a31bf6eb12153d11ae",
+  "public_exports": [
+    "s03_health_guard_observe",
+    "s03_census_observer_observe"
+  ],
+  "undefined_imports": [
+    "SHA256_Init",
+    "SHA256_Final",
+    "SHA256_Update"
+  ],
+  "NEEDED": [
+    "libcrypto.so.3"
+  ],
+  "fixed_syscall_sites": [
+    [
+      "    2aa8:\tbf 07 00 00 00       \tmov    $0x7,%edi",
+      "    2aad:\t31 d2                \txor    %edx,%edx",
+      "    2aaf:\t49 c7 47 10 00 00 00 00 \tmovq   $0x0,0x10(%r15)",
+      "    2ab7:\t41 c7 47 18 00 00 00 00 \tmovl   $0x0,0x18(%r15)",
+      "    2abf:\t49 c7 47 3c 00 00 00 00 \tmovq   $0x0,0x3c(%r15)",
+      "    2ac7:\t41 89 6f 70          \tmov    %ebp,0x70(%r15)",
+      "    2acb:\t49 c7 47 68 00 00 00 00 \tmovq   $0x0,0x68(%r15)",
+      "    2ad3:\t41 0f 11 47 48       \tmovups %xmm0,0x48(%r15)",
+      "    2ad8:\t0f 05                \tsyscall",
+      "    2ada:\t48 85 c0             \ttest   %rax,%rax",
+      "    2add:\t0f 85 7d 01 00 00    \tjne    2c60 <s03_prepare+0x210>",
+      "    2ae3:\t4c 8b 74 24 30       \tmov    0x30(%rsp),%r14"
+    ],
+    [
+      "    3dca:\t75 e7                \tjne    3db3 <invoke_once+0xb73>",
+      "    3dcc:\tb8 fa ff ff ff       \tmov    $0xfffffffa,%eax",
+      "    3dd1:\t45 85 ff             \ttest   %r15d,%r15d",
+      "    3dd4:\t0f 85 72 f5 ff ff    \tjne    334c <invoke_once+0x10c>",
+      "    3dda:\tb8 e4 00 00 00       \tmov    $0xe4,%eax",
+      "    3ddf:\tbf 07 00 00 00       \tmov    $0x7,%edi",
+      "    3de4:\t31 d2                \txor    %edx,%edx",
+      "    3de6:\t48 89 de             \tmov    %rbx,%rsi",
+      "    3de9:\t0f 05                \tsyscall",
+      "    3deb:\t48 85 c0             \ttest   %rax,%rax",
+      "    3dee:\t0f 85 bf 00 00 00    \tjne    3eb3 <invoke_once+0xc73>",
+      "    3df4:\t48 8b 94 24 d0 00 00 00 \tmov    0xd0(%rsp),%rdx"
+    ],
+    [
+      "    4140:\t0f 82 ed 11 00 00    \tjb     5333 <s03_finish+0x1243>",
+      "    4146:\t49 89 d7             \tmov    %rdx,%r15",
+      "    4149:\t48 8d b4 24 c0 09 00 00 \tlea    0x9c0(%rsp),%rsi",
+      "    4151:\t49 89 ce             \tmov    %rcx,%r14",
+      "    4154:\t31 d2                \txor    %edx,%edx",
+      "    4156:\t48 89 74 24 50       \tmov    %rsi,0x50(%rsp)",
+      "    415b:\tb8 e4 00 00 00       \tmov    $0xe4,%eax",
+      "    4160:\tbf 07 00 00 00       \tmov    $0x7,%edi",
+      "    4165:\t0f 05                \tsyscall",
+      "    4167:\t48 85 c0             \ttest   %rax,%rax",
+      "    416a:\t0f 85 82 11 00 00    \tjne    52f2 <s03_finish+0x1202>",
+      "    4170:\t48 8b 84 24 c0 09 00 00 \tmov    0x9c0(%rsp),%rax"
+    ],
+    [
+      "    4791:\t75 ed                \tjne    4780 <s03_finish+0x690>",
+      "    4793:\t48 8b 5c 24 30       \tmov    0x30(%rsp),%rbx",
+      "    4798:\t49 83 c5 20          \tadd    $0x20,%r13",
+      "    479c:\t31 d2                \txor    %edx,%edx",
+      "    479e:\tb8 48 00 00 00       \tmov    $0x48,%eax",
+      "    47a3:\t45 89 6e 0c          \tmov    %r13d,0xc(%r14)",
+      "    47a7:\tbe 03 00 00 00       \tmov    $0x3,%esi",
+      "    47ac:\t48 63 bb e8 ea 00 00 \tmovslq 0xeae8(%rbx),%rdi",
+      "    47b3:\t0f 05                \tsyscall",
+      "    47b5:\t48 85 c0             \ttest   %rax,%rax",
+      "    47b8:\t0f 88 2c 0b 00 00    \tjs     52ea <s03_finish+0x11fa>",
+      "    47be:\tf6 c4 08             \ttest   $0x8,%ah"
+    ],
+    [
+      "    47b3:\t0f 05                \tsyscall",
+      "    47b5:\t48 85 c0             \ttest   %rax,%rax",
+      "    47b8:\t0f 88 2c 0b 00 00    \tjs     52ea <s03_finish+0x11fa>",
+      "    47be:\tf6 c4 08             \ttest   $0x8,%ah",
+      "    47c1:\t0f 84 23 0b 00 00    \tje     52ea <s03_finish+0x11fa>",
+      "    47c7:\t48 63 bb e8 ea 00 00 \tmovslq 0xeae8(%rbx),%rdi",
+      "    47ce:\t48 8b 74 24 50       \tmov    0x50(%rsp),%rsi",
+      "    47d3:\tb8 05 00 00 00       \tmov    $0x5,%eax",
+      "    47d8:\t0f 05                \tsyscall",
+      "    47da:\t48 85 c0             \ttest   %rax,%rax",
+      "    47dd:\t0f 85 07 0b 00 00    \tjne    52ea <s03_finish+0x11fa>",
+      "    47e3:\t8b 84 24 d8 09 00 00 \tmov    0x9d8(%rsp),%eax"
+    ],
+    [
+      "    481b:\t48 8b 80 f8 ea 00 00 \tmov    0xeaf8(%rax),%rax",
+      "    4822:\t48 39 84 24 c8 09 00 00 \tcmp    %rax,0x9c8(%rsp)",
+      "    482a:\t0f 85 ba 0a 00 00    \tjne    52ea <s03_finish+0x11fa>",
+      "    4830:\t48 8b 44 24 30       \tmov    0x30(%rsp),%rax",
+      "    4835:\t48 8b 74 24 40       \tmov    0x40(%rsp),%rsi",
+      "    483a:\t4c 89 ea             \tmov    %r13,%rdx",
+      "    483d:\t48 63 b8 e8 ea 00 00 \tmovslq 0xeae8(%rax),%rdi",
+      "    4844:\tb8 01 00 00 00       \tmov    $0x1,%eax",
+      "    4849:\t0f 05                \tsyscall",
+      "    484b:\t48 85 c0             \ttest   %rax,%rax",
+      "    484e:\t0f 88 96 0a 00 00    \tjs     52ea <s03_finish+0x11fa>",
+      "    4854:\t49 39 c5             \tcmp    %rax,%r13"
+    ]
+  ],
+  "source_bindings": {
+    "census_observer.c": "83f24fa184897d09015fc15500b950ccac20f982649aa4716bdad22ab0b4ef77",
+    "health_guard.c": "21e4cd49995884e76b68586e27a8a7a8018ddb72ed08e4a226a59952ec4d09bd",
+    "native_effects.h": "8d44936af6c07721054c8035fafaade0a79412e63e8421c9988eb448f75e89bd",
+    "observer.h": "91230f160829ea12e34b4ff492e6387c73f10c209b8b41c838b42f367c822aae",
+    "observer_common.c": "a6a774453a11ba343e06f78a39dfb937eca7a311b54faaac73df0f2ec0adc00d",
+    "observer_internal.h": "87dcf8dedcd7b4c30754e2dcdbb18be33e977197bde5df62859793926394bc1e"
+  },
+  "scope": "Static candidate shape, not effect/kernel/owner/source acceptance",
+  "raw_syscall_semantics": "Negative kernel error is failclosed without publishing errno to TLS; pending deferred cancellation now completes until caller cancellation point",
+  "pending": [
+    "Independent review",
+    "During-write/asynchronous interruption",
+    "Kernel/source/platform authority",
+    "Qualified owner/global immutable replay",
+    "Frozen33/66/canonical350"
+  ]
+}

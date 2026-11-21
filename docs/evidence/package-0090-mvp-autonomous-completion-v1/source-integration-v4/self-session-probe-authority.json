@@ -1,0 +1,48 @@
+{
+  "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+  "CHILD_AUTHORITY_ID": "PACKAGE_0090_S03_PROSPECTIVE_BOOTSTRAP_MEASUREMENT_V1",
+  "PURPOSE": "Measure nonsecret HOST/DEPLOYMENT bootstrap facts before any Reader candidate session; retain unestablished approval/policy/generation",
+  "SCOPE": "NEW initdb in disposable tmpfs; private Unix socket; no host ports; no network",
+  "INPUTS": {
+    "candidate_sources": {
+      "self_session_custody_probe.c": "e857f2c5dbb0c9bf15e92d1307d01e7454bb7787de1ec25123dd57c82743ac0c",
+      "immutable_export.c": "06443256c4b9cd4accdbe1b41a8096e908381cd6151c55e25e162222e2092673",
+      "run_self_session_probe.sh": "45a20ccfe197d2f6da813c96ab7e795ae1cf06bd8ec4d5f20ccf53fe4a02feb5"
+    },
+    "existing_headers": {
+      "interfaces/libpq/libpq-fe.h": "499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0",
+      "include/postgres_ext.h": "7f2d7945243abf649e0c574457db63abd3b704603db245e15f2268e823154322"
+    },
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561"
+  },
+  "PERMITTED_EFFECTS": [
+    "compile in tmpfs",
+    "initdb",
+    "bootstrap one synthetic Reader role",
+    "SCRAM local login",
+    "fixed read-only public4 self-row",
+    "sealed memfd publication",
+    "two own pre-execed child readers",
+    "owner opens pidfd for own libpq backend PID",
+    "children poll retained pidfd only",
+    "owner closes own SQL session then children observe process exit",
+    "read fixed boot UUID and own time namespace inode",
+    "bootstrap admin reads fixed nonsecret PG system/database/Reader/server-start fields before Reader program"
+  ],
+  "PROHIBITED_EFFECTS": [
+    "V043",
+    "B02",
+    "migrations",
+    "S03 registration/entrypoint",
+    "original/shared/production DB",
+    "source acceptance",
+    "semantic authority"
+  ],
+  "PRECONDITIONS": "Pinned local image; root bootstrap has only SETUID/SETGID to separate OS principals; owner10000 and children10001/10002 verify zero capabilities; PG999; readonly inputs; no host namespaces or external volume",
+  "EXIT_CONDITIONS": "Record exact bounded observations; destroy own cluster/container",
+  "EXPIRY_OR_TERMINATION": "Container exit or 90-second timeout",
+  "PARENT_BOUNDARY_HASH_OR_REFERENCE": {
+    "path": "../authority-receipt.json",
+    "sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606"
+  }
+}

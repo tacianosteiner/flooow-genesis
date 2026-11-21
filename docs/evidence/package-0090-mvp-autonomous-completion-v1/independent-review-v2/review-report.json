@@ -1,0 +1,112 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "BOUNDED_TEMPORAL_AND_METADATA_REPAIR_CONFIRMED_NO_ACCEPTANCE",
+    "independence":  "Same operationally separate reviewer as review1; not creator of either candidate; no historical/global independence claim",
+    "branch":  "checkpoint/package-0090-cloud-handoff",
+    "head":  "91fab9497405c6fb933a58f2d8182f3e24de2e2a",
+    "oracle":  "../independent-review/requirements-baseline.json",
+    "oracle_sha256":  "cee91cb0cc3820e5105a76043d6172ff20a43011b4187ac275b2832e55866ac3",
+    "candidate":  "../observer-repair-v1",
+    "candidate_elf_sha256":  "9c0349b7328c366de125db0b39c9cc83dcfacbeccaa54355960d0f6b2b9a5db2",
+    "candidate_bindings_verified":  6,
+    "binding_mismatches":  0,
+    "old_review_manifest_preservation_mismatches":  0,
+    "runtime":  {
+                    "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                    "security":  "no-new-privileges",
+                    "network":  "none",
+                    "root":  "read-only",
+                    "independent_cases":  "13 per role plus exact replay and conflict per role =30 observations; original9case harness also rerun",
+                    "database_loaded":  false,
+                    "cap_drop":  "ALL",
+                    "creator_results_inherited":  false,
+                    "pull":  "never",
+                    "mounts":  "candidate native/build readonly; independent-review-v2 only writable",
+                    "user":  "65534:65534"
+                },
+    "findings":  [
+                     {
+                         "evidence":  "case1 both roles rc0 STALE diag512",
+                         "disposition":  "REPAIRED_FOR_TESTED_CANDIDATE",
+                         "oracle":  "common TYPES.ObservationWindow.rule: entire original interval within independently approved lease",
+                         "id":  "IR-TEMPORAL-01"
+                     },
+                     {
+                         "evidence":  "case8 both roles rc-1 UNKNOWN frame_size0",
+                         "disposition":  "REPAIRED_FOR_TESTED_ROOT_INTERVAL",
+                         "oracle":  "common PRECONDITIONS and CURRENTNESS",
+                         "id":  "IR-TEMPORAL-02"
+                     },
+                     {
+                         "evidence":  "case2 both roles source+session+principal+time diagnostics660; case11 public integrity failure+metadata diagnostics788, integrity primary",
+                         "disposition":  "CONDITIONAL_REPAIR_CONFIRMED",
+                         "id":  "IR-DIAGNOSTICS-01",
+                         "scope":  "Other seven metadata sources structurally bound and present. No inference that structural source equality independently qualifies real sources"
+                     },
+                     {
+                         "conclusion":  "Comparison gate correctly suppresses member checks, but code does not prove no payload memory read. Protected owner must establish input buffer is authorized local immutable export before entry, or arrange bounded staged commitment of qualified fields. Do not claim gate alone proves forbidden-source no-read.",
+                         "evidence":  "invoke_once invocation_digest precedes prepare and commits all member fields, regardless of source availability or origin mismatch; finish also serializes source envelopes",
+                         "id":  "IR-READ-BOUNDARY-02",
+                         "severity":  "INTEGRATION_OBLIGATION"
+                     }
+                 ],
+    "observations":  [
+                         "case0 matching evidence only; no source acceptance established",
+                         "case3 origin mismatch retained; no later semantic source checks",
+                         "case4 two qualified contradiction dimensions retained",
+                         "cases5/6/7 future/inverted/over-age original observations STALE",
+                         "case9 NATIVE missing prevents metadata mismatch classification",
+                         "case10 PUBLIC missing prevents member contradiction comparison",
+                         "case12 inclusive not_before zero-duration original interval accepted, consistent with start\u003c=finish",
+                         "local exact replay immutable; changed coverage conflict -6"
+                     ],
+    "delta_review":  [
+                         "interval_in_lease checks checked unsigned interval ordering, original start\u003e=not_before, finish\u003cexpires and barrier covers finish",
+                         "interval_current additionally checks original finish\u003c=now and bounded age; used in prepare, finish and replay",
+                         "root_ok rejects out-of-lease protected original interval before source consumption",
+                         "metadata_ready permits independently bound seven-source metadata comparison despite PUBLIC absence; ready remains false while any source issue exists",
+                         "Origin mismatch remains early semantic gate; source-state loop retains distinct error categories; priority stable"
+                     ],
+    "engineering_remaining":  [
+                                  {
+                                      "minimum":  "Evolve existing acquire/S03 membrane with fixed accepted export capabilities, immutable buffer lifetime, private qualified sink and explicit callsites. Bind exact source acceptance root/records before export. Integration may fail closed when inputs unavailable.",
+                                      "external_only":  "Only actual missing independently held approved source/principal/channel records are external facts; implementing missing adapters and tests is authorized engineering.",
+                                      "area":  "protected integration"
+                                  },
+                                  {
+                                      "minimum":  "Reuse existing challenge/session owner; prove unique publication/no reset/no second cell, lifecycle revocation, immutability and cancellation/concurrency semantics. Local CAS cell alone cannot prove owner uniqueness.",
+                                      "external_only":  "Owner identity or source revocation facts unavailable in isolated environment cannot be asserted by creator.",
+                                      "area":  "global replay"
+                                  },
+                                  {
+                                      "minimum":  "Implement/reuse existing independent verifier boundary to parse/validate both complete records, independently held expected/source records, distinct origins, exact snapshot/acquisition, original combined interval and current barrier. Evidence-only output.",
+                                      "external_only":  "Actual qualified independently held bindings/acceptance records and distinct-origin evidence are required for real acceptance.",
+                                      "area":  "PAIR consumer"
+                                  }
+                              ],
+    "no_external_hard_stop_declared":  "Authorized integration/owner/PAIR engineering and isolated verification remain possible. Missing implementation alone is not external authority hard stop.",
+    "claims":  {
+                   "self_approval":  false,
+                   "observers_established":  0,
+                   "actual_input_source_acceptance":  "NOT_ESTABLISHED",
+                   "protected_integration":  "NOT_ESTABLISHED",
+                   "frozen_native33_or_threat66_or_structural33_promoted":  false,
+                   "global_immutable_replay":  "NOT_ESTABLISHED",
+                   "observers_accepted":  0,
+                   "independent_pair":  "NOT_ESTABLISHED"
+               },
+    "suite_scope":  "30 independent synthetic mechanics observations do not close frozen33native/66threats or23 count-only structural gap; retain original IDs/counts and evidence scope",
+    "limitations":  [
+                        "No authenticated actual native-source acquisition exercised",
+                        "No independent selected-provider transitive effect proof or concurrency/ABA test",
+                        "No pair consumer exists in candidate ABI; combined two-role currentness acceptance cannot be exercised here",
+                        "All comparisons use artificial typed refs as adversarial/local test input only"
+                    ],
+    "acceptance_conditions":  [
+                                  "Hash-bound repaired implementation independently reviewed at actual protected callsites",
+                                  "Real accepted-source traceability, independent origin/channel/custody/authentication and currentness",
+                                  "Unique existing owner lifecycle and immutable input/receipt evidence",
+                                  "Actual independent PAIR source/currentness reconstruction and separately governed acceptance gate",
+                                  "Frozen original obligations satisfied on their real predicate scope without synthetic inheritance"
+                              ]
+}

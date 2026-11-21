@@ -1,0 +1,247 @@
+{
+  "authority": {
+    "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+    "CHILD_AUTHORITY_ID": "PACKAGE_0090_S03_IMMUTABLE_RAW_BOOTSTRAP_PREPARATION_V1",
+    "PURPOSE": "Measure nonsecret HOST/DEPLOYMENT bootstrap facts in separate stockPG admin child, publish sealed readonly raw expectations before Reader/observers; retain unestablished approval/policy/generation",
+    "SCOPE": "NEW initdb in disposable tmpfs; private Unix socket; no host ports; no network",
+    "INPUTS": {
+      "candidate_sources": {
+        "self_session_custody_probe.c": "6c8359dd10c2e55665b6aacdbfff54f971f78ecfadb18575484d74f9682414c5",
+        "immutable_export.c": "06443256c4b9cd4accdbe1b41a8096e908381cd6151c55e25e162222e2092673",
+        "bootstrap_expectation.c": "7bd6ad8c078ad7f16a42db85d192138e9984474c8c689440d5f1271b3ac0592c",
+        "bootstrap_expectation.h": "408ccb09f3c7baccfd1ba9b21e75402442576d3f42737044ed3b6437ca764dc6",
+        "run_self_session_probe.sh": "9643aefecd511ffd7a5da7ffccab070b4892ff7a1c2ac36f80504ea87e2ec97e",
+        "verify_self_session_probe.py": "ca0aed13716ce2ded321e7ecf909392ebba9b1d648e1000f9d69ed1af34a7696"
+      },
+      "existing_headers": {
+        "interfaces/libpq/libpq-fe.h": "499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0",
+        "include/postgres_ext.h": "7f2d7945243abf649e0c574457db63abd3b704603db245e15f2268e823154322"
+      },
+      "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561"
+    },
+    "PERMITTED_EFFECTS": [
+      "compile in tmpfs",
+      "initdb",
+      "bootstrap one synthetic Reader role",
+      "SCRAM local login",
+      "fixed read-only public4 self-row",
+      "sealed memfd publication",
+      "two own pre-execed child readers",
+      "owner opens pidfd for own libpq backend PID",
+      "children poll retained pidfd only",
+      "owner closes own SQL session then children observe process exit",
+      "read fixed boot UUID and own time namespace inode",
+      "bootstrap admin reads fixed nonsecret PG system/database/Reader/server-start fields before Reader program"
+    ],
+    "PROHIBITED_EFFECTS": [
+      "V043",
+      "B02",
+      "migrations",
+      "S03 registration/entrypoint",
+      "original/shared/production DB",
+      "source acceptance",
+      "semantic authority"
+    ],
+    "PRECONDITIONS": "Pinned local image; root bootstrap has only SETUID/SETGID to separate OS principals; owner10000 and children10001/10002 verify zero capabilities; PG999; readonly inputs; no host namespaces or external volume",
+    "EXIT_CONDITIONS": "Record exact bounded observations; destroy own cluster/container",
+    "EXPIRY_OR_TERMINATION": "Container exit or 90-second timeout",
+    "PARENT_BOUNDARY_HASH_OR_REFERENCE": {
+      "path": "../authority-receipt.json",
+      "sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606"
+    }
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--pull",
+    "never",
+    "--network",
+    "none",
+    "--read-only",
+    "--user",
+    "0:0",
+    "--cap-drop",
+    "ALL",
+    "--cap-add",
+    "SETUID",
+    "--cap-add",
+    "SETGID",
+    "--security-opt",
+    "no-new-privileges",
+    "--tmpfs",
+    "/tmp:rw,exec,size=256m,mode=1777",
+    "--mount",
+    "type=bind,source=C:\\Projects\\flooow-genesis-git\\docs\\evidence\\package-0090-mvp-autonomous-completion-v1\\source-integration-v5,target=/probe,readonly",
+    "--mount",
+    "type=bind,source=C:\\Projects\\flooow-genesis-git\\docs\\evidence\\package-0090-B01-v2-native-static-closure-r5n2a5-3c5v\\source-acquisition-v1\\upstream\\src,target=/pgheaders,readonly",
+    "--entrypoint",
+    "/bin/sh",
+    "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "/probe/run_self_session_probe.sh"
+  ],
+  "exit_code": 0,
+  "stdout": "waiting for server to start.... done\nserver started\nSET\nCREATE ROLE\nserver signaled\n type  |  database  |    user_name    | address |  auth_method  | error \n-------+------------+-----------------+---------+---------------+-------\n local | {all}      | {postgres}      |         | peer          | \n local | {postgres} | {flooow_reader} |         | scram-sha-256 | \n local | {all}      | {all}           |         | reject        | \n host  | {all}      | {all}           | all     | reject        | \n(4 rows)\n\nBOOTSTRAP_OS_BOOT_ID|793510c2-7f51-4cd5-a39c-b356a3650c16\nBOOTSTRAP_TIME_NAMESPACE_INODE|4026533133\nBOOTSTRAP_PG|{\"database_system_identifier_sql_int64\" : \"7709263316489633831\", \"database_system_identifier_wire_hex\" : \"6afcce2413508027\", \"database_oid\" : \"5\", \"reader_role_oid\" : \"16384\", \"reader_role_name\" : \"flooow_reader\", \"server_start_pg_us\" : \"848267940540661\", \"server_start_pg_wire_hex\" : \"0003037ec54530f5\", \"reader_flags\" : {\"login\" : true, \"superuser\" : false, \"inherit\" : false, \"create_role\" : false, \"create_db\" : false, \"replication\" : false, \"bypass_rls\" : false}, \"reader_memberships\" : 0, \"reader_sessions_before_candidate\" : 0}\n{\"kind\":\"RAW_BOOTSTRAP_EXPECTATION_FROZEN_BEFORE_CANDIDATE\",\"pid\":98,\"device\":1,\"inode\":8211,\"start_boottime_us\":51936662373,\"finish_boottime_us\":51936669068,\"database_oid\":5,\"reader_oid\":16384,\"system_identifier_u64\":\"7709263316489633831\",\"server_start_pg_us\":\"848267940540661\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"KERNEL_PIDFD_OWNER_SELECTION\",\"pid\":98,\"device\":5,\"inode\":1336518,\"start_boottime_us\":51936685131,\"finish_boottime_us\":51936687956,\"kernel_liveness\":\"LIVE_BEFORE_AND_AFTER\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"RAW_PUBLIC4_SELF_SESSION_ACQUISITION\",\"pid\":98,\"start_boottime_us\":51936686750,\"finish_boottime_us\":51936687956,\"payload_hex\":\"040135053136333834033130330d666c6f6f6f775f726561646572\",\"sha256\":\"e906e2b3221ea24525408dbe7a745708a5f763264e2a73081e515f2ba0e08f09\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"RAW_BOOTSTRAP_EXPECTATION_CHILD_READ\",\"pid\":101,\"device\":1,\"inode\":8211,\"start_boottime_us\":51936662373,\"finish_boottime_us\":51936669068,\"database_oid\":5,\"reader_oid\":16384,\"system_identifier_u64\":\"7709263316489633831\",\"server_start_pg_us\":\"848267940540661\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"RAW_BOOTSTRAP_EXPECTATION_CHILD_READ\",\"pid\":102,\"device\":1,\"inode\":8211,\"start_boottime_us\":51936662373,\"finish_boottime_us\":51936669068,\"database_oid\":5,\"reader_oid\":16384,\"system_identifier_u64\":\"7709263316489633831\",\"server_start_pg_us\":\"848267940540661\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"RAW_PUBLIC4_EXPORT_CHILD_PROBE\",\"pid\":102,\"start_boottime_us\":51936688401,\"finish_boottime_us\":51936688438,\"payload_hex\":\"040135053136333834033130330d666c6f6f6f775f726561646572\",\"sha256\":\"e906e2b3221ea24525408dbe7a745708a5f763264e2a73081e515f2ba0e08f09\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"KERNEL_PIDFD_CHILD_OBSERVATION\",\"pid\":102,\"device\":5,\"inode\":1336518,\"start_boottime_us\":51936688401,\"finish_boottime_us\":51936688438,\"kernel_liveness\":\"LIVE_BEFORE_AND_AFTER\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"RAW_PUBLIC4_EXPORT_CHILD_PROBE\",\"pid\":101,\"start_boottime_us\":51936688388,\"finish_boottime_us\":51936688439,\"payload_hex\":\"040135053136333834033130330d666c6f6f6f775f726561646572\",\"sha256\":\"e906e2b3221ea24525408dbe7a745708a5f763264e2a73081e515f2ba0e08f09\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"KERNEL_PIDFD_CHILD_OBSERVATION\",\"pid\":101,\"device\":5,\"inode\":1336518,\"start_boottime_us\":51936688388,\"finish_boottime_us\":51936688439,\"kernel_liveness\":\"LIVE_BEFORE_AND_AFTER\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"KERNEL_PIDFD_CHILD_POST_SESSION_CLOSE\",\"pid\":102,\"device\":5,\"inode\":1336518,\"start_boottime_us\":51936690336,\"finish_boottime_us\":51936692335,\"kernel_liveness\":\"STALE_PROCESS_EXITED\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\n{\"kind\":\"KERNEL_PIDFD_CHILD_POST_SESSION_CLOSE\",\"pid\":101,\"device\":5,\"inode\":1336518,\"start_boottime_us\":51936690317,\"finish_boottime_us\":51936692351,\"kernel_liveness\":\"STALE_PROCESS_EXITED\",\"source_acceptance\":\"NOT_ESTABLISHED\"}\nPASS SELF_SESSION_PGSTAT_CUSTODY_PROBE: distinct OS principals10000/10001/10002, Reader socket DAC rejects children before seccomp, required SCRAM, nonprivileged/zero memberships, children exec-ready and seccomp before SQL, sealed public4 self-row plus retained pidfd only, each child independently polls kernel liveness before/after export and detects exit after owner closes own session; each child denies9 reacquisition/control syscalls\nNOT_ESTABLISHED: S02 roster, S03 bridge/MyStartTimestamp/B_BACKEND, issuer, source acceptance, role enrollment, credential custody, generation, canonical admission\nwaiting for server to shut down.... done\nserver stopped\n",
+  "stderr": "WARNING: password file \"/dev/null\" is not a plain file\n",
+  "observations": [
+    {
+      "kind": "RAW_BOOTSTRAP_EXPECTATION_FROZEN_BEFORE_CANDIDATE",
+      "pid": 98,
+      "device": 1,
+      "inode": 8211,
+      "start_boottime_us": 51936662373,
+      "finish_boottime_us": 51936669068,
+      "database_oid": 5,
+      "reader_oid": 16384,
+      "system_identifier_u64": "7709263316489633831",
+      "server_start_pg_us": "848267940540661",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "KERNEL_PIDFD_OWNER_SELECTION",
+      "pid": 98,
+      "device": 5,
+      "inode": 1336518,
+      "start_boottime_us": 51936685131,
+      "finish_boottime_us": 51936687956,
+      "kernel_liveness": "LIVE_BEFORE_AND_AFTER",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "RAW_PUBLIC4_SELF_SESSION_ACQUISITION",
+      "pid": 98,
+      "start_boottime_us": 51936686750,
+      "finish_boottime_us": 51936687956,
+      "payload_hex": "040135053136333834033130330d666c6f6f6f775f726561646572",
+      "sha256": "e906e2b3221ea24525408dbe7a745708a5f763264e2a73081e515f2ba0e08f09",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "RAW_BOOTSTRAP_EXPECTATION_CHILD_READ",
+      "pid": 101,
+      "device": 1,
+      "inode": 8211,
+      "start_boottime_us": 51936662373,
+      "finish_boottime_us": 51936669068,
+      "database_oid": 5,
+      "reader_oid": 16384,
+      "system_identifier_u64": "7709263316489633831",
+      "server_start_pg_us": "848267940540661",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "RAW_BOOTSTRAP_EXPECTATION_CHILD_READ",
+      "pid": 102,
+      "device": 1,
+      "inode": 8211,
+      "start_boottime_us": 51936662373,
+      "finish_boottime_us": 51936669068,
+      "database_oid": 5,
+      "reader_oid": 16384,
+      "system_identifier_u64": "7709263316489633831",
+      "server_start_pg_us": "848267940540661",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "RAW_PUBLIC4_EXPORT_CHILD_PROBE",
+      "pid": 102,
+      "start_boottime_us": 51936688401,
+      "finish_boottime_us": 51936688438,
+      "payload_hex": "040135053136333834033130330d666c6f6f6f775f726561646572",
+      "sha256": "e906e2b3221ea24525408dbe7a745708a5f763264e2a73081e515f2ba0e08f09",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "KERNEL_PIDFD_CHILD_OBSERVATION",
+      "pid": 102,
+      "device": 5,
+      "inode": 1336518,
+      "start_boottime_us": 51936688401,
+      "finish_boottime_us": 51936688438,
+      "kernel_liveness": "LIVE_BEFORE_AND_AFTER",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "RAW_PUBLIC4_EXPORT_CHILD_PROBE",
+      "pid": 101,
+      "start_boottime_us": 51936688388,
+      "finish_boottime_us": 51936688439,
+      "payload_hex": "040135053136333834033130330d666c6f6f6f775f726561646572",
+      "sha256": "e906e2b3221ea24525408dbe7a745708a5f763264e2a73081e515f2ba0e08f09",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "KERNEL_PIDFD_CHILD_OBSERVATION",
+      "pid": 101,
+      "device": 5,
+      "inode": 1336518,
+      "start_boottime_us": 51936688388,
+      "finish_boottime_us": 51936688439,
+      "kernel_liveness": "LIVE_BEFORE_AND_AFTER",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "KERNEL_PIDFD_CHILD_POST_SESSION_CLOSE",
+      "pid": 102,
+      "device": 5,
+      "inode": 1336518,
+      "start_boottime_us": 51936690336,
+      "finish_boottime_us": 51936692335,
+      "kernel_liveness": "STALE_PROCESS_EXITED",
+      "source_acceptance": "NOT_ESTABLISHED"
+    },
+    {
+      "kind": "KERNEL_PIDFD_CHILD_POST_SESSION_CLOSE",
+      "pid": 101,
+      "device": 5,
+      "inode": 1336518,
+      "start_boottime_us": 51936690317,
+      "finish_boottime_us": 51936692351,
+      "kernel_liveness": "STALE_PROCESS_EXITED",
+      "source_acceptance": "NOT_ESTABLISHED"
+    }
+  ],
+  "reconstruction_checks": {
+    "three_public_observations": true,
+    "five_kernel_observations": true,
+    "one_source_two_readers": true,
+    "distinct_processes": true,
+    "exact_payloads": true,
+    "reconstructed_digests": true,
+    "ordered_intervals": true,
+    "source_before_readers": true,
+    "bootstrap_principal_database_match_actual_public_row": true,
+    "bootstrap_measurements_before_candidate_output": true,
+    "same_retained_kernel_object": true,
+    "two_live_independent_kernel_observations": true,
+    "two_stale_after_session_close": true,
+    "exit_observations_after_live": true
+  },
+  "bootstrap_raw_measurements": {
+    "boot_id": "793510c2-7f51-4cd5-a39c-b356a3650c16",
+    "time_namespace_inode": 4026533133,
+    "PG": {
+      "database_system_identifier_sql_int64": "7709263316489633831",
+      "database_system_identifier_wire_hex": "6afcce2413508027",
+      "database_oid": "5",
+      "reader_role_oid": "16384",
+      "reader_role_name": "flooow_reader",
+      "server_start_pg_us": "848267940540661",
+      "server_start_pg_wire_hex": "0003037ec54530f5",
+      "reader_flags": {
+        "login": true,
+        "superuser": false,
+        "inherit": false,
+        "create_role": false,
+        "create_db": false,
+        "replication": false,
+        "bypass_rls": false
+      },
+      "reader_memberships": 0,
+      "reader_sessions_before_candidate": 0,
+      "database_system_identifier_u64": "7709263316489633831"
+    }
+  },
+  "bootstrap_approval_policy_generation": "NOT_ESTABLISHED; raw measurements are not approval manifest, active policy, generation highwater, enrollment or source acceptance",
+  "classification": "REAL_DISPOSABLE_ENGINEERING_PROBE_ONLY_NO_SOURCE_ACCEPTANCE"
+}

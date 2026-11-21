@@ -1,0 +1,50 @@
+{
+  "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+  "CHILD_AUTHORITY_ID": "PACKAGE_0090_EXISTING_HOST_MANAGED_IMMUTABLE_PREPARATION_V1",
+  "PURPOSE": "Bind existing external local manager to exact immutable preparation image, launch, bootstrap birth and private control channel",
+  "SCOPE": "One never-started image assembly container plus one NEW disposable raw preparation container; pinned local image; no policy/source acceptance",
+  "INPUTS": {
+    "base_image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "source_manifest": {
+      "pgheaders/include/postgres_ext.h": "7f2d7945243abf649e0c574457db63abd3b704603db245e15f2268e823154322",
+      "pgheaders/interfaces/libpq/libpq-fe.h": "499d984421f5490be016f7d49a8599e7f8be120f0cf80c200e872265064be7c0",
+      "probe/bootstrap_expectation.c": "7bd6ad8c078ad7f16a42db85d192138e9984474c8c689440d5f1271b3ac0592c",
+      "probe/bootstrap_expectation.h": "408ccb09f3c7baccfd1ba9b21e75402442576d3f42737044ed3b6437ca764dc6",
+      "probe/immutable_export.c": "06443256c4b9cd4accdbe1b41a8096e908381cd6151c55e25e162222e2092673",
+      "probe/managed-entrypoint.sh": "6d50745f081c57250421dfa53aaeb25a81539367b1cc8f7f731f67c1e58b7f32",
+      "probe/run_self_session_probe.sh": "9643aefecd511ffd7a5da7ffccab070b4892ff7a1c2ac36f80504ea87e2ec97e",
+      "probe/self_session_custody_probe.c": "ac12ebc56e7c27d829360f0803635f16ffae9766e5bf72c46472cd13437127c0"
+    },
+    "source_bundle_sha256": "ee7d494ae2dc225ad241a54c9f70438e6ce9f04f5ec201fff76663dd3cc75d5a",
+    "docker_context": "desktop-linux",
+    "controller_source_sha256": "db3e1bf003d6ceca52d6d51db4af79341a5dee806eeede1254510e3220ebd560"
+  },
+  "PERMITTED_EFFECTS": [
+    "local Docker metadata reads",
+    "create stopped image-assembly container",
+    "copy selected source tar to its own writable layer without executing",
+    "commit local immutable image",
+    "create/start one isolated readonly preparation container",
+    "inspect own launch/birth/namespace and send one fixed private preparation stdin command",
+    "raw bootstrap/public4/pidfd tests",
+    "remove only label/ID-verified owned containers and their own anonymous volumes"
+  ],
+  "PROHIBITED_EFFECTS": [
+    "pull/push/network outside existing local Docker endpoint",
+    "host Docker socket/namespace/mount exposure to candidate",
+    "production/original/shared DB",
+    "S03 registration/semantic entrypoints",
+    "V043",
+    "B02",
+    "source/policy approval",
+    "security-policy changes",
+    "native participant/authority/key invention"
+  ],
+  "PRECONDITIONS": "Actual local manager revalidated; source imageID exact; no host-code bind mounts in runtime; runtime rootfs readonly, networknone, private namespaces; only bootstrap SETUID/SETGID then roles drop to zero caps",
+  "EXIT_CONDITIONS": "Record exact manager/image/launch/PID/namespace/control-origin chain and raw preparation outputs; cleanup owned containers; retain labeled immutable image as qualification candidate only",
+  "EXPIRY_OR_TERMINATION": "Bounded command timeouts, manager stdin EOF, own completion or driver failure cleanup",
+  "PARENT_BOUNDARY_HASH_OR_REFERENCE": {
+    "path": "../authority-receipt.json",
+    "sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606"
+  }
+}

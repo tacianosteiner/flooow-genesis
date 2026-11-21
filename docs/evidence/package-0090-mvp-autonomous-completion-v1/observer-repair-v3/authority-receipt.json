@@ -1,0 +1,38 @@
+{
+  "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+  "CHILD_AUTHORITY_ID": "PACKAGE_0090_S03_FIXED_FOUR_EFFECT_ADAPTER_CANDIDATE_V1",
+  "PURPOSE": "Reduce four already-declared candidate effects to fixed Linux x86_64 syscalls; retain error failclosed semantics",
+  "SCOPE": "Prospective private observer candidate only; original/v2 unchanged; no new ABI/source acceptance",
+  "INPUTS": {
+    "census_observer.c": "83f24fa184897d09015fc15500b950ccac20f982649aa4716bdad22ab0b4ef77",
+    "health_guard.c": "21e4cd49995884e76b68586e27a8a7a8018ddb72ed08e4a226a59952ec4d09bd",
+    "native_effects.h": "8d44936af6c07721054c8035fafaade0a79412e63e8421c9988eb448f75e89bd",
+    "observer.h": "91230f160829ea12e34b4ff492e6387c73f10c209b8b41c838b42f367c822aae",
+    "observer_common.c": "a6a774453a11ba343e06f78a39dfb937eca7a311b54faaac73df0f2ec0adc00d",
+    "observer_internal.h": "87dcf8dedcd7b4c30754e2dcdbb18be33e977197bde5df62859793926394bc1e"
+  },
+  "PERMITTED_EFFECTS": [
+    "compile/link/static inspect",
+    "64 synthetic cases",
+    "576 deterministic mutations",
+    "8 own-child syscall-error cases",
+    "4 before-call/after-publication deferred cancellation cases"
+  ],
+  "PROHIBITED_EFFECTS": [
+    "DB",
+    "network",
+    "V043",
+    "B02",
+    "accepted observer/source claims",
+    "historical mutation",
+    "new syscall selectors"
+  ],
+  "PRECONDITIONS": "Pinned offline image, uid65534, no capabilities; no generic external syscall API; same BOOTTIME/F_GETFL/fstat/bounded nonblocking write",
+  "EXIT_CONDITIONS": "Preserve failures; record exact native/provider imports and regressions; await independent review/cancellation qualification",
+  "EXPIRY_OR_TERMINATION": "Own container completion or60second timeouts",
+  "PARENT_BOUNDARY_HASH_OR_REFERENCE": {
+    "path": "../authority-receipt.json",
+    "sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606"
+  },
+  "CANCELLATION_LIMIT": "Raw write has no libc pthread cancellation point; equivalence not claimed. Before/during/after cancellation/owner integration still require qualification."
+}

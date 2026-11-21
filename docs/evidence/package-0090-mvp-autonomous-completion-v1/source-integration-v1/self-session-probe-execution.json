@@ -1,0 +1,63 @@
+{
+  "authority": {
+    "parent": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+    "parent_sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606",
+    "gate": "SELF_SESSION_PGSTAT_CUSTODY_PROBE",
+    "purpose": "Prepare bounded real Reader/session export mechanics; no source acceptance",
+    "inputs": {
+      "self_session_custody_probe.c": "c6b566bbd8998befe1947cf03686781c21ef59286d6ceed7c9a00bd6c5988861",
+      "immutable_export.c": "06443256c4b9cd4accdbe1b41a8096e908381cd6151c55e25e162222e2092673",
+      "run_self_session_probe.sh": "5a2a1e628b8b725ff1d1ddaa171688a6b278e0033ad22eeae120e53839e9e261"
+    },
+    "scope": "NEW initdb in disposable tmpfs; private Unix socket; no host ports; no network",
+    "effects": [
+      "compile in tmpfs",
+      "initdb",
+      "bootstrap one synthetic Reader role",
+      "SCRAM local login",
+      "fixed read-only public4 self-row",
+      "sealed memfd publication",
+      "two own pre-execed child readers"
+    ],
+    "preconditions": "Pinned local image; unprivileged uid999; no capabilities; readonly input; no external volume",
+    "prohibited": [
+      "V043",
+      "B02",
+      "migrations",
+      "S03 registration/entrypoint",
+      "original/shared/production DB",
+      "source acceptance",
+      "semantic authority"
+    ],
+    "exit": "Record exact bounded observations; destroy own cluster/container",
+    "termination": "Container exit or 90-second timeout"
+  },
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--pull",
+    "never",
+    "--network",
+    "none",
+    "--read-only",
+    "--user",
+    "999:999",
+    "--cap-drop",
+    "ALL",
+    "--security-opt",
+    "no-new-privileges",
+    "--tmpfs",
+    "/tmp:rw,exec,size=256m,uid=999,gid=999,mode=0700",
+    "--mount",
+    "type=bind,source=C:\\Projects\\flooow-genesis-git\\docs\\evidence\\package-0090-mvp-autonomous-completion-v1\\source-integration-v1,target=/probe,readonly",
+    "--entrypoint",
+    "/bin/sh",
+    "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+    "/probe/run_self_session_probe.sh"
+  ],
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "/probe/self_session_custody_probe.c:6:10: fatal error: libpq-fe.h: No such file or directory\n    6 | #include <libpq-fe.h>\n      |          ^~~~~~~~~~~~\ncompilation terminated.\n",
+  "classification": "REAL_DISPOSABLE_ENGINEERING_PROBE_ONLY_NO_SOURCE_ACCEPTANCE"
+}

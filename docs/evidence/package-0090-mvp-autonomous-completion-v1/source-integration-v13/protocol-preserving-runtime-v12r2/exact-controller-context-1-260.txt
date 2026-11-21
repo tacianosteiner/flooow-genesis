@@ -1,0 +1,260 @@
+﻿0001: """Bind actual local HOST manager -> immutable image -> fixed preparation.
+0002: 
+0003: No new authority/key/service is created. Managed launch and immutable code are
+0004: provenance facts, not approval, source acceptance or canonical qualification.
+0005: """
+0006: import hashlib
+0007: import argparse
+0008: import io
+0009: import json
+0010: import pathlib
+0011: import re
+0012: import queue
+0013: import subprocess
+0014: import struct
+0015: import tarfile
+0016: import time
+0017: import threading
+0018: import uuid
+0019: 
+0020: directory = pathlib.Path(__file__).resolve().parent
+0021: output = directory.parent
+0022: repository = directory.parents[3]
+0023: source = output / "source-integration-v10"
+0024: headers = repository / "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5v/source-acquisition-v1/upstream/src"
+0025: base_image = "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561"
+0026: context = "desktop-linux"
+0027: label = "mvp-autonomous-completion-v1"
+0028: options = argparse.ArgumentParser()
+0029: options.add_argument("--review-complete-path")
+0030: arguments = options.parse_args()
+0031: nonce = uuid.uuid4().hex[:12]
+0032: build_name = "flooow-mvp-image-" + nonce
+0033: run_name = "flooow-mvp-managed-" + nonce
+0034: docker = ["docker", "--context", context]
+0035: executions = []
+0036: sha = lambda value: hashlib.sha256(value).hexdigest()
+0037: 
+0038: def call(args, *, data=None, timeout=30, required=True):
+0039:     command = docker + args
+0040:     result = subprocess.run(command, input=data, capture_output=True, timeout=timeout)
+0041:     row = {"command": command, "exit_code": result.returncode,
+0042:            "stdout": result.stdout.decode("utf-8", "replace"),
+0043:            "stderr": result.stderr.decode("utf-8", "replace")}
+0044:     if data is not None:
+0045:         row["stdin_bytes"] = len(data)
+0046:         row["stdin_sha256"] = sha(data)
+0047:     executions.append(row)
+0048:     (directory / "executions.json").write_text(json.dumps(executions, indent=2) + "\n", encoding="utf-8")
+0049:     if required and result.returncode:
+0050:         raise RuntimeError(json.dumps(row))
+0051:     return row
+0052: 
+0053: def inspect(identifier):
+0054:     return json.loads(call(["inspect", identifier])["stdout"])[0]
+0055: 
+0056: def manager():
+0057:     host = call(["context", "inspect", "--format", "{{json .Endpoints.docker.Host}}", context])["stdout"].strip()
+0058:     actual = json.loads(call(["info", "--format", "{{json .ID}}"]) ["stdout"])
+0059:     assert json.loads(host) == "npipe:////./pipe/dockerDesktopLinuxEngine"
+0060:     return {"context": context, "endpoint": json.loads(host), "daemon_id": actual}
+0061: 
+0062: files = {}
+0063: for name in ("immutable_export.c", "self_session_custody_probe.c", "bootstrap_expectation.c", "bootstrap_expectation.h", "policy_candidate_custody.c", "policy_candidate_custody.h", "policy_projection_tests.c", "run_self_session_probe.sh"):
+0064:     files["probe/" + name] = (source / name).read_bytes()
+0065: files["probe/managed-entrypoint.sh"] = (directory / "entrypoint.sh").read_bytes()
+0066: proposal_bytes = (output / "prospective-observation-policy-candidate-v1/policy-proposal.json").read_bytes()
+0067: proposal = json.loads(proposal_bytes)
+0068: assert proposal["classification"] == "PROSPECTIVE_PROVISIONING_DATA_PROPOSAL_NOT_APPROVED_NOT_ACCEPTED_NOT_ACTIVE"
+0069: values = proposal["proposed_values"]
+0070: assert all(type(values[key]) is int and 0 < values[key] < 2**64 for key in values)
+0071: version_literal = json.dumps(proposal["proposed_policy_version"], ensure_ascii=True)
+0072: assert len(proposal["proposed_policy_version"].encode("ascii")) < 64
+0073: generated_header = ("#include <stdint.h>\n" +
+0074:     f"#define S03_PROPOSED_MAX_AGE_US UINT64_C({values['original_source_max_age_us']})\n" +
+0075:     f"#define S03_PROPOSED_LEASE_US UINT64_C({values['challenge_lease_us']})\n" +
+0076:     f"#define S03_PROPOSED_MAX_ROWS UINT64_C({values['max_rows']})\n" +
+0077:     f"#define S03_PROPOSED_MAX_BYTES UINT64_C({values['max_private_frame_bytes']})\n" +
+0078:     f"#define S03_PROPOSED_POLICY_VERSION {version_literal}\n" +
+0079:     f'#define S03_POLICY_PROPOSAL_SHA256 "{sha(proposal_bytes)}"\n' +
+0080:     f'#define S03_MVP_PARENT_RECEIPT_SHA256 "{sha((output / "authority-receipt.json").read_bytes())}"\n').encode()
+0081: files["probe/policy_proposal_values.h"] = generated_header
+0082: files["probe/policy-proposal.json"] = proposal_bytes
+0083: for name in ("interfaces/libpq/libpq-fe.h", "include/postgres_ext.h"):
+0084:     files["pgheaders/" + name] = (headers / name).read_bytes()
+0085: manifest = {name: sha(data) for name, data in sorted(files.items())}
+0086: files["probe/input-manifest.json"] = (json.dumps(manifest, sort_keys=True, indent=2) + "\n").encode()
+0087: def pack(values):
+0088:     buffer = io.BytesIO()
+0089:     with tarfile.open(fileobj=buffer, mode="w", format=tarfile.USTAR_FORMAT) as archive:
+0090:         parents = set()
+0091:         for name in values:
+0092:             parents.update(str(path) for path in pathlib.PurePosixPath(name).parents if str(path) != ".")
+0093:         for name in sorted(parents, key=lambda value: (value.count("/"), value)):
+0094:             entry = tarfile.TarInfo(name)
+0095:             entry.type = tarfile.DIRTYPE
+0096:             entry.mode = 0o555
+0097:             archive.addfile(entry)
+0098:         for name, data in sorted(values.items()):
+0099:             entry = tarfile.TarInfo(name)
+0100:             entry.mode = 0o555 if name == "probe/self-session-probe" else 0o444
+0101:             entry.size = len(data)
+0102:             archive.addfile(entry, io.BytesIO(data))
+0103:     return buffer.getvalue()
+0104: bundle = pack(files)
+0105: (directory / "source-bundle.tar").write_bytes(bundle)
+0106: receipt = {
+0107:     "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+0108:     "CHILD_AUTHORITY_ID": "PACKAGE_0090_EXISTING_HOST_BOUND_PARAMETER_APPROVAL_AND_LIVE_REVIEW_V1",
+0109:     "PURPOSE": "Existing HOST custodian makes explicit positive parameter disposition for one actual bound test context, pending independent authority/qualification/sourceacceptance; provide readonly live review before Reader, never activate",
+0110:     "SCOPE": "Never-started image assembly, one disposable offline compiler container writing only a new build-output directory, one NEW readonly raw preparation container; no policy/source acceptance",
+0111:     "INPUTS": {"base_image": base_image, "source_manifest": manifest, "source_bundle_sha256": sha(bundle), "docker_context": context, "controller_source_sha256": sha(pathlib.Path(__file__).read_bytes()), "unaccepted_proposal_sha256": sha(proposal_bytes)},
+0112:     "PERMITTED_EFFECTS": ["local Docker metadata reads", "create stopped image-assembly container", "copy selected source tar to its own writable layer without executing", "commit local immutable source/runtime images", "offline gcc compilation in own readonly container with only new build-output bind", "create/start one isolated readonly preparation container without host binds", "inspect own launch/PID1 and real publisher/custodian birth/executable/namespace before fixed preparation commands", "external HOST explicitly requests bound parameter approval referencing current parent grant, exact proposal, actual manager/image/container/custodian birth/ns and exact4values", "separate zero-cap UID10003 checks ownbirth/ns/grant/proposal/exactvalues then issues positiveparameterapprovalCLAIM in sealedreadonlyrecord pending independent qualification/sourceacceptance; no operationalactivation", "verify actual sender SCM_CREDENTIALS and retainedpidfd plus exactrequest before consuming record as not-source-accepted data", "bounded livehandoff of exactnonsecretreadonlypolicyFD for independentHOSTreview, never SourceAccepted fromcapturecompletion", "raw bootstrap/public4/pidfd tests", "remove only label/ID-verified owned containers and their own anonymous volumes"],
+0113:     "PROHIBITED_EFFECTS": ["pull/push/network outside existing local Docker endpoint", "host Docker socket/namespace/mount exposure to candidate", "production/original/shared DB", "S03 registration/semantic entrypoints", "V043", "B02", "creator selfqualification/sourceacceptance or operationalpolicyactivation", "security-policy changes", "native participant/authority/key invention"],
+0114:     "PRECONDITIONS": "Actual local manager revalidated; source imageID exact; no host-code bind mounts in runtime; runtime rootfs readonly, networknone, private namespaces; only bootstrap SETUID/SETGID then roles drop to zero caps",
+0115:     "EXIT_CONDITIONS": "Record exact manager/image/launch/PID/namespace/control-origin chain and raw preparation outputs; cleanup owned containers; retain labeled immutable image as qualification candidate only",
+0116:     "EXPIRY_OR_TERMINATION": "Bounded command timeouts, max150second review wait (HOSTtestcontrol only, notsourceTTL), managerstdinEOF, owncompletion or driverfailurecleanup",
+0117:     "PARENT_BOUNDARY_HASH_OR_REFERENCE": {"path": "../authority-receipt.json", "sha256": sha((output / "authority-receipt.json").read_bytes())},
+0118: }
+0119: (directory / "authority-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+0120: builder = runtime = image = process = None
+0121: try:
+0122:     before = manager()
+0123:     base = json.loads(call(["image", "inspect", base_image])["stdout"])[0]
+0124:     assert base["Id"] == base_image and base["Os"] == "linux" and base["Architecture"] == "amd64"
+0125:     builder = call(["create", "--pull", "never", "--name", build_name, "--label", "flooow.authority=" + label,
+0126:                     "--network", "none", "--cap-drop", "ALL", "--entrypoint", "/bin/true", base_image])["stdout"].strip()
+0127:     created = inspect(builder)
+0128:     assert not created["State"]["Running"] and created["Image"] == base_image
+0129:     call(["cp", "-", builder + ":/"], data=bundle)
+0130:     committed = call(["commit", "--no-pause", "--change", "ENTRYPOINT [\"/bin/sh\",\"/probe/managed-entrypoint.sh\"]",
+0131:                   "--change", "CMD []", "--change", "LABEL flooow.authority=" + label,
+0132:                   "--change", "LABEL flooow.scope=RAW_PREPARATION_NOT_ACCEPTED",
+0133:                   "--change", "LABEL flooow.input_manifest_sha256=" + sha(files["probe/input-manifest.json"]),
+0134:                   builder, "flooow-mvp-managed-preparation:" + nonce], timeout=60)["stdout"]
+0135:     identifiers = [line.strip() for line in committed.splitlines() if re.fullmatch(r"sha256:[0-9a-f]{64}", line.strip())]
+0136:     assert len(identifiers) == 1
+0137:     source_image = identifiers[0]
+0138:     build_output = directory / ("build-output-" + nonce)
+0139:     build_output.mkdir(exist_ok=False)
+0140:     compile_command = "gcc -std=c11 -O2 -Wall -Wextra -Werror -DS03_MANAGED_BIRTH_GATE=1 -I/pgheaders/interfaces/libpq -I/pgheaders/include /probe/self_session_custody_probe.c /probe/bootstrap_expectation.c /probe/policy_candidate_custody.c /probe/immutable_export.c -l:libpq.so.5 -lcrypto -o /build-out/self-session-probe"
+0141:     call(["run", "--rm", "--pull", "never", "--label", "flooow.authority=" + label, "--network", "none", "--read-only", "--user", "0:0", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,noexec,size=64m", "--mount", f"type=bind,source={build_output},target=/build-out", "--entrypoint", "/bin/sh", source_image, "-c", compile_command], timeout=60)
+0142:     guard_compile = "gcc -std=c11 -O2 -Wall -Wextra -Werror -I/pgheaders/interfaces/libpq -I/pgheaders/include /probe/policy_projection_tests.c /probe/bootstrap_expectation.c /probe/immutable_export.c -l:libpq.so.5 -lcrypto -o /tmp/policy-guard && /tmp/policy-guard"
+0143:     guard_result = call(["run", "--rm", "--pull", "never", "--label", "flooow.authority=" + label, "--network", "none", "--read-only", "--user", "65534:65534", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,exec,size=64m", "--entrypoint", "/bin/sh", source_image, "-c", guard_compile], timeout=60)
+0144:     elf = (build_output / "self-session-probe").read_bytes()
+0145:     assert elf.startswith(b"\x7fELF")
+0146:     runtime_script = files["probe/run_self_session_probe.sh"].decode("utf-8")
+0147:     runtime_script = "\n".join(line for line in runtime_script.splitlines() if not line.startswith("gcc ") and line != "chmod 0555 /tmp/self-session-probe") + "\n"
+0148:     runtime_script = runtime_script.replace("/tmp/self-session-probe", "/probe/self-session-probe")
+0149:     files["probe/run_self_session_probe.sh"] = runtime_script.encode()
+0150:     files["probe/self-session-probe"] = elf
+0151:     final_manifest = {name: sha(data) for name, data in sorted(files.items()) if name != "probe/input-manifest.json"}
+0152:     files["probe/input-manifest.json"] = (json.dumps(final_manifest, sort_keys=True, indent=2) + "\n").encode()
+0153:     final_bundle = pack(files)
+0154:     (directory / "runtime-bundle.tar").write_bytes(final_bundle)
+0155:     call(["cp", "-", builder + ":/"], data=final_bundle)
+0156:     final_commit = call(["commit", "--no-pause", "--change", "ENTRYPOINT [\"/bin/sh\",\"/probe/managed-entrypoint.sh\"]", "--change", "CMD []", "--change", "LABEL flooow.authority=" + label, "--change", "LABEL flooow.scope=RAW_PREPARATION_NOT_ACCEPTED", "--change", "LABEL flooow.input_manifest_sha256=" + sha(files["probe/input-manifest.json"]), builder, "flooow-mvp-managed-preparation:" + nonce + "-runtime"], timeout=60)["stdout"]
+0157:     identifiers = [line.strip() for line in final_commit.splitlines() if re.fullmatch(r"sha256:[0-9a-f]{64}", line.strip())]
+0158:     assert len(identifiers) == 1
+0159:     image = identifiers[0]
+0160:     immutable_image = json.loads(call(["image", "inspect", image])["stdout"])[0]
+0161:     assert immutable_image["Id"] == image
+0162:     create_args = ["create", "--pull", "never", "--name", run_name, "--label", "flooow.authority=" + label,
+0163:                    "--network", "none", "--read-only", "--user", "0:0", "--cap-drop", "ALL", "--cap-add", "SETUID", "--cap-add", "SETGID",
+0164:                    "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,exec,size=256m,mode=1777", "-i", image]
+0165:     runtime = call(create_args)["stdout"].strip()
+0166:     launch = inspect(runtime)
+0167:     assert launch["Image"] == image and launch["HostConfig"]["ReadonlyRootfs"] and launch["HostConfig"]["NetworkMode"] == "none"
+0168:     assert all(mount["Type"] != "bind" for mount in launch["Mounts"])
+0169:     assert launch["HostConfig"].get("PidMode", "") not in ("host", "container")
+0170:     process = subprocess.Popen(docker + ["start", "--attach", "--interactive", runtime], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+0171:     stdout_lines, stderr_parts, line_queue = [], [], queue.Queue()
+0172:     def read_stdout():
+0173:         for line in iter(process.stdout.readline, b""):
+0174:             stdout_lines.append(line)
+0175:             line_queue.put(line)
+0176:         line_queue.put(None)
+0177:     def read_stderr():
+0178:         stderr_parts.append(process.stderr.read())
+0179:     stdout_thread = threading.Thread(target=read_stdout, daemon=True)
+0180:     stderr_thread = threading.Thread(target=read_stderr, daemon=True)
+0181:     stdout_thread.start(); stderr_thread.start()
+0182:     ready_bytes = line_queue.get(timeout=30)
+0183:     assert ready_bytes is not None
+0184:     ready = ready_bytes.decode("utf-8", "strict")
+0185:     assert ready == "MANAGED_PREPARATION_READY\n", ready
+0186:     live = inspect(runtime)
+0187:     assert live["State"]["Running"] and live["State"]["Pid"] > 0
+0188:     bootstrap = call(["exec", "--user", "0:0", runtime, "/bin/sh", "-c", "readlink /proc/1/ns/pid; readlink /proc/1/ns/time; cat /proc/1/stat"])
+0189:     assert manager() == before
+0190:     process.stdin.write(b"START_BOUND_RAW_PREPARATION\n");process.stdin.flush()
+0191:     deadline = time.monotonic() + 60
+0192:     while True:
+0193:         line = line_queue.get(timeout=max(0.01, deadline - time.monotonic()))
+0194:         assert line is not None, "Publisher exited before managed birth gate"
+0195:         match = re.fullmatch(rb"HOST_MANAGED_PUBLISHER_BIRTH_READY PID=([1-9][0-9]*)\n", line)
+0196:         if match:
+0197:             publisher_pid = int(match.group(1));assert publisher_pid <= 2147483647
+0198:             break
+0199:         assert time.monotonic() < deadline
+0200:     publisher = call(["exec", "--user", "0:0", runtime, "/bin/sh", "-c", f"readlink /proc/{publisher_pid}/exe; sha256sum /proc/{publisher_pid}/exe; cat /proc/{publisher_pid}/stat; cat /proc/{publisher_pid}/status; readlink /proc/{publisher_pid}/ns/pid; readlink /proc/{publisher_pid}/ns/time"])
+0201:     publisher_lines = publisher["stdout"].splitlines()
+0202:     assert publisher_lines[0] == "/probe/self-session-probe" and publisher_lines[1].split()[0] == sha(elf)
+0203:     external_process_membership = call(["top", runtime, "-eo", "pid,ppid,lstart,user,comm"])
+0204:     assert manager() == before
+0205:     process.stdin.write(b"AUTHORIZE_BOUND_RAW_BOOTSTRAP\n");process.stdin.flush()
+0206:     deadline = time.monotonic() + 60
+0207:     while True:
+0208:         line = line_queue.get(timeout=max(0.01, deadline - time.monotonic()))
+0209:         assert line is not None, "Custodian exited before managed birth gate"
+0210:         match = re.fullmatch(rb"HOST_POLICY_CANDIDATE_CUSTODIAN_BIRTH_READY PID=([1-9][0-9]*) UID=10003\n", line)
+0211:         if match:
+0212:             custodian_pid = int(match.group(1));assert custodian_pid <= 2147483647
+0213:             break
+0214:         assert time.monotonic() < deadline
+0215:     custodian = call(["exec", "--user", "10003:10003", runtime, "/bin/sh", "-c", f"readlink /proc/{custodian_pid}/exe; sha256sum /proc/{custodian_pid}/exe; cat /proc/{custodian_pid}/stat; cat /proc/{custodian_pid}/status; readlink /proc/{custodian_pid}/ns/pid; readlink /proc/{custodian_pid}/ns/time"])
+0216:     custodian_lines = custodian["stdout"].splitlines()
+0217:     assert custodian_lines[0] == "/probe/self-session-probe" and custodian_lines[1].split()[0] == sha(elf)
+0218:     custodian_membership = call(["top", runtime, "-eo", "pid,ppid,lstart,user,comm"])
+0219:     assert manager() == before
+0220:     stat_line = custodian_lines[2]
+0221:     assert int(stat_line.split(" ", 1)[0]) == custodian_pid
+0222:     start_ticks = int(stat_line.rsplit(")", 1)[1].split()[19])
+0223:     pid_namespace = int(re.fullmatch(r"pid:\[([0-9]+)\]", custodian_lines[-2]).group(1))
+0224:     time_namespace = int(re.fullmatch(r"time:\[([0-9]+)\]", custodian_lines[-1]).group(1))
+0225:     parent_reference = sha((output / "authority-receipt.json").read_bytes())
+0226:     request = struct.pack(">32s32s16s32s32sIQQQIQQQQ", bytes.fromhex(parent_reference), bytes.fromhex(sha(proposal_bytes)),
+0227:                           uuid.UUID(before["daemon_id"]).bytes, bytes.fromhex(image.removeprefix("sha256:")),
+0228:                           bytes.fromhex(runtime), custodian_pid, start_ticks, pid_namespace, time_namespace,
+0229:                           1, values["original_source_max_age_us"], values["challenge_lease_us"], values["max_rows"], values["max_private_frame_bytes"])
+0230:     assert len(request) == 208
+0231:     decision_control = b"APPROVE_BOUND_POLICY_VALUES_PENDING_SOURCE_ACCEPTANCE " + request.hex().encode("ascii") + b"\n"
+0232:     decision_request = {"scope":"Private existing HOST preparation control, not native observer ABI or source acceptance",
+0233:                         "action":"APPROVE_BOUND_POLICY_VALUES_PENDING_SOURCE_ACCEPTANCE", "positive_disposition_code":1, "exact_parameter_values":values, "parent_delegation_reference_sha256":parent_reference,
+0234:                         "proposal_sha256":sha(proposal_bytes), "manager":before, "image":image,"container":runtime,
+0235:                         "custodian_pid":custodian_pid,"custodian_start_ticks":start_ticks,"pid_namespace_inode":pid_namespace,
+0236:                         "time_namespace_inode":time_namespace,"request_hex":request.hex(),"control_bytes_sha256":sha(decision_control),
+0237:                         "qualification":"NOT_ESTABLISHED","acceptance":"NOT_ESTABLISHED","activation":"NOT_ESTABLISHED"}
+0238:     (directory / "explicit-scoped-decision-request.json").write_text(json.dumps(decision_request,indent=2)+"\n",encoding="utf-8")
+0239:     process.stdin.write(decision_control);process.stdin.flush()
+0240:     deadline = time.monotonic() + 60
+0241:     issued_record = None
+0242:     while True:
+0243:         line = line_queue.get(timeout=max(0.01, deadline - time.monotonic()))
+0244:         assert line is not None, "Custodian exited before live input review handoff"
+0245:         if line.startswith(b'{"kind":"POLICY_ISSUER_PARAMETER_APPROVAL_CLAIM_NOT_ACCEPTED"'):
+0246:             issued_record = json.loads(line)
+0247:         match = re.fullmatch(rb"HOST_POLICY_INPUT_REVIEW_READY PID=([1-9][0-9]*) FD=([0-9]+) SIZE=([1-9][0-9]*)\n", line)
+0248:         if match:
+0249:             assert issued_record is not None and int(match.group(1)) == custodian_pid
+0250:             assert int(match.group(2)) == issued_record["record_fd"] and int(match.group(3)) == issued_record["private_record_size"]
+0251:             break
+0252:         assert time.monotonic() < deadline
+0253:     live_handoff = {"classification":"LIVE_READONLY_REVIEW_NOT_SOURCE_ACCEPTANCE_OR_ACTIVATION", "context":context,
+0254:                     "daemon_id":before["daemon_id"],"container":runtime,"expected_image":image,"label":label,
+0255:                     "pid":custodian_pid,"fd":issued_record["record_fd"],"start_ticks":start_ticks,
+0256:                     "device":issued_record["device"],"inode":issued_record["inode"],"size":issued_record["private_record_size"],
+0257:                     "sha256":issued_record["private_record_sha256"],"expected_owner_uid":10003,
+0258:                     "decision_request":decision_request,"issuer_record":issued_record,
+0259:                     "completion_signal_is_only_test_synchronization_not_acceptance":True,"review_completion_path":arguments.review_complete_path}
+0260:     (directory / "live-handoff.json").write_text(json.dumps(live_handoff,indent=2)+"\n",encoding="utf-8")

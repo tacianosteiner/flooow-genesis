@@ -1,0 +1,13 @@
+﻿0063: for name in ("immutable_export.c", "self_session_custody_probe.c", "bootstrap_expectation.c", "bootstrap_expectation.h", "policy_candidate_custody.c", "policy_candidate_custody.h", "policy_projection_tests.c", "run_self_session_probe.sh"):
+0100:             entry.mode = 0o555 if name == "probe/self-session-probe" else 0o444
+0120: builder = runtime = image = process = None
+0140:     compile_command = "gcc -std=c11 -O2 -Wall -Wextra -Werror -DS03_MANAGED_BIRTH_GATE=1 -I/pgheaders/interfaces/libpq -I/pgheaders/include /probe/self_session_custody_probe.c /probe/bootstrap_expectation.c /probe/policy_candidate_custody.c /probe/immutable_export.c -l:libpq.so.5 -lcrypto -o /build-out/self-session-probe"
+0144:     elf = (build_output / "self-session-probe").read_bytes()
+0146:     runtime_script = files["probe/run_self_session_probe.sh"].decode("utf-8")
+0147:     runtime_script = "\n".join(line for line in runtime_script.splitlines() if not line.startswith("gcc ") and line != "chmod 0555 /tmp/self-session-probe") + "\n"
+0148:     runtime_script = runtime_script.replace("/tmp/self-session-probe", "/probe/self-session-probe")
+0149:     files["probe/run_self_session_probe.sh"] = runtime_script.encode()
+0150:     files["probe/self-session-probe"] = elf
+0170:     process = subprocess.Popen(docker + ["start", "--attach", "--interactive", runtime], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+0202:     assert publisher_lines[0] == "/probe/self-session-probe" and publisher_lines[1].split()[0] == sha(elf)
+0217:     assert custodian_lines[0] == "/probe/self-session-probe" and custodian_lines[1].split()[0] == sha(elf)

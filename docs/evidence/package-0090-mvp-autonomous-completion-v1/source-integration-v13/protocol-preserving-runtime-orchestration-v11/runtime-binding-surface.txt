@@ -1,0 +1,89 @@
+﻿0001: """Bind actual local HOST manager -> immutable image -> fixed preparation.
+0004: provenance facts, not approval, source acceptance or canonical qualification.
+0020: directory = pathlib.Path(__file__).resolve().parent
+0021: output = directory.parent
+0022: repository = directory.parents[3]
+0023: source = output / "source-integration-v10"
+0024: headers = repository / "docs/evidence/package-0090-B01-v2-native-static-closure-r5n2a5-3c5v/source-acquisition-v1/upstream/src"
+0025: base_image = "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561"
+0032: build_name = "flooow-mvp-image-" + nonce
+0034: docker = ["docker", "--context", context]
+0039:     command = docker + args
+0057:     host = call(["context", "inspect", "--format", "{{json .Endpoints.docker.Host}}", context])["stdout"].strip()
+0059:     assert json.loads(host) == "npipe:////./pipe/dockerDesktopLinuxEngine"
+0064:     files["probe/" + name] = (source / name).read_bytes()
+0066: proposal_bytes = (output / "prospective-observation-policy-candidate-v1/policy-proposal.json").read_bytes()
+0067: proposal = json.loads(proposal_bytes)
+0068: assert proposal["classification"] == "PROSPECTIVE_PROVISIONING_DATA_PROPOSAL_NOT_APPROVED_NOT_ACCEPTED_NOT_ACTIVE"
+0069: values = proposal["proposed_values"]
+0071: version_literal = json.dumps(proposal["proposed_policy_version"], ensure_ascii=True)
+0072: assert len(proposal["proposed_policy_version"].encode("ascii")) < 64
+0074:     f"#define S03_PROPOSED_MAX_AGE_US UINT64_C({values['original_source_max_age_us']})\n" +
+0079:     f'#define S03_POLICY_PROPOSAL_SHA256 "{sha(proposal_bytes)}"\n' +
+0080:     f'#define S03_MVP_PARENT_RECEIPT_SHA256 "{sha((output / "authority-receipt.json").read_bytes())}"\n').encode()
+0081: files["probe/policy_proposal_values.h"] = generated_header
+0082: files["probe/policy-proposal.json"] = proposal_bytes
+0090:         parents = set()
+0092:             parents.update(str(path) for path in pathlib.PurePosixPath(name).parents if str(path) != ".")
+0093:         for name in sorted(parents, key=lambda value: (value.count("/"), value)):
+0105: (directory / "source-bundle.tar").write_bytes(bundle)
+0107:     "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+0109:     "PURPOSE": "Existing HOST custodian makes explicit positive parameter disposition for one actual bound test context, pending independent authority/qualification/sourceacceptance; provide readonly live review before Reader, never activate",
+0110:     "SCOPE": "Never-started image assembly, one disposable offline compiler container writing only a new build-output directory, one NEW readonly raw preparation container; no policy/source acceptance",
+0111:     "INPUTS": {"base_image": base_image, "source_manifest": manifest, "source_bundle_sha256": sha(bundle), "docker_context": context, "controller_source_sha256": sha(pathlib.Path(__file__).read_bytes()), "unaccepted_proposal_sha256": sha(proposal_bytes)},
+0112:     "PERMITTED_EFFECTS": ["local Docker metadata reads", "create stopped image-assembly container", "copy selected source tar to its own writable layer without executing", "commit local immutable source/runtime images", "offline gcc compilation in own readonly container with only new build-output bind", "create/start one isolated readonly preparation container without host binds", "inspect own launch/PID1 and real publisher/custodian birth/executable/namespace before fixed preparation commands", "external HOST explicitly requests bound parameter approval referencing current parent grant, exact proposal, actual manager/image/container/custodian birth/ns and exact4values", "separate zero-cap UID10003 checks ownbirth/ns/grant/proposal/exactvalues then issues positiveparameterapprovalCLAIM in sealedreadonlyrecord pending independent qualification/sourceacceptance; no operationalactivation", "verify actual sender SCM_CREDENTIALS and retainedpidfd plus exactrequest before consuming record as not-source-accepted data", "bounded livehandoff of exactnonsecretreadonlypolicyFD for independentHOSTreview, never SourceAccepted fromcapturecompletion", "raw bootstrap/public4/pidfd tests", "remove only label/ID-verified owned containers and their own anonymous volumes"],
+0113:     "PROHIBITED_EFFECTS": ["pull/push/network outside existing local Docker endpoint", "host Docker socket/namespace/mount exposure to candidate", "production/original/shared DB", "S03 registration/semantic entrypoints", "V043", "B02", "creator selfqualification/sourceacceptance or operationalpolicyactivation", "security-policy changes", "native participant/authority/key invention"],
+0114:     "PRECONDITIONS": "Actual local manager revalidated; source imageID exact; no host-code bind mounts in runtime; runtime rootfs readonly, networknone, private namespaces; only bootstrap SETUID/SETGID then roles drop to zero caps",
+0115:     "EXIT_CONDITIONS": "Record exact manager/image/launch/PID/namespace/control-origin chain and raw preparation outputs; cleanup owned containers; retain labeled immutable image as qualification candidate only",
+0116:     "EXPIRY_OR_TERMINATION": "Bounded command timeouts, max150second review wait (HOSTtestcontrol only, notsourceTTL), managerstdinEOF, owncompletion or driverfailurecleanup",
+0117:     "PARENT_BOUNDARY_HASH_OR_REFERENCE": {"path": "../authority-receipt.json", "sha256": sha((output / "authority-receipt.json").read_bytes())},
+0120: builder = runtime = image = process = None
+0123:     base = json.loads(call(["image", "inspect", base_image])["stdout"])[0]
+0124:     assert base["Id"] == base_image and base["Os"] == "linux" and base["Architecture"] == "amd64"
+0125:     builder = call(["create", "--pull", "never", "--name", build_name, "--label", "flooow.authority=" + label,
+0126:                     "--network", "none", "--cap-drop", "ALL", "--entrypoint", "/bin/true", base_image])["stdout"].strip()
+0127:     created = inspect(builder)
+0128:     assert not created["State"]["Running"] and created["Image"] == base_image
+0129:     call(["cp", "-", builder + ":/"], data=bundle)
+0134:                   builder, "flooow-mvp-managed-preparation:" + nonce], timeout=60)["stdout"]
+0137:     source_image = identifiers[0]
+0138:     build_output = directory / ("build-output-" + nonce)
+0139:     build_output.mkdir(exist_ok=False)
+0140:     compile_command = "gcc -std=c11 -O2 -Wall -Wextra -Werror -DS03_MANAGED_BIRTH_GATE=1 -I/pgheaders/interfaces/libpq -I/pgheaders/include /probe/self_session_custody_probe.c /probe/bootstrap_expectation.c /probe/policy_candidate_custody.c /probe/immutable_export.c -l:libpq.so.5 -lcrypto -o /build-out/self-session-probe"
+0141:     call(["run", "--rm", "--pull", "never", "--label", "flooow.authority=" + label, "--network", "none", "--read-only", "--user", "0:0", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,noexec,size=64m", "--mount", f"type=bind,source={build_output},target=/build-out", "--entrypoint", "/bin/sh", source_image, "-c", compile_command], timeout=60)
+0143:     guard_result = call(["run", "--rm", "--pull", "never", "--label", "flooow.authority=" + label, "--network", "none", "--read-only", "--user", "65534:65534", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,exec,size=64m", "--entrypoint", "/bin/sh", source_image, "-c", guard_compile], timeout=60)
+0144:     elf = (build_output / "self-session-probe").read_bytes()
+0155:     call(["cp", "-", builder + ":/"], data=final_bundle)
+0156:     final_commit = call(["commit", "--no-pause", "--change", "ENTRYPOINT [\"/bin/sh\",\"/probe/managed-entrypoint.sh\"]", "--change", "CMD []", "--change", "LABEL flooow.authority=" + label, "--change", "LABEL flooow.scope=RAW_PREPARATION_NOT_ACCEPTED", "--change", "LABEL flooow.input_manifest_sha256=" + sha(files["probe/input-manifest.json"]), builder, "flooow-mvp-managed-preparation:" + nonce + "-runtime"], timeout=60)["stdout"]
+0159:     image = identifiers[0]
+0160:     immutable_image = json.loads(call(["image", "inspect", image])["stdout"])[0]
+0161:     assert immutable_image["Id"] == image
+0164:                    "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,exec,size=256m,mode=1777", "-i", image]
+0167:     assert launch["Image"] == image and launch["HostConfig"]["ReadonlyRootfs"] and launch["HostConfig"]["NetworkMode"] == "none"
+0169:     assert launch["HostConfig"].get("PidMode", "") not in ("host", "container")
+0170:     process = subprocess.Popen(docker + ["start", "--attach", "--interactive", runtime], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+0225:     parent_reference = sha((output / "authority-receipt.json").read_bytes())
+0226:     request = struct.pack(">32s32s16s32s32sIQQQIQQQQ", bytes.fromhex(parent_reference), bytes.fromhex(sha(proposal_bytes)),
+0227:                           uuid.UUID(before["daemon_id"]).bytes, bytes.fromhex(image.removeprefix("sha256:")),
+0229:                           1, values["original_source_max_age_us"], values["challenge_lease_us"], values["max_rows"], values["max_private_frame_bytes"])
+0230:     assert len(request) == 208
+0231:     decision_control = b"APPROVE_BOUND_POLICY_VALUES_PENDING_SOURCE_ACCEPTANCE " + request.hex().encode("ascii") + b"\n"
+0232:     decision_request = {"scope":"Private existing HOST preparation control, not native observer ABI or source acceptance",
+0233:                         "action":"APPROVE_BOUND_POLICY_VALUES_PENDING_SOURCE_ACCEPTANCE", "positive_disposition_code":1, "exact_parameter_values":values, "parent_delegation_reference_sha256":parent_reference,
+0234:                         "proposal_sha256":sha(proposal_bytes), "manager":before, "image":image,"container":runtime,
+0236:                         "time_namespace_inode":time_namespace,"request_hex":request.hex(),"control_bytes_sha256":sha(decision_control),
+0238:     (directory / "explicit-scoped-decision-request.json").write_text(json.dumps(decision_request,indent=2)+"\n",encoding="utf-8")
+0253:     live_handoff = {"classification":"LIVE_READONLY_REVIEW_NOT_SOURCE_ACCEPTANCE_OR_ACTIVATION", "context":context,
+0254:                     "daemon_id":before["daemon_id"],"container":runtime,"expected_image":image,"label":label,
+0258:                     "decision_request":decision_request,"issuer_record":issued_record,
+0273:     result = {"classification": "MANAGER_TO_IMMUTABLE_IMAGE_LAUNCH_BOOTSTRAP_CHANNEL_OBSERVED_NOT_POLICY_ISSUER_TRUST_OR_SOURCE_ACCEPTANCE",
+0274:               "manager_before": before, "manager_after": manager(), "base_image": base_image,
+0275:               "immutable_image_id": image, "immutable_image_metadata": immutable_image,
+0276:               "compiler_source_image_id": source_image, "compiled_publisher_sha256": sha(elf), "runtime_file_manifest": final_manifest,
+0278:               "runtime_container_id": runtime, "launch_inspect_before_start": launch,
+0282:               "actual_policy_proposal_custodian_pid": custodian_pid, "actual_policy_proposal_custodian_birth_executable_namespace": custodian,
+0284:               "private_control": {"ready": ready.strip(), "sent": ["START_BOUND_RAW_PREPARATION", "AUTHORIZE_BOUND_RAW_BOOTSTRAP", "APPROVE_BOUND_POLICY_VALUES_PENDING_SOURCE_ACCEPTANCE", "CONTINUE_WITHOUT_POLICY_ACCEPTANCE"], "explicit_decision_request":decision_request, "live_review_handoff":live_handoff, "via": "existing HOST control; issuerpositiveparameterclaim is not independentlyqualified approval/sourceacceptance/activation or observer ABI"},
+0286:               "policy_approval": "NOT_ESTABLISHED", "source_acceptance": "NOT_ESTABLISHED"}
+0290:     print(json.dumps({"image": image, "container": runtime, "manager_stable": True, "exit_code": process.returncode, "policy_approval": "NOT_ESTABLISHED"}))
+0295:     for identifier, name, expected_image in ((runtime, run_name, image), (builder, build_name, base_image)):
+0300:         assert actual["Image"] == expected_image and actual["Config"]["Labels"]["flooow.authority"] == label

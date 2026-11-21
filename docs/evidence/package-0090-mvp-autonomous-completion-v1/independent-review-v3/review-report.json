@@ -1,0 +1,118 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "BOUNDED_READ_GATE_REPAIR_CONFIRMED_WITHOUT_ACCEPTANCE",
+    "branch":  "checkpoint/package-0090-cloud-handoff",
+    "head":  "91fab9497405c6fb933a58f2d8182f3e24de2e2a",
+    "frozen_baseline":  "cbc284f62d9bd09b7169b55c8d66a3c51a68c6cb",
+    "independence":  "Operationally separate reviewer, no candidate modifications, no historical/global independence claim",
+    "oracle":  "../independent-review/requirements-baseline.json",
+    "oracle_sha256":  "cee91cb0cc3820e5105a76043d6172ff20a43011b4187ac275b2832e55866ac3",
+    "candidate":  "../observer-repair-v2",
+    "elf_sha256":  "dc4af1e074f486c7ef267d8f8ba021942d56d9613cb4c059aa7e97a80daf7f23",
+    "hash_bindings_checked":  6,
+    "hash_mismatches":  0,
+    "runtime":  {
+                    "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                    "security":  "no-new-privileges",
+                    "candidate_mounts":  "native and build readonly",
+                    "creator_pass_inherited":  false,
+                    "network":  "none",
+                    "root":  "read-only",
+                    "postgres_loaded":  false,
+                    "writable_mount":  "independent-review-v3 only",
+                    "cap_drop":  "ALL",
+                    "pull":  "never",
+                    "user":  "65534:65534"
+                },
+    "observations":  [
+                         {
+                             "method":  "mmap observation positioned so target starts page; target/window/part source page PROT_NONE",
+                             "case":  13,
+                             "actual":  "Both roles rc0 BINDING_MISMATCH diagnostic principal, no SIGSEGV",
+                             "claim":  "No access to protected page after wrong observer origin"
+                         },
+                         {
+                             "method":  "PUBLIC MISSING; count UINT32_MAX; all complete member pages after first partial page PROT_NONE",
+                             "case":  14,
+                             "actual":  "Both roles rc0 MISSING; no SIGSEGV",
+                             "claim":  "No unbounded count loop or access to protected member pages"
+                         },
+                         {
+                             "method":  "PUBLIC MISSING; after terminal result alter ignored source.integrity, count, coverage, member bridge principal, native birth and liveness",
+                             "case":  15,
+                             "actual":  "Both roles rc0 exact original digest",
+                             "claim":  "Unavailable payload ignored in semantic replay commitment"
+                         },
+                         {
+                             "method":  "bridge_presence0; after terminal result change selected bridge principal, native birth/liveness",
+                             "case":  16,
+                             "actual":  "Both roles rc0 exact original digest",
+                             "claim":  "Absent selected bridge/native payload ignored"
+                         },
+                         {
+                             "method":  "Exact local repeat then authorized coverage alteration",
+                             "case":  0,
+                             "actual":  "Both roles immutable repeat; authorized change -6",
+                             "claim":  "Bounded local commitment distinguishes authorized inputs"
+                         },
+                         {
+                             "claim":  "No reproduced regression in prior repair",
+                             "actual":  "Earlier temporal and qualified metadata diagnostic results retained",
+                             "cases":  "1,2,5,6,7,8,9,10,11,12"
+                         }
+                     ],
+    "observation_counts":  {
+                               "per_role_replay_conflict":  2,
+                               "per_role_cases":  17,
+                               "per_role_ignored_replay":  2,
+                               "total_native_calls":  42
+                           },
+    "harness_correction":  "Initial guard covered consumer_kind/requested_output_kind as well as forbidden fields, producing SIGSEGV due to authorized ingress reads. Corrected guard protects only target-start page, leaving authorized consumer/output metadata readable. That initial crash is harness boundary error, not a candidate defect.",
+    "flow_review":  [
+                        "invoke_once prepares once before digest; S03Work masks flow to compute and encoder",
+                        "origin invalid prevents source-state/source/target/window/member semantic reads and serialization",
+                        "Source structs read only when PRESENT; other states committed as tags",
+                        "Seven nonPUBLIC source bindings gate target/window/population; PUBLIC readiness gates count/coverage",
+                        "All-source exact binding readiness plus bounded count gates members; bridge mask and exact expected membership gate native anchor",
+                        "Current protected lease checked before actual facts; replay original interval checked before digest and return",
+                        "Private frame version2 carries absence tags and original protected interval/lease"
+                    ],
+    "findings":  {
+                     "global_replay":  "NOT_ESTABLISHED",
+                     "guard_proof_limit":  "Page-level access probes cover specified pages only, not a universal no-read or compiler/provider theorem",
+                     "new_reproduced_failures":  0,
+                     "protected_integration":  "NOT_ESTABLISHED",
+                     "independent_PAIR":  "NOT_ESTABLISHED",
+                     "actual_source_acceptance":  "NOT_ESTABLISHED",
+                     "IR_READ_BOUNDARY_02":  "REPAIRED_IN_TESTED_BOUNDED_GATE_SCOPE",
+                     "immutable_owner":  "NOT_ESTABLISHED"
+                 },
+    "authorized_next_engineering":  [
+                                        "Prospective existing owner integration: fixed capabilities, accepted-source resolution before export, private sink provenance, immutable publication and buffer lifetime",
+                                        "Existing challenge owner proof: unique cell allocation/publication, no reset/rebind/second-cell, cancellation/revocation/concurrency, terminal lifetime",
+                                        "Existing independent consumer: bounded version2 parsing and full record integrity, exact independent expected/source and distinct origin validation, original combined-span/current barrier check",
+                                        "Isolated real-source acquisition and source-root lineage validation under existing authority, preserving unknown when real acceptance unavailable"
+                                    ],
+    "external_boundary":  "No hard stop inferred from missing implementation. Actual unavailable independent source acceptance/principal/channel records remain factual dependencies; neither creator nor reviewer may invent historical acceptance or promote synthetic fixtures.",
+    "acceptance_conditions":  [
+                                  "Exact real accepted-source bindings and independent acquisition/origin evidence",
+                                  "Protected owner uniqueness and immutable memory lifetime established",
+                                  "Actual independent PAIR validates both records against independently held expectations and currentness",
+                                  "Separate governed source/qualification/admission gates; no review result autoacceptance",
+                                  "Original33native66threat33structural scope resolved without inventing23 count-only IDs"
+                              ],
+    "claims":  {
+                   "self_approval":  false,
+                   "observers_established":  0,
+                   "observers_accepted":  0,
+                   "MVP_finalized":  "NO_CLAIM",
+                   "fixed_suite_pass_counts_promoted":  false
+               },
+    "limitations":  [
+                        "No real PostgreSQL or accepted-source acquisition used",
+                        "No global concurrent owner/revocation/ABA proof",
+                        "No actual pair consumer code exercised",
+                        "No independent complete selected-provider effect closure",
+                        "Guard pages do not prove all skipped byte ranges; no full memory tracer"
+                    ]
+}

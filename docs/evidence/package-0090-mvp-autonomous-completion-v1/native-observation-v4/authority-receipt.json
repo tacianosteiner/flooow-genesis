@@ -1,0 +1,35 @@
+{
+  "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+  "CHILD_AUTHORITY_ID": "PACKAGE_0090_MVP_S03_EXACT_CHILD_VDSO_CAPTURE_V1",
+  "PURPOSE": "Resolve remaining clock provider target bytes for current repaired observer candidate",
+  "SCOPE": "One own disposable synthetic fixture child, max16threads/50000trace stops/65536vDSObytes; no host PID namespace",
+  "INPUTS": {
+    "tracer.c": "14bebc59d33ca2dbc3cad668a6f86afca0e3b46aa9e2cdf8888aee18589b2651",
+    "observer_fixture_tests.c": "8496f1f5585b76060b6aed82dd25cb4f63e89992c8b20e82fe1603f15e18d96b",
+    "observer-candidate.so": "dc4af1e074f486c7ef267d8f8ba021942d56d9613cb4c059aa7e97a80daf7f23",
+    "image": "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561"
+  },
+  "PERMITTED_EFFECTS": [
+    "compile bounded fixture/tracer",
+    "ptrace own child and bounded threads",
+    "read selected own-child provider pointers/maps/public vDSO bytes",
+    "record stdout/disassembly"
+  ],
+  "PROHIBITED_EFFECTS": [
+    "DB",
+    "network",
+    "S03 semantic entrypoints",
+    "V043",
+    "B02",
+    "host/other process inspection",
+    "source acceptance",
+    "frozen evidence mutation"
+  ],
+  "PRECONDITIONS": "Pinned existing local image; candidate bytes copied unchanged; readonly execution inputs; private container PID namespace; minimal ptrace capability solely in disposable test",
+  "EXIT_CONDITIONS": "Record exact64fixture outcomes, vDSO mapping/bytes/hash; leave effect scopes unclosed until independent reconstruction",
+  "EXPIRY_OR_TERMINATION": "Own container exit, bounded trace stop limit or120second timeout",
+  "PARENT_BOUNDARY_HASH_OR_REFERENCE": {
+    "path": "../authority-receipt.json",
+    "sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606"
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "scope": "Disposable local V001..V042 only; not full application startup/Package0090 or V043 proof",
+  "owned_container": "flooow-mvp-mandate-ac8f0c8fa4",
+  "executions": [
+    {
+      "command": [
+        "docker",
+        "run",
+        "-d",
+        "--name",
+        "flooow-mvp-mandate-ac8f0c8fa4",
+        "--label",
+        "flooow.authority=mvp-autonomous-v1",
+        "--pull",
+        "never",
+        "--network",
+        "none",
+        "--read-only",
+        "--user",
+        "999:999",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--tmpfs",
+        "/var/lib/postgresql:rw,uid=999,gid=999,mode=0700",
+        "--tmpfs",
+        "/var/run/postgresql:rw,uid=999,gid=999,mode=0755",
+        "--tmpfs",
+        "/tmp:rw,noexec,size=16m",
+        "-e",
+        "POSTGRES_DB=flooow_mvp_disposable",
+        "-e",
+        "POSTGRES_USER=postgres",
+        "-e",
+        "POSTGRES_PASSWORD=synthetic-disposable-mvp-only",
+        "postgres:18.4"
+      ],
+      "exit_code": 0,
+      "stdout": "5cb1f199b8a3acfb32a75bb9fc843d2f6e05c032aef30b867a6c1dacbd5d5840\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "never",
+        "--network",
+        "container:flooow-mvp-mandate-ac8f0c8fa4",
+        "--mount",
+        "type=bind,source=C:\\Projects\\flooow-genesis-git\\applications\\marketplace-operations-persistence-postgres\\src\\main\\resources\\db\\migration,target=/flyway/sql,readonly",
+        "flyway/flyway:13.2.0",
+        "-url=jdbc:postgresql://127.0.0.1:5432/flooow_mvp_disposable",
+        "-user=postgres",
+        "-password=synthetic-disposable-mvp-only",
+        "-target=42",
+        "migrate"
+      ],
+      "exit_code": 0,
+      "stdout": "WARNING: Storing migrations in 'sql' is not recommended and default scanning of this location may be deprecated in a future release\nFlyway OSS Edition 13.2.0 by Redgate\n\nSee release notes here: https://help.red-gate.com/help/flyway-cli13/help_2.aspx?topic=release-notes-and-older-versions/release-notes-for-flyway-engine\nDatabase: ******** (PostgreSQL 18.4)\nSchema history table \"public\".\"flyway_schema_history\" does not exist yet\nSuccessfully validated 43 migrations (execution time 00:00.203s)\nCreating Schema History table \"public\".\"flyway_schema_history\" ...\nCurrent version of schema \"public\": << Empty Schema >>\nMigrating schema \"public\" to version \"001 - create inventory risk assessment journal\"\nMigrating schema \"public\" to version \"002 - create integration event outbox\"\nMigrating schema \"public\" to version \"003 - create integration event delivery\"\nMigrating schema \"public\" to version \"004 - create integration control plane\"\nMigrating schema \"public\" to version \"005 - propagate organization context\"\nMigrating schema \"public\" to version \"006 - create inventory source ledger\"\nMigrating schema \"public\" to version \"007 - create inventory identity mapping\"\nMigrating schema \"public\" to version \"008 - create canonical inventory observation\"\nMigrating schema \"public\" to version \"009 - allow mapping across matching inventory evidence\"\nMigrating schema \"public\" to version \"010 - create canonical inventory source acceptance\"\nMigrating schema \"public\" to version \"011 - create canonical inventory measure selection\"\nMigrating schema \"public\" to version \"012 - create canonical inventory candidate snapshot\"\nMigrating schema \"public\" to version \"013 - create canonical inventory candidate adjudication\"\nMigrating schema \"public\" to version \"014 - create marketplace financial ledger\"\nMigrating schema \"public\" to version \"015 - create independent marketplace economic evidence\"\nMigrating schema \"public\" to version \"016 - create marketplace economic evidence projection checkpoint\"\nWARNING: DB: identifier \"marketplace_economic_evidence_projection_checkpoint_organization_fk\" will be truncated to \"marketplace_economic_evidence_projection_checkpoint_organizatio\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"marketplace_economic_evidence_projection_checkpoint_sequence_check\" will be truncated to \"marketplace_economic_evidence_projection_checkpoint_sequence_ch\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"stamp_marketplace_economic_evidence_projection_checkpoint_before_write\" will be truncated to \"stamp_marketplace_economic_evidence_projection_checkpoint_befor\" (SQL State: 42622 - Error Code: 0)\nMigrating schema \"public\" to version \"017 - add order occurrence to independent marketplace economic evidence\"\nMigrating schema \"public\" to version \"018 - create marketplace sales intelligence projection\"\nMigrating schema \"public\" to version \"019 - create omie product cost source observation\"\nMigrating schema \"public\" to version \"020 - create credential rotation execution\"\nMigrating schema \"public\" to version \"021 - create mercado livre order source observation\"\nMigrating schema \"public\" to version \"022 - create marketplace order identity and occurrence promotion\"\nMigrating schema \"public\" to version \"023 - create marketplace order revenue source promotion\"\nMigrating schema \"public\" to version \"024 - create marketplace reconciliation case\"\nMigrating schema \"public\" to version \"025 - create marketplace systemic divergence signal\"\nMigrating schema \"public\" to version \"026 - create omie transaction evidence\"\nMigrating schema \"public\" to version \"027 - add mercado livre seller sku evidence\"\nMigrating schema \"public\" to version \"028 - allow governed reacquisition capabilities\"\nWARNING: DB: identifier \"integration_mercado_livre_order_item_source_reacq_capability_check\" will be truncated to \"integration_mercado_livre_order_item_source_reacq_capability_ch\" (SQL State: 42622 - Error Code: 0)\nMigrating schema \"public\" to version \"029 - create cross system product identity decision\"\nMigrating schema \"public\" to version \"030 - create reconciliation case revision assessment lineage\"\nWARNING: DB: identifier \"reject_marketplace_reconciliation_case_revision_assessment_mutation\" will be truncated to \"reject_marketplace_reconciliation_case_revision_assessment_muta\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"reject_marketplace_reconciliation_case_revision_assessment_mutation\" will be truncated to \"reject_marketplace_reconciliation_case_revision_assessment_muta\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"reject_marketplace_reconciliation_case_revision_assessment_mutation\" will be truncated to \"reject_marketplace_reconciliation_case_revision_assessment_muta\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"validate_reconciliation_case_revision_assessment_current_revision\" will be truncated to \"validate_reconciliation_case_revision_assessment_current_revisi\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"validate_reconciliation_case_revision_assessment_current_revision\" will be truncated to \"validate_reconciliation_case_revision_assessment_current_revisi\" (SQL State: 42622 - Error Code: 0)\nMigrating schema \"public\" to version \"031 - create financial reconciliation policy authority\"\nWARNING: DB: identifier \"validate_marketplace_financial_reconciliation_policy_current_update\" will be truncated to \"validate_marketplace_financial_reconciliation_policy_current_up\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"validate_marketplace_financial_reconciliation_policy_current_update\" will be truncated to \"validate_marketplace_financial_reconciliation_policy_current_up\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"reject_marketplace_financial_reconciliation_policy_current_delete\" will be truncated to \"reject_marketplace_financial_reconciliation_policy_current_dele\" (SQL State: 42622 - Error Code: 0)\nWARNING: DB: identifier \"reject_marketplace_financial_reconciliation_policy_current_delete\" will be truncated to \"reject_marketplace_financial_reconciliation_policy_current_dele\" (SQL State: 42622 - Error Code: 0)\nMigrating schema \"public\" to version \"032 - create financial ledger materialization lineage\"\nWARNING: DB: identifier \"validate_marketplace_financial_materialization_lineage_before_insert\" will be truncated to \"validate_marketplace_financial_materialization_lineage_before_i\" (SQL State: 42622 - Error Code: 0)\nMigrating schema \"public\" to version \"033 - create omie transaction evidence v3 source evidence\"\nMigrating schema \"public\" to version \"034 - create command authorization\"\nMigrating schema \"public\" to version \"035 - create explicit transaction identity\"\nMigrating schema \"public\" to version \"036 - add transaction identity withdrawal\"\nMigrating schema \"public\" to version \"037 - add controlled command authority provisioning\"\nMigrating schema \"public\" to version \"038 - add revenue promotion economic observation lineage\"\nWARNING: DB: identifier \"marketplace_order_revenue_source_promotion_economic_observation_fk\" will be truncated to \"marketplace_order_revenue_source_promotion_economic_observation\" (SQL State: 42622 - Error Code: 0)\nMigrating schema \"public\" to version \"039 - restrict transaction identity runtime privileges\"\nMigrating schema \"public\" to version \"040 - create s2a approval governance\"\nMigrating schema \"public\" to version \"041 - create s2a accepted attestation\"\nMigrating schema \"public\" to version \"042 - create s2a attestation consumption and attested command authority\"\nWARNING: DB: there is already a transaction in progress (SQL State: 25001 - Error Code: 0)\nSuccessfully applied 42 migrations to schema \"public\", now at version v042 (execution time 00:00.343s)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "never",
+        "--network",
+        "container:flooow-mvp-mandate-ac8f0c8fa4",
+        "--mount",
+        "type=bind,source=C:\\Projects\\flooow-genesis-git\\applications\\marketplace-operations-persistence-postgres\\src\\main\\resources\\db\\migration,target=/flyway/sql,readonly",
+        "flyway/flyway:13.2.0",
+        "-url=jdbc:postgresql://127.0.0.1:5432/flooow_mvp_disposable",
+        "-user=postgres",
+        "-password=synthetic-disposable-mvp-only",
+        "-target=42",
+        "migrate"
+      ],
+      "exit_code": 0,
+      "stdout": "WARNING: Storing migrations in 'sql' is not recommended and default scanning of this location may be deprecated in a future release\nFlyway OSS Edition 13.2.0 by Redgate\n\nSee release notes here: https://help.red-gate.com/help/flyway-cli13/help_2.aspx?topic=release-notes-and-older-versions/release-notes-for-flyway-engine\nDatabase: ******** (PostgreSQL 18.4)\nSuccessfully validated 43 migrations (execution time 00:00.203s)\nCurrent version of schema \"public\": 042\nSchema \"public\" is up to date. No migration necessary.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "never",
+        "--network",
+        "container:flooow-mvp-mandate-ac8f0c8fa4",
+        "--mount",
+        "type=bind,source=C:\\Projects\\flooow-genesis-git\\applications\\marketplace-operations-persistence-postgres\\src\\main\\resources\\db\\migration,target=/flyway/sql,readonly",
+        "flyway/flyway:13.2.0",
+        "-url=jdbc:postgresql://127.0.0.1:5432/flooow_mvp_disposable",
+        "-user=postgres",
+        "-password=synthetic-disposable-mvp-only",
+        "-target=42",
+        "validate"
+      ],
+      "exit_code": 0,
+      "stdout": "WARNING: Storing migrations in 'sql' is not recommended and default scanning of this location may be deprecated in a future release\nFlyway OSS Edition 13.2.0 by Redgate\n\nSee release notes here: https://help.red-gate.com/help/flyway-cli13/help_2.aspx?topic=release-notes-and-older-versions/release-notes-for-flyway-engine\nDatabase: ******** (PostgreSQL 18.4)\nSuccessfully validated 43 migrations (execution time 00:00.388s)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--pull",
+        "never",
+        "--network",
+        "container:flooow-mvp-mandate-ac8f0c8fa4",
+        "--mount",
+        "type=bind,source=C:\\Projects\\flooow-genesis-git\\applications\\marketplace-operations-persistence-postgres\\src\\main\\resources\\db\\migration,target=/flyway/sql,readonly",
+        "flyway/flyway:13.2.0",
+        "-url=jdbc:postgresql://127.0.0.1:5432/flooow_mvp_disposable",
+        "-user=postgres",
+        "-password=synthetic-disposable-mvp-only",
+        "-target=42",
+        "info"
+      ],
+      "exit_code": 0,
+      "stdout": "WARNING: Storing migrations in 'sql' is not recommended and default scanning of this location may be deprecated in a future release\nFlyway OSS Edition 13.2.0 by Redgate\n\nSee release notes here: https://help.red-gate.com/help/flyway-cli13/help_2.aspx?topic=release-notes-and-older-versions/release-notes-for-flyway-engine\nDatabase: ******** (PostgreSQL 18.4)\nSchema version: 042\n\n+-----------+---------+-------------------------------------------------------------------+------+---------------------+--------------+----------+\n| Category  | Version | Description                                                       | Type | Installed On        | State        | Undoable |\n+-----------+---------+-------------------------------------------------------------------+------+---------------------+--------------+----------+\n| Versioned | 001     | create inventory risk assessment journal                          | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 002     | create integration event outbox                                   | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 003     | create integration event delivery                                 | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 004     | create integration control plane                                  | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 005     | propagate organization context                                    | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 006     | create inventory source ledger                                    | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 007     | create inventory identity mapping                                 | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 008     | create canonical inventory observation                            | SQL  | 2026-11-17 08:34:02 | Success      | No       |\n| Versioned | 009     | allow mapping across matching inventory evidence                  | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 010     | create canonical inventory source acceptance                      | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 011     | create canonical inventory measure selection                      | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 012     | create canonical inventory candidate snapshot                     | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 013     | create canonical inventory candidate adjudication                 | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 014     | create marketplace financial ledger                               | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 015     | create independent marketplace economic evidence                  | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 016     | create marketplace economic evidence projection checkpoint        | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 017     | add order occurrence to independent marketplace economic evidence | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 018     | create marketplace sales intelligence projection                  | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 019     | create omie product cost source observation                       | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 020     | create credential rotation execution                              | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 021     | create mercado livre order source observation                     | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 022     | create marketplace order identity and occurrence promotion        | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 023     | create marketplace order revenue source promotion                 | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 024     | create marketplace reconciliation case                            | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 025     | create marketplace systemic divergence signal                     | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 026     | create omie transaction evidence                                  | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 027     | add mercado livre seller sku evidence                             | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 028     | allow governed reacquisition capabilities                         | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 029     | create cross system product identity decision                     | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 030     | create reconciliation case revision assessment lineage            | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 031     | create financial reconciliation policy authority                  | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 032     | create financial ledger materialization lineage                   | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 033     | create omie transaction evidence v3 source evidence               | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 034     | create command authorization                                      | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 035     | create explicit transaction identity                              | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 036     | add transaction identity withdrawal                               | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 037     | add controlled command authority provisioning                     | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 038     | add revenue promotion economic observation lineage                | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 039     | restrict transaction identity runtime privileges                  | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 040     | create s2a approval governance                                    | SQL  | 2026-11-17 08:34:03 | Success      | No       |\n| Versioned | 041     | create s2a accepted attestation                                   | SQL  | 2026-11-17 08:34:04 | Success      | No       |\n| Versioned | 042     | create s2a attestation consumption and attested command authority | SQL  | 2026-11-17 08:34:04 | Success      | No       |\n| Versioned | 043     | create governed offline field proof capability composition        | SQL  |                     | Above Target | No       |\n+-----------+---------+-------------------------------------------------------------------+------+---------------------+--------------+----------+\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "exec",
+        "flooow-mvp-mandate-ac8f0c8fa4",
+        "psql",
+        "-X",
+        "-A",
+        "-t",
+        "-U",
+        "postgres",
+        "-d",
+        "flooow_mvp_disposable",
+        "-c",
+        "SELECT max(version::integer),count(*) FILTER (WHERE version='043' OR version='43') FROM flyway_schema_history WHERE success;"
+      ],
+      "exit_code": 0,
+      "stdout": "42|0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "exec",
+        "flooow-mvp-mandate-ac8f0c8fa4",
+        "psql",
+        "-X",
+        "-A",
+        "-t",
+        "-U",
+        "postgres",
+        "-d",
+        "flooow_mvp_disposable",
+        "-c",
+        "SELECT count(*) FROM information_schema.tables WHERE table_schema='public';"
+      ],
+      "exit_code": 0,
+      "stdout": "66\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "flooow-mvp-mandate-ac8f0c8fa4"
+      ],
+      "exit_code": 0,
+      "stdout": "flooow-mvp-mandate-ac8f0c8fa4\n",
+      "stderr": ""
+    }
+  ]
+}

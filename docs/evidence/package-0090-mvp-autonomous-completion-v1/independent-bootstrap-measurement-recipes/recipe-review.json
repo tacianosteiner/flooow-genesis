@@ -1,0 +1,62 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "EXISTING_NARROW_RAW_BOOTSTRAP_MEASUREMENT_RECIPES_IDENTIFIED_NO_AUTHORITY_OR_FORMAT_CREATED",
+    "scope":  "Read-only source recipes, no new runtime/candidate/DB execution",
+    "governing_schema":  "native-identity-codec.json#/bootstrap_context_schema and#/construction_order",
+    "recipes":  [
+                    {
+                        "field":  "boot_id",
+                        "limit":  "Container bootid can be hostkernel boot identity shared acrosscontainers; not isolatedcontext identity or acceptedHOSTattestation",
+                        "validation":  "Parse fullUUID, no default/random replacement; retain rawbytes/path/process/context/interval and pinnedimage/toolidentity",
+                        "source":  "Existing bootstrap schema uuid; measurement from/proc/sys/kernel/random/boot_id in exact testprocess namespace before Reader launch"
+                    },
+                    {
+                        "field":  "time_namespace_inode",
+                        "limit":  "Inode alone not kerneltrust/timeauthority or expiry policy; retain exact namespace lifetime/context",
+                        "validation":  "Record checkedinode and processcontext; compare owner/child namespace measurements when applicable; no PID-to-namespace inference",
+                        "source":  "Existing bootstrap schema u64; stat exact/proc/self/ns/time descriptor while bootstrapprocess alive"
+                    },
+                    {
+                        "field":  "database_system_identifier",
+                        "limit":  "Real NEWcluster identity, not historicalmembership/sourceacceptance",
+                        "validation":  "Prefer ownPGDATA pg_controldata unsigned64 output underPG999 beforeReader. Pin tool/source/image; do not treat clustername/dbOID as systemidentifier. SQLbigint representation needs explicit64bit bitpattern handling, no negative-\u003eabs/zero conversion.",
+                        "source":  "Existing PG18.4 pg_controldata.c ControlFile-\u003esystem_identifier; optional pg_control_system inbackend/utils/misc/pg_controldata.c values[2]"
+                    },
+                    {
+                        "field":  "database_oid",
+                        "limit":  "OID meaningful only with systemidentifier/serverincarnation/context",
+                        "validation":  "Bootstrapadmin fixedquery beforeReader, exactname+OID retained, checked nonzeroU32; no arbitrary callerselector",
+                        "source":  "Fixed pg_catalog.pg_database.oid for exact newlycreated targetdatabase; already projected in catalog-reader and schema u32"
+                    },
+                    {
+                        "field":  "ReaderprincipalroleOID/name/flags",
+                        "limit":  "Expected raw testprincipal facts, not trusted enrollment/acceptedprincipal authority. Preserve issuer/enrollmentNOTEST.",
+                        "validation":  "Immediately after bootstrapcreates testrole and beforeReaderconnection, capture exactOID/name, LOGIN/nonprivflags/NOINHERIT and zero membership edges. Freeze separately from latercandidateoutputs; do not readrolpassword/hash.",
+                        "source":  "reader-identity-manifest fixedtrusted enrollmentrequirement plus pg_catalog.pg_roles allowedcolumns and pg_auth_members"
+                    },
+                    {
+                        "field":  "raw_server_start",
+                        "limit":  "RawPGserverstart fact only; does not createS03bridge/ownsessionMyStartTimestamp/B_BACKEND proof or approvedservergeneration",
+                        "validation":  "Bootstrapfixed built-in read. Prefer timestamptz binary8bytes signedPG2000microseconds with timestamptz_send source binding, validate finite. If text used retain exactUTCtimezone/type/conversionrecipe; no Unix/BOOTTIME numeric substitution or precisionloss.",
+                        "source":  "PG18.4 timestamp.c pg_postmaster_start_time lines1627–1629 returnsPgStartTime; catalogpg_proc defines prosrc and returntype"
+                    }
+                ],
+    "ordering":  [
+                     "Pin governingexisting source/build/image and measurementprocedure independently beforecandidateoutputs",
+                     "Create NEWdisposablecluster/testReader underalreadygrantedbootstrap authority",
+                     "Measure actual nonsecretprincipal/system/bootstrap facts beforeReader connects or publishes outputs; source accepts no expectedvaluesfromcandidate",
+                     "Retain originalbytes/toolidentities/measurementintervals/sourcehashes in newevidenceartifact; freeze/hash beforecandidateoutputs",
+                     "Candidate latercompares exact typedsubject with these earlierrawexpectedfacts; distinguish match from independentacceptance"
+                 ],
+    "no_complete_bootstrap_encoding":  "Canonicalbootstrap schema requiredfields include approvalmanifestID/digest/policy andgeneration. If anymandatoryauthorityfield missing, DO NOT encode zeros/generatedstandins or claim completedbootstrapcontextdigest. Retain raw measurements as evidenceonly until actual approved bindings exist.",
+    "still_NOT_ESTABLISHED":  [
+                                  "approval_manifest_id/digest andmanifest_v6 acceptedbinding",
+                                  "governedpolicyversion/digest andpositivelease applicability",
+                                  "independentlycurrentgenerationhighwater/registryrevision/tombstones",
+                                  "trustedHOST/DEPLOYMENTissuerprovenance/controlandacceptedexpectedmanifest",
+                                  "roleenrollment/authenticationcustody/sourceacceptance/admission",
+                                  "S03bridge andtwofullyqualifiedobservers/globaluniqueowner"
+                              ],
+    "what_may_be_created":  "Actual rawtestcluster/role/kernelmeasurements, boundedtestentity IDs andprovenance artifacts underexistingmandate; no newauthorityroot/key or historicalacceptance. An arbitrarynewtestUUID must never stand in for an approval/enrollment/generationfact.",
+    "next":  "Implement boundedpreReadermeasurementstage from theseexisting primitives, freeze originalraw expectedfacts separately, then continuecandidateobservations with missingauthorityfields explicitNOTEST."
+}

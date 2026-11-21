@@ -1,0 +1,69 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "BOUNDED_FIXED_SYSCALL_DELTA_AND_ERROR_MECHANICS_REVIEWED_NO_QUALIFICATION",
+    "oracle":  "../independent-fixed-syscall-scope-review/scope-review.json and frozenrequirementsbaseline",
+    "candidate_sha256":  "ce43f8f53fb150b7f2f7af94a301bb3a07b366df111640a31bf6eb12153d11ae",
+    "sourcebindings":  "source-bindings.json, additional-input-bindings.json",
+    "runtime":  {
+                    "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                    "caps":  "none",
+                    "candidate_mounts":  "native/buildreadonly",
+                    "db":  false,
+                    "root":  "readonly",
+                    "independent_calls":  46,
+                    "network":  "none",
+                    "uid":  "65534:65534",
+                    "writable":  "independent-fixed-syscall-native-review only"
+                },
+    "source_reconstruction":  [
+                                  "Diffv2tov3common.c onlyincludesnative_effects.h and replaces4libccalls; status/sourcegates/currentness/frame/terminalcode unchanged",
+                                  "native_effects.h guardsLinuxx86_64andnotILP32; LP64, timespec16/nsec8, stat144/dev0/ino8/mode24assertions match fields actually consumed",
+                                  "staticinline helper is private; fourcallers supply fixedsyscallnr and clockid/F_GETFL; no exported selector, publicABIunchanged",
+                                  "Clockerror shortcircuits before reading uninitializedtime; flagnegative/fstatnonzero/write negativeorlengthmismatch all publicrc-2",
+                                  "Independentreadelf shows onlySHA256_Init/Update/Final undefinedimports andexact2roleexports; fourlibcproviderimportsabsent. Harness dlsym PROVIDER lines still enumerate libc as harness diagnostics, not candidatecallproof"
+                              ],
+    "independent_experiments":  [
+                                    {
+                                        "record":  "health-execution.jsonl and census-execution.jsonl",
+                                        "result":  "Temporalstaleness/sourcegates/guardpages/metadata/replay retained; no unexpectedpositive",
+                                        "fixtures":  "Prior own17cases/role plus replay/conflict/ignoredpayload probes",
+                                        "cases":  42
+                                    },
+                                    {
+                                        "record":  "eagain-execution.jsonl",
+                                        "result":  "clock228,fctl72,fstat5,write1 eachpublicrc-2; clockUNKNOWNframe0; localsinkfailureframesnotpublishedbycontract",
+                                        "fixtures":  "New independent seccomp returnsEAGAIN only for fixedsyscall+fixedarg0",
+                                        "cases":  4
+                                    }
+                                ],
+    "creator_records":  {
+                            "observed":  "64synthetic+576property+8EIO+4queueddeferredcancellation executions exit0",
+                            "errorcases":  "InjectEIO eachfixedsyscall/sink withseccomp; verify no bytes/replayreemission; structurallyappropriate",
+                            "cancelcases":  "Queuebeforecall orafterpublication, thenexplicitpthread_testcancel; confirms deferredcancellationdoesnot occur insidecall for testedsetup; doesNOTinterruptduringwrite or testasynccancel",
+                            "source":  "regression.json",
+                            "reviewed_ascorroboration":  "Not substituted for independentcases or33native/66threat"
+                        },
+    "findings":  {
+                     "cancellation":  "NOT_FULLY_QUALIFIED",
+                     "new_reproduced_defects":  0,
+                     "counts":  "Frozen10frontiercounts not changed by thisreview",
+                     "effects":  "Candidate fourcall sites avoid libcclock/vDSO and writecancellationwrapper/TLSerrno dependency; kernelservices remain actualeffects"
+                 },
+    "limitations":  [
+                        "No independent duringwrite/asynccancel experiment; no safeownerpublication/cancellation policy established",
+                        "EAGAIN/EIO tested; independentEINTR/shortwrite/partialdelivery/clockfallthrough exhaustion notperformed",
+                        "No generic platformportability or kernelservicecorrectness/provenance claim",
+                        "No sourceacceptance or protectedowner/globalunique lifecycle or independentPAIRorigin/generationbarrier",
+                        "Onlypinnedcandidate reviewed; laterdelta requiresnewhashbinding"
+                    ],
+    "claims":  {
+                   "observer_established_or_accepted":  "NOT_GRANTED",
+                   "frozen33_66pass_counts_promoted":  false,
+                   "credential_custody":  "NOT_ESTABLISHED",
+                   "native_adapter_mechanics":  "BOUNDED_OBSERVED",
+                   "global_replay":  "NOT_ESTABLISHED",
+                   "self_approval":  false,
+                   "source_acceptance":  "NOT_ESTABLISHED"
+               },
+    "next":  "Resolve bounded cancellation/partialdelivery and ownerintegration predicates, separately account directkernel frontiers; continue source/observer qualification without automaticacceptance."
+}

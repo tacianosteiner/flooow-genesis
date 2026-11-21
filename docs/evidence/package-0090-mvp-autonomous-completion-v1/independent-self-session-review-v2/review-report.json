@@ -1,0 +1,70 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "BOUNDED_CHILD_REACQUISITION_AND_ENV_REPAIR_CONFIRMED_NO_ACCEPTANCE",
+    "oracle":  "../independent-proxy-scope-review/scope-review.json",
+    "source_bindings":  "source-bindings.json",
+    "input_hash_bound_before_run":  true,
+    "candidate_hash":  "2f3c738d590b0962d798685926f3b3320865a85a799a368f1d67bfd6b254ea5e",
+    "runtime":  {
+                    "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                    "security":  "no-new-privileges",
+                    "capabilities":  "none",
+                    "db":  "Two separate NEW tmpfs PostgreSQL clusters; no migrations/S03/V043/B02",
+                    "root":  "read-only",
+                    "command":  "docker-command.json",
+                    "input_mounts":  "readonly",
+                    "exit":  "Both0; pg_ctl stopped and --rm destroyed tmpfs",
+                    "network":  "none",
+                    "user":  "999:999"
+                },
+    "experiments":  [
+                        {
+                            "id":  "EXACT-CANDIDATE-POISONED-ENV",
+                            "injected":  "PGSERVICE nonexistent, PGHOST203.0.113.1, PGPASSFILE nonexistent, PGOPTIONS invalid_parameter",
+                            "record":  "execution.txt",
+                            "implementation":  "Unmodified current candidate source",
+                            "conclusion":  "Previous owner environment claim repaired for these tested inputs; no network attempted by successful local path",
+                            "result":  "Successful required SCRAM local fixed connection and all existing8negative child syscalls; sealed public4 read; fd inventory; retained backend"
+                        },
+                        {
+                            "id":  "INSTRUMENTED-ADDITIONAL-DENIALS",
+                            "injected":  "openat, socketpair, execve, clone, io_uring_setup, process_vm_writev direct syscalls",
+                            "record":  "additional-execution.txt",
+                            "implementation":  "Reviewer-only copy adds6negative assertions; creator source unchanged",
+                            "conclusion":  "Additional tested syscall omissions denied by default filter; not byte-identical original candidate execution",
+                            "result":  "All EPERM in both child probes; original normal path still passes"
+                        }
+                    ],
+    "static_review":  [
+                          "Architecture guard enforces AUDIT_ARCH_X86_64; unknown syscall numbers default EPERM; x32-tagged numbers do not match permitted syscall IDs",
+                          "Children install filter and run negatives before R ready, parent connects only after both R; no SQL socket inherited across fork/exec",
+                          "Child RLIMIT_NOFILE64 plus initial inventory and close_range cleanup; postreceipt checks4..63 only allowed exported fd",
+                          "No socket/connect/exec/open/clone/io_uring calls permitted after filter; existing private seqpacket fd3 is only inherited socket",
+                          "Parent clears env before libpq and supplies passfile=/dev/null sslmode/gssencmode disable, require_auth=scram-sha-256, empty options",
+                          "Mmap/mprotect/fcntl/recvmsg/sendmsg are unrestricted by arguments; this is bounded probe filter, not normative full participant confinement. Parent fixed send_export supplies only checked sealed read-only memfd."
+                      ],
+    "findings":  {
+                     "new_reproduced_defects":  0,
+                     "CUSTODY_ENV_02":  "REPAIRED_FOR_TESTED_OWNER_ENV",
+                     "CUSTODY_REACQUISITION_01":  "CONFINED_CHILD_REACQUISITION_DENIED_FOR_TESTED_CAPABILITIES"
+                 },
+    "scope_limits":  [
+                         "SameUID external unconfined process can still connect with known public test password; not covered by child confinement",
+                         "No actual distinct approved observer principal/enrollment/issuer/source acceptance",
+                         "No complete provider/syscall argument effect closure; fcntl can duplicate existing readonly export and mmap/mprotect can change local executable memory, without creating SQL socket under this filter",
+                         "Unrestricted SCM_RIGHTS reception does not itself authenticate issuer/type; exact fixed parent and received seals/read-only/fd inventory constrain this probe only",
+                         "PR_SET_DUMPABLE/EACCES checks not universal secrecy or kernel compromise resistance",
+                         "Assertions must remain enabled; compiling NDEBUG would invalidate security/probe behavior",
+                         "No original interval/current generation/challenge/target retained birth included in four-field source; cannot promote to S03 or census"
+                     ],
+    "claims":  {
+                   "self_approval":  false,
+                   "S03_bridge":  "NOT_IMPLEMENTED",
+                   "credential_custody":  "NOT_ESTABLISHED",
+                   "observers_established_or_accepted":  "NOT_GRANTED",
+                   "S02_roster":  "NOT_ESTABLISHED",
+                   "source_acceptance":  "NOT_ESTABLISHED",
+                   "real_disposable_custody_preparation":  "BOUNDED_OBSERVED"
+               },
+    "next":  "Continue existing resolver/qualified owner/independent origins and original-window/PAIR integration; retain exact bounded custody observations without source acceptance promotion."
+}

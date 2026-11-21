@@ -1,0 +1,34 @@
+{
+  "PARENT_AUTHORITY": "FLOOOW_MVP_AUTONOMOUS_COMPLETION_AUTHORITY_V1",
+  "CHILD_AUTHORITY_ID": "PACKAGE_0090_EXISTING_HOST_CONTROL_ORIGIN_DIRECT_READ_V1",
+  "PURPOSE": "Observe actual existing local HOST control executor for prospective custody",
+  "SCOPE": "Read-only existing local Docker daemon/context and selected Windows execution-principal/service/process metadata",
+  "INPUTS": [
+    "Existing Docker CLI/context",
+    "Current Windows principal",
+    "com.docker.service",
+    "com.docker.backend.exe"
+  ],
+  "PERMITTED_EFFECTS": [
+    "Direct Docker metadata reads",
+    "Direct CIM/OS identity metadata reads",
+    "Write new evidence"
+  ],
+  "PROHIBITED_EFFECTS": [
+    "DB",
+    "externalnetwork",
+    "credentials/tokens",
+    "service/process mutation",
+    "ExecutionPolicy change/bypass or script-file evaluation",
+    "policy/source approval",
+    "V043",
+    "B02"
+  ],
+  "PRECONDITIONS": "Parent grant; direct permitted commands only; no process/service started/stopped",
+  "EXIT_CONDITIONS": "Preserve observed/missing metadata; do not equate privilege/hash/UID with authority",
+  "EXPIRY_OR_TERMINATION": "End of bounded capture",
+  "PARENT_BOUNDARY_HASH_OR_REFERENCE": {
+    "path": "../authority-receipt.json",
+    "sha256": "8501280d373ecc1ba1c89e3655a8374162104e0c70cf425311348d4ddf899606"
+  }
+}

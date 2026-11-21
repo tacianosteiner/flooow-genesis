@@ -1,0 +1,72 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "ACTUAL_SEPARATED_OS_PRINCIPAL_PREPARATION_CONSTRAINTS_REPRODUCED",
+    "oracle":  "../independent-proxy-scope-review/scope-review.json",
+    "source_hashes_bound_before_run":  "source-bindings.json",
+    "runtime":  {
+                    "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                    "ports":  "none",
+                    "inputs":  "readonly",
+                    "root":  "read-only",
+                    "storage":  "NEW256MiB/tmp tmpfs per experiment",
+                    "bootstrap":  "uid0 onlySETUID/SETGID; no-new-privileges",
+                    "cleanup":  "pg_ctlstop observed; --rm destroys each container/tmpfs",
+                    "experiments":  2,
+                    "forbidden":  "No original/shared/prodDB,migrations,S03,V043,B02",
+                    "exit_codes":  [
+                                       0,
+                                       0
+                                   ],
+                    "network":  "none",
+                    "host_namespaces":  "none"
+                },
+    "experiments":  [
+                        {
+                            "record":  "execution.txt",
+                            "command":  "docker-command.json",
+                            "id":  "EXACT_CANDIDATE",
+                            "result":  "OwnerPID86,child87/88,Readerbackend89; source/childbytes and independently reconstructedSHA256 match; original intervals ordered"
+                        },
+                        {
+                            "record":  "dac-connection-execution.txt",
+                            "scope":  "Tests UID10001 DAC path, beyond candidate open-directory probe; does not exercise global credential secrecy",
+                            "command":  "Same NEW container shape plus readonly/review runner",
+                            "id":  "INDEPENDENT_DAC_REACQUISITION",
+                            "result":  "Separate unconfined process UID10001 uses knownpublic password to actual socket; PostgreSQL connection fails Permission denied BEFORE authentication; candidate then completes normally"
+                        }
+                    ],
+    "observations":  [
+                         "Root bootstrap creates two children, clears supplementary groups and drops to10001/10002 beforeexec; code asserts actualuid/gid, capget effective/permitted/inheritable allzero",
+                         "Owner similarly drops to10000 after both children are confined/ready; no supplementary groups; capgetzero; non-dumpable",
+                         "PG UID999 primaryGID10000; socketdirectory/socket0770 permits ownergroup, denies children beforeseccomp; PGDATA0700 only999",
+                         "Default-deny child filter remains beforeSQL acquisition; controlfd and sealedreadonlyexport retained, noSQLdescriptor",
+                         "Raw4field acquisition and child export observations include originalBOOTTIME start/finish, payloadhex andsha; independent reconstruction matches3/3",
+                         "SCRAM required, noTCP/host routes; role flags+zero memberships checked; sameconnection backend retained"
+                     ],
+    "findings":  {
+                     "capability_scope":  "Zero current effective/permitted/inheritable checked; bounding set retains bootstrapcaps but no-new-privileges prevents executable privilege gain in tested execution; no fullHOSTrelease claim",
+                     "new_reproduced_defects":  0,
+                     "previous_sameUID_child_reacquisition_gap":  "ADDRESSED_BY_TESTED_DAC_PLUS_SECCOMP_FOR_DECLARED_CHILD_PRINCIPALS"
+                 },
+    "material_limits":  [
+                            "Children are two readers of SAME sealed source export; they do not independently observe actual target process/session/auth/custody/generation and cannot satisfy HEALTH_GUARD/CENSUS independence",
+                            "DifferentUIDs and currentcapszero establish test OS separation only, not approved role identity/enrollment or distinct authority controllers",
+                            "Rootbootstrap issuer/control remains a single testcontroller; not independently accepted provisioning or root membership",
+                            "Public synthetic credential remains known; owner10000 and PG999/trusted bootstrap legitimately have endpoint access; no global credentialcustody or denial to allprincipals",
+                            "Observer filter argumentpolicies remain broad for mmap/mprotect/fcntl/sendmsg/recvmsg; sealedtype checks and fixed parent code constrain this probe, not allpotential channels",
+                            "Originalclock times lack independently qualified boot/time namespace/policy/barrier/challenge/generation source bindings",
+                            "Export fieldorder is datid,usesysid,pid,usename; explicit privateprep schema, not normativeS02order orS03 bridge",
+                            "Assertions/securitychecks depend on buildwithoutNDEBUG; completeprovider/buildclosure not independently established"
+                        ],
+    "claims":  {
+                   "self_approval":  false,
+                   "independent_observers":  "NOT_ESTABLISHED",
+                   "S02_roster":  "NOT_ESTABLISHED",
+                   "credential_custody":  "NOT_ESTABLISHED",
+                   "S03_bridge":  "NOT_IMPLEMENTED",
+                   "actual_source_acceptance":  "NOT_ESTABLISHED",
+                   "real_local_preparation":  "REPRODUCED",
+                   "canonical_admission":  "NOT_ESTABLISHED"
+               },
+    "next":  "Use measured process separation as preparation evidence; implement existing qualified source/owner/barrier/acceptance bindings and truly independent target observations before S03PAIR qualification."
+}

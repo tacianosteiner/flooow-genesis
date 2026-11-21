@@ -1,0 +1,114 @@
+﻿{
+    "role":  "PACKAGE_0090_ARTIFACT_INPUT_INDEPENDENT_VERIFIER",
+    "classification":  "CANDIDATE_TEMPORAL_COUNTEREXAMPLE_REQUIRES_PROSPECTIVE_REPAIR",
+    "branch":  "checkpoint/package-0090-cloud-handoff",
+    "head":  "91fab9497405c6fb933a58f2d8182f3e24de2e2a",
+    "frozen_baseline":  "cbc284f62d9bd09b7169b55c8d66a3c51a68c6cb",
+    "independence":  "Operationally separate new review context; not historical/global independence",
+    "requirements_before_candidate":  "requirements-baseline.json",
+    "hash_verification":  {
+                              "normative_files":  21,
+                              "elf":  "96b7b976681c249fbfafb1da30478b330ad8e6b86efcdf25dbc3ae8dee5d184a",
+                              "candidate_files":  59,
+                              "mismatches":  0
+                          },
+    "execution":  {
+                      "image":  "sha256:07fc165de5bb569d822460e2df645c5489f99220fc2cb16c86596d39db394561",
+                      "no_new_privileges":  true,
+                      "read_only_root":  true,
+                      "command":  "gcc -I/headers /out/contract_counterexamples.c -L/candidate -Wl,-rpath,/candidate -l:observer-candidate.so -lcrypto -o /out/contract_counterexamples \u0026\u0026 /out/contract_counterexamples",
+                      "database_loaded":  false,
+                      "writable_mount":  "independent-review only",
+                      "initial_launch_error":  "Image entrypoint already /bin/sh; corrected by explicit --entrypoint /bin/sh; no candidate execution on first failed attempt",
+                      "cap_drop":  "ALL",
+                      "result":  "execution-v3.jsonl",
+                      "network":  "none",
+                      "uid":  "65534:65534",
+                      "candidate_mount":  "read only"
+                  },
+    "hypotheses":  [
+                       "Original observation interval must be within approved bounded policy and challenge lease, not merely invocation clock",
+                       "Complete qualified same-domain diagnostic facts must retain deterministic priority",
+                       "Private value adapter cannot establish input acceptance or protected owner solely through structural equality"
+                   ],
+    "findings":  [
+                     {
+                         "expected":  "STALE, no positive evidence",
+                         "id":  "IR-TEMPORAL-01",
+                         "case":  1,
+                         "repair":  "Prospective candidate: validate original source interval within approved lease and appropriate protected source interval; retain exact provenance. Do not edit sealed predecessor",
+                         "mechanism":  "prepare compares invocation clock with not_before/expires but never checks original source start/finish against policy start",
+                         "actual":  "rc0 OBSERVED_MATCH diagnostics0",
+                         "contract":  "normative-common-types-and-boundaries.json#/TYPES/ObservationWindow/rule",
+                         "severity":  "HIGH"
+                     },
+                     {
+                         "id":  "IR-TEMPORAL-02",
+                         "repair":  "Define exact existing protected-window semantics and reject uncovered original span; independent PAIR consumer must cover combined original span and use",
+                         "contract":  "normative-common-types-and-boundaries.json#/CURRENTNESS",
+                         "case":  8,
+                         "actual":  "Original protected interval entirely before lease; current observation MATCH",
+                         "severity":  "REVIEW_REQUIRED",
+                         "mechanism":  "root window original interval committed but not checked against approved policy or source interval"
+                     },
+                     {
+                         "id":  "IR-DIAGNOSTICS-01",
+                         "qualification":  "Do not inspect unqualified source payload to add diagnostics. Only binding/interval metadata independently qualified and authorized despite missing public source can be required here. Origin-invalid case3 is intentionally fail-closed and not counted as defect.",
+                         "contract":  "observer-status-and-failure-rules.json#/rule",
+                         "case":  2,
+                         "actual":  "MISSING public source suppresses principal mismatch and inverted time diagnostics",
+                         "severity":  "CONDITIONAL"
+                     }
+                 ],
+    "positive_bounded_observations":  [
+                                          "case4 preserves two contradiction diagnostics",
+                                          "cases5/6/7 future, inverted and over-age source windows -\u003e STALE",
+                                          "same local terminal exact duplicate retains original digest and start; changed coverage -\u003e -6"
+                                      ],
+    "control_data_flow":  [
+                              "Two exported role entrypoints -\u003e invoke_once -\u003e root structural guards -\u003e semantic invocation digest -\u003e atomic owner cell CAS -\u003e fixed role compute -\u003e prepare -\u003e role checks -\u003e finish",
+                              "prepare gates observer identity before source comparisons; source comparisons before target/window/member facts",
+                              "finish serializes expected and optionally actual typed payload, computes SHA256 and writes once through nonblocking FIFO/socket matching device/inode",
+                              "Local terminal caches exact result/frame. Caller supplies terminal pointer; separate cells can repeat challenge, so global unique ownership is not established",
+                              "No independent source acceptance verifier, protected factory or PAIR consumer in these units; encoded consumer string is not invocation"
+                          ],
+    "claims":  {
+                   "self_approval":  false,
+                   "observers_established":  0,
+                   "source_acceptance":  "NOT_ESTABLISHED",
+                   "protected_integration":  "NOT_ESTABLISHED",
+                   "global_immutable_replay":  "NOT_ESTABLISHED",
+                   "observers_accepted":  0,
+                   "independent_pair_consumer":  "NOT_ESTABLISHED",
+                   "frozen_suite_pass_counts_increased":  false
+               },
+    "suite_assessment":  {
+                             "native33":  "N01..N33 obligations retained; these private synthetic comparisons cannot close source acquisition, acceptance, relation/effect and original source proof requirements",
+                             "structural33":  "10 named antecedent checks plus23 count-only legacy gap; preserve unresolved denominator and recover original exact requirements before claiming completeness",
+                             "provider_proof":  "Creator actual-selected-provider-static-proof.json inspected as evidence only. Does not establish independent source acceptance/origin/PAIR, nor was it independently replayed here",
+                             "threats66":  "Frozen N and A namespaces retained; no new IDs inferred"
+                         },
+    "authorized_remaining_work":  [
+                                      "Repair temporal adapter defect in new prospective candidate; narrow tests plus independent re-review",
+                                      "Implement protected ownership/publication and immutable input lifetime under existing owner; do not introduce new ledger",
+                                      "Bind existing source-root resolution and actual source acceptance gate; prohibit synthetic approval becoming production trust",
+                                      "Implement/reuse existing independent PAIR consumer revalidation and exact original-span coverage; keep evidence-only",
+                                      "Recover legacy23 structural requirements from antecedents without inventing names"
+                                  ],
+    "genuine_external_dependencies":  [
+                                          "Actual independently qualified principal/process/channel/source acceptance records if unavailable from authorized isolated environment; code or creator assertions cannot supply their truth",
+                                          "Any required real source/authority outside isolated authorized scope needs exact qualified input; broad mandate does not permit manufacturing it"
+                                      ],
+    "acceptance_conditions":  [
+                                  "Independent review of repaired candidate exact hashes",
+                                  "Actual qualified accepted sources and protected unique owner, distinct role principals/anchors/channels",
+                                  "Independent PAIR and source qualification/admission gates with original freshness and mutation barriers",
+                                  "All applicable frozen33native/66threat/33structural predicates resolved on their real scopes, with no synthetic PASS inheritance"
+                              ],
+    "limitations":  [
+                        "Synthetic harness exercises HEALTH_GUARD and shared common path; CENSUS implementation inspected statically, not independently exercised here",
+                        "No complete selected-provider transitive runtime effect audit performed by this review",
+                        "No full concurrent lifetime/revocation/ABA owner experiment",
+                        "No source acceptance or observer ESTABLISHED/ACCEPTED grant"
+                    ]
+}

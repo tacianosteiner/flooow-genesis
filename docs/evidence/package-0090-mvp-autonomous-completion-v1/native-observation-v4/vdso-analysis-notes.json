@@ -1,0 +1,24 @@
+{
+  "classification": "EVIDENCE_TOOL_FORMAT_DEFECT_REPAIRED",
+  "original": "Default objdump wrapped long instruction bytes onto continuation lines. Frozen line parser counted only first line, conservatively leaving false unmapped instruction addresses0xc64/0xd1f.",
+  "repair": "Use objdump -d -w so complete encoded instruction bytes and mnemonic are on one line; frozen parser functions unchanged.",
+  "preserved": [
+    "wrapped-disassembly-parser-defect.json",
+    "wrapped-vdso-disassembly.txt"
+  ],
+  "after": {
+    "instructions": 315,
+    "indirect": 0,
+    "unmapped": 0,
+    "syscalls": 1,
+    "TLS": 0
+  },
+  "scope": "Same captured8192byte own-child vDSO ELF; one kernel syscall frontier remains. No effect/source/platform qualification claimed. New observer-repair-v3 selects direct BOOTTIME syscall prospectively; this proof remains historical evidence for v2 dynamic provider capture.",
+  "bindings": {
+    "vdso.bin": "e8be083a61867cd6690506abfe20a6bfa232bdd46c5caa2093acb05a24b3e29c",
+    "wrapped-vdso-disassembly.txt": "2febb2feb28b8411a2790ce3cfbba51662e487b6c788d7c99cc174176707063e",
+    "vdso-disassembly.txt": "da19dea7b61fd2122b1d8067f1d5def09defb25e861ce1d871585f7e582b3c4e",
+    "vdso-static-proof.json": "7d5651fc9ede0ed1283a9bed39b0144f4a43c8ead29a30d77472765102144ac9",
+    "analyze_vdso.py": "2fe3bcbd426ae3cfc4ddf59754c844c918a7e87d934a4fda9498f3d3420119c7"
+  }
+}
